@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 1 ОГЭ - Информационный объём</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .task-type {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .task-type.delete {
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+      }
+
+      .task-type.add {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .task-text .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .quote {
+        background: #f5f7fa;
+        border-left: 4px solid #667eea;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-radius: 0 10px 10px 0;
+        font-style: italic;
+        color: #444;
+      }
+
+      .answer-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+
+      .answer-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .answer-input.correct {
+        border-color: #4caf50;
+        background: #e8f5e9;
+      }
+
+      .answer-input.incorrect {
+        border-color: #f44336;
+        background: #ffebee;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-solution {
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .result.correct {
+        display: block;
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-left: 4px solid #4caf50;
+        color: #2e7d32;
+      }
+
+      .result.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+        border-left: 4px solid #f44336;
+        color: #c62828;
+      }
+
+      .hint-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        display: none;
+      }
+
+      .hint-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .hint-box p {
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .solution-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .solution-box h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .solution-step {
+        background: white;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 3px solid #667eea;
+      }
+
+      .solution-step strong {
+        color: #667eea;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.theory {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .answer-input {
+          font-size: 1rem;
+          padding: 12px 15px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge1-t.html" class="back-link">📚 Теория</a>
+      </div>
+
+      <h1>🎮 Задание 1 ОГЭ — Информационный объём</h1>
+
+      <div class="task-card" id="taskCard">
+        <!-- Задача будет сгенерирована здесь -->
+      </div>
+
+      <div class="hint-box" id="hintBox">
+        <h4>💡 Подсказка</h4>
+        <p id="hintText"></p>
+      </div>
+
+      <div class="solution-box" id="solutionBox">
+        <h4>📝 Решение</h4>
+        <div id="solutionSteps"></div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn theory"
+        onclick="location.href = 'oge1-t.html'"
+        title="Теория"
+      >
+        📚
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      // Данные для генерации задач
+      const encodings = [
+        { name: "Unicode", bits: 16, bytes: 2 },
+        { name: "Unicode", bits: 32, bytes: 4 },
+        { name: "Unicode", bits: 8, bytes: 1, description: "UTF-8" },
+        { name: "KOI8-R", bits: 8, bytes: 1 },
+        { name: "Windows-1251", bits: 8, bytes: 1 },
+      ];
+
+      const subjects = [
+        {
+          theme: "истории",
+          person: "Вова",
+          items: [
+            "Наполеон",
+            "Цезарь",
+            "Александр",
+            "Пётр",
+            "Иван",
+            "Николай",
+            "Екатерина",
+            "Елизавета",
+            "Анна",
+            "Мария",
+          ],
+          itemName: "имя исторической личности",
+          itemNameAccusative: "одно имя исторической личности",
+          itemNamePlural: "имена исторических личностей",
+          itemNameInstrumental: "именами исторических личностей",
+          itemAdded: "добавленное имя исторической личности",
+          itemDeleted: "удалённое имя исторической личности",
+        },
+        {
+          theme: "географии",
+          person: "Петя",
+          items: [
+            "Москва",
+            "Омск",
+            "Уфа",
+            "Пермь",
+            "Казань",
+            "Тюмень",
+            "Оренбург",
+            "Челябинск",
+            "Екатеринбург",
+            "Владивосток",
+            "Красноярск",
+            "Новосибирск",
+            "Воронеж",
+            "Саратов",
+            "Волгоград",
+          ],
+          itemName: "город",
+          itemNameAccusative: "один город",
+          itemNamePlural: "города",
+          itemNameInstrumental: "названиями городов",
+          itemAdded: "добавленный город",
+          itemDeleted: "удалённый город",
+        },
+        {
+          theme: "биологии",
+          person: "Маша",
+          items: [
+            "лев",
+            "тигр",
+            "волк",
+            "лиса",
+            "заяц",
+            "медведь",
+            "олень",
+            "лось",
+            "барсук",
+            "енот",
+            "рысь",
+            "соболь",
+          ],
+          itemName: "животное",
+          itemNameAccusative: "одно животное",
+          itemNamePlural: "животные",
+          itemNameInstrumental: "названиями животных",
+          itemAdded: "добавленное животное",
+          itemDeleted: "удалённое животное",
+        },
+        {
+          theme: "астрономии",
+          person: "Олег",
+          items: [
+            "Меркурий",
+            "Венера",
+            "Земля",
+            "Марс",
+            "Юпитер",
+            "Сатурн",
+            "Уран",
+            "Нептун",
+            "Плутон",
+          ],
+          itemName: "планета",
+          itemNameAccusative: "одну планету",
+          itemNamePlural: "планеты",
+          itemNameInstrumental: "названиями планет",
+          itemAdded: "добавленную планету",
+          itemDeleted: "удалённую планету",
+        },
+        {
+          theme: "литературе",
+          person: "Анна",
+          items: [
+            "Пушкин",
+            "Лермонтов",
+            "Толстой",
+            "Достоевский",
+            "Чехов",
+            "Тургенев",
+            "Гоголь",
+            "Некрасов",
+            "Фет",
+            "Блок",
+            "Есенин",
+            "Маяковский",
+          ],
+          itemName: "поэт",
+          itemNameAccusative: "одного поэта",
+          itemNamePlural: "поэты",
+          itemNameInstrumental: "именами поэтов",
+          itemAdded: "добавленного поэта",
+          itemDeleted: "удалённого поэта",
+        },
+        {
+          theme: "математике",
+          person: "Дима",
+          items: [
+            "пи",
+            "кси",
+            "бета",
+            "гамма",
+            "лямбда",
+            "эпсилон",
+            "дельта",
+            "омега",
+            "сигма",
+            "тета",
+            "альфа",
+          ],
+          itemName: "буква греческого алфавита",
+          itemNameAccusative: "одну букву греческого алфавита",
+          itemNamePlural: "буквы греческого алфавита",
+          itemNameInstrumental: "буквами греческого алфавита",
+          itemAdded: "добавленную букву греческого алфавита",
+          itemDeleted: "удалённую букву греческого алфавита",
+        },
+        {
+          theme: "химии",
+          person: "Ирина",
+          items: [
+            "водород",
+            "кислород",
+            "азот",
+            "углерод",
+            "железо",
+            "медь",
+            "цинк",
+            "алюминий",
+            "кальций",
+            "натрий",
+            "калий",
+            "магний",
+          ],
+          itemName: "химический элемент",
+          itemNameAccusative: "один химический элемент",
+          itemNamePlural: "химические элементы",
+          itemNameInstrumental: "названиями химических элементов",
+          itemAdded: "добавленный химический элемент",
+          itemDeleted: "удалённый химический элемент",
+        },
+        {
+          theme: "ботанике",
+          person: "Лена",
+          items: [
+            "роза",
+            "тюльпан",
+            "пион",
+            "ирис",
+            "астра",
+            "георгин",
+            "гладиолус",
+            "нарцисс",
+            "лилия",
+            "орхидея",
+            "хризантема",
+            "гвоздика",
+          ],
+          itemName: "цветок",
+          itemNameAccusative: "один цветок",
+          itemNamePlural: "цветы",
+          itemNameInstrumental: "названиями цветов",
+          itemAdded: "добавленный цветок",
+          itemDeleted: "удалённый цветок",
+        },
+        {
+          theme: "геологии",
+          person: "Кирилл",
+          items: [
+            "кварц",
+            "полевой шпат",
+            "слюда",
+            "кальцит",
+            "гипс",
+            "галит",
+            "пирит",
+            "магнетит",
+            "гематит",
+            "графит",
+            "сера",
+            "тальк",
+          ],
+          itemName: "минерал",
+          itemNameAccusative: "один минерал",
+          itemNamePlural: "минералы",
+          itemNameInstrumental: "названиями минералов",
+          itemAdded: "добавленный минерал",
+          itemDeleted: "удалённый минерал",
+        },
+      ];
+
+      const units = ["бит", "байт"];
+      const operations = ["delete", "add"];
+
+      let currentTask = null;
+
+      // Генерация задачи
+      function generateTask() {
+        const encoding =
+          encodings[Math.floor(Math.random() * encodings.length)];
+        const subject = subjects[Math.floor(Math.random() * subjects.length)];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
+        const unit = units[Math.floor(Math.random() * units.length)];
+
+        // Выбираем элементы для списка с уникальными длинами
+        const shuffledItems = [...subject.items].sort(
+          () => Math.random() - 0.5,
+        );
+        const itemCount = Math.floor(Math.random() * 3) + 4; // 4-6 элементов
+
+        // Выбираем элементы так, чтобы все имели разную длину
+        const selectedItems = [];
+        const usedLengths = new Set();
+
+        for (const item of shuffledItems) {
+          if (selectedItems.length >= itemCount) break;
+          if (!usedLengths.has(item.length)) {
+            selectedItems.push(item);
+            usedLengths.add(item.length);
+          }
+        }
+
+        // Если не набрали минимум 4 элемента с уникальными длинами,
+        // выбираем другую тему (иначе ответ не будет однозначным)
+        if (selectedItems.length < 4) {
+          return generateTask();
+        }
+
+        // Выбираем целевой элемент (тот, который будет удалён или добавлен)
+        const targetItem =
+          selectedItems[Math.floor(Math.random() * selectedItems.length)];
+        const targetLength = targetItem.length;
+
+        // Вычисляем изменение объёма
+        // При удалении/добавлении слова: слово + запятая + пробел = длина + 2
+        const charCount = targetLength + 2;
+        let sizeChange;
+
+        if (unit === "бит") {
+          sizeChange = charCount * encoding.bits;
+        } else {
+          sizeChange = charCount * encoding.bytes;
+        }
+
+        // Формируем текст задачи
+        let taskText = "";
+        let itemsInText;
+
+        if (operation === "delete") {
+          itemsInText = selectedItems.join(", ");
+          taskText = generateDeleteTask(
+            encoding,
+            subject,
+            itemsInText,
+            targetItem,
+            sizeChange,
+            unit,
+          );
+        } else {
+          // Для добавления показываем текст ПОСЛЕ добавления (со всеми элементами)
+          itemsInText = selectedItems.join(", ");
+          taskText = generateAddTask(
+            encoding,
+            subject,
+            itemsInText,
+            targetItem,
+            sizeChange,
+            unit,
+          );
+        }
+
+        currentTask = {
+          answer: targetItem,
+          encoding: encoding,
+          charCount: charCount,
+          sizeChange: sizeChange,
+          unit: unit,
+          operation: operation,
+          targetLength: targetLength,
+        };
+
+        renderTask(taskText, operation, subject.itemName);
+        hideHintsAndSolution();
+      }
+
+      function generateDeleteTask(
+        encoding,
+        subject,
+        itemsInText,
+        targetItem,
+        sizeChange,
+        unit,
+      ) {
+        const encodingDesc = encoding.description
+          ? `${encoding.name} (${encoding.description})`
+          : encoding.name;
+
+        return `
+          <p>В одной из кодировок ${encodingDesc} каждый символ кодируется <span class="highlight">${encoding.bits} битами</span>.</p>
+          <p>При подготовке сообщения по ${subject.theme} ${subject.person} написал текст (в нём нет лишних пробелов):</p>
+          <div class="quote">«Такие ${subject.itemNamePlural}, как ${itemsInText}, известны многим.»</div>
+          <p>Затем ${subject.person} удалил из списка ${subject.itemNameAccusative}, а также лишние запятую и пробел — два пробела не должны идти подряд.</p>
+          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${sizeChange} ${unit}</span> меньше, чем размер исходного предложения.</p>
+          <p>Напишите в ответе ${subject.itemDeleted}.</p>
+        `;
+      }
+
+      function generateAddTask(
+        encoding,
+        subject,
+        itemsInText,
+        targetItem,
+        sizeChange,
+        unit,
+      ) {
+        const encodingDesc = encoding.description
+          ? `${encoding.name} (${encoding.description})`
+          : encoding.name;
+
+        return `
+          <p>В одной из кодировок ${encodingDesc} каждый символ кодируется <span class="highlight">${encoding.bits} битами</span>.</p>
+          <p>При подготовке реферата по ${subject.theme} ${subject.person} написал текст с ${subject.itemNameInstrumental}. Затем ${subject.person} добавил в текст ещё ${subject.itemNameAccusative}, вставив также необходимые пробелы и знаки препинания, после чего текст стал таким:</p>
+          <div class="quote">«Такие ${subject.itemNamePlural}, как ${itemsInText}, известны многим.»</div>
+          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${sizeChange} ${unit}</span> больше, чем размер исходного предложения.</p>
+          <p>Напишите в ответе ${subject.itemAdded}.</p>
+        `;
+      }
+
+      function renderTask(taskText, operation, itemName) {
+        const taskCard = document.getElementById("taskCard");
+        const typeLabel =
+          operation === "delete" ? "Удаление слова" : "Добавление слова";
+        const typeClass = operation === "delete" ? "delete" : "add";
+
+        taskCard.innerHTML = `
+          <div class="task-header">
+            <span class="task-type ${typeClass}">${typeLabel}</span>
+          </div>
+          <div class="task-text">${taskText}</div>
+          <div class="answer-section">
+            <label class="answer-label">Ваш ответ:</label>
+            <input type="text" class="answer-input" id="answerInput" placeholder="Введите ${itemName}..." autocomplete="off">
+            <div class="buttons">
+              <button class="btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
+              <button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button>
+              <button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button>
+              <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
+            </div>
+            <div class="result" id="result"></div>
+          </div>
+        `;
+
+        // Добавляем обработчик Enter
+        document
+          .getElementById("answerInput")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              checkAnswer();
+            }
+          });
+
+        document.getElementById("answerInput").focus();
+      }
+
+      function checkAnswer() {
+        const input = document.getElementById("answerInput");
+        const result = document.getElementById("result");
+        const userAnswer = input.value.trim().toLowerCase();
+        const correctAnswer = currentTask.answer.toLowerCase();
+
+        if (!userAnswer) {
+          input.focus();
+          return;
+        }
+
+        if (userAnswer === correctAnswer) {
+          input.classList.remove("incorrect");
+          input.classList.add("correct");
+          result.className = "result correct";
+          result.innerHTML = "✅ Правильно! Отличная работа!";
+        } else {
+          input.classList.remove("correct");
+          input.classList.add("incorrect");
+          result.className = "result incorrect";
+          result.innerHTML = `❌ Неправильно. Правильный ответ: <strong>${currentTask.answer}</strong>`;
+        }
+      }
+
+      function nextTask() {
+        generateTask();
+      }
+
+      function showHint() {
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+
+        // Размер символа в тех же единицах, что и изменение объёма
+        const charSize =
+          currentTask.unit === "бит"
+            ? currentTask.encoding.bits
+            : currentTask.encoding.bytes;
+
+        hintText.innerHTML = `
+          <strong>Шаг 1:</strong> Определите размер одного символа.<br>
+          В данной кодировке один символ = ${charSize} ${currentTask.unit}.<br><br>
+          <strong>Шаг 2:</strong> Найдите количество изменённых символов.<br>
+          Изменение объёма = ${currentTask.sizeChange} ${currentTask.unit}.<br>
+          Количество символов = ${currentTask.sizeChange} ÷ ${charSize} = ${currentTask.charCount} символов.<br><br>
+          <strong>Шаг 3:</strong> Вычтите 2 символа (запятая и пробел).<br>
+          Длина слова = ${currentTask.charCount} - 2 = ${currentTask.targetLength} символов.<br><br>
+          <strong>Шаг 4:</strong> Найдите в тексте слово из ${currentTask.targetLength} символов.
+        `;
+
+        hintBox.style.display = "block";
+      }
+
+      function showSolution() {
+        const solutionBox = document.getElementById("solutionBox");
+        const solutionSteps = document.getElementById("solutionSteps");
+
+        const operation =
+          currentTask.operation === "delete" ? "удалено" : "добавлено";
+        const operationWord =
+          currentTask.operation === "delete" ? "удалении" : "добавлении";
+
+        // Размер символа в тех же единицах, что и изменение объёма
+        const charSize =
+          currentTask.unit === "бит"
+            ? currentTask.encoding.bits
+            : currentTask.encoding.bytes;
+
+        solutionSteps.innerHTML = `
+          <div class="solution-step">
+            <strong>1. Определяем размер одного символа:</strong><br>
+            В кодировке ${currentTask.encoding.name} каждый символ кодируется ${currentTask.encoding.bits} бит = ${currentTask.encoding.bytes} байт.<br>
+            Размер одного символа = ${charSize} ${currentTask.unit}.
+          </div>
+          <div class="solution-step">
+            <strong>2. Находим количество изменённых символов:</strong><br>
+            При ${operationWord} слова размер изменился на ${currentTask.sizeChange} ${currentTask.unit}.<br>
+            Количество символов = ${currentTask.sizeChange} ${currentTask.unit} ÷ ${charSize} ${currentTask.unit} = ${currentTask.charCount} символов.
+          </div>
+          <div class="solution-step">
+            <strong>3. Вычисляем длину искомого слова:</strong><br>
+            При ${operationWord} слова также ${operation === "удалено" ? "удаляются" : "добавляются"} запятая и пробел (+2 символа).<br>
+            Длина слова = ${currentTask.charCount} - 2 = ${currentTask.targetLength} символов.
+          </div>
+          <div class="solution-step">
+            <strong>4. Находим слово нужной длины:</strong><br>
+            Ищем в тексте слово из ${currentTask.targetLength} символов.<br>
+            Это слово: <strong>${currentTask.answer}</strong>
+          </div>
+          <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <strong>Ответ: ${currentTask.answer}</strong>
+          </div>
+        `;
+
+        solutionBox.style.display = "block";
+      }
+
+      function hideHintsAndSolution() {
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("solutionBox").style.display = "none";
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Инициализация
+      generateTask();
+    </script>
+  </body>
+</html>

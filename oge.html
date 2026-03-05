@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ОГЭ - Задания по информатике</title>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2.2rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 40px;
+        font-size: 1.1rem;
+      }
+
+      .back-link {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .task-card > a.task-card-link {
+        padding: 30px 30px 15px 30px;
+      }
+
+      .task-card > a:not(.task-card-link) {
+        padding: 30px;
+      }
+
+      .task-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .task-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .theory-link {
+        display: block;
+        margin-top: auto;
+        padding: 15px 20px;
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 0 0 20px 20px;
+        font-size: 1.4rem;
+        font-weight: 600;
+        transition: filter 0.2s;
+      }
+
+      .theory-link:hover {
+        filter: brightness(1.1);
+      }
+
+      .task-number {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .task-card:nth-child(1) .task-number {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
+      }
+
+      .task-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .task-description {
+        font-size: 0.95rem;
+        color: #666;
+        line-height: 1.5;
+      }
+
+      .task-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+      }
+
+      .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .footer-instruction {
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 10px;
+      }
+
+      .footer-copyright {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .footer-github {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        transition: background 0.3s;
+      }
+
+      .footer-github:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .footer-github svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      .badge {
+        display: inline-block;
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.6rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+          margin-bottom: 30px;
+        }
+
+        .task-card {
+          padding: 25px 20px;
+        }
+
+        .task-number {
+          width: 60px;
+          height: 60px;
+          font-size: 1.5rem;
+        }
+
+        .task-title {
+          font-size: 1.1rem;
+        }
+
+        .task-description {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="http://vpr.nayanovaacademy.ru/" class="back-link">← К ВПР</a>
+
+      <h1>🎓 ОГЭ - Информатика</h1>
+      <p class="subtitle">
+        Интерактивные задания для подготовки к основному государственному
+        экзамену
+      </p>
+
+      <div class="tasks-grid">
+        <div class="task-card">
+          <a href="oge1.html" class="task-card-link">
+            <div class="task-number">1</div>
+            <div class="task-icon">💾</div>
+            <h2 class="task-title">Информационный объём</h2>
+            <p class="task-description">
+              Определите информационный объём сообщения. Задачи на кодирование
+              текста, вычисление объёма при удалении и добавлении слов.
+            </p>
+          </a>
+          <a href="oge1-t.html" class="theory-link">📚 Теория</a>
+        </div>
+
+        <div class="task-card">
+          <a href="oge2.html" class="task-card-link">
+            <div class="task-number">2</div>
+            <div class="task-icon">📻</div>
+            <h2 class="task-title">Декодирование сообщений</h2>
+            <p class="task-description">
+              Расшифруйте закодированное сообщение, используя таблицу кодов.
+              Задачи на применение условия Фано.
+            </p>
+          </a>
+          <a href="oge2-t.html" class="theory-link">📚 Теория</a>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div class="footer-content">
+          <p class="footer-instruction">Выберите задание для начала работы</p>
+          <p class="footer-copyright">Copyright © 2026 Bezuglov Sergey</p>
+          <a
+            href="https://github.com/BesuglovS/vpr7"
+            class="footer-github"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
+              />
+            </svg>
+            GitHub
+          </a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

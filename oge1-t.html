@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория - Задание 1 ОГЭ - Информационный объём</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .task-type-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #667eea;
+      }
+
+      .task-type-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .task-type-card p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge1.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>📚 Теория: Задание 1 ОГЭ — Информационный объём</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что такое информационный объём?</h2>
+        <p>
+          <strong>Информационный объём</strong> — это количество информации,
+          которое содержит сообщение, текст, файл или другой информационный
+          объект. Информационный объём измеряется в специальных единицах.
+        </p>
+        <p>
+          Каждый символ текста занимает определённое место в памяти компьютера.
+          Размер этого места зависит от <strong>кодировки</strong> — способа
+          представления символов в виде чисел.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📏 Единицы измерения информации</h2>
+
+        <h3>🔢 Бит — минимальная единица</h3>
+        <p>
+          <strong>Бит (bit)</strong> — минимальная единица измерения информации.
+          Один бит может принимать только два значения: 0 или 1. Это двоичный
+          разряд.
+        </p>
+
+        <h3>🔤 Байт — основная единица</h3>
+        <p>
+          <strong>Байт (byte)</strong> — основная единица измерения информации.
+          <span class="highlight">1 байт = 8 бит</span>.
+        </p>
+        <p>
+          Один байт достаточен для кодирования одного символа текста в кодировке
+          ASCII или KOI8-R.
+        </p>
+
+        <h3>📊 Производные единицы</h3>
+        <table class="units-table">
+          <tr>
+            <th>Единица</th>
+            <th>Значение в байтах</th>
+            <th>Значение в битах</th>
+          </tr>
+          <tr>
+            <td>1 байт</td>
+            <td>1 байт</td>
+            <td>8 бит</td>
+          </tr>
+          <tr>
+            <td>1 Килобайт (Кбайт)</td>
+            <td>1024 байт</td>
+            <td>8192 бит</td>
+          </tr>
+          <tr>
+            <td>1 Мегабайт (Мбайт)</td>
+            <td>1024 Кбайт = 1 048 576 байт</td>
+            <td>8 388 608 бит</td>
+          </tr>
+          <tr>
+            <td>1 Гигабайт (Гбайт)</td>
+            <td>1024 Мбайт</td>
+            <td>8 589 934 592 бит</td>
+          </tr>
+        </table>
+
+        <div class="warning-box">
+          <h4>⚠️ Важно помнить!</h4>
+          <p>В задачах ОГЭ используются <strong>двоичные приставки</strong>:</p>
+          <ul>
+            <li>1 Кбайт = 2<sup>10</sup> = 1024 байт (не 1000!)</li>
+            <li>1 Мбайт = 2<sup>20</sup> = 1024 Кбайт</li>
+            <li>1 Гбайт = 2<sup>30</sup> = 1024 Мбайт</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Кодировки символов</h2>
+        <p>
+          <strong>Кодировка</strong> — это таблица соответствия между символами
+          и их числовыми кодами. От кодировки зависит, сколько байт занимает
+          один символ.
+        </p>
+
+        <table class="units-table">
+          <tr>
+            <th>Кодировка</th>
+            <th>Размер символа</th>
+            <th>Описание</th>
+          </tr>
+          <tr>
+            <td>ASCII</td>
+            <td>1 байт (8 бит)</td>
+            <td>Английские буквы, цифры, знаки</td>
+          </tr>
+          <tr>
+            <td>KOI8-R</td>
+            <td>1 байт (8 бит)</td>
+            <td>Русские буквы (кириллица)</td>
+          </tr>
+          <tr>
+            <td>Windows-1251</td>
+            <td>1 байт (8 бит)</td>
+            <td>Русские буквы (кириллица)</td>
+          </tr>
+          <tr>
+            <td>Unicode (UTF-16)</td>
+            <td>2 байта (16 бит)</td>
+            <td>Универсальная кодировка</td>
+          </tr>
+          <tr>
+            <td>Unicode (UTF-32)</td>
+            <td>4 байта (32 бита)</td>
+            <td>Универсальная кодировка</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Формулы для решения задач</h2>
+
+        <div class="formula-box">
+          <div class="formula">I = K × i</div>
+          <div class="formula-description">
+            I — информационный объём сообщения (в битах или байтах)<br />
+            K — количество символов в сообщении<br />
+            i — информационный вес одного символа (в битах или байтах)
+          </div>
+        </div>
+
+        <h3>📐 Формула для изменения объёма при редактировании</h3>
+        <div class="formula-box">
+          <div class="formula">ΔI = ΔK × i</div>
+          <div class="formula-description">
+            ΔI — изменение информационного объёма<br />
+            ΔK — изменение количества символов<br />
+            i — информационный вес одного символа
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>💡 Полезные соотношения</h4>
+          <ul>
+            <li>
+              Чтобы перевести биты в байты: <strong>разделить на 8</strong>
+            </li>
+            <li>
+              Чтобы перевести байты в биты: <strong>умножить на 8</strong>
+            </li>
+            <li>
+              При удалении слова удаляются также запятая и пробел (+2 символа)
+            </li>
+            <li>
+              При добавлении слова добавляются также запятая и пробел (+2
+              символа)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Типы задач задания 1 ОГЭ</h2>
+
+        <div class="task-types">
+          <div class="task-type-card">
+            <h4>🗑️ Удаление слова</h4>
+            <p>
+              Из текста удаляется слово. Нужно определить, какое слово удалили,
+              зная изменение размера файла.
+            </p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>➕ Добавление слова</h4>
+            <p>
+              В текст добавляется слово. Нужно определить, какое слово добавили,
+              зная изменение размера файла.
+            </p>
+          </div>
+        </div>
+
+        <h3>🔍 Алгоритм решения</h3>
+        <ol>
+          <li>Определить размер одного символа в байтах (из условия)</li>
+          <li>Найти изменение количества символов: <code>ΔK = ΔI / i</code></li>
+          <li>
+            Вычесть 2 символа (запятая и пробел):
+            <code>длина_слова = ΔK - 2</code>
+          </li>
+          <li>Найти слово нужной длины в тексте</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Примеры решения задач</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Удаление слова</h4>
+          <p>
+            <strong>Условие:</strong> В кодировке Unicode каждый символ
+            кодируется 16 битами. Вова написал текст: «Города России: Москва,
+            Санкт-Петербург, Новгород». Вова удалил из списка один город, а
+            также лишние запятую и пробел. Размер нового предложения оказался на
+            20 байт меньше. Напишите в ответе удалённый город.
+          </p>
+          <div class="example-solution">
+            <strong>Решение:</strong><br />
+            1. Размер символа: 16 бит = 2 байта<br />
+            2. Изменение количества символов: 20 байт / 2 байта = 10 символов<br />
+            3. Длина удалённого слова: 10 - 2 = 8 символов (без запятой и
+            пробела)<br />
+            4. Считаем длины городов: Москва (6), Санкт-Петербург (15), Новгород
+            (8)<br />
+            <strong>Ответ: Новгород</strong>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Добавление слова</h4>
+          <p>
+            <strong>Условие:</strong> В кодировке KOI8-R каждый символ
+            кодируется 8 битами. Петя написал текст с названиями планет. Затем
+            он добавил название ещё одной планеты. Размер нового предложения
+            оказался на 9 байт больше. Напишите в ответе добавленную планету.
+            Текст после добавления: «Планеты: Меркурий, Венера, Земля, Марс,
+            Юпитер»
+          </p>
+          <div class="example-solution">
+            <strong>Решение:</strong><br />
+            1. Размер символа: 8 бит = 1 байт<br />
+            2. Изменение количества символов: 9 байт / 1 байт = 9 символов<br />
+            3. Длина добавленного слова: 9 - 2 = 7 символов (без запятой и
+            пробела)<br />
+            4. Считаем длины планет: Меркурий (8), Венера (6), Земля (5), Марс
+            (4), Юпитер (7)<br />
+            <strong>Ответ: Юпитер</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Забыть про запятую и пробел</strong> — при
+            удалении/добавлении слова всегда учитывайте 2 дополнительных символа
+          </li>
+          <li>
+            <strong>Перепутать биты и байты</strong> — внимательно читайте
+            условие, в каких единицах дано изменение объёма
+          </li>
+          <li>
+            <strong>Неправильный перевод единиц</strong> — 1 байт = 8 бит, а не
+            10
+          </li>
+          <li>
+            <strong>Не учесть кодировку</strong> — Unicode может быть 16 бит или
+            32 бита
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 План решения задачи</h2>
+        <ol>
+          <li>📝 Внимательно прочитайте условие</li>
+          <li>🔢 Определите размер одного символа (в битах или байтах)</li>
+          <li>📊 Найдите изменение количества символов: ΔK = ΔI / i</li>
+          <li>✂️ Вычтите 2 (запятая и пробел): длина_слова = ΔK - 2</li>
+          <li>🔍 Найдите слово нужной длины в тексте</li>
+          <li>✅ Запишите ответ</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge1.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

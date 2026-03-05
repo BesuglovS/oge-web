@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 2 ОГЭ - Декодирование сообщений</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.6rem;
+      }
+
+      .back-link {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .instructions {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 0.95rem;
+        color: #333;
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 25px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #2c3e50 0%, #4ca1af 100%);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-weight: bold;
+        font-family: "Courier New", monospace;
+      }
+
+      .task-text .message {
+        background: #f8f9fa;
+        border: 2px solid #4ca1af;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 1.3rem;
+        letter-spacing: 3px;
+        display: block;
+        margin: 15px 0;
+        word-break: break-all;
+      }
+
+      .message-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 2px solid #4ca1af;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        gap: 0;
+      }
+
+      .message-char {
+        font-family: "Courier New", monospace;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2c3e50;
+        padding: 5px 2px;
+        user-select: none;
+      }
+
+      .message-divider-slot {
+        width: 8px;
+        height: 100%;
+        min-height: 30px;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        transition: background 0.2s;
+      }
+
+      .message-divider-slot:hover {
+        background: rgba(76, 161, 175, 0.2);
+      }
+
+      .message-divider-slot.has-divider::after {
+        content: "";
+        position: absolute;
+        width: 3px;
+        height: 80%;
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+        border-radius: 2px;
+        box-shadow: 0 0 5px rgba(235, 51, 73, 0.5);
+      }
+
+      .message-divider-slot:hover.has-divider::after {
+        background: linear-gradient(145deg, #c0392b 0%, #e74c3c 100%);
+      }
+
+      .divider-hint {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 5px;
+        font-style: italic;
+      }
+
+      .code-table-container {
+        overflow-x: auto;
+        margin: 20px 0;
+      }
+
+      .code-table {
+        width: auto;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+      }
+
+      .code-table th,
+      .code-table td {
+        border: 2px solid #e0e0e0;
+        padding: 12px 20px;
+        text-align: center;
+        min-width: 70px;
+      }
+
+      .code-table th {
+        background: linear-gradient(145deg, #2c3e50 0%, #4ca1af 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .code-table td {
+        font-family: "Courier New", monospace;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .code-table td.letter {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        font-size: 1.3rem;
+      }
+
+      .answer-section {
+        margin-top: 25px;
+        text-align: center;
+      }
+
+      .answer-label {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .answer-input {
+        width: 300px;
+        max-width: 100%;
+        padding: 15px 20px;
+        font-size: 1.2rem;
+        border: 3px solid #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        transition: border-color 0.3s;
+        text-transform: uppercase;
+      }
+
+      .answer-input:focus {
+        outline: none;
+        border-color: #4ca1af;
+      }
+
+      .answer-input.correct {
+        border-color: #38ef7d;
+        background: rgba(56, 239, 125, 0.1);
+      }
+
+      .answer-input.incorrect {
+        border-color: #f45c43;
+        background: rgba(244, 92, 67, 0.1);
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-reset {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .feedback {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        display: none;
+      }
+
+      .feedback.correct {
+        display: block;
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .feedback.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+      }
+
+      .hint-box {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 15px 20px;
+        margin-top: 20px;
+        border-radius: 0 10px 10px 0;
+        display: none;
+      }
+
+      .hint-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .hint-step {
+        margin: 10px 0;
+        padding: 10px 15px;
+        background: rgba(33, 150, 243, 0.1);
+        border-radius: 8px;
+        line-height: 1.6;
+        font-family: "Courier New", monospace;
+      }
+
+      .hint-step .code-part {
+        background: rgba(33, 150, 243, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .hint-step .letter-part {
+        color: #11998e;
+        font-weight: bold;
+      }
+
+      .hint-step .result {
+        color: #1565c0;
+        font-weight: bold;
+      }
+
+      .fano-toggle {
+        background: linear-gradient(145deg, #fff3cd 0%, #ffe69c 100%);
+        border-left: 4px solid #ffc107;
+        padding: 12px 15px;
+        margin: 15px 0;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        user-select: none;
+      }
+
+      .fano-toggle:hover {
+        background: linear-gradient(145deg, #ffe69c 0%, #ffd93d 100%);
+      }
+
+      .fano-toggle-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .fano-toggle-title {
+        font-weight: bold;
+        color: #856404;
+      }
+
+      .fano-toggle-icon {
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .fano-toggle.open .fano-toggle-icon {
+        transform: rotate(180deg);
+      }
+
+      .fano-content {
+        display: none;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #ffc107;
+        color: #856404;
+      }
+
+      .fano-toggle.open .fano-content {
+        display: block;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .code-table th,
+        .code-table td {
+          padding: 8px 12px;
+          font-size: 1rem;
+        }
+
+        .answer-input {
+          width: 100%;
+          padding: 12px 15px;
+          font-size: 1rem;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+      <a href="oge2-t.html" class="back-link">📚 Теория</a>
+      <h1>📻 Задание 2 ОГЭ — Декодирование сообщений</h1>
+
+      <div class="instructions">
+        Расшифруйте закодированное сообщение, используя таблицу кодов. Код
+        удовлетворяет условию Фано.
+      </div>
+
+      <div class="task-card">
+        <div class="task-text" id="taskText">Загрузка задания...</div>
+
+        <div class="fano-toggle" id="fanoToggle" onclick="toggleFano()">
+          <div class="fano-toggle-header">
+            <span class="fano-toggle-title">💡 Условие Фано (подсказка)</span>
+            <span class="fano-toggle-icon">▼</span>
+          </div>
+          <div class="fano-content" id="fanoText"></div>
+        </div>
+
+        <div class="code-table-container">
+          <table class="code-table" id="codeTable">
+            <thead>
+              <tr id="tableHeader"></tr>
+            </thead>
+            <tbody>
+              <tr id="tableCodes"></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="answer-section">
+          <label class="answer-label">Введите расшифрованное сообщение:</label>
+          <input
+            type="text"
+            class="answer-input"
+            id="answerInput"
+            placeholder="Ответ..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="hint-box" id="hintBox">
+          <h4>💡 Подсказка — ход декодирования:</h4>
+          <div id="hintSteps"></div>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <div id="feedbackText"></div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn btn-check" onclick="checkAnswer()">
+            ✓ Проверить
+          </button>
+          <button class="btn btn-hint" onclick="showHint()">
+            💡 Подсказка
+          </button>
+          <button class="btn btn-reset" onclick="resetGame()">
+            🔄 Новая задача
+          </button>
+        </div>
+
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-value" id="correctCount">0</div>
+            <div class="stat-label">Правильно</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label">Всего</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentTask = null;
+      let answered = false;
+      let stats = { correct: 0, total: 0 };
+
+      // Символы для кодирования
+      const symbolPairs = [
+        { symbols: ["0", "1"], name: "0 и 1" },
+        { symbols: ["+", "-"], name: "+ и −" },
+        { symbols: ["#", "@"], name: "# и @" },
+        { symbols: ["*", "^"], name: "* и ^" },
+      ];
+
+      // Дополнительные буквы для добавления в таблицу (не используются в словах)
+      const extraLetters = [
+        "Д",
+        "З",
+        "Ж",
+        "Э",
+        "Ю",
+        "Я",
+        "Ц",
+        "Ч",
+        "Ш",
+        "Щ",
+        "Ф",
+        "Х",
+        "Ь",
+        "Ъ",
+      ];
+
+      // Слова для кодирования (осмысленные слова от 4 до 7 букв)
+      // Каждый набор содержит буквы для кодирования
+      const wordSets = [
+        {
+          letters: ["К", "О", "Т", "А", "М", "Р"],
+          words: [
+            "КАТОК",
+            "МОТОР",
+            "ТРАКТ",
+            "КОМАР",
+            "МАРКА",
+            "КАРТА",
+            "ТРОТ",
+            "ТОРТ",
+          ],
+        },
+        {
+          letters: ["М", "И", "Р", "А", "П", "Г"],
+          words: ["ПИРАТ", "ГРАФ", "ПАРТА", "РИФМА", "МАРКА", "ГРАММ"],
+        },
+        {
+          letters: ["Л", "Е", "Т", "О", "А", "С"],
+          words: [
+            "ЛЕТО",
+            "ТЕЛО",
+            "ЛОСЬ",
+            "СОЛЬ",
+            "САЛО",
+            "СЕЛО",
+            "ТЕМА",
+            "АТЛЕТ",
+          ],
+        },
+        {
+          letters: ["С", "О", "Н", "А", "К", "Т"],
+          words: [
+            "КОСА",
+            "СОТКА",
+            "НАСОС",
+            "КАСТА",
+            "КОНУС",
+            "СТОК",
+            "ТОСКА",
+            "КОНТОРА",
+          ],
+        },
+        {
+          letters: ["В", "О", "Л", "А", "К", "С"],
+          words: [
+            "ВОЛК",
+            "КЛОУН",
+            "СЛОВО",
+            "ВАЛУН",
+            "КЛАСС",
+            "ОКЛАД",
+            "СКЛАД",
+            "ВОЛНА",
+          ],
+        },
+        {
+          letters: ["Р", "О", "Т", "А", "К", "С"],
+          words: [
+            "РОСТ",
+            "ТРОС",
+            "КАСТА",
+            "СТРОКА",
+            "КОРА",
+            "РАКЕТА",
+            "КАССА",
+            "ТРАКТОР",
+          ],
+        },
+        {
+          letters: ["П", "А", "Р", "Т", "О", "К"],
+          words: [
+            "ПОРТ",
+            "РОСТ",
+            "ТАНК",
+            "ПАРТА",
+            "КАРТА",
+            "ТОПКА",
+            "ТРОПА",
+            "КАПОР",
+            "ПОРТРЕТ",
+          ],
+        },
+        {
+          letters: ["Б", "А", "К", "Р", "Т", "О"],
+          words: ["БРАТ", "БАРТОН", "ТАБОР", "РАБОТА", "КАБАН", "БАНК", "ТАБУ"],
+        },
+        {
+          letters: ["З", "О", "Н", "А", "К", "В"],
+          words: ["ЗОНТ", "КЛИН", "ЗВОН", "ЗНАК", "ВОЛНА", "СКАЗКА", "ЗАВОД"],
+        },
+        {
+          letters: ["Д", "О", "М", "А", "Р", "К"],
+          words: [
+            "ДОМА",
+            "ДРОБЬ",
+            "КОМАР",
+            "МОРД",
+            "ДРАМА",
+            "КАДР",
+            "МАРКА",
+            "ДРЕЛЬ",
+          ],
+        },
+        {
+          letters: ["Г", "О", "Р", "А", "М", "Т"],
+          words: ["ГОРА", "ГРОТ", "РОГА", "ТОРГ", "ГРОМАДА", "ГРАММ", "МАРКА"],
+        },
+        {
+          letters: ["Ш", "К", "О", "Л", "А", "Н"],
+          words: ["ШКОЛА", "ШАЛУН", "КАША", "ЛУНА", "ШКАФ", "ШПАЛА", "КАЛАН"],
+        },
+      ];
+
+      // Проверка прямого условия Фано (никакое кодовое слово не является началом другого)
+      function checkDirectFano(codes) {
+        for (let i = 0; i < codes.length; i++) {
+          for (let j = 0; j < codes.length; j++) {
+            if (i !== j && codes[i].startsWith(codes[j])) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      // Проверка обратного условия Фано (никакое кодовое слово не является окончанием другого)
+      function checkReverseFano(codes) {
+        for (let i = 0; i < codes.length; i++) {
+          for (let j = 0; j < codes.length; j++) {
+            if (i !== j && codes[i].endsWith(codes[j])) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      // Генерация кодов, удовлетворяющих условию Фано
+      // existingCodes - массив уже существующих кодов, которые нужно учитывать
+      function generateFanoCodes(letters, symbols, existingCodes = []) {
+        const codes = {};
+        const usedCodes = [...existingCodes]; // Начинаем с уже существующих кодов
+
+        // Стратегия: создаём коды разной длины так, чтобы ни один не был префиксом другого
+        // Используем префиксный код (direct Fano)
+        // Минимальная длина кода - 2 символа
+
+        const shuffledLetters = [...letters].sort(() => Math.random() - 0.5);
+
+        // Генерируем все возможные коды (минимальная длина 2)
+        function generateAllCodes(symbols, minLength, maxLength) {
+          const result = [];
+          function generate(current) {
+            if (current.length <= maxLength) {
+              if (current.length >= minLength) result.push(current);
+              for (const s of symbols) {
+                generate(current + s);
+              }
+            }
+          }
+          generate("");
+          return result;
+        }
+
+        const allCodes = generateAllCodes(symbols, 2, 4);
+
+        // Перемешиваем коды для разнообразия
+        allCodes.sort(() => Math.random() - 0.5);
+
+        // Выбираем коды, удовлетворяющие прямому условию Фано
+        for (let i = 0; i < shuffledLetters.length; i++) {
+          for (const code of allCodes) {
+            if (!usedCodes.includes(code)) {
+              // Проверяем, что новый код не нарушает условие Фано
+              const testCodes = [...usedCodes, code];
+              if (checkDirectFano(testCodes)) {
+                codes[shuffledLetters[i]] = code;
+                usedCodes.push(code);
+                break;
+              }
+            }
+          }
+        }
+
+        return codes;
+      }
+
+      // Генерация кодов, удовлетворяющих обратному условию Фано
+      // existingCodes - массив уже существующих кодов, которые нужно учитывать
+      function generateReverseFanoCodes(letters, symbols, existingCodes = []) {
+        const codes = {};
+        const usedCodes = [...existingCodes]; // Начинаем с уже существующих кодов
+        const shuffledLetters = [...letters].sort(() => Math.random() - 0.5);
+
+        // Минимальная длина кода - 2 символа
+        function generateAllCodes(symbols, minLength, maxLength) {
+          const result = [];
+          function generate(current) {
+            if (current.length <= maxLength) {
+              if (current.length >= minLength) result.push(current);
+              for (const s of symbols) {
+                generate(current + s);
+              }
+            }
+          }
+          generate("");
+          return result;
+        }
+
+        const allCodes = generateAllCodes(symbols, 2, 4);
+
+        // Перемешиваем коды для разнообразия
+        allCodes.sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < shuffledLetters.length; i++) {
+          for (const code of allCodes) {
+            if (!usedCodes.includes(code)) {
+              const testCodes = [...usedCodes, code];
+              if (checkReverseFano(testCodes)) {
+                codes[shuffledLetters[i]] = code;
+                usedCodes.push(code);
+                break;
+              }
+            }
+          }
+        }
+
+        return codes;
+      }
+
+      // Выбор случайного элемента
+      function randomChoice(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      // Генерация задания
+      function generateTask() {
+        answered = false;
+        document.getElementById("feedback").className = "feedback";
+        document.getElementById("feedback").style.display = "none";
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("answerInput").value = "";
+        document.getElementById("answerInput").className = "answer-input";
+
+        // Выбираем набор букв и символов
+        const wordSet = randomChoice(wordSets);
+        const symbolPair = randomChoice(symbolPairs);
+
+        // Случайно выбираем тип условия Фано
+        const useDirectFano = Math.random() > 0.3;
+
+        let codes;
+        let fanoType;
+
+        if (useDirectFano) {
+          codes = generateFanoCodes(wordSet.letters, symbolPair.symbols);
+          fanoType = "direct";
+        } else {
+          codes = generateReverseFanoCodes(wordSet.letters, symbolPair.symbols);
+          fanoType = "reverse";
+        }
+
+        // Добавляем 1-2 лишние буквы, которые не используются в словах
+        const usedLetters = wordSet.letters;
+        const availableExtraLetters = extraLetters.filter(
+          (l) => !usedLetters.includes(l),
+        );
+        const numExtra = Math.random() < 0.5 ? 1 : 2;
+        const shuffledExtra = [...availableExtraLetters].sort(
+          () => Math.random() - 0.5,
+        );
+        const extraLettersToAdd = shuffledExtra.slice(0, numExtra);
+
+        // Генерируем коды для лишних букв с учётом уже существующих кодов
+        if (extraLettersToAdd.length > 0) {
+          // Получаем массив уже использованных кодов
+          const existingCodesArray = Object.values(codes);
+
+          if (fanoType === "direct") {
+            const extraCodes = generateFanoCodes(
+              extraLettersToAdd,
+              symbolPair.symbols,
+              existingCodesArray, // Передаём существующие коды
+            );
+            Object.assign(codes, extraCodes);
+          } else {
+            const extraCodes = generateReverseFanoCodes(
+              extraLettersToAdd,
+              symbolPair.symbols,
+              existingCodesArray, // Передаём существующие коды
+            );
+            Object.assign(codes, extraCodes);
+          }
+        }
+
+        // Выбираем слово для кодирования (только от 4 до 7 букв)
+        const validWords = wordSet.words.filter(
+          (word) =>
+            word.length >= 4 &&
+            word.length <= 7 &&
+            word.split("").every((letter) => codes[letter]),
+        );
+
+        if (validWords.length === 0) {
+          // Пробуем снова
+          generateTask();
+          return;
+        }
+
+        const selectedWord = randomChoice(validWords);
+
+        // Кодируем слово
+        const encodedMessage = selectedWord
+          .split("")
+          .map((letter) => codes[letter])
+          .join("");
+
+        // Формируем текст задания
+        const symbolText = symbolPair.name;
+
+        let taskText;
+        if (fanoType === "direct") {
+          taskText = `От разведчика была получена следующая шифрограмма, закодированная с использованием двоичного кода (${symbolText}):`;
+        } else {
+          taskText = `Получена шифрограмма, закодированная с использованием двоичного кода (${symbolText}):`;
+        }
+
+        taskText +=
+          '<br><div class="message-container" id="messageContainer"></div>';
+        taskText +=
+          '<div class="divider-hint">💡 Кликните между символами, чтобы поставить разделитель</div>';
+
+        if (fanoType === "direct") {
+          taskText += `При передаче шифрограммы было потеряно разбиение на буквы.`;
+        } else {
+          taskText += `Разбиение на буквы неизвестно.`;
+        }
+
+        taskText += `<br><br>Расшифруйте сообщение, используя таблицу кодов. Запишите в ответе расшифрованное сообщение.`;
+
+        // Устанавливаем текст про условие Фано
+        const fanoText =
+          fanoType === "direct"
+            ? "Код удовлетворяет прямому условию Фано: никакое кодовое слово не является началом другого кодового слова. Это позволяет однозначно декодировать сообщение с начала."
+            : "Код удовлетворяет обратному условию Фано: никакое кодовое слово не является окончанием другого кодового слова. Это позволяет однозначно декодировать сообщение с конца.";
+
+        document.getElementById("fanoText").textContent = fanoText;
+
+        // Формируем таблицу кодов (горизонтальная)
+        const tableHeader = document.getElementById("tableHeader");
+        const tableCodes = document.getElementById("tableCodes");
+        tableHeader.innerHTML = "";
+        tableCodes.innerHTML = "";
+
+        const sortedLetters = Object.keys(codes).sort();
+        for (const letter of sortedLetters) {
+          const th = document.createElement("th");
+          th.textContent = letter;
+          tableHeader.appendChild(th);
+        }
+
+        for (const letter of sortedLetters) {
+          const td = document.createElement("td");
+          td.textContent = codes[letter];
+          tableCodes.appendChild(td);
+        }
+
+        currentTask = {
+          word: selectedWord,
+          encoded: encodedMessage,
+          codes: codes,
+          fanoType: fanoType,
+          symbols: symbolPair.symbols,
+        };
+
+        document.getElementById("taskText").innerHTML = taskText;
+
+        // Создаём интерактивное сообщение с разделителями
+        createInteractiveMessage(encodedMessage);
+      }
+
+      // Создание интерактивного сообщения с разделителями
+      function createInteractiveMessage(encoded) {
+        const container = document.getElementById("messageContainer");
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        for (let i = 0; i < encoded.length; i++) {
+          // Создаём слот для разделителя перед символом
+          const dividerSlot = document.createElement("div");
+          dividerSlot.className = "message-divider-slot";
+          dividerSlot.dataset.position = i;
+          dividerSlot.onclick = () => toggleDivider(dividerSlot);
+          container.appendChild(dividerSlot);
+
+          // Создаём символ
+          const char = document.createElement("span");
+          char.className = "message-char";
+          char.textContent = encoded[i];
+          container.appendChild(char);
+        }
+
+        // Добавляем слот для разделителя в конце
+        const endDividerSlot = document.createElement("div");
+        endDividerSlot.className = "message-divider-slot";
+        endDividerSlot.dataset.position = encoded.length;
+        endDividerSlot.onclick = () => toggleDivider(endDividerSlot);
+        container.appendChild(endDividerSlot);
+      }
+
+      // Переключение разделителя
+      function toggleDivider(slot) {
+        slot.classList.toggle("has-divider");
+      }
+
+      // Генерация подсказки
+      function showHint() {
+        if (answered) return;
+
+        const hintBox = document.getElementById("hintBox");
+        const hintSteps = document.getElementById("hintSteps");
+
+        // Если подсказка уже видна - скрываем её
+        if (hintBox.style.display === "block") {
+          hintBox.style.display = "none";
+          return;
+        }
+
+        let steps = [];
+
+        if (currentTask.fanoType === "direct") {
+          steps.push(
+            `<div class="hint-step"><strong>Декодируем с начала сообщения:</strong></div>`,
+          );
+
+          let remaining = currentTask.encoded;
+          let stepNum = 1;
+
+          while (remaining.length > 0) {
+            let found = false;
+            for (const [letter, code] of Object.entries(currentTask.codes)) {
+              if (remaining.startsWith(code)) {
+                const before = remaining;
+                remaining = remaining.slice(code.length);
+                steps.push(
+                  `<div class="hint-step">${stepNum}. <span class="code-part">${before}</span> → начинаемся с <span class="code-part">${code}</span> = <span class="letter-part">${letter}</span>, остаток: <span class="code-part">${remaining || "(пусто)"}</span></div>`,
+                );
+                stepNum++;
+                found = true;
+                break;
+              }
+            }
+            if (!found) break;
+          }
+
+          steps.push(
+            `<div class="hint-step"><span class="result">Ответ: ${currentTask.word}</span></div>`,
+          );
+        } else {
+          steps.push(
+            `<div class="hint-step"><strong>Декодируем с конца сообщения (обратное условие Фано):</strong></div>`,
+          );
+
+          let remaining = currentTask.encoded;
+          let stepNum = 1;
+
+          while (remaining.length > 0) {
+            let found = false;
+            for (const [letter, code] of Object.entries(currentTask.codes)) {
+              if (remaining.endsWith(code)) {
+                const before = remaining;
+                remaining = remaining.slice(0, -code.length);
+                steps.push(
+                  `<div class="hint-step">${stepNum}. <span class="code-part">${before}</span> → заканчивается на <span class="code-part">${code}</span> = <span class="letter-part">${letter}</span>, остаток: <span class="code-part">${remaining || "(пусто)"}</span></div>`,
+                );
+                stepNum++;
+                found = true;
+                break;
+              }
+            }
+            if (!found) break;
+          }
+
+          steps.push(
+            `<div class="hint-step"><span class="result">Ответ: ${currentTask.word}</span></div>`,
+          );
+        }
+
+        hintSteps.innerHTML = steps.join("");
+        hintBox.style.display = "block";
+      }
+
+      // Проверка ответа
+      function checkAnswer() {
+        if (answered) return;
+
+        const userAnswer = document
+          .getElementById("answerInput")
+          .value.toUpperCase()
+          .trim();
+
+        if (!userAnswer) {
+          alert("Введите расшифрованное сообщение!");
+          return;
+        }
+
+        answered = true;
+        stats.total++;
+
+        const input = document.getElementById("answerInput");
+        const feedback = document.getElementById("feedback");
+        const feedbackText = document.getElementById("feedbackText");
+
+        const isCorrect = userAnswer === currentTask.word;
+
+        if (isCorrect) {
+          stats.correct++;
+          input.className = "answer-input correct";
+          feedback.className = "feedback correct";
+          feedbackText.textContent = "🎉 Правильно! Отличная работа!";
+        } else {
+          input.className = "answer-input incorrect";
+          feedback.className = "feedback incorrect";
+          feedbackText.innerHTML = `❌ Неправильно.<br>Правильный ответ: <strong>${currentTask.word}</strong>`;
+        }
+
+        feedback.style.display = "block";
+        updateStats();
+      }
+
+      // Обновление статистики
+      function updateStats() {
+        document.getElementById("correctCount").textContent = stats.correct;
+        document.getElementById("totalCount").textContent = stats.total;
+      }
+
+      // Переключение видимости условия Фано
+      function toggleFano() {
+        const toggle = document.getElementById("fanoToggle");
+        toggle.classList.toggle("open");
+      }
+
+      // Сброс игры
+      function resetGame() {
+        // Закрываем подсказку Фано при новой задаче
+        document.getElementById("fanoToggle").classList.remove("open");
+        generateTask();
+      }
+
+      // Обработка Enter
+      document
+        .getElementById("answerInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            checkAnswer();
+          }
+        });
+
+      // Запуск
+      generateTask();
+    </script>
+  </body>
+</html>
