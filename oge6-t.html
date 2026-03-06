@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Теория - Задание 6 ОГЭ - Анализ программы с формальным исполнителем
+    </title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .task-type-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #667eea;
+      }
+
+      .task-type-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .task-type-card p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        overflow-x: auto;
+      }
+
+      .code-block .keyword {
+        color: #66d9ef;
+      }
+
+      .code-block .string {
+        color: #a6e22e;
+      }
+
+      .code-block .comment {
+        color: #75715e;
+      }
+
+      .code-block .function {
+        color: #f92672;
+      }
+
+      .code-block .number {
+        color: #ae81ff;
+      }
+
+      .code-block .operator {
+        color: #f92672;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .comparison-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .comparison-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .comparison-table code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .algorithm-box {
+        background: #f5f7fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+        font-family: "Courier New", monospace;
+        border-left: 3px solid #667eea;
+      }
+
+      .algorithm-step {
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .step-number {
+        background: #667eea;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .trace-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.95rem;
+      }
+
+      .trace-table th,
+      .trace-table td {
+        padding: 10px 12px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .trace-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .trace-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .trace-table .yes {
+        background: #e8f5e9;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+
+      .trace-table .no {
+        background: #ffebee;
+        color: #c62828;
+        font-weight: bold;
+      }
+
+      /* Интерактивные пары чисел */
+      .pairs-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .pair-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: #f5f5f5;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .pair-btn:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .pair-btn.yes {
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-color: #4caf50;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+
+      .pair-btn.no {
+        background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+        border-color: #f44336;
+        color: #c62828;
+        font-weight: bold;
+      }
+
+      .pair-counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 15px;
+        padding: 10px 15px;
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .pair-counter .count {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      .pair-counter .count.yes-count {
+        color: #2e7d32;
+      }
+
+      .pair-counter .count.no-count {
+        color: #c62828;
+      }
+
+      .pair-hint {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge6.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>
+        📚 Теория: Задание 6 ОГЭ — Анализ программы с формальным исполнителем
+      </h1>
+
+      <div class="theory-section">
+        <h2>🎯 О чём это задание?</h2>
+        <p>
+          В задании 6 ОГЭ вам предлагается проанализировать программу,
+          записанную на одном из языков программирования (обычно Pascal или
+          Python), и определить:
+        </p>
+        <ul>
+          <li>
+            Сколько раз программа выведет «YES» при заданных входных данных
+          </li>
+          <li>
+            Или найти значение параметра, при котором программа выведет «YES»
+            определённое число раз
+          </li>
+        </ul>
+        <p>
+          Программы в этом задании обычно содержат простые условные операторы с
+          операциями сравнения и логическими связками.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Основные операторы</h2>
+
+        <h3>🔢 Арифметические операции</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Операция</th>
+            <th>Pascal</th>
+            <th>Python</th>
+            <th>Пример</th>
+          </tr>
+          <tr>
+            <td>Сложение</td>
+            <td><code>+</code></td>
+            <td><code>+</code></td>
+            <td>5 + 3 = 8</td>
+          </tr>
+          <tr>
+            <td>Вычитание</td>
+            <td><code>-</code></td>
+            <td><code>-</code></td>
+            <td>5 - 3 = 2</td>
+          </tr>
+          <tr>
+            <td>Умножение</td>
+            <td><code>*</code></td>
+            <td><code>*</code></td>
+            <td>5 * 3 = 15</td>
+          </tr>
+          <tr>
+            <td>Деление (целочисленное)</td>
+            <td><code>div</code></td>
+            <td><code>//</code></td>
+            <td>17 div 5 = 3</td>
+          </tr>
+          <tr>
+            <td>Остаток от деления</td>
+            <td><code>mod</code></td>
+            <td><code>%</code></td>
+            <td>17 mod 5 = 2</td>
+          </tr>
+          <tr>
+            <td>Модуль числа</td>
+            <td><code>abs(x)</code></td>
+            <td><code>abs(x)</code></td>
+            <td>abs(-5) = 5</td>
+          </tr>
+        </table>
+
+        <h3>⚖️ Операции сравнения</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Операция</th>
+            <th>Pascal</th>
+            <th>Python</th>
+            <th>Пример</th>
+          </tr>
+          <tr>
+            <td>Равно</td>
+            <td><code>=</code></td>
+            <td><code>==</code></td>
+            <td>5 = 5 → true</td>
+          </tr>
+          <tr>
+            <td>Не равно</td>
+            <td><code><></code></td>
+            <td><code>!=</code></td>
+            <td>5 <> 3 → true</td>
+          </tr>
+          <tr>
+            <td>Больше</td>
+            <td><code>></code></td>
+            <td><code>></code></td>
+            <td>5 > 3 → true</td>
+          </tr>
+          <tr>
+            <td>Меньше</td>
+            <td><code><</code></td>
+            <td><code><</code></td>
+            <td>3 < 5 → true</td>
+          </tr>
+          <tr>
+            <td>Больше или равно</td>
+            <td><code>>=</code></td>
+            <td><code>>=</code></td>
+            <td>5 >= 5 → true</td>
+          </tr>
+          <tr>
+            <td>Меньше или равно</td>
+            <td><code><=</code></td>
+            <td><code><=</code></td>
+            <td>3 <= 5 → true</td>
+          </tr>
+        </table>
+
+        <h3>🔗 Логические операции</h3>
+        <table class="comparison-table">
+          <tr>
+            <th>Операция</th>
+            <th>Pascal</th>
+            <th>Python</th>
+            <th>Описание</th>
+          </tr>
+          <tr>
+            <td>И (логическое умножение)</td>
+            <td><code>and</code></td>
+            <td><code>and</code></td>
+            <td>true, если оба условия истинны</td>
+          </tr>
+          <tr>
+            <td>ИЛИ (логическое сложение)</td>
+            <td><code>or</code></td>
+            <td><code>or</code></td>
+            <td>true, если хотя бы одно условие истинно</td>
+          </tr>
+          <tr>
+            <td>НЕ (отрицание)</td>
+            <td><code>not</code></td>
+            <td><code>not</code></td>
+            <td>инвертирует значение</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Типы задач задания 6 ОГЭ</h2>
+
+        <div class="task-types">
+          <div class="task-type-card">
+            <h4>🎯 Тип 1: Подсчёт запусков с «YES»</h4>
+            <p>
+              Дана программа и набор пар входных данных. Нужно определить,
+              сколько раз программа выведет «YES».
+            </p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🎯 Тип 1b: Подсчёт запусков с «NO»</h4>
+            <p>
+              Дана программа и набор пар входных данных. Нужно определить,
+              сколько раз программа выведет «NO». Это количество равно: 10 минус
+              количество «YES».
+            </p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🔍 Тип 2: Определение параметра A</h4>
+            <p>
+              Дана программа с параметром A и набор входных данных. Нужно найти
+              значение A, при котором программа выведет «YES» ровно N раз.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Алгоритм решения</h2>
+
+        <h3>Для задач типа 1 (подсчёт запусков)</h3>
+        <div class="tip-box">
+          <h4>💡 Пошаговый алгоритм</h4>
+          <ol>
+            <li>Внимательно изучите условие в операторе <code>if</code></li>
+            <li>
+              Для каждой пары входных данных (s, t) вычислите значения выражений
+            </li>
+            <li>Проверьте, выполняется ли условие</li>
+            <li>Подсчитайте количество пар, для которых условие истинно</li>
+          </ol>
+        </div>
+
+        <h3>Для задач типа 2 (определение параметра)</h3>
+        <div class="tip-box">
+          <h4>💡 Пошаговый алгоритм</h4>
+          <ol>
+            <li>Выпишите все пары входных данных (s, t)</li>
+            <li>
+              Для каждой пары определите, при каких значениях A условие истинно
+            </li>
+            <li>Составьте таблицу или неравенства для каждого запуска</li>
+            <li>
+              Найдите значение A, удовлетворяющее требуемому количеству «YES»
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Примеры решения задач</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Подсчёт запусков с операцией mod</h4>
+          <p><strong>Условие:</strong></p>
+          <div class="code-block">
+            <pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> s % <span class="number">7</span> == t:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>
+          </div>
+          <p><strong>Попробуйте решить сами:</strong></p>
+          <p>
+            Нажмите на пару чисел, чтобы отметить её как YES (зелёный) или NO
+            (красный). Повторный клик переключает состояние.
+          </p>
+          <div class="pairs-container" id="pairs1">
+            <button class="pair-btn" data-s="1" data-t="1">(1, 1)</button>
+            <button class="pair-btn" data-s="1" data-t="2">(1, 2)</button>
+            <button class="pair-btn" data-s="3" data-t="2">(3, 2)</button>
+            <button class="pair-btn" data-s="3" data-t="3">(3, 3)</button>
+            <button class="pair-btn" data-s="7" data-t="0">(7, 0)</button>
+            <button class="pair-btn" data-s="7" data-t="2">(7, 2)</button>
+            <button class="pair-btn" data-s="10" data-t="0">(10, 0)</button>
+            <button class="pair-btn" data-s="10" data-t="7">(10, 7)</button>
+            <button class="pair-btn" data-s="11" data-t="4">(11, 4)</button>
+            <button class="pair-btn" data-s="12" data-t="5">(12, 5)</button>
+          </div>
+          <div class="pair-counter">
+            <span
+              >YES: <span class="count yes-count" id="yes-count1">0</span></span
+            >
+            <span
+              >NO: <span class="count no-count" id="no-count1">0</span></span
+            >
+          </div>
+          <p class="pair-hint">
+            💡 Подсказка: условие <code>s % 7 == t</code> проверяет, равен ли
+            остаток от деления s на 7 значению t.
+          </p>
+
+          <div class="example-solution">
+            <details>
+              <summary><strong>Показать решение</strong></summary>
+              <br />
+              <strong>Решение:</strong><br /><br />
+              Условие: <code>s mod 7 = t</code> (остаток от деления s на 7 равен
+              t)<br /><br />
+              Составим таблицу трассировки:<br /><br />
+              <table class="trace-table">
+                <tr>
+                  <th>№</th>
+                  <th>s</th>
+                  <th>t</th>
+                  <th>s mod 7</th>
+                  <th>s mod 7 = t?</th>
+                  <th>Вывод</th>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>1 = 1 ✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td>1</td>
+                  <td>1 ≠ 2 ✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>3 ≠ 2 ✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>3 = 3 ✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0 = 0 ✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>7</td>
+                  <td>2</td>
+                  <td>0</td>
+                  <td>0 ≠ 2 ✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>10</td>
+                  <td>0</td>
+                  <td>3</td>
+                  <td>3 ≠ 0 ✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td>10</td>
+                  <td>7</td>
+                  <td>3</td>
+                  <td>3 ≠ 7 ✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td>11</td>
+                  <td>4</td>
+                  <td>4</td>
+                  <td>4 = 4 ✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>12</td>
+                  <td>5</td>
+                  <td>5</td>
+                  <td>5 = 5 ✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+              </table>
+              <br />
+              <strong>Ответ: 5</strong> (запуски № 1, 4, 5, 9, 10)
+            </details>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Логическая операция OR</h4>
+          <p><strong>Условие:</strong></p>
+          <div class="code-block">
+            <pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> (abs(s) < <span class="number">3</span>) <span class="keyword">or</span> (abs(t) < <span class="number">3</span>):
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>
+          </div>
+          <p><strong>Попробуйте решить сами:</strong></p>
+          <p>
+            Нажмите на пару чисел, чтобы отметить её как YES (зелёный) или NO
+            (красный). Повторный клик переключает состояние.
+          </p>
+          <div class="pairs-container" id="pairs2">
+            <button class="pair-btn" data-s="1" data-t="3">(1, 3)</button>
+            <button class="pair-btn" data-s="2" data-t="3">(2, 3)</button>
+            <button class="pair-btn" data-s="3" data-t="4">(3, 4)</button>
+            <button class="pair-btn" data-s="4" data-t="5">(4, 5)</button>
+            <button class="pair-btn" data-s="1" data-t="-2">(1, –2)</button>
+            <button class="pair-btn" data-s="1" data-t="-3">(1, –3)</button>
+            <button class="pair-btn" data-s="5" data-t="-5">(5, –5)</button>
+            <button class="pair-btn" data-s="-2" data-t="2">(–2, 2)</button>
+            <button class="pair-btn" data-s="-3" data-t="3">(–3, 3)</button>
+            <button class="pair-btn" data-s="-4" data-t="4">(–4, 4)</button>
+          </div>
+          <div class="pair-counter">
+            <span
+              >YES: <span class="count yes-count" id="yes-count2">0</span></span
+            >
+            <span
+              >NO: <span class="count no-count" id="no-count2">0</span></span
+            >
+          </div>
+          <p class="pair-hint">
+            💡 Подсказка: условие
+            <code>(abs(s) < 3) or (abs(t) < 3)</code> истинно, если хотя бы одно
+            из чисел по модулю меньше 3.
+          </p>
+
+          <div class="example-solution">
+            <details>
+              <summary><strong>Показать решение</strong></summary>
+              <br />
+              <strong>Решение:</strong><br /><br />
+              Условие: <code>(abs(s) < 3) or (abs(t) < 3)</code><br />
+              Это условие истинно, если
+              <span class="highlight">хотя бы одно</span> из чисел по модулю
+              меньше 3.<br /><br />
+              <table class="trace-table">
+                <tr>
+                  <th>№</th>
+                  <th>s</th>
+                  <th>t</th>
+                  <th>abs(s) < 3?</th>
+                  <th>abs(t) < 3?</th>
+                  <th>OR?</th>
+                  <th>Вывод</th>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>✓ (1<3)</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>✓ (2<3)</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✗ (4≥3)</td>
+                  <td>✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>✗ (4≥3)</td>
+                  <td>✗ (5≥3)</td>
+                  <td>✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>1</td>
+                  <td>–2</td>
+                  <td>✓ (1<3)</td>
+                  <td>✓ (2<3)</td>
+                  <td>✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>1</td>
+                  <td>–3</td>
+                  <td>✓ (1<3)</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>5</td>
+                  <td>–5</td>
+                  <td>✗ (5≥3)</td>
+                  <td>✗ (5≥3)</td>
+                  <td>✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td>–2</td>
+                  <td>2</td>
+                  <td>✓ (2<3)</td>
+                  <td>✓ (2<3)</td>
+                  <td>✓</td>
+                  <td class="yes">YES</td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td>–3</td>
+                  <td>3</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✗ (3≥3)</td>
+                  <td>✗</td>
+                  <td class="no">NO</td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>–4</td>
+                  <td>4</td>
+                  <td>✗ (4≥3)</td>
+                  <td>✗ (4≥3)</td>
+                  <td>✗</td>
+                  <td class="no">NO</td>
+                </tr>
+              </table>
+              <br />
+              <strong>Ответ: 5</strong> (запуски № 1, 2, 5, 6, 8)
+            </details>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Подсчёт запусков с «NO»</h4>
+          <p><strong>Условие:</strong></p>
+          <div class="code-block">
+            <pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> s % <span class="number">7</span> == t:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>
+          </div>
+          <p>
+            <strong>Вопрос:</strong> Сколько было запусков, при которых
+            программа напечатала «NO»?
+          </p>
+          <p><strong>Попробуйте решить сами:</strong></p>
+          <p>
+            Нажмите на пару чисел, чтобы отметить её как YES (зелёный) или NO
+            (красный). Повторный клик переключает состояние.
+          </p>
+          <div class="pairs-container" id="pairs3">
+            <button class="pair-btn" data-s="1" data-t="1">(1, 1)</button>
+            <button class="pair-btn" data-s="1" data-t="2">(1, 2)</button>
+            <button class="pair-btn" data-s="3" data-t="2">(3, 2)</button>
+            <button class="pair-btn" data-s="3" data-t="3">(3, 3)</button>
+            <button class="pair-btn" data-s="7" data-t="0">(7, 0)</button>
+            <button class="pair-btn" data-s="7" data-t="2">(7, 2)</button>
+            <button class="pair-btn" data-s="10" data-t="0">(10, 0)</button>
+            <button class="pair-btn" data-s="10" data-t="7">(10, 7)</button>
+            <button class="pair-btn" data-s="11" data-t="4">(11, 4)</button>
+            <button class="pair-btn" data-s="12" data-t="5">(12, 5)</button>
+          </div>
+          <div class="pair-counter">
+            <span
+              >YES: <span class="count yes-count" id="yes-count3">0</span></span
+            >
+            <span
+              >NO: <span class="count no-count" id="no-count3">0</span></span
+            >
+          </div>
+          <p class="pair-hint">
+            💡 Подсказка: сначала найдите количество «YES», затем вычтите из 10.
+          </p>
+
+          <div class="example-solution">
+            <details>
+              <summary><strong>Показать решение</strong></summary>
+              <br />
+              <strong>Решение:</strong><br /><br />
+              Условие: <code>s mod 7 = t</code> (остаток от деления s на 7 равен
+              t)<br /><br />
+              Из примера 1 мы уже знаем, что количество «YES» = 5.<br /><br />
+              <strong>Формула:</strong> Количество «NO» = 10 − Количество
+              «YES»<br /><br />
+              Количество «NO» = 10 − 5 = <strong>5</strong><br /><br />
+              <strong>Ответ: 5</strong>
+            </details>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 4: Определение параметра A</h4>
+          <p><strong>Условие:</strong></p>
+          <div class="code-block">
+            <pre>s = int(input())
+t = int(input())
+A = int(input())
+<span class="keyword">if</span> (s >= A) <span class="keyword">and</span> (t < <span class="number">1</span>):
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>
+          </div>
+          <p>
+            Пары входных данных: (–8, –11); (1, –20); (1, –25); (4, –37); (7,
+            46); (30, –14); (30, –4); (30, 15); (80, –30); (80, –3).
+          </p>
+          <p>
+            <strong>Вопрос:</strong> Укажите наименьшее целое значение параметра
+            A, при котором для указанных входных данных программа напечатает
+            «YES» ровно 5 раз.
+          </p>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            Условие: <code>(s >= A) and (t < 1)</code><br />
+            Для вывода «YES» должны выполняться
+            <span class="highlight">оба</span> условия одновременно.<br /><br />
+
+            <strong>Шаг 1:</strong> Определим, для каких пар t < 1 (это
+            обязательное условие):<br />
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>t < 1?</th>
+                <th>s >= A?</th>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>–8</td>
+                <td>–11</td>
+                <td>✓</td>
+                <td>–8 >= A</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>1</td>
+                <td>–20</td>
+                <td>✓</td>
+                <td>1 >= A</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>1</td>
+                <td>–25</td>
+                <td>✓</td>
+                <td>1 >= A</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>4</td>
+                <td>–37</td>
+                <td>✓</td>
+                <td>4 >= A</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>7</td>
+                <td>46</td>
+                <td>✗</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>30</td>
+                <td>–14</td>
+                <td>✓</td>
+                <td>30 >= A</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>30</td>
+                <td>–4</td>
+                <td>✓</td>
+                <td>30 >= A</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>30</td>
+                <td>15</td>
+                <td>✗</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>80</td>
+                <td>–30</td>
+                <td>✓</td>
+                <td>80 >= A</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>80</td>
+                <td>–3</td>
+                <td>✓</td>
+                <td>80 >= A</td>
+              </tr>
+            </table>
+            <br />
+
+            <strong>Шаг 2:</strong> Анализ<br />
+            Условие t < 1 выполняется для 8 пар (все кроме №5 и №8).<br />
+            Нам нужно ровно 5 «YES», значит нужно выбрать 5 пар из этих 8.<br /><br />
+
+            Для каждой пары условие s >= A даёт ограничение на A:<br />
+            - Пара 1: A ≤ –8<br />
+            - Пара 2: A ≤ 1<br />
+            - Пара 3: A ≤ 1<br />
+            - Пара 4: A ≤ 4<br />
+            - Пара 6: A ≤ 30<br />
+            - Пара 7: A ≤ 30<br />
+            - Пара 9: A ≤ 80<br />
+            - Пара 10: A ≤ 80<br /><br />
+
+            <strong>Шаг 3:</strong> Подбор A<br />
+            Нужно найти наименьшее A, при котором ровно 5 пар дадут «YES».<br /><br />
+
+            Если A = 1: пары с s >= 1 — это №2, 3, 4, 6, 7, 9, 10 (7 пар) —
+            много<br />
+            Если A = 4: пары с s >= 4 — это №4, 6, 7, 9, 10 (5 пар) —
+            подходит!<br />
+            Если A = 5: пары с s >= 5 — это №6, 7, 9, 10 (4 пары) — мало<br /><br />
+
+            <strong>Проверка для A = 4:</strong><br />
+            - Пара 1: s = –8, –8 >= 4? ✗ → NO<br />
+            - Пара 2: s = 1, 1 >= 4? ✗ → NO<br />
+            - Пара 3: s = 1, 1 >= 4? ✗ → NO<br />
+            - Пара 4: s = 4, 4 >= 4? ✓ и t = –37 < 1 ✓ → YES<br />
+            - Пара 5: t = 46 ≥ 1 → NO<br />
+            - Пара 6: s = 30 >= 4 ✓ и t = –14 < 1 ✓ → YES<br />
+            - Пара 7: s = 30 >= 4 ✓ и t = –4 < 1 ✓ → YES<br />
+            - Пара 8: t = 15 ≥ 1 → NO<br />
+            - Пара 9: s = 80 >= 4 ✓ и t = –30 < 1 ✓ → YES<br />
+            - Пара 10: s = 80 >= 4 ✓ и t = –3 < 1 ✓ → YES<br /><br />
+
+            Итого: 5 «YES» (пары 4, 6, 7, 9, 10) ✓<br /><br />
+            <strong>Ответ: 4</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Путаница между mod и div</strong> — mod — это остаток от
+            деления, div — целая часть от деления
+          </li>
+          <li>
+            <strong>Неправильное понимание OR и AND</strong> — OR требует
+            выполнения хотя бы одного условия, AND — обоих одновременно
+          </li>
+          <li>
+            <strong>Забыть про отрицательные числа</strong> — abs(–3) = 3, а не
+            –3
+          </li>
+          <li>
+            <strong>Неправильный порядок сравнения</strong> — s >= A означает «s
+            больше или равно A», а не наоборот
+          </li>
+          <li>
+            <strong>Не проверить все пары</strong> — нужно проверить каждую пару
+            входных данных
+          </li>
+          <li>
+            <strong>Найти не наименьшее/наибольшее значение</strong> —
+            внимательно читайте условие о том, какое именно значение нужно найти
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>💡 Полезные советы</h2>
+
+        <div class="tip-box">
+          <h4>🔢 Операция mod (остаток от деления)</h4>
+          <p>Остаток от деления a mod n — это число от 0 до n–1:</p>
+          <ul>
+            <li>17 mod 7 = 3 (17 = 2×7 + 3)</li>
+            <li>21 mod 7 = 0 (21 делится на 7 без остатка)</li>
+            <li>5 mod 7 = 5 (5 < 7, поэтому остаток равен самому числу)</li>
+          </ul>
+          <p>
+            Если число делится на n без остатка, то остаток равен
+            <strong>0</strong>.
+          </p>
+        </div>
+
+        <div class="tip-box">
+          <h4>🔗 Логические операции</h4>
+          <p><strong>AND (И)</strong> — логическое умножение:</p>
+          <ul>
+            <li>true AND true = true</li>
+            <li>true AND false = false</li>
+            <li>false AND false = false</li>
+          </ul>
+          <p><strong>OR (ИЛИ)</strong> — логическое сложение:</p>
+          <ul>
+            <li>true OR true = true</li>
+            <li>true OR false = true</li>
+            <li>false OR false = false</li>
+          </ul>
+        </div>
+
+        <div class="tip-box">
+          <h4>📊 Таблица трассировки</h4>
+          <p>Для решения задач типа 1 удобно составлять таблицу трассировки:</p>
+          <ol>
+            <li>Выпишите все пары входных данных</li>
+            <li>Для каждой пары вычислите значения всех выражений в условии</li>
+            <li>Определите результат условия (true/false)</li>
+            <li>Подсчитайте количество «YES»</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 План решения задачи</h2>
+        <ol>
+          <li>
+            📝 Внимательно прочитайте условие программы и определите тип задачи
+          </li>
+          <li>🔍 Выпишите условие в операторе if и разберите его структуру</li>
+          <li>📊 Составьте таблицу трассировки для всех пар входных данных</li>
+          <li>✏️ Выполните вычисления для каждой пары</li>
+          <li>✅ Подсчитайте результат и запишите ответ</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge6.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Интерактивные пары чисел
+      function initPairButtons() {
+        const containers = document.querySelectorAll(".pairs-container");
+
+        containers.forEach((container, index) => {
+          const buttons = container.querySelectorAll(".pair-btn");
+          const yesCount = document.getElementById(`yes-count${index + 1}`);
+          const noCount = document.getElementById(`no-count${index + 1}`);
+
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", function () {
+              // Цикл переключения: нейтральный -> yes -> no -> нейтральный
+              if (this.classList.contains("yes")) {
+                this.classList.remove("yes");
+                this.classList.add("no");
+              } else if (this.classList.contains("no")) {
+                this.classList.remove("no");
+              } else {
+                this.classList.add("yes");
+              }
+
+              // Обновляем счётчики
+              updateCounters(container, yesCount, noCount);
+            });
+          });
+        });
+      }
+
+      function updateCounters(container, yesCountEl, noCountEl) {
+        const yesButtons = container.querySelectorAll(".pair-btn.yes");
+        const noButtons = container.querySelectorAll(".pair-btn.no");
+
+        yesCountEl.textContent = yesButtons.length;
+        noCountEl.textContent = noButtons.length;
+      }
+
+      // Инициализация при загрузке страницы
+      document.addEventListener("DOMContentLoaded", initPairButtons);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория - Задание 3 ОГЭ - Истинность составного высказывания</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 1rem;
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .truth-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .truth-table tr:hover td {
+        background: #f0f0f0;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .logic-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .logic-box h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .logic-box.and {
+        border-left-color: #4caf50;
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+      }
+
+      .logic-box.or {
+        border-left-color: #2196f3;
+        background: linear-gradient(145deg, #e3f2fd 0%, #bbdefb 100%);
+      }
+
+      .logic-box.not {
+        border-left-color: #ff9800;
+        background: linear-gradient(145deg, #fff3e0 0%, #ffe0b2 100%);
+      }
+
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .task-type-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #667eea;
+      }
+
+      .task-type-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .task-type-card p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .condition-box {
+        background: #1a1a2e;
+        color: #00ff88;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 1rem;
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .step-box {
+        background: white;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 8px 0;
+        border-left: 3px solid #667eea;
+      }
+
+      .step-box strong {
+        color: #667eea;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .truth-table th,
+        .truth-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge3.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>📚 Теория: Задание 3 ОГЭ — Истинность составного высказывания</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что такое высказывание?</h2>
+        <p>
+          <strong>Высказывание</strong> — это предложение, которое может быть
+          либо истинным (true), либо ложным (false). Высказывания обозначаются
+          буквами: A, B, C, X, Y и т.д.
+        </p>
+        <p>Примеры простых высказываний:</p>
+        <ul>
+          <li><code>x > 5</code> — "x больше 5"</li>
+          <li><code>x кратно 3</code> — "x делится на 3 без остатка"</li>
+          <li><code>x чётное</code> — "x делится на 2"</li>
+          <li><code>x нечётное</code> — "x не делится на 2"</li>
+        </ul>
+        <p>
+          <strong>Составное высказывание</strong> — это высказывание, которое
+          состоит из нескольких простых высказываний, соединённых логическими
+          операциями.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔧 Логические операции</h2>
+
+        <div class="logic-box and">
+          <h4>∧ — Логическое умножение (И, AND, конъюнкция)</h4>
+          <p>
+            Высказывание <strong>A И B</strong> истинно только тогда, когда
+            <strong>оба</strong> высказывания A и B истинны.
+          </p>
+          <table class="truth-table">
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A И B</th>
+            </tr>
+            <tr>
+              <td>истина</td>
+              <td>истина</td>
+              <td><strong>истина</strong></td>
+            </tr>
+            <tr>
+              <td>истина</td>
+              <td>ложь</td>
+              <td>ложь</td>
+            </tr>
+            <tr>
+              <td>ложь</td>
+              <td>истина</td>
+              <td>ложь</td>
+            </tr>
+            <tr>
+              <td>ложь</td>
+              <td>ложь</td>
+              <td>ложь</td>
+            </tr>
+          </table>
+          <p>
+            <strong>Пример:</strong> <code>(x > 5) И (x < 10)</code> истинно,
+            когда x одновременно больше 5 И меньше 10.
+          </p>
+        </div>
+
+        <div class="logic-box or">
+          <h4>∨ — Логическое сложение (ИЛИ, OR, дизъюнкция)</h4>
+          <p>
+            Высказывание <strong>A ИЛИ B</strong> истинно тогда, когда
+            <strong>хотя бы одно</strong> из высказываний A или B истинно.
+          </p>
+          <table class="truth-table">
+            <tr>
+              <th>A</th>
+              <th>B</th>
+              <th>A ИЛИ B</th>
+            </tr>
+            <tr>
+              <td>истина</td>
+              <td>истина</td>
+              <td><strong>истина</strong></td>
+            </tr>
+            <tr>
+              <td>истина</td>
+              <td>ложь</td>
+              <td><strong>истина</strong></td>
+            </tr>
+            <tr>
+              <td>ложь</td>
+              <td>истина</td>
+              <td><strong>истина</strong></td>
+            </tr>
+            <tr>
+              <td>ложь</td>
+              <td>ложь</td>
+              <td>ложь</td>
+            </tr>
+          </table>
+          <p>
+            <strong>Пример:</strong> <code>(x < 5) ИЛИ (x > 10)</code> истинно,
+            когда x меньше 5 ИЛИ больше 10.
+          </p>
+        </div>
+
+        <div class="logic-box not">
+          <h4>¬ — Логическое отрицание (НЕ, NOT, инверсия)</h4>
+          <p>
+            Высказывание <strong>НЕ A</strong> имеет значение, противоположное
+            значению A.
+          </p>
+          <table class="truth-table">
+            <tr>
+              <th>A</th>
+              <th>НЕ A</th>
+            </tr>
+            <tr>
+              <td>истина</td>
+              <td>ложь</td>
+            </tr>
+            <tr>
+              <td>ложь</td>
+              <td><strong>истина</strong></td>
+            </tr>
+          </table>
+          <p>
+            <strong>Пример:</strong> <code>НЕ (x > 10)</code> истинно, когда x ≤
+            10.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Приоритет логических операций</h2>
+        <p>Логические операции выполняются в следующем порядке:</p>
+        <ol>
+          <li><strong>НЕ (¬)</strong> — отрицание (высший приоритет)</li>
+          <li><strong>И (∧)</strong> — конъюнкция</li>
+          <li><strong>ИЛИ (∨)</strong> — дизъюнкция (низший приоритет)</li>
+        </ol>
+        <div class="warning-box">
+          <h4>⚠️ Важно!</h4>
+          <p>
+            Скобки меняют порядок выполнения операций. Всегда сначала
+            выполняются операции в скобках!
+          </p>
+          <p>
+            Пример: <code>НЕ (x > 5 И x < 10)</code> — сначала выполняется И,
+            потом НЕ.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔄 Эквивалентные преобразования</h2>
+        <p>
+          При решении задач часто нужно преобразовывать высказывания, используя
+          законы де Моргана:
+        </p>
+
+        <div class="formula-box">
+          <div class="formula">НЕ (A И B) = (НЕ A) ИЛИ (НЕ B)</div>
+          <div class="formula-description">
+            Отрицание конъюнкции равно дизъюнкции отрицаний
+          </div>
+        </div>
+
+        <div class="formula-box">
+          <div class="formula">НЕ (A ИЛИ B) = (НЕ A) И (НЕ B)</div>
+          <div class="formula-description">
+            Отрицание дизъюнкции равно конъюнкции отрицаний
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>💡 Полезные преобразования</h4>
+          <ul>
+            <li><code>НЕ (x > a)</code> эквивалентно <code>x ≤ a</code></li>
+            <li><code>НЕ (x < a)</code> эквивалентно <code>x ≥ a</code></li>
+            <li><code>НЕ (x ≥ a)</code> эквивалентно <code>x < a</code></li>
+            <li><code>НЕ (x ≤ a)</code> эквивалентно <code>x > a</code></li>
+            <li>
+              <code>НЕ (x кратно n)</code> эквивалентно
+              <code>x не кратно n</code>
+            </li>
+            <li>
+              <code>НЕ (x чётное)</code> эквивалентно <code>x нечётное</code>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Типы задач задания 3 ОГЭ</h2>
+
+        <div class="task-types">
+          <div class="task-type-card">
+            <h4>🔍 Наибольшее число для истинного</h4>
+            <p>Найти наибольшее число x, для которого высказывание истинно.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🔍 Наименьшее число для истинного</h4>
+            <p>Найти наименьшее число x, для которого высказывание истинно.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🔍 Наибольшее число для ложного</h4>
+            <p>Найти наибольшее число x, для которого высказывание ложно.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🔍 Наименьшее число для ложного</h4>
+            <p>Найти наименьшее число x, для которого высказывание ложно.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Алгоритм решения</h2>
+
+        <h3>Шаг 1: Определите тип задачи</h3>
+        <ul>
+          <li>Нужно найти наибольшее или наименьшее число?</li>
+          <li>Высказывание должно быть истинным или ложным?</li>
+        </ul>
+
+        <h3>Шаг 2: Преобразуйте высказывание (если нужно)</h3>
+        <p>
+          Если в задаче требуется найти число, для которого высказывание
+          <strong>ложно</strong>, преобразуйте его в эквивалентное истинное
+          высказывание, используя отрицание.
+        </p>
+
+        <h3>Шаг 3: Найдите область истинности</h3>
+        <p>
+          Определите, какие значения x удовлетворяют каждому простому условию,
+          затем объедините их с помощью логических операций.
+        </p>
+
+        <h3>Шаг 4: Выберите нужное число</h3>
+        <p>
+          Из найденной области выберите наибольшее или наименьшее число в
+          зависимости от условия задачи.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Примеры решения задач</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Наибольшее число для ложного высказывания</h4>
+          <p>
+            <strong>Условие:</strong> Напишите наибольшее натуральное число x,
+            для которого ложно высказывание:
+          </p>
+          <div class="condition-box">(x кратно 10) ИЛИ (x > 80)</div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Высказывание должно быть
+              <strong>ложным</strong>. Ложное высказывание с ИЛИ означает, что
+              <strong>обе части ложны</strong>.
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Преобразуем: высказывание ложно, когда<br />
+              <code>НЕ ((x кратно 10) ИЛИ (x > 80))</code> истинно<br />
+              По закону де Моргана: <code>(x НЕ кратно 10) И (x ≤ 80)</code>
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Ищем наибольшее натуральное число,
+              которое:<br />
+              • НЕ кратно 10<br />
+              • НЕ больше 80 (т.е. ≤ 80)
+            </div>
+            <div class="step-box">
+              <strong>Шаг 4:</strong> Проверяем числа от 80 вниз:<br />
+              • 80 — кратно 10 ❌<br />
+              • 79 — не кратно 10 ✓ и ≤ 80 ✓<br />
+              <strong>Ответ: 79</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Наименьшее число для истинного высказывания</h4>
+          <p>
+            <strong>Условие:</strong> Напишите наименьшее натуральное число x,
+            для которого истинно высказывание:
+          </p>
+          <div class="condition-box">
+            (x кратно 3) И (x кратно 2) И НЕ (x ≤ 60)
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Высказывание должно быть
+              <strong>истинным</strong>. Все части, соединённые И, должны быть
+              истинны.
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Преобразуем каждую часть:<br />
+              • <code>x кратно 3</code> — x делится на 3<br />
+              • <code>x кратно 2</code> — x делится на 2<br />
+              • <code>НЕ (x ≤ 60)</code> — x > 60
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Если x кратно 3 и кратно 2, то x кратно
+              НОК(3, 2) = 6.
+            </div>
+            <div class="step-box">
+              <strong>Шаг 4:</strong> Ищем наименьшее число, кратное 6 и большее
+              60:<br />
+              • 60 — кратно 6, но не больше 60 ❌<br />
+              • 66 — кратно 6 и больше 60 ✓<br />
+              <strong>Ответ: 66</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Наибольшее число с условием на цифры</h4>
+          <p>
+            <strong>Условие:</strong> Напишите наибольшее натуральное число x,
+            для которого истинно высказывание:
+          </p>
+          <div class="condition-box">
+            (в записи числа x нет повторяющихся цифр) И НЕ (x > 233)
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Преобразуем условия:<br />
+              • <code>в записи числа нет повторяющихся цифр</code> — все цифры
+              разные<br />
+              • <code>НЕ (x > 233)</code> — x ≤ 233
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Ищем наибольшее число ≤ 233 без
+              повторяющихся цифр.
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Проверяем числа от 233 вниз:<br />
+              • 233 — цифры: 2, 3, 3 — повторяется 3 ❌<br />
+              • 232 — цифры: 2, 3, 2 — повторяется 2 ❌<br />
+              • 231 — цифры: 2, 3, 1 — все разные ✓<br />
+              <strong>Ответ: 231</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 4: Наименьшее число с НЕ и чётностью</h4>
+          <p>
+            <strong>Условие:</strong> Напишите наименьшее натуральное число x,
+            для которого истинно высказывание:
+          </p>
+          <div class="condition-box">(x > 714) И НЕ (x нечётное)</div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Преобразуем условия:<br />
+              • <code>x > 714</code> — x больше 714<br />
+              • <code>НЕ (x нечётное)</code> — x чётное
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Ищем наименьшее чётное число больше 714.
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Проверяем числа от 715 вверх:<br />
+              • 715 — нечётное ❌<br />
+              • 716 — чётное ✓ и > 714 ✓<br />
+              <strong>Ответ: 716</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 5: Сложное условие с ИЛИ и НЕ</h4>
+          <p>
+            <strong>Условие:</strong> Напишите наибольшее натуральное число x,
+            для которого истинно высказывание:
+          </p>
+          <div class="condition-box">
+            НЕ ((x ≤ 123) ИЛИ (x ≥ 567)) И (x нечётное)
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Преобразуем первую часть по закону де
+              Моргана:<br />
+              <code>НЕ ((x ≤ 123) ИЛИ (x ≥ 567))</code><br />
+              = <code>(x > 123) И (x < 567)</code>
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Полное условие:<br />
+              <code>(x > 123) И (x < 567) И (x нечётное)</code>
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Ищем наибольшее нечётное число в диапазоне
+              (123, 567).<br />
+              Наибольшее число меньше 567 — это 566, но оно чётное.<br />
+              Следующее: 565 — нечётное ✓
+            </div>
+            <div class="step-box">
+              <strong>Ответ: 565</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Путаница между И и ИЛИ</strong> — И требует выполнения всех
+            условий, ИЛИ — хотя бы одного
+          </li>
+          <li>
+            <strong>Неправильное применение отрицания</strong> — НЕ (x > a) это
+            x ≤ a, а не x < a
+          </li>
+          <li>
+            <strong>Забывают про границы</strong> — внимательно проверяйте,
+            входит ли граничное значение в ответ
+          </li>
+          <li>
+            <strong>Неправильный порядок проверки</strong> — при поиске
+            наибольшего идите сверху вниз, наименьшего — снизу вверх
+          </li>
+          <li>
+            <strong>Не учитывают кратность</strong> — число, кратное n, делится
+            на n без остатка
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 План решения задачи</h2>
+        <ol>
+          <li>📝 Внимательно прочитайте условие задачи</li>
+          <li>
+            🔍 Определите: ищем наибольшее или наименьшее, истинное или ложное
+          </li>
+          <li>
+            🔄 Преобразуйте высказывание (особенно если оно должно быть ложным)
+          </li>
+          <li>📊 Определите область допустимых значений</li>
+          <li>
+            🔢 Проверяйте числа в правильном направлении (от большего к меньшему
+            или наоборот)
+          </li>
+          <li>✅ Запишите ответ</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>💡 Полезные советы</h2>
+        <div class="tip-box">
+          <h4>Как быстро находить ответ</h4>
+          <ul>
+            <li>
+              При поиске <strong>наибольшего</strong> числа начинайте проверку с
+              максимально возможного значения
+            </li>
+            <li>
+              При поиске <strong>наименьшего</strong> числа начинайте проверку с
+              минимально возможного значения
+            </li>
+            <li>
+              Если условие должно быть <strong>ложным</strong>, сначала
+              преобразуйте его в истинное
+            </li>
+            <li>
+              Для условий с кратностью: если число кратно a и b, то оно кратно
+              НОК(a, b)
+            </li>
+          </ul>
+        </div>
+
+        <div class="tip-box">
+          <h4>Таблица преобразований</h4>
+          <table class="truth-table">
+            <tr>
+              <th>Исходное условие</th>
+              <th>После НЕ</th>
+            </tr>
+            <tr>
+              <td>x > a</td>
+              <td>x ≤ a</td>
+            </tr>
+            <tr>
+              <td>x < a</td>
+              <td>x ≥ a</td>
+            </tr>
+            <tr>
+              <td>x ≥ a</td>
+              <td>x < a</td>
+            </tr>
+            <tr>
+              <td>x ≤ a</td>
+              <td>x > a</td>
+            </tr>
+            <tr>
+              <td>x кратно n</td>
+              <td>x НЕ кратно n</td>
+            </tr>
+            <tr>
+              <td>x чётное</td>
+              <td>x нечётное</td>
+            </tr>
+            <tr>
+              <td>x нечётное</td>
+              <td>x чётное</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge3.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

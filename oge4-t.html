@@ -1,0 +1,1704 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория - Задание 4 ОГЭ - Анализ простейшей модели объектов</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .matrix-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .matrix-table {
+        border-collapse: collapse;
+        font-size: 1rem;
+      }
+
+      .matrix-table th,
+      .matrix-table td {
+        padding: 10px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+        min-width: 40px;
+      }
+
+      .matrix-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .matrix-table td {
+        background: #f9f9f9;
+      }
+
+      .matrix-table td.highlight {
+        background: #fff9c4;
+        font-weight: bold;
+      }
+
+      .matrix-table td.empty {
+        background: #e0e0e0;
+      }
+
+      .graph-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .graph-svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .step-box {
+        background: white;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 8px 0;
+        border-left: 3px solid #667eea;
+      }
+
+      .step-box strong {
+        color: #667eea;
+      }
+
+      .path-box {
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin: 8px 0;
+        border-left: 3px solid #4caf50;
+      }
+
+      .path-box.best {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        border-left-color: #ffc107;
+        font-weight: bold;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .task-type-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #667eea;
+      }
+
+      .task-type-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .task-type-card p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+          padding: 6px 8px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge4.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>📚 Теория: Задание 4 ОГЭ — Анализ простейшей модели объектов</h1>
+
+      <div class="theory-section">
+        <h2>🗺️ Что такое граф?</h2>
+        <p>
+          <strong>Граф</strong> — это математическая модель, состоящая из
+          множества <strong>вершин</strong> (точек) и множества
+          <strong>рёбер</strong> (линий, соединяющих вершины).
+        </p>
+        <p>
+          В заданиях ОГЭ графы используются для моделирования дорожных сетей,
+          где:
+        </p>
+        <ul>
+          <li>
+            <strong>Вершины</strong> — населённые пункты (A, B, C, D, E...)
+          </li>
+          <li>
+            <strong>Рёбра</strong> — дороги между пунктами с указанием
+            протяжённости
+          </li>
+        </ul>
+
+        <h3>Пример графа</h3>
+        <div class="graph-container">
+          <svg class="graph-svg" width="400" height="200" viewBox="0 0 400 200">
+            <!-- Вершини -->
+            <circle cx="50" cy="100" r="20" fill="#667eea" />
+            <text
+              x="50"
+              y="105"
+              text-anchor="middle"
+              fill="white"
+              font-weight="bold"
+            >
+              A
+            </text>
+
+            <circle cx="150" cy="50" r="20" fill="#667eea" />
+            <text
+              x="150"
+              y="55"
+              text-anchor="middle"
+              fill="white"
+              font-weight="bold"
+            >
+              B
+            </text>
+
+            <circle cx="150" cy="150" r="20" fill="#667eea" />
+            <text
+              x="150"
+              y="155"
+              text-anchor="middle"
+              fill="white"
+              font-weight="bold"
+            >
+              C
+            </text>
+
+            <circle cx="270" cy="100" r="20" fill="#667eea" />
+            <text
+              x="270"
+              y="105"
+              text-anchor="middle"
+              fill="white"
+              font-weight="bold"
+            >
+              D
+            </text>
+
+            <circle cx="350" cy="100" r="20" fill="#667eea" />
+            <text
+              x="350"
+              y="105"
+              text-anchor="middle"
+              fill="white"
+              font-weight="bold"
+            >
+              E
+            </text>
+
+            <!-- Рёбра -->
+            <line
+              x1="70"
+              y1="90"
+              x2="130"
+              y2="60"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="95" y="65" fill="#333" font-size="12">2</text>
+
+            <line
+              x1="70"
+              y1="110"
+              x2="130"
+              y2="140"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="95" y="135" fill="#333" font-size="12">3</text>
+
+            <line
+              x1="150"
+              y1="70"
+              x2="150"
+              y2="130"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="160" y="100" fill="#333" font-size="12">4</text>
+
+            <line
+              x1="170"
+              y1="50"
+              x2="250"
+              y2="100"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="210" y="65" fill="#333" font-size="12">5</text>
+
+            <line
+              x1="170"
+              y1="150"
+              x2="250"
+              y2="100"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="210" y="140" fill="#333" font-size="12">1</text>
+
+            <line
+              x1="290"
+              y1="100"
+              x2="330"
+              y2="100"
+              stroke="#333"
+              stroke-width="2"
+            />
+            <text x="310" y="90" fill="#333" font-size="12">6</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Матрица расстояний</h2>
+        <p>
+          Информация о графе может быть представлена в виде
+          <strong>матрицы расстояний</strong> (таблицы), где:
+        </p>
+        <ul>
+          <li>Строки и столбцы соответствуют вершинам графа</li>
+          <li>
+            На пересечении строки и столбца указано расстояние между
+            соответствующими пунктами
+          </li>
+          <li>Пустая ячейка или прочерк означает отсутствие прямой дороги</li>
+        </ul>
+
+        <h3>Пример матрицы</h3>
+        <div class="matrix-container">
+          <table class="matrix-table">
+            <tr>
+              <th></th>
+              <th>A</th>
+              <th>B</th>
+              <th>C</th>
+              <th>D</th>
+              <th>E</th>
+            </tr>
+            <tr>
+              <th>A</th>
+              <td class="empty">-</td>
+              <td class="highlight">2</td>
+              <td class="highlight">3</td>
+              <td class="empty">-</td>
+              <td class="empty">-</td>
+            </tr>
+            <tr>
+              <th>B</th>
+              <td class="highlight">2</td>
+              <td class="empty">-</td>
+              <td>4</td>
+              <td>5</td>
+              <td class="empty">-</td>
+            </tr>
+            <tr>
+              <th>C</th>
+              <td class="highlight">3</td>
+              <td>4</td>
+              <td class="empty">-</td>
+              <td>1</td>
+              <td class="empty">-</td>
+            </tr>
+            <tr>
+              <th>D</th>
+              <td class="empty">-</td>
+              <td>5</td>
+              <td>1</td>
+              <td class="empty">-</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <th>E</th>
+              <td class="empty">-</td>
+              <td class="empty">-</td>
+              <td class="empty">-</td>
+              <td>6</td>
+              <td class="empty">-</td>
+            </tr>
+          </table>
+        </div>
+        <p>Жёлтым выделены дороги из пункта A: до B (2 км) и до C (3 км).</p>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔍 Типы задач задания 4 ОГЭ</h2>
+
+        <div class="task-types">
+          <div class="task-type-card">
+            <h4>📍 Кратчайший путь между двумя пунктами</h4>
+            <p>Найти минимальное расстояние от пункта X до пункта Y.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>📍 Путь через определённый пункт</h4>
+            <p>
+              Найти кратчайший путь от X до Y, который обязательно проходит
+              через пункт Z.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Алгоритм решения</h2>
+
+        <h3>Метод перебора путей</h3>
+        <p>
+          Для небольших графов (5-6 вершин) удобно использовать метод перебора
+          всех возможных путей:
+        </p>
+        <ol>
+          <li>
+            Выпишите все возможные маршруты из начального пункта в конечный
+          </li>
+          <li>Для каждого маршрута посчитайте суммарное расстояние</li>
+          <li>Выберите маршрут с минимальным расстоянием</li>
+        </ol>
+
+        <div class="warning-box">
+          <h4>⚠️ Важно!</h4>
+          <p>
+            При переборе путей не забывайте, что можно двигаться только по
+            дорогам, указанным в таблице. Если ячейка пуста — дороги нет!
+          </p>
+        </div>
+
+        <h3>Метод Дейкстры (для более сложных графов)</h3>
+        <p>Алгоритм пошагового нахождения кратчайшего пути:</p>
+        <ol>
+          <li>Отметьте начальную вершину расстоянием 0, остальные — ∞</li>
+          <li>Выберите непосещённую вершину с минимальным расстоянием</li>
+          <li>
+            Для каждой соседней вершины пересчитайте расстояние через текущую
+          </li>
+          <li>Если новое расстояние меньше — обновите его</li>
+          <li>Повторяйте шаги 2-4, пока не достигнете целевой вершины</li>
+        </ol>
+
+        <h3>Метод построения дерева путей</h3>
+        <p>
+          Этот метод наглядно показывает все возможные маршруты в виде дерева.
+          Он особенно удобен для задач ОГЭ с небольшим количеством вершин.
+        </p>
+        <ol>
+          <li>Начните с начального пункта — это корень дерева</li>
+          <li>
+            От корня проведите ветви ко всем пунктам, куда можно попасть
+            напрямую
+          </li>
+          <li>На каждой ветви подпишите расстояние</li>
+          <li>
+            От каждого нового пункта проведите ветви дальше, не возвращаясь к
+            уже посещённым
+          </li>
+          <li>Продолжайте, пока не достигнете конечного пункта</li>
+          <li>
+            Сложите расстояния вдоль каждой ветви от корня до конечного пункта
+          </li>
+          <li>Выберите путь с минимальной суммой</li>
+        </ol>
+
+        <div class="tip-box">
+          <h4>Пример дерева путей</h4>
+          <p>
+            Для поиска пути из A в E строим дерево всех возможных маршрутов:
+          </p>
+          <div style="margin: 20px 0; overflow-x: auto">
+            <svg
+              width="100%"
+              height="420"
+              viewBox="0 0 800 420"
+              style="max-width: 800px; display: block; margin: 0 auto"
+            >
+              <!-- Уровень 0: A -->
+              <circle
+                cx="400"
+                cy="30"
+                r="22"
+                fill="#667eea"
+                stroke="#5a6fd6"
+                stroke-width="2"
+              />
+              <text
+                x="400"
+                y="36"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="16"
+              >
+                A
+              </text>
+              <text
+                x="400"
+                y="60"
+                text-anchor="middle"
+                fill="#667eea"
+                font-weight="bold"
+                font-size="12"
+              >
+                0 км
+              </text>
+
+              <!-- Уровень 1: B и C -->
+              <!-- Линия A -> B -->
+              <line
+                x1="378"
+                y1="45"
+                x2="220"
+                y2="95"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="280"
+                y="65"
+                fill="#333"
+                font-size="11"
+                font-weight="bold"
+              >
+                2
+              </text>
+
+              <!-- Линия A -> C -->
+              <line
+                x1="422"
+                y1="45"
+                x2="580"
+                y2="95"
+                stroke="#4caf50"
+                stroke-width="3"
+              />
+              <text
+                x="520"
+                y="65"
+                fill="#4caf50"
+                font-size="11"
+                font-weight="bold"
+              >
+                3
+              </text>
+
+              <!-- B -->
+              <circle
+                cx="200"
+                cy="110"
+                r="20"
+                fill="#2196f3"
+                stroke="#1976d2"
+                stroke-width="2"
+              />
+              <text
+                x="200"
+                y="116"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="14"
+              >
+                B
+              </text>
+              <text
+                x="200"
+                y="138"
+                text-anchor="middle"
+                fill="#2196f3"
+                font-weight="bold"
+                font-size="11"
+              >
+                2 км
+              </text>
+
+              <!-- C (правый верхний) -->
+              <circle
+                cx="600"
+                cy="110"
+                r="20"
+                fill="#4caf50"
+                stroke="#388e3c"
+                stroke-width="2"
+              />
+              <text
+                x="600"
+                y="116"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="14"
+              >
+                C
+              </text>
+              <text
+                x="600"
+                y="138"
+                text-anchor="middle"
+                fill="#4caf50"
+                font-weight="bold"
+                font-size="11"
+              >
+                3 км
+              </text>
+
+              <!-- Уровень 2: C (от B), D (от B), D (от C), E (от C) -->
+              <!-- Линия B -> C -->
+              <line
+                x1="218"
+                y1="125"
+                x2="280"
+                y2="185"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="235"
+                y="160"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                3
+              </text>
+
+              <!-- Линия B -> D -->
+              <line
+                x1="182"
+                y1="128"
+                x2="100"
+                y2="185"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="120"
+                y="160"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                5
+              </text>
+
+              <!-- Линия C -> D -->
+              <line
+                x1="582"
+                y1="125"
+                x2="520"
+                y2="185"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="535"
+                y="160"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                1
+              </text>
+
+              <!-- Линия C -> E (кратчайший путь!) -->
+              <line
+                x1="618"
+                y1="125"
+                x2="700"
+                y2="185"
+                stroke="#4caf50"
+                stroke-width="3"
+              />
+              <text
+                x="675"
+                y="160"
+                fill="#4caf50"
+                font-size="10"
+                font-weight="bold"
+              >
+                2
+              </text>
+
+              <!-- C (от B) -->
+              <circle
+                cx="300"
+                cy="200"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="300"
+                y="206"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                C
+              </text>
+              <text
+                x="300"
+                y="226"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                5 км
+              </text>
+
+              <!-- D (от B) -->
+              <circle
+                cx="80"
+                cy="200"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="80"
+                y="206"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                D
+              </text>
+              <text
+                x="80"
+                y="226"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                7 км
+              </text>
+
+              <!-- D (от C) -->
+              <circle
+                cx="500"
+                cy="200"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="500"
+                y="206"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                D
+              </text>
+              <text
+                x="500"
+                y="226"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                4 км
+              </text>
+
+              <!-- E (от C) - КРАТЧАЙШИЙ ПУТЬ -->
+              <circle
+                cx="720"
+                cy="200"
+                r="20"
+                fill="#4caf50"
+                stroke="#2e7d32"
+                stroke-width="3"
+              />
+              <text
+                x="720"
+                y="206"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                E
+              </text>
+              <text
+                x="720"
+                y="228"
+                text-anchor="middle"
+                fill="#4caf50"
+                font-weight="bold"
+                font-size="10"
+              >
+                5 км ✓
+              </text>
+
+              <!-- Уровень 3: E и D от C(от B), E от D(от B), E от D(от C) -->
+              <!-- Линия C(от B) -> E -->
+              <line
+                x1="318"
+                y1="212"
+                x2="380"
+                y2="285"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="335"
+                y="255"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                2
+              </text>
+
+              <!-- Линия C(от B) -> D -->
+              <line
+                x1="282"
+                y1="215"
+                x2="220"
+                y2="285"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="235"
+                y="255"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                1
+              </text>
+
+              <!-- Линия D(от B) -> E -->
+              <line
+                x1="98"
+                y1="212"
+                x2="140"
+                y2="285"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="105"
+                y="255"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                6
+              </text>
+
+              <!-- Линия D(от C) -> E -->
+              <line
+                x1="518"
+                y1="212"
+                x2="560"
+                y2="285"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="525"
+                y="255"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                6
+              </text>
+
+              <!-- E (от C от B) -->
+              <circle
+                cx="400"
+                cy="300"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="400"
+                y="306"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                E
+              </text>
+              <text
+                x="400"
+                y="326"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                7 км
+              </text>
+
+              <!-- D (от C от B) -->
+              <circle
+                cx="200"
+                cy="300"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="200"
+                y="306"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                D
+              </text>
+              <text
+                x="200"
+                y="326"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                6 км
+              </text>
+
+              <!-- E (от D от B) -->
+              <circle
+                cx="160"
+                cy="300"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="160"
+                y="306"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                E
+              </text>
+              <text
+                x="160"
+                y="326"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                13 км
+              </text>
+
+              <!-- E (от D от C) -->
+              <circle
+                cx="580"
+                cy="300"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="580"
+                y="306"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                E
+              </text>
+              <text
+                x="580"
+                y="326"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                10 км
+              </text>
+
+              <!-- Уровень 4: E от D(от C от B) -->
+              <!-- Линия D(от C от B) -> E -->
+              <line
+                x1="218"
+                y1="312"
+                x2="260"
+                y2="365"
+                stroke="#333"
+                stroke-width="2"
+              />
+              <text
+                x="225"
+                y="345"
+                fill="#333"
+                font-size="10"
+                font-weight="bold"
+              >
+                6
+              </text>
+
+              <!-- E (от D от C от B) -->
+              <circle
+                cx="280"
+                cy="380"
+                r="18"
+                fill="#9e9e9e"
+                stroke="#757575"
+                stroke-width="2"
+              />
+              <text
+                x="280"
+                y="386"
+                text-anchor="middle"
+                fill="white"
+                font-weight="bold"
+                font-size="13"
+              >
+                E
+              </text>
+              <text
+                x="280"
+                y="406"
+                text-anchor="middle"
+                fill="#666"
+                font-size="10"
+              >
+                12 км
+              </text>
+
+              <!-- Легенда -->
+              <rect
+                x="620"
+                y="360"
+                width="15"
+                height="15"
+                fill="#4caf50"
+                rx="3"
+              />
+              <text x="640" y="372" fill="#333" font-size="11">
+                Кратчайший путь (5 км)
+              </text>
+
+              <rect
+                x="620"
+                y="385"
+                width="15"
+                height="15"
+                fill="#9e9e9e"
+                rx="3"
+              />
+              <text x="640" y="397" fill="#333" font-size="11">
+                Другие маршруты
+              </text>
+            </svg>
+          </div>
+
+          <p><strong>Все возможные пути из A в E:</strong></p>
+          <ul style="margin: 10px 0 15px 20px; line-height: 1.8">
+            <li>
+              <strong style="color: #4caf50">A → C → E = 3 + 2 = 5 км</strong> ←
+              кратчайший!
+            </li>
+            <li>A → B → C → E = 2 + 3 + 2 = 7 км</li>
+            <li>A → B → C → D → E = 2 + 3 + 1 + 6 = 12 км</li>
+            <li>A → B → D → E = 2 + 5 + 6 = 13 км</li>
+            <li>A → C → D → E = 3 + 1 + 6 = 10 км</li>
+          </ul>
+
+          <p>
+            <strong>Ответ:</strong> Кратчайший путь
+            <strong style="color: #4caf50">A → C → E = 5 км</strong>
+          </p>
+          <p style="font-size: 0.9rem; color: #666; margin-top: 10px">
+            Под каждой вершиной указано накопленное расстояние от начального
+            пункта A. Зелёным цветом выделен кратчайший путь.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Примеры решения задач</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Кратчайший путь между двумя пунктами</h4>
+          <p>
+            <strong>Условие:</strong> Между населёнными пунктами A, B, C, D, E
+            построены дороги, протяжённость которых приведена в таблице.
+            Определите длину кратчайшего пути между пунктами A и D.
+          </p>
+
+          <div class="matrix-container">
+            <table class="matrix-table">
+              <tr>
+                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+              </tr>
+              <tr>
+                <th>A</th>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td>5</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>B</th>
+                <td>2</td>
+                <td class="empty">-</td>
+                <td>3</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>C</th>
+                <td>5</td>
+                <td>3</td>
+                <td class="empty">-</td>
+                <td>4</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <th>D</th>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td>4</td>
+                <td class="empty">-</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <th>E</th>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td>1</td>
+                <td class="empty">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Выпишем все возможные пути из A в D:
+            </div>
+            <div class="path-box">
+              <strong>Путь 1:</strong> A → B → C → D<br />
+              Расстояние: 2 + 3 + 4 = <strong>9</strong>
+            </div>
+            <div class="path-box">
+              <strong>Путь 2:</strong> A → B → C → E → D<br />
+              Расстояние: 2 + 3 + 2 + 1 = <strong>8</strong>
+            </div>
+            <div class="path-box">
+              <strong>Путь 3:</strong> A → C → D<br />
+              Расстояние: 5 + 4 = <strong>9</strong>
+            </div>
+            <div class="path-box best">
+              <strong>Путь 4:</strong> A → C → E → D<br />
+              Расстояние: 5 + 2 + 1 = <strong>8</strong> ← минимальный!
+            </div>
+            <div class="step-box">
+              <strong>Ответ: 8</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Путь через определённый пункт</h4>
+          <p>
+            <strong>Условие:</strong> Между населёнными пунктами A, B, C, D, E
+            построены дороги, протяжённость которых приведена в таблице.
+            Определите длину кратчайшего пути между пунктами A и E, проходящего
+            через пункт C.
+          </p>
+
+          <div class="matrix-container">
+            <table class="matrix-table">
+              <tr>
+                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+              </tr>
+              <tr>
+                <th>A</th>
+                <td class="empty">-</td>
+                <td>1</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>B</th>
+                <td>1</td>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td class="empty">-</td>
+                <td>7</td>
+              </tr>
+              <tr>
+                <th>C</th>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td class="empty">-</td>
+                <td>3</td>
+                <td>4</td>
+              </tr>
+              <tr>
+                <th>D</th>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td>3</td>
+                <td class="empty">-</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <th>E</th>
+                <td class="empty">-</td>
+                <td>7</td>
+                <td>4</td>
+                <td>2</td>
+                <td class="empty">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Разобьём задачу на две части:<br />
+              1) Найти кратчайший путь из A в C<br />
+              2) Найти кратчайший путь из C в E
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Пути из A в C:<br />
+              • A → B → C = 1 + 2 = <strong>3</strong> ✓
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Пути из C в E:<br />
+              • C → E = <strong>4</strong><br />
+              • C → D → E = 3 + 2 = <strong>5</strong><br />
+              Кратчайший: C → E = 4
+            </div>
+            <div class="step-box">
+              <strong>Шаг 4:</strong> Объединяем пути:<br />
+              A → B → C → E = 1 + 2 + 4 = <strong>7</strong>
+            </div>
+            <div class="step-box">
+              <strong>Ответ: 7</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Граф с 6 вершинами</h4>
+          <p>
+            <strong>Условие:</strong> Между населёнными пунктами A, B, C, D, E,
+            F построены дороги, протяжённость которых приведена в таблице.
+            Определите длину кратчайшего пути между пунктами A и F, проходящего
+            через пункт C.
+          </p>
+
+          <div class="matrix-container">
+            <table class="matrix-table">
+              <tr>
+                <th></th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+              </tr>
+              <tr>
+                <th>A</th>
+                <td class="empty">-</td>
+                <td>3</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>B</th>
+                <td>3</td>
+                <td class="empty">-</td>
+                <td>1</td>
+                <td class="empty">-</td>
+                <td>4</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>C</th>
+                <td class="empty">-</td>
+                <td>1</td>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td>5</td>
+                <td class="empty">-</td>
+              </tr>
+              <tr>
+                <th>D</th>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td>2</td>
+                <td class="empty">-</td>
+                <td>1</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <th>E</th>
+                <td class="empty">-</td>
+                <td>4</td>
+                <td>5</td>
+                <td>1</td>
+                <td class="empty">-</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <th>F</th>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td class="empty">-</td>
+                <td>3</td>
+                <td>2</td>
+                <td class="empty">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="example-solution">
+            <strong>Решение:</strong><br /><br />
+            <div class="step-box">
+              <strong>Шаг 1:</strong> Найти кратчайший путь из A в C:<br />
+              • A → B → C = 3 + 1 = <strong>4</strong>
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Найти кратчайший путь из C в F:<br />
+              • C → D → F = 2 + 3 = <strong>5</strong><br />
+              • C → D → E → F = 2 + 1 + 2 = <strong>5</strong><br />
+              • C → E → F = 5 + 2 = <strong>7</strong><br />
+              Кратчайший: C → D → F = 5
+            </div>
+            <div class="step-box">
+              <strong>Шаг 3:</strong> Объединяем:<br />
+              A → B → C → D → F = 3 + 1 + 2 + 3 = <strong>9</strong>
+            </div>
+            <div class="step-box">
+              <strong>Ответ: 9</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Пропуск путей</strong> — не все возможные маршруты
+            рассмотрены
+          </li>
+          <li>
+            <strong>Неправильное чтение таблицы</strong> — путаница между
+            строками и столбцами
+          </li>
+          <li>
+            <strong>Игнорирование условия</strong> — путь должен проходить через
+            указанный пункт
+          </li>
+          <li>
+            <strong>Арифметические ошибки</strong> — неправильное сложение
+            расстояний
+          </li>
+          <li>
+            <strong>Выбор не кратчайшего пути</strong> — нужно перебрать все
+            варианты
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>💡 Полезные советы</h2>
+        <div class="tip-box">
+          <h4>Как правильно перебирать пути</h4>
+          <ul>
+            <li>
+              Начинайте с начального пункта и последовательно перебирайте все
+              соседние
+            </li>
+            <li>Записывайте каждый путь и его длину</li>
+            <li>Не забывайте про пути через промежуточные пункты</li>
+            <li>Сравнивайте все найденные пути перед выбором ответа</li>
+          </ul>
+        </div>
+
+        <div class="tip-box">
+          <h4>Если путь должен проходить через пункт C</h4>
+          <ol>
+            <li>Найдите кратчайший путь от начала до C</li>
+            <li>Найдите кратчайший путь от C до конца</li>
+            <li>Сложите эти два расстояния</li>
+          </ol>
+        </div>
+
+        <div class="tip-box">
+          <h4>Проверка ответа</h4>
+          <ul>
+            <li>
+              Убедитесь, что все дороги в пути существуют (есть в таблице)
+            </li>
+            <li>
+              Проверьте, что путь начинается и заканчивается в нужных пунктах
+            </li>
+            <li>
+              Если есть условие про промежуточный пункт — проверьте, что путь
+              через него проходит
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 План решения задачи</h2>
+        <ol>
+          <li>📝 Внимательно прочитайте условие задачи</li>
+          <li>
+            🔍 Определите начальный и конечный пункты, а также обязательные
+            промежуточные пункты (если есть)
+          </li>
+          <li>📊 Изучите таблицу расстояний</li>
+          <li>🛤️ Выпишите все возможные маршруты</li>
+          <li>🔢 Посчитайте расстояние для каждого маршрута</li>
+          <li>✅ Выберите кратчайший путь и запишите ответ</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge4.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

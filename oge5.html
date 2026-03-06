@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 5 ОГЭ - Анализ алгоритмов для исполнителя</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .task-type {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .task-type.algorithm {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .task-type.parameter {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .task-text .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .commands-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .commands-box h4 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .command-item {
+        padding: 5px 0;
+        font-family: "Courier New", monospace;
+      }
+
+      .command-number {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 20px;
+        font-size: 0.8rem;
+        margin-right: 10px;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+        font-size: 0.95rem;
+      }
+
+      .answer-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+
+      .answer-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .answer-input.correct {
+        border-color: #4caf50;
+        background: #e8f5e9;
+      }
+
+      .answer-input.incorrect {
+        border-color: #f44336;
+        background: #ffebee;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-solution {
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 20px 25px;
+        border-radius: 15px;
+        display: none;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        animation: resultPop 0.4s ease-out;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      @keyframes resultPop {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .result.correct {
+        display: block;
+        background: linear-gradient(145deg, #4caf50 0%, #2e7d32 100%);
+        border: 3px solid #1b5e20;
+        color: white;
+      }
+
+      .result.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #f44336 0%, #c62828 100%);
+        border: 3px solid #b71c1c;
+        color: white;
+      }
+
+      .result-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .hint-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        display: none;
+      }
+
+      .hint-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .hint-box p {
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .solution-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .solution-box h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .solution-step {
+        background: white;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 3px solid #667eea;
+      }
+
+      .solution-step strong {
+        color: #667eea;
+      }
+
+      .algorithm-step {
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin: 5px 0;
+        border-left: 3px solid #4caf50;
+        font-family: "Courier New", monospace;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.theory {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .answer-input {
+          font-size: 1rem;
+          padding: 12px 15px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge5-t.html" class="back-link">📚 Теория</a>
+      </div>
+
+      <h1>🎮 Задание 5 ОГЭ — Анализ алгоритмов для исполнителя</h1>
+
+      <div class="task-card" id="taskCard">
+        <!-- Задача будет сгенерирована здесь -->
+      </div>
+
+      <div class="hint-box" id="hintBox">
+        <h4>💡 Подсказка</h4>
+        <p id="hintText"></p>
+      </div>
+
+      <div class="solution-box" id="solutionBox">
+        <h4>📝 Решение</h4>
+        <div id="solutionSteps"></div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn theory"
+        onclick="location.href = 'oge5-t.html'"
+        title="Теория"
+      >
+        📚
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      // Генераторы задач
+      const taskGenerators = [
+        // Тип 1: Составление алгоритма - возведение в квадрат последней цифры
+        {
+          type: "algorithm",
+          generate: () => {
+            // Генерируем задачу на составление алгоритма
+            const startNum = Math.floor(Math.random() * 5) + 2; // 2-6
+            const maxCommands = 5;
+
+            // Возможные конечные числа и пути к ним
+            const paths = generateAlgorithmPath(startNum, maxCommands);
+            if (!paths) return null;
+
+            return paths;
+          },
+        },
+        // Тип 2: Определение параметра b - припиши слева
+        {
+          type: "parameter",
+          generate: () => {
+            // Программа с командой "припиши слева b"
+            const b = Math.floor(Math.random() * 8) + 1; // 1-8
+            const startNum = Math.floor(Math.random() * 3) + 2; // 2-4
+
+            // Генерируем программу
+            const programs = [
+              { program: "11221", commands: ["прибавь 1", "припиши слева b"] },
+              { program: "12121", commands: ["прибавь 1", "припиши слева b"] },
+              { program: "11211", commands: ["прибавь 1", "припиши слева b"] },
+              { program: "12112", commands: ["прибавь 1", "припиши слева b"] },
+            ];
+
+            const selected =
+              programs[Math.floor(Math.random() * programs.length)];
+
+            // Выполняем программу
+            let result = executeProgramAppendLeft(
+              startNum,
+              selected.program,
+              b,
+            );
+
+            return {
+              taskType: "parameter",
+              program: selected.program,
+              commands: selected.commands,
+              startNum: startNum,
+              endNum: result,
+              answer: b,
+            };
+          },
+        },
+        // Тип 3: Определение параметра b - прибавь b и возведи в квадрат
+        {
+          type: "parameter",
+          generate: () => {
+            const b = Math.floor(Math.random() * 4) + 1; // 1-4
+            const startNum = Math.floor(Math.random() * 3) + 1; // 1-3
+
+            // Генерируем программу
+            const programs = [
+              {
+                program: "11112",
+                commands: ["прибавь b", "возведи в квадрат"],
+              },
+              {
+                program: "11121",
+                commands: ["прибавь b", "возведи в квадрат"],
+              },
+              {
+                program: "11211",
+                commands: ["прибавь b", "возведи в квадрат"],
+              },
+            ];
+
+            const selected =
+              programs[Math.floor(Math.random() * programs.length)];
+
+            // Выполняем программу
+            let result = executeProgramAddAndSquare(
+              startNum,
+              selected.program,
+              b,
+            );
+
+            // Проверяем, что результат разумный
+            if (result > 10000 || result < 0) return null;
+
+            return {
+              taskType: "parameter",
+              program: selected.program,
+              commands: selected.commands,
+              startNum: startNum,
+              endNum: result,
+              answer: b,
+              commandType: "addAndSquare",
+            };
+          },
+        },
+        // Тип 4: Составление алгоритма - умножь на 2 и прибавь
+        {
+          type: "algorithm",
+          generate: () => {
+            const startNum = Math.floor(Math.random() * 5) + 1; // 1-5
+            const addValue = Math.floor(Math.random() * 3) + 1; // 1-3
+
+            // Команды: 1. прибавь X, 2. умножь на 2
+            // Идём от конечного к начальному обратным ходом
+            const endNum = Math.floor(Math.random() * 20) + startNum * 2 + 5;
+
+            const path = findPathMultiplyAdd(startNum, endNum, addValue, 5);
+
+            if (!path) return null;
+
+            return {
+              taskType: "algorithm",
+              commands: [`прибавь ${addValue}`, "умножь на 2"],
+              startNum: startNum,
+              endNum: endNum,
+              answer: path.program,
+              maxCommands: 5,
+              addValue: addValue,
+            };
+          },
+        },
+      ];
+
+      // Вспомогательные функции
+
+      function squareLastDigit(n) {
+        const str = n.toString();
+        const lastDigit = parseInt(str[str.length - 1]);
+        const square = lastDigit * lastDigit;
+        const newStr = str.slice(0, -1) + square.toString();
+        return parseInt(newStr);
+      }
+
+      function executeProgramAppendLeft(startNum, program, b) {
+        let num = startNum;
+        for (const cmd of program) {
+          if (cmd === "1") {
+            num += 1;
+          } else if (cmd === "2") {
+            const numStr = num.toString();
+            num = parseInt(b.toString() + numStr);
+          }
+        }
+        return num;
+      }
+
+      function executeProgramAddAndSquare(startNum, program, b) {
+        let num = startNum;
+        for (const cmd of program) {
+          if (cmd === "1") {
+            num += b;
+          } else if (cmd === "2") {
+            num = num * num;
+          }
+        }
+        return num;
+      }
+
+      function generateAlgorithmPath(startNum, maxCommands) {
+        // Команды: 1. прибавь 1, 2. возведи в квадрат последнюю цифру
+        // Ищем достижимое число
+
+        const visited = new Set();
+        const queue = [{ num: startNum, path: "" }];
+
+        const results = [];
+
+        while (queue.length > 0 && results.length < 10) {
+          const { num, path } = queue.shift();
+
+          if (path.length >= maxCommands) continue;
+
+          const key = `${num}-${path.length}`;
+          if (visited.has(key)) continue;
+          visited.add(key);
+
+          // Команда 1: прибавь 1
+          const num1 = num + 1;
+          const path1 = path + "1";
+          if (path1.length <= maxCommands) {
+            if (path1.length >= 3 && num1 > 10) {
+              results.push({
+                taskType: "algorithm",
+                commands: ["прибавь 1", "возведи в квадрат последнюю цифру"],
+                startNum: startNum,
+                endNum: num1,
+                answer: path1,
+                maxCommands: maxCommands,
+              });
+            }
+            queue.push({ num: num1, path: path1 });
+          }
+
+          // Команда 2: возведи в квадрат последнюю цифру
+          const num2 = squareLastDigit(num);
+          const path2 = path + "2";
+          if (path2.length <= maxCommands) {
+            if (path2.length >= 2 && num2 > 10) {
+              results.push({
+                taskType: "algorithm",
+                commands: ["прибавь 1", "возведи в квадрат последнюю цифру"],
+                startNum: startNum,
+                endNum: num2,
+                answer: path2,
+                maxCommands: maxCommands,
+              });
+            }
+            queue.push({ num: num2, path: path2 });
+          }
+        }
+
+        if (results.length === 0) return null;
+
+        // Выбираем случайный результат
+        return results[Math.floor(Math.random() * results.length)];
+      }
+
+      function findPathMultiplyAdd(startNum, endNum, addValue, maxCommands) {
+        // Обратный ход от endNum к startNum
+        // Обратные команды: 1. вычти addValue, 2. раздели на 2 (если чётное)
+
+        const visited = new Set();
+        const queue = [{ num: endNum, path: "" }];
+
+        while (queue.length > 0) {
+          const { num, path } = queue.shift();
+
+          if (path.length > maxCommands) continue;
+
+          if (num === startNum) {
+            return { program: path.split("").reverse().join("") };
+          }
+
+          const key = `${num}-${path.length}`;
+          if (visited.has(key)) continue;
+          visited.add(key);
+
+          // Обратная команда 1: вычти addValue (обратная для "прибавь addValue")
+          if (num > addValue) {
+            const num1 = num - addValue;
+            const path1 = path + "1";
+            queue.push({ num: num1, path: path1 });
+          }
+
+          // Обратная команда 2: раздели на 2 (обратная для "умножь на 2")
+          if (num % 2 === 0) {
+            const num2 = num / 2;
+            const path2 = path + "2";
+            queue.push({ num: num2, path: path2 });
+          }
+        }
+
+        return null;
+      }
+
+      let currentTask = null;
+
+      // Генерация задачи
+      function generateTask() {
+        let task = null;
+        let attempts = 0;
+
+        while (!task && attempts < 20) {
+          const generator =
+            taskGenerators[Math.floor(Math.random() * taskGenerators.length)];
+          task = generator.generate();
+          attempts++;
+        }
+
+        if (!task) {
+          // Fallback задача
+          task = {
+            taskType: "parameter",
+            program: "11221",
+            commands: ["прибавь 1", "припиши слева b"],
+            startNum: 2,
+            endNum: 775,
+            answer: 7,
+          };
+        }
+
+        currentTask = task;
+        renderTask();
+        hideHintsAndSolution();
+      }
+
+      function renderTask() {
+        const taskCard = document.getElementById("taskCard");
+
+        let typeLabel = "";
+        let typeClass = "";
+
+        if (currentTask.taskType === "algorithm") {
+          typeLabel = "Составление алгоритма";
+          typeClass = "algorithm";
+        } else {
+          typeLabel = "Определение параметра";
+          typeClass = "parameter";
+        }
+
+        // Формируем текст задачи
+        let taskHTML = "";
+
+        if (currentTask.taskType === "algorithm") {
+          taskHTML = generateAlgorithmTaskHTML(currentTask);
+        } else {
+          taskHTML = generateParameterTaskHTML(currentTask);
+        }
+
+        taskCard.innerHTML = `
+          <div class="task-header">
+            <span class="task-type ${typeClass}">${typeLabel}</span>
+          </div>
+          <div class="task-text">${taskHTML}</div>
+          <div class="answer-section">
+            <label class="answer-label">Ваш ответ:</label>
+            <input type="text" class="answer-input" id="answerInput" placeholder="Введите ответ..." autocomplete="off">
+            <div class="buttons">
+              <button class="btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
+              <button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button>
+              <button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button>
+              <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
+            </div>
+            <div class="result" id="result"></div>
+          </div>
+        `;
+
+        document
+          .getElementById("answerInput")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              checkAnswer();
+            }
+          });
+
+        document.getElementById("answerInput").focus();
+      }
+
+      function generateAlgorithmTaskHTML(task) {
+        let commandsHTML = task.commands
+          .map(
+            (cmd, i) =>
+              `<div class="command-item"><span class="command-number">${
+                i + 1
+              }</span>${cmd}</div>`,
+          )
+          .join("");
+
+        return `
+          <p>У исполнителя Омега две команды, которым присвоены номера:</p>
+          <div class="commands-box">
+            <h4>Команды:</h4>
+            ${commandsHTML}
+          </div>
+          <p>Первая из них увеличивает число на экране на 1${
+            task.commands[0].includes("прибавь")
+              ? ""
+              : ", вторая заменяет число на экране числом, у которого цифра младшего разряда заменена квадратом её числового значения"
+          }.</p>
+          <p>Составьте алгоритм получения из числа <span class="highlight">${
+            task.startNum
+          }</span> числа <span class="highlight">${
+            task.endNum
+          }</span>, содержащий не более ${
+            task.maxCommands
+          } команд. В ответе запишите только номера команд.</p>
+          <div class="example-box">
+            <strong>Например:</strong> 12211 — это алгоритм:
+            ${
+              task.commands[0]
+            }, ${task.commands[1].toLowerCase()}, ${task.commands[1].toLowerCase()}, ${task.commands[0].toLowerCase()}, ${task.commands[0].toLowerCase()}, который преобразует число 1 в ${executeExample(
+              1,
+              "12211",
+              task.commands,
+            )}.
+          </div>
+          <p>Если таких алгоритмов более одного, то запишите любой из них.</p>
+        `;
+      }
+
+      function generateParameterTaskHTML(task) {
+        let commandsDesc = "";
+        if (task.commandType === "addAndSquare") {
+          commandsDesc = `Выполняя первую из них, Омега увеличивает число на экране на b, а выполняя вторую, заменяет число на экране на это же число, возведённое в квадрат.`;
+        } else {
+          commandsDesc = `Выполняя первую из них, Омега увеличивает число на экране на 1, а выполняя вторую, приписывает к этому числу слева b.`;
+        }
+
+        let commandsHTML = task.commands
+          .map(
+            (cmd, i) =>
+              `<div class="command-item"><span class="command-number">${
+                i + 1
+              }</span>${cmd}</div>`,
+          )
+          .join("");
+
+        return `
+          <p>У исполнителя Омега две команды, которым присвоены номера:</p>
+          <div class="commands-box">
+            <h4>Команды:</h4>
+            ${commandsHTML}
+          </div>
+          <p>(b — неизвестное натуральное число).</p>
+          <p>${commandsDesc}</p>
+          <p>Программа для исполнителя Омега — это последовательность номеров команд.</p>
+          <p>Известно, что программа <span class="highlight">${
+            task.program
+          }</span> переводит число <span class="highlight">${
+            task.startNum
+          }</span> в число <span class="highlight">${task.endNum}</span>.</p>
+          <p>Определите значение b.</p>
+        `;
+      }
+
+      function executeExample(start, program, commands) {
+        let num = start;
+        for (const cmd of program) {
+          if (cmd === "1") {
+            if (commands[0].includes("прибавь")) {
+              const match = commands[0].match(/\d+/);
+              const val = match ? parseInt(match[0]) : 1;
+              num += val;
+            }
+          } else if (cmd === "2") {
+            if (commands[1].includes("квадрат последнюю цифру")) {
+              num = squareLastDigit(num);
+            } else if (commands[1].includes("умножь")) {
+              num *= 2;
+            }
+          }
+        }
+        return num;
+      }
+
+      function checkAnswer() {
+        const input = document.getElementById("answerInput");
+        const result = document.getElementById("result");
+        const userAnswer = input.value.trim();
+
+        if (!userAnswer) {
+          input.focus();
+          return;
+        }
+
+        const correctAnswer = currentTask.answer.toString();
+
+        if (userAnswer === correctAnswer) {
+          input.classList.remove("incorrect");
+          input.classList.add("correct");
+          result.className = "result correct";
+          result.innerHTML = `
+            <span class="result-icon">🎉</span>
+            ПРАВИЛЬНО! Отличная работа!
+          `;
+          result.style.display = "block";
+          result.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          input.classList.remove("correct");
+          input.classList.add("incorrect");
+          result.className = "result incorrect";
+          result.innerHTML = `
+            <span class="result-icon">😔</span>
+            НЕПРАВИЛЬНО!<br>
+            <small>Правильный ответ: <strong>${correctAnswer}</strong></small>
+          `;
+          result.style.display = "block";
+          result.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      function nextTask() {
+        generateTask();
+      }
+
+      function showHint() {
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+
+        if (currentTask.taskType === "algorithm") {
+          hintText.innerHTML = `
+            <strong>Используйте метод обратного хода:</strong><br><br>
+            1. Начните с конечного числа ${currentTask.endNum}.<br>
+            2. Попробуйте применить обратные операции.<br>
+            3. Идите к начальному числу ${currentTask.startNum}.<br>
+            4. Запишите команды в обратном порядке.
+          `;
+        } else {
+          if (currentTask.commandType === "addAndSquare") {
+            hintText.innerHTML = `
+              <strong>Выполните программу с переменной b:</strong><br><br>
+              1. Начните с числа ${currentTask.startNum}.<br>
+              2. Выполните каждую команду программы "${currentTask.program}", выражая результат через b.<br>
+              3. Приравняйте результат к ${currentTask.endNum}.<br>
+              4. Решите полученное уравнение.
+            `;
+          } else {
+            hintText.innerHTML = `
+              <strong>Выполните программу с переменной b:</strong><br><br>
+              1. Начните с числа ${currentTask.startNum}.<br>
+              2. Команда "припиши слева b" добавляет цифру b в начало числа.<br>
+              3. Если к числу x приписать слева цифру b, получится число: b × 10<sup>n</sup> + x, где n — количество цифр в x.<br>
+              4. Выполните программу "${currentTask.program}" и решите уравнение.
+            `;
+          }
+        }
+
+        hintBox.style.display = "block";
+      }
+
+      function showSolution() {
+        const solutionBox = document.getElementById("solutionBox");
+        const solutionSteps = document.getElementById("solutionSteps");
+
+        let stepsHTML = "";
+
+        if (currentTask.taskType === "algorithm") {
+          stepsHTML = generateAlgorithmSolution();
+        } else {
+          stepsHTML = generateParameterSolution();
+        }
+
+        solutionSteps.innerHTML = stepsHTML;
+        solutionBox.style.display = "block";
+      }
+
+      function generateAlgorithmSolution() {
+        const program = currentTask.answer;
+        let steps = [];
+        let num = currentTask.startNum;
+
+        steps.push({
+          title: "Выполняем алгоритм:",
+          content: `Начальное число: ${num}`,
+        });
+
+        for (let i = 0; i < program.length; i++) {
+          const cmd = program[i];
+          const prevNum = num;
+
+          if (cmd === "1") {
+            if (currentTask.commands[0].includes("прибавь")) {
+              const match = currentTask.commands[0].match(/\d+/);
+              const val = match ? parseInt(match[0]) : 1;
+              num += val;
+              steps.push({
+                title: `Команда ${i + 1} (${cmd}): ${currentTask.commands[0]}`,
+                content: `${prevNum} + ${val} = ${num}`,
+              });
+            }
+          } else if (cmd === "2") {
+            if (currentTask.commands[1].includes("квадрат последнюю цифру")) {
+              const lastDigit = prevNum % 10;
+              const square = lastDigit * lastDigit;
+              num = squareLastDigit(prevNum);
+              steps.push({
+                title: `Команда ${i + 1} (${cmd}): ${currentTask.commands[1]}`,
+                content: `${prevNum} → последняя цифра ${lastDigit}, ${lastDigit}² = ${square} → ${num}`,
+              });
+            } else if (currentTask.commands[1].includes("умножь")) {
+              num *= 2;
+              steps.push({
+                title: `Команда ${i + 1} (${cmd}): ${currentTask.commands[1]}`,
+                content: `${prevNum} × 2 = ${num}`,
+              });
+            }
+          }
+        }
+
+        let html = "";
+        for (const step of steps) {
+          html += `
+            <div class="solution-step">
+              <strong>${step.title}</strong><br>
+              ${step.content}
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <strong>Ответ: ${currentTask.answer}</strong>
+          </div>
+        `;
+
+        return html;
+      }
+
+      function generateParameterSolution() {
+        let html = "";
+        const program = currentTask.program;
+
+        if (currentTask.commandType === "addAndSquare") {
+          html = `
+            <div class="solution-step">
+              <strong>Выполняем программу "${program}" для числа ${currentTask.startNum}:</strong>
+            </div>
+          `;
+
+          let num = currentTask.startNum;
+          let expression = currentTask.startNum.toString();
+
+          for (const cmd of program) {
+            if (cmd === "1") {
+              num = `${num} + b`;
+              expression = `(${expression}) + b`;
+              html += `
+                <div class="algorithm-step">
+                  Команда 1 (прибавь b): ${expression}
+                </div>
+              `;
+            } else if (cmd === "2") {
+              expression = `(${expression})²`;
+              html += `
+                <div class="algorithm-step">
+                  Команда 2 (возведи в квадрат): ${expression}
+                </div>
+              `;
+            }
+          }
+
+          html += `
+            <div class="solution-step">
+              <strong>Решаем уравнение:</strong><br>
+              ${expression} = ${currentTask.endNum}
+            </div>
+            <div class="solution-step">
+              <strong>Находим b:</strong><br>
+              b = ${currentTask.answer}
+            </div>
+            <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+              <strong>Ответ: ${currentTask.answer}</strong>
+            </div>
+          `;
+        } else {
+          // Припиши слева b
+          html = `
+            <div class="solution-step">
+              <strong>Выполняем программу "${program}" для числа ${currentTask.startNum}:</strong>
+            </div>
+          `;
+
+          let num = currentTask.startNum;
+          let numValue = currentTask.startNum;
+
+          for (const cmd of program) {
+            if (cmd === "1") {
+              numValue += 1;
+              html += `
+                <div class="algorithm-step">
+                  Команда 1 (прибавь 1): ${num} + 1 = ${numValue}
+                </div>
+              `;
+              num = numValue;
+            } else if (cmd === "2") {
+              const digits = numValue.toString().length;
+              const oldValue = numValue;
+              numValue = currentTask.answer * Math.pow(10, digits) + numValue;
+              html += `
+                <div class="algorithm-step">
+                  Команда 2 (припиши слева b): ${currentTask.answer} × 10<sup>${digits}</sup> + ${oldValue} = ${numValue}
+                </div>
+              `;
+            }
+          }
+
+          html += `
+            <div class="solution-step">
+              <strong>Проверка:</strong><br>
+              При b = ${currentTask.answer} программа переводит ${currentTask.startNum} в ${currentTask.endNum} ✓
+            </div>
+            <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+              <strong>Ответ: ${currentTask.answer}</strong>
+            </div>
+          `;
+        }
+
+        return html;
+      }
+
+      function hideHintsAndSolution() {
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("solutionBox").style.display = "none";
+        document.getElementById("result").style.display = "none";
+        const input = document.getElementById("answerInput");
+        if (input) {
+          input.classList.remove("correct", "incorrect");
+          input.value = "";
+        }
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Инициализация
+      generateTask();
+    </script>
+  </body>
+</html>

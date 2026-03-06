@@ -1,0 +1,1644 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 6 ОГЭ - Анализ программы с формальным исполнителем</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .task-type {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .task-type.count {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .task-type.parameter {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .task-text .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        overflow-x: auto;
+      }
+
+      .code-block .keyword {
+        color: #66d9ef;
+      }
+
+      .code-block .string {
+        color: #a6e22e;
+      }
+
+      .code-block .number {
+        color: #ae81ff;
+      }
+
+      .code-block .comment {
+        color: #75715e;
+      }
+
+      .pairs-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+      }
+
+      .pairs-box h4 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .pairs-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pair-item {
+        background: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        border: 1px solid #ddd;
+      }
+
+      /* Интерактивные пары чисел */
+      .pairs-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .pair-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        padding: 8px 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: #f5f5f5;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .pair-btn:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .pair-btn.yes {
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-color: #4caf50;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+
+      .pair-btn.no {
+        background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+        border-color: #f44336;
+        color: #c62828;
+        font-weight: bold;
+      }
+
+      .pair-counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 15px;
+        padding: 10px 15px;
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+
+      .pair-counter .count {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      .pair-counter .count.yes-count {
+        color: #2e7d32;
+      }
+
+      .pair-counter .count.no-count {
+        color: #c62828;
+      }
+
+      .pair-hint {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      /* Переключатель языков */
+      .language-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+      }
+
+      .lang-tab {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px 8px 0 0;
+        background: #555;
+        color: #aaa;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .lang-tab:hover {
+        background: #666;
+        color: #fff;
+      }
+
+      .lang-tab.active {
+        background: #2d2d2d;
+        color: #fff;
+      }
+
+      .code-wrapper {
+        position: relative;
+      }
+
+      .code-wrapper .code-block {
+        display: none;
+      }
+
+      .code-wrapper .code-block.active {
+        display: block;
+      }
+
+      .answer-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+
+      .answer-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .answer-input.correct {
+        border-color: #4caf50;
+        background: #e8f5e9;
+      }
+
+      .answer-input.incorrect {
+        border-color: #f44336;
+        background: #ffebee;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-solution {
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 20px 25px;
+        border-radius: 15px;
+        display: none;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        animation: resultPop 0.4s ease-out;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      @keyframes resultPop {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .result.correct {
+        display: block;
+        background: linear-gradient(145deg, #4caf50 0%, #2e7d32 100%);
+        border: 3px solid #1b5e20;
+        color: white;
+      }
+
+      .result.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #f44336 0%, #c62828 100%);
+        border: 3px solid #b71c1c;
+        color: white;
+      }
+
+      .result-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .hint-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        display: none;
+      }
+
+      .hint-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .hint-box p {
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .solution-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .solution-box h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .solution-step {
+        background: white;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 3px solid #667eea;
+      }
+
+      .solution-step strong {
+        color: #667eea;
+      }
+
+      .trace-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.9rem;
+      }
+
+      .trace-table th,
+      .trace-table td {
+        padding: 8px 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .trace-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .trace-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .trace-table .yes {
+        background: #e8f5e9;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+
+      .trace-table .no {
+        background: #ffebee;
+        color: #c62828;
+        font-weight: bold;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.theory {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .answer-input {
+          font-size: 1rem;
+          padding: 12px 15px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+
+        .trace-table {
+          font-size: 0.8rem;
+        }
+
+        .trace-table th,
+        .trace-table td {
+          padding: 5px 6px;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge6-t.html" class="back-link">📚 Теория</a>
+      </div>
+
+      <h1>🎮 Задание 6 ОГЭ — Анализ программы с формальным исполнителем</h1>
+
+      <div class="task-card" id="taskCard">
+        <!-- Задача будет сгенерирована здесь -->
+      </div>
+
+      <div class="hint-box" id="hintBox">
+        <h4>💡 Подсказка</h4>
+        <p id="hintText"></p>
+      </div>
+
+      <div class="solution-box" id="solutionBox">
+        <h4>📝 Решение</h4>
+        <div id="solutionSteps"></div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn theory"
+        onclick="location.href = 'oge6-t.html'"
+        title="Теория"
+      >
+        📚
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      // Генераторы задач
+      const taskGenerators = [
+        // Тип 1: Подсчёт запусков с операцией mod
+        {
+          type: "count",
+          generate: () => {
+            const divisor = [5, 7, 9, 11, 12][Math.floor(Math.random() * 5)];
+            const pairs = generatePairsForMod(divisor);
+            const answer = countYesMod(pairs, divisor);
+
+            return {
+              taskType: "count",
+              condition: "mod",
+              divisor: divisor,
+              pairs: pairs,
+              answer: answer,
+            };
+          },
+        },
+        // Тип 2: Подсчёт запусков с логическим OR
+        {
+          type: "count",
+          generate: () => {
+            const threshold = Math.floor(Math.random() * 3) + 3; // 3-5
+            const pairs = generatePairsForOr(threshold);
+            const answer = countYesOr(pairs, threshold);
+
+            return {
+              taskType: "count",
+              condition: "or",
+              threshold: threshold,
+              pairs: pairs,
+              answer: answer,
+            };
+          },
+        },
+        // Тип 3: Подсчёт запусков с логическим AND
+        {
+          type: "count",
+          generate: () => {
+            const thresholdS = Math.floor(Math.random() * 5) + 5; // 5-9
+            const thresholdT = Math.floor(Math.random() * 3) + 3; // 3-5
+            const pairs = generatePairsForAnd(thresholdS, thresholdT);
+            const answer = countYesAnd(pairs, thresholdS, thresholdT);
+
+            return {
+              taskType: "count",
+              condition: "and",
+              thresholdS: thresholdS,
+              thresholdT: thresholdT,
+              pairs: pairs,
+              answer: answer,
+            };
+          },
+        },
+        // Тип 3b: Подсчёт запусков с NO (mod)
+        {
+          type: "count",
+          generate: () => {
+            const divisor = [5, 7, 9, 11, 12][Math.floor(Math.random() * 5)];
+            const pairs = generatePairsForMod(divisor);
+            const yesCount = countYesMod(pairs, divisor);
+            const answer = 10 - yesCount; // NO = все - YES
+
+            return {
+              taskType: "count",
+              condition: "mod",
+              divisor: divisor,
+              pairs: pairs,
+              answer: answer,
+              countType: "no", // подсчёт NO вместо YES
+            };
+          },
+        },
+        // Тип 3c: Подсчёт запусков с NO (or)
+        {
+          type: "count",
+          generate: () => {
+            const threshold = Math.floor(Math.random() * 3) + 3; // 3-5
+            const pairs = generatePairsForOr(threshold);
+            const yesCount = countYesOr(pairs, threshold);
+            const answer = 10 - yesCount;
+
+            return {
+              taskType: "count",
+              condition: "or",
+              threshold: threshold,
+              pairs: pairs,
+              answer: answer,
+              countType: "no",
+            };
+          },
+        },
+        // Тип 4: Определение параметра A (наименьшее)
+        {
+          type: "parameter",
+          generate: () => {
+            const targetYes = Math.floor(Math.random() * 3) + 4; // 4-6
+            const pairs = generatePairsForParameter();
+            const result = findParameterA(pairs, targetYes, "min");
+
+            if (!result) return null;
+
+            return {
+              taskType: "parameter",
+              pairs: pairs,
+              targetYes: targetYes,
+              answer: result.answer,
+              findType: "min",
+              condition: "and",
+            };
+          },
+        },
+        // Тип 5: Определение параметра A (наибольшее)
+        {
+          type: "parameter",
+          generate: () => {
+            const targetYes = Math.floor(Math.random() * 3) + 3; // 3-5
+            const pairs = generatePairsForParameter2();
+            const result = findParameterA2(pairs, targetYes, "max");
+
+            if (!result) return null;
+
+            return {
+              taskType: "parameter",
+              pairs: pairs,
+              targetYes: targetYes,
+              answer: result.answer,
+              findType: "max",
+              condition: "or",
+            };
+          },
+        },
+      ];
+
+      // Вспомогательные функции
+
+      function generatePairsForMod(divisor) {
+        const pairs = [];
+        const used = new Set();
+
+        // Генерируем 10 пар
+        while (pairs.length < 10) {
+          const s = Math.floor(Math.random() * 50) + 1;
+          const t = Math.floor(Math.random() * divisor);
+          const key = `${s},${t}`;
+          if (!used.has(key)) {
+            used.add(key);
+            pairs.push({ s, t });
+          }
+        }
+
+        return pairs;
+      }
+
+      function countYesMod(pairs, divisor) {
+        let count = 0;
+        for (const pair of pairs) {
+          if (pair.s % divisor === pair.t) {
+            count++;
+          }
+        }
+        return count;
+      }
+
+      function generatePairsForOr(threshold) {
+        const pairs = [];
+        const used = new Set();
+
+        while (pairs.length < 10) {
+          const s = Math.floor(Math.random() * 10) - 5; // -5 до 4
+          const t = Math.floor(Math.random() * 10) - 5;
+          const key = `${s},${t}`;
+          if (!used.has(key)) {
+            used.add(key);
+            pairs.push({ s, t });
+          }
+        }
+
+        return pairs;
+      }
+
+      function countYesOr(pairs, threshold) {
+        let count = 0;
+        for (const pair of pairs) {
+          if (Math.abs(pair.s) < threshold || Math.abs(pair.t) < threshold) {
+            count++;
+          }
+        }
+        return count;
+      }
+
+      function generatePairsForAnd(thresholdS, thresholdT) {
+        const pairs = [];
+        const used = new Set();
+
+        while (pairs.length < 10) {
+          const s = Math.floor(Math.random() * 20) - 5; // -5 до 14
+          const t = Math.floor(Math.random() * 20) - 10; // -10 до 9
+          const key = `${s},${t}`;
+          if (!used.has(key)) {
+            used.add(key);
+            pairs.push({ s, t });
+          }
+        }
+
+        return pairs;
+      }
+
+      function countYesAnd(pairs, thresholdS, thresholdT) {
+        let count = 0;
+        for (const pair of pairs) {
+          if (pair.s > thresholdS && pair.t < thresholdT) {
+            count++;
+          }
+        }
+        return count;
+      }
+
+      function generatePairsForParameter() {
+        // Генерируем пары для задачи с параметром A
+        // Условие: (s >= A) and (t < 1)
+        const pairs = [
+          { s: -8, t: -11 },
+          { s: 1, t: -20 },
+          { s: 1, t: -25 },
+          { s: 4, t: -37 },
+          { s: 7, t: 46 },
+          { s: 30, t: -14 },
+          { s: 30, t: -4 },
+          { s: 30, t: 15 },
+          { s: 80, t: -30 },
+          { s: 80, t: -3 },
+        ];
+
+        // Перемешиваем пары
+        return shuffleArray([...pairs]);
+      }
+
+      function generatePairsForParameter2() {
+        // Генерируем пары для задачи с параметром A
+        // Условие: (s < A) or (t < A)
+        const pairs = [
+          { s: 10, t: 15 },
+          { s: 5, t: 20 },
+          { s: 20, t: 10 },
+          { s: 25, t: 5 },
+          { s: 15, t: 25 },
+          { s: 8, t: 8 },
+          { s: 30, t: 30 },
+          { s: 12, t: 18 },
+          { s: 22, t: 12 },
+          { s: 18, t: 22 },
+        ];
+
+        return shuffleArray([...pairs]);
+      }
+
+      function findParameterA(pairs, targetYes, findType) {
+        // Условие: (s >= A) and (t < 1)
+        // Сначала фильтруем пары, где t < 1
+        const validPairs = pairs.filter((p) => p.t < 1);
+
+        // Сортируем по s
+        const sortedS = validPairs.map((p) => p.s).sort((a, b) => a - b);
+
+        // Нам нужно targetYes пар с s >= A
+        // Это значит A должно быть <= s для targetYes пар
+        // Наименьшее A = sortedS[validPairs.length - targetYes]
+
+        if (sortedS.length < targetYes) return null;
+
+        const idx = sortedS.length - targetYes;
+        const answer = sortedS[idx];
+
+        return { answer };
+      }
+
+      function findParameterA2(pairs, targetYes, findType) {
+        // Условие: (s < A) or (t < A)
+        // Для каждой пары условие истинно, если A > min(s, t)
+
+        const minValues = pairs.map((p) => Math.min(p.s, p.t));
+        minValues.sort((a, b) => a - b);
+
+        // Нам нужно targetYes пар, где условие истинно
+        // A должно быть больше min(s,t) для targetYes пар
+        // Наибольшее A = minValues[targetYes - 1] + 1
+
+        if (targetYes > minValues.length) return null;
+
+        const answer = minValues[targetYes - 1] + 1;
+
+        return { answer };
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      let currentTask = null;
+
+      // Генерация задачи
+      function generateTask() {
+        let task = null;
+        let attempts = 0;
+
+        while (!task && attempts < 20) {
+          const generator =
+            taskGenerators[Math.floor(Math.random() * taskGenerators.length)];
+          task = generator.generate();
+          attempts++;
+        }
+
+        if (!task) {
+          // Fallback задача
+          task = {
+            taskType: "count",
+            condition: "mod",
+            divisor: 7,
+            pairs: [
+              { s: 1, t: 1 },
+              { s: 1, t: 2 },
+              { s: 3, t: 2 },
+              { s: 3, t: 3 },
+              { s: 7, t: 0 },
+              { s: 7, t: 2 },
+              { s: 10, t: 0 },
+              { s: 10, t: 7 },
+              { s: 11, t: 4 },
+              { s: 12, t: 5 },
+            ],
+            answer: 5,
+          };
+        }
+
+        currentTask = task;
+        renderTask();
+        hideHintsAndSolution();
+      }
+
+      function renderTask() {
+        const taskCard = document.getElementById("taskCard");
+
+        let typeLabel = "";
+        let typeClass = "";
+
+        if (currentTask.taskType === "count") {
+          typeLabel = "Подсчёт запусков";
+          typeClass = "count";
+        } else {
+          typeLabel = "Определение параметра";
+          typeClass = "parameter";
+        }
+
+        // Формируем текст задачи
+        let taskHTML = "";
+
+        if (currentTask.taskType === "count") {
+          taskHTML = generateCountTaskHTML(currentTask);
+        } else {
+          taskHTML = generateParameterTaskHTML(currentTask);
+        }
+
+        taskCard.innerHTML = `
+          <div class="task-header">
+            <span class="task-type ${typeClass}">${typeLabel}</span>
+          </div>
+          <div class="task-text">${taskHTML}</div>
+          <div class="answer-section">
+            <label class="answer-label">Ваш ответ:</label>
+            <input type="text" class="answer-input" id="answerInput" placeholder="Введите ответ..." autocomplete="off">
+            <div class="buttons">
+              <button class="btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
+              <button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button>
+              <button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button>
+              <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
+            </div>
+            <div class="result" id="result"></div>
+          </div>
+        `;
+
+        document
+          .getElementById("answerInput")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              checkAnswer();
+            }
+          });
+
+        document.getElementById("answerInput").focus();
+
+        // Инициализируем интерактивные кнопки пар чисел после рендеринга
+        initPairButtons();
+      }
+
+      function generateCountTaskHTML(task) {
+        let codeBlockPascal = "";
+        let codeBlockPython = "";
+        let conditionDesc = "";
+
+        if (task.condition === "mod") {
+          codeBlockPascal = `<pre><span class="keyword">var</span> s, t: <span class="keyword">integer</span>;
+<span class="keyword">begin</span>
+  readln(s);
+  readln(t);
+  <span class="keyword">if</span> s <span class="keyword">mod</span> <span class="number">${task.divisor}</span> = t <span class="keyword">then</span>
+    writeln(<span class="string">'YES'</span>)
+  <span class="keyword">else</span>
+    writeln(<span class="string">'NO'</span>)
+<span class="keyword">end</span>.</pre>`;
+          codeBlockPython = `<pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> s % <span class="number">${task.divisor}</span> == t:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>`;
+          conditionDesc = `Программа вычисляет остаток от деления s на ${task.divisor} и сравнивает его с t.`;
+        } else if (task.condition === "or") {
+          codeBlockPascal = `<pre><span class="keyword">var</span> s, t: <span class="keyword">integer</span>;
+<span class="keyword">begin</span>
+  readln(s);
+  readln(t);
+  <span class="keyword">if</span> (abs(s) < <span class="number">${task.threshold}</span>) <span class="keyword">or</span> (abs(t) < <span class="number">${task.threshold}</span>) <span class="keyword">then</span>
+    writeln(<span class="string">'YES'</span>)
+  <span class="keyword">else</span>
+    writeln(<span class="string">'NO'</span>)
+<span class="keyword">end</span>.</pre>`;
+          codeBlockPython = `<pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> abs(s) < <span class="number">${task.threshold}</span> <span class="keyword">or</span> abs(t) < <span class="number">${task.threshold}</span>:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>`;
+          conditionDesc = `Программа проверяет, меньше ли модуль s или модуль t числа ${task.threshold}.`;
+        } else if (task.condition === "and") {
+          codeBlockPascal = `<pre><span class="keyword">var</span> s, t: <span class="keyword">integer</span>;
+<span class="keyword">begin</span>
+  readln(s);
+  readln(t);
+  <span class="keyword">if</span> (s > <span class="number">${task.thresholdS}</span>) <span class="keyword">and</span> (t < <span class="number">${task.thresholdT}</span>) <span class="keyword">then</span>
+    writeln(<span class="string">'YES'</span>)
+  <span class="keyword">else</span>
+    writeln(<span class="string">'NO'</span>)
+<span class="keyword">end</span>.</pre>`;
+          codeBlockPython = `<pre>s = int(input())
+t = int(input())
+<span class="keyword">if</span> s > <span class="number">${task.thresholdS}</span> <span class="keyword">and</span> t < <span class="number">${task.thresholdT}</span>:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>`;
+          conditionDesc = `Программа проверяет, больше ли s числа ${task.thresholdS} И меньше ли t числа ${task.thresholdT}.`;
+        }
+
+        // Интерактивные кнопки для пар чисел
+        const pairsHTML = task.pairs
+          .map(
+            (p, idx) =>
+              `<button class="pair-btn" data-index="${idx}">(${p.s}, ${p.t})</button>`,
+          )
+          .join("");
+
+        const countType = task.countType || "yes";
+        const questionText =
+          countType === "no"
+            ? `Сколько было запусков, при которых программа напечатала <span class="highlight">«NO»</span>?`
+            : `Сколько было запусков, при которых программа напечатала <span class="highlight">«YES»</span>?`;
+
+        return `
+          <p>Ниже приведена программа, записанная на языках Pascal и Python.</p>
+          <div class="language-tabs">
+            <button class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
+            <button class="lang-tab" onclick="switchLanguage('python')">Python</button>
+          </div>
+          <div class="code-wrapper">
+            <div class="code-block active" id="code-pascal">${codeBlockPascal}</div>
+            <div class="code-block" id="code-python">${codeBlockPython}</div>
+          </div>
+          <p>${conditionDesc}</p>
+          <p>Было проведено 10 запусков программы, при которых в качестве значений переменных s и t вводились следующие пары чисел:</p>
+          <div class="pairs-box">
+            <h4>Пары входных данных (s, t):</h4>
+            <p class="pair-hint">💡 Нажмите на пару, чтобы отметить её как YES (зелёный) или NO (красный). Повторный клик переключает состояние.</p>
+            <div class="pairs-container" id="pairsContainer">${pairsHTML}</div>
+            <div class="pair-counter">
+              <span>YES: <span class="count yes-count" id="yesCount">0</span></span>
+              <span>NO: <span class="count no-count" id="noCount">0</span></span>
+            </div>
+          </div>
+          <p>${questionText}</p>
+        `;
+      }
+
+      function generateParameterTaskHTML(task) {
+        let codeBlockPascal = "";
+        let codeBlockPython = "";
+        let conditionDesc = "";
+        let question = "";
+
+        if (task.condition === "and") {
+          codeBlockPascal = `<pre><span class="keyword">var</span> s, t, A: <span class="keyword">integer</span>;
+<span class="keyword">begin</span>
+  readln(s);
+  readln(t);
+  readln(A);
+  <span class="keyword">if</span> (s >= A) <span class="keyword">and</span> (t < <span class="number">1</span>) <span class="keyword">then</span>
+    writeln(<span class="string">'YES'</span>)
+  <span class="keyword">else</span>
+    writeln(<span class="string">'NO'</span>)
+<span class="keyword">end</span>.</pre>`;
+          codeBlockPython = `<pre>s = int(input())
+t = int(input())
+A = int(input())
+<span class="keyword">if</span> s >= A <span class="keyword">and</span> t < <span class="number">1</span>:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>`;
+          conditionDesc = `Программа проверяет условие: s ≥ A И t < 1.`;
+          question = `Укажите <span class="highlight">${
+            task.findType === "min" ? "наименьшее" : "наибольшее"
+          }</span> целое значение параметра A, при котором для указанных входных данных программа напечатает «YES» ровно <span class="highlight">${task.targetYes}</span> раз.`;
+        } else if (task.condition === "or") {
+          codeBlockPascal = `<pre><span class="keyword">var</span> s, t, A: <span class="keyword">integer</span>;
+<span class="keyword">begin</span>
+  readln(s);
+  readln(t);
+  readln(A);
+  <span class="keyword">if</span> (s < A) <span class="keyword">or</span> (t < A) <span class="keyword">then</span>
+    writeln(<span class="string">'YES'</span>)
+  <span class="keyword">else</span>
+    writeln(<span class="string">'NO'</span>)
+<span class="keyword">end</span>.</pre>`;
+          codeBlockPython = `<pre>s = int(input())
+t = int(input())
+A = int(input())
+<span class="keyword">if</span> s < A <span class="keyword">or</span> t < A:
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>`;
+          conditionDesc = `Программа проверяет условие: s < A ИЛИ t < A.`;
+          question = `Укажите <span class="highlight">${
+            task.findType === "min" ? "наименьшее" : "наибольшее"
+          }</span> целое значение параметра A, при котором для указанных входных данных программа напечатает «YES» ровно <span class="highlight">${task.targetYes}</span> раз.`;
+        }
+
+        const pairsHTML = task.pairs
+          .map((p) => `<span class="pair-item">(${p.s}, ${p.t})</span>`)
+          .join("");
+
+        return `
+          <p>Ниже приведена программа, записанная на языках Pascal и Python.</p>
+          <div class="language-tabs">
+            <button class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
+            <button class="lang-tab" onclick="switchLanguage('python')">Python</button>
+          </div>
+          <div class="code-wrapper">
+            <div class="code-block active" id="code-pascal">${codeBlockPascal}</div>
+            <div class="code-block" id="code-python">${codeBlockPython}</div>
+          </div>
+          <p>${conditionDesc}</p>
+          <p>Было проведено 10 запусков программы, при которых в качестве значений переменных s и t вводились следующие пары чисел:</p>
+          <div class="pairs-box">
+            <h4>Пары входных данных (s, t):</h4>
+            <div class="pairs-list">${pairsHTML}</div>
+          </div>
+          <p>${question}</p>
+        `;
+      }
+
+      function checkAnswer() {
+        const input = document.getElementById("answerInput");
+        const result = document.getElementById("result");
+        const userAnswer = input.value.trim();
+
+        if (!userAnswer) {
+          input.focus();
+          return;
+        }
+
+        const correctAnswer = currentTask.answer.toString();
+
+        if (userAnswer === correctAnswer) {
+          input.classList.remove("incorrect");
+          input.classList.add("correct");
+          result.className = "result correct";
+          result.innerHTML = `
+            <span class="result-icon">🎉</span>
+            ПРАВИЛЬНО! Отличная работа!
+          `;
+          result.style.display = "block";
+          result.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          input.classList.remove("correct");
+          input.classList.add("incorrect");
+          result.className = "result incorrect";
+          result.innerHTML = `
+            <span class="result-icon">😔</span>
+            НЕПРАВИЛЬНО!<br>
+            <small>Правильный ответ: <strong>${correctAnswer}</strong></small>
+          `;
+          result.style.display = "block";
+          result.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+
+      function nextTask() {
+        generateTask();
+      }
+
+      function showHint() {
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+
+        if (currentTask.taskType === "count") {
+          if (currentTask.condition === "mod") {
+            hintText.innerHTML = `
+              <strong>Алгоритм решения:</strong><br><br>
+              1. Для каждой пары (s, t) вычислите остаток от деления s на ${currentTask.divisor}.<br>
+              2. Сравните полученный остаток с t.<br>
+              3. Если они равны — программа выведет «YES».<br>
+              4. Подсчитайте количество таких пар.
+            `;
+          } else if (currentTask.condition === "or") {
+            hintText.innerHTML = `
+              <strong>Алгоритм решения:</strong><br><br>
+              1. Для каждой пары (s, t) вычислите |s| и |t|.<br>
+              2. Проверьте: |s| < ${currentTask.threshold} ИЛИ |t| < ${currentTask.threshold}?<br>
+              3. Если хотя бы одно условие истинно — программа выведет «YES».<br>
+              4. Подсчитайте количество таких пар.
+            `;
+          } else if (currentTask.condition === "and") {
+            hintText.innerHTML = `
+              <strong>Алгоритм решения:</strong><br><br>
+              1. Для каждой пары (s, t) проверьте оба условия:<br>
+              &nbsp;&nbsp;&nbsp;• s > ${currentTask.thresholdS}?<br>
+              &nbsp;&nbsp;&nbsp;• t < ${currentTask.thresholdT}?<br>
+              2. Если ОБА условия истинны — программа выведет «YES».<br>
+              3. Подсчитайте количество таких пар.
+            `;
+          }
+        } else {
+          if (currentTask.condition === "and") {
+            hintText.innerHTML = `
+              <strong>Алгоритм решения:</strong><br><br>
+              1. Сначала отберите пары, где t < 1 (это обязательное условие).<br>
+              2. Для каждой такой пары условие s ≥ A даёт ограничение: A ≤ s.<br>
+              3. Найдите значение A, при котором ровно ${currentTask.targetYes} пар удовлетворяют условию.<br>
+              4. ${
+                currentTask.findType === "min"
+                  ? "Выберите наименьшее подходящее значение."
+                  : "Выберите наибольшее подходящее значение."
+              }
+            `;
+          } else {
+            hintText.innerHTML = `
+              <strong>Алгоритм решения:</strong><br><br>
+              1. Условие (s < A) или (t < A) истинно, если A больше хотя бы одного из чисел s или t.<br>
+              2. Для каждой пары найдите min(s, t) — минимальное из двух чисел.<br>
+              3. Условие истинно, если A > min(s, t).<br>
+              4. Найдите значение A, при котором ровно ${currentTask.targetYes} пар удовлетворяют условию.
+            `;
+          }
+        }
+
+        hintBox.style.display = "block";
+      }
+
+      function showSolution() {
+        const solutionBox = document.getElementById("solutionBox");
+        const solutionSteps = document.getElementById("solutionSteps");
+
+        let stepsHTML = "";
+
+        if (currentTask.taskType === "count") {
+          stepsHTML = generateCountSolution();
+        } else {
+          stepsHTML = generateParameterSolution();
+        }
+
+        solutionSteps.innerHTML = stepsHTML;
+        solutionBox.style.display = "block";
+      }
+
+      function generateCountSolution() {
+        let html = `<div class="solution-step"><strong>Составим таблицу трассировки:</strong></div>`;
+
+        if (currentTask.condition === "mod") {
+          html += `
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>s mod ${currentTask.divisor}</th>
+                <th>Условие</th>
+                <th>Вывод</th>
+              </tr>
+          `;
+
+          let yesCount = 0;
+          currentTask.pairs.forEach((pair, idx) => {
+            const remainder = pair.s % currentTask.divisor;
+            const isYes = remainder === pair.t;
+            if (isYes) yesCount++;
+
+            html += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${pair.s}</td>
+                <td>${pair.t}</td>
+                <td>${remainder}</td>
+                <td>${remainder} ${isYes ? "=" : "≠"} ${pair.t}</td>
+                <td class="${isYes ? "yes" : "no"}">${isYes ? "YES" : "NO"}</td>
+              </tr>
+            `;
+          });
+
+          html += `</table>`;
+          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+        } else if (currentTask.condition === "or") {
+          html += `
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>|s| < ${currentTask.threshold}?</th>
+                <th>|t| < ${currentTask.threshold}?</th>
+                <th>OR?</th>
+                <th>Вывод</th>
+              </tr>
+          `;
+
+          let yesCount = 0;
+          currentTask.pairs.forEach((pair, idx) => {
+            const condS = Math.abs(pair.s) < currentTask.threshold;
+            const condT = Math.abs(pair.t) < currentTask.threshold;
+            const isYes = condS || condT;
+            if (isYes) yesCount++;
+
+            html += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${pair.s}</td>
+                <td>${pair.t}</td>
+                <td>${condS ? "✓" : "✗"}</td>
+                <td>${condT ? "✓" : "✗"}</td>
+                <td>${isYes ? "✓" : "✗"}</td>
+                <td class="${isYes ? "yes" : "no"}">${isYes ? "YES" : "NO"}</td>
+              </tr>
+            `;
+          });
+
+          html += `</table>`;
+          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+        } else if (currentTask.condition === "and") {
+          html += `
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>s > ${currentTask.thresholdS}?</th>
+                <th>t < ${currentTask.thresholdT}?</th>
+                <th>AND?</th>
+                <th>Вывод</th>
+              </tr>
+          `;
+
+          let yesCount = 0;
+          currentTask.pairs.forEach((pair, idx) => {
+            const condS = pair.s > currentTask.thresholdS;
+            const condT = pair.t < currentTask.thresholdT;
+            const isYes = condS && condT;
+            if (isYes) yesCount++;
+
+            html += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${pair.s}</td>
+                <td>${pair.t}</td>
+                <td>${condS ? "✓" : "✗"}</td>
+                <td>${condT ? "✓" : "✗"}</td>
+                <td>${isYes ? "✓" : "✗"}</td>
+                <td class="${isYes ? "yes" : "no"}">${isYes ? "YES" : "NO"}</td>
+              </tr>
+            `;
+          });
+
+          html += `</table>`;
+          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+        }
+
+        html += `
+          <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <strong>Ответ: ${currentTask.answer}</strong>
+          </div>
+        `;
+
+        return html;
+      }
+
+      function generateParameterSolution() {
+        let html = "";
+
+        if (currentTask.condition === "and") {
+          html = `
+            <div class="solution-step">
+              <strong>Условие: (s >= A) and (t < 1)</strong><br>
+              Для вывода «YES» должны выполняться ОБА условия.
+            </div>
+            <div class="solution-step">
+              <strong>Шаг 1:</strong> Отберём пары, где t < 1:
+            </div>
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>t < 1?</th>
+                <th>s >= A?</th>
+              </tr>
+          `;
+
+          currentTask.pairs.forEach((pair, idx) => {
+            const tCond = pair.t < 1;
+            html += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${pair.s}</td>
+                <td>${pair.t}</td>
+                <td>${tCond ? "✓" : "✗"}</td>
+                <td>${tCond ? `A ≤ ${pair.s}` : "—"}</td>
+              </tr>
+            `;
+          });
+
+          html += `</table>`;
+
+          const validPairs = currentTask.pairs.filter((p) => p.t < 1);
+          const sortedS = validPairs.map((p) => p.s).sort((a, b) => a - b);
+
+          html += `
+            <div class="solution-step">
+              <strong>Шаг 2:</strong> Пары с t < 1: ${validPairs.length}<br>
+              Значения s (отсортированные): ${sortedS.join(", ")}
+            </div>
+            <div class="solution-step">
+              <strong>Шаг 3:</strong> Нужно ровно ${currentTask.targetYes} «YES».<br>
+              Выбираем ${currentTask.targetYes} наибольших значений s.<br>
+              ${
+                currentTask.findType === "min"
+                  ? `Наименьшее A = ${currentTask.answer}`
+                  : `Наибольшее A = ${currentTask.answer}`
+              }
+            </div>
+          `;
+        } else if (currentTask.condition === "or") {
+          html = `
+            <div class="solution-step">
+              <strong>Условие: (s < A) or (t < A)</strong><br>
+              Для вывода «YES» достаточно выполнения ОДНОГО из условий.
+            </div>
+            <table class="trace-table">
+              <tr>
+                <th>№</th>
+                <th>s</th>
+                <th>t</th>
+                <th>min(s, t)</th>
+                <th>A > min?</th>
+              </tr>
+          `;
+
+          currentTask.pairs.forEach((pair, idx) => {
+            const minVal = Math.min(pair.s, pair.t);
+            html += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${pair.s}</td>
+                <td>${pair.t}</td>
+                <td>${minVal}</td>
+                <td>A > ${minVal}</td>
+              </tr>
+            `;
+          });
+
+          html += `</table>`;
+
+          const minValues = currentTask.pairs
+            .map((p) => Math.min(p.s, p.t))
+            .sort((a, b) => a - b);
+
+          html += `
+            <div class="solution-step">
+              <strong>Шаг 2:</strong> min(s, t) для каждой пары (отсортированные):<br>
+              ${minValues.join(", ")}
+            </div>
+            <div class="solution-step">
+              <strong>Шаг 3:</strong> Нужно ровно ${currentTask.targetYes} «YES».<br>
+              Условие истинно, если A > min(s, t).<br>
+              ${
+                currentTask.findType === "max"
+                  ? `Наибольшее A = ${currentTask.answer}`
+                  : `Наименьшее A = ${currentTask.answer}`
+              }
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="solution-step" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <strong>Ответ: ${currentTask.answer}</strong>
+          </div>
+        `;
+
+        return html;
+      }
+
+      function hideHintsAndSolution() {
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("solutionBox").style.display = "none";
+        document.getElementById("result").style.display = "none";
+        const input = document.getElementById("answerInput");
+        if (input) {
+          input.classList.remove("correct", "incorrect");
+          input.value = "";
+        }
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Переключение языка программирования
+      function switchLanguage(lang) {
+        const pascalBlock = document.getElementById("code-pascal");
+        const pythonBlock = document.getElementById("code-python");
+        const tabs = document.querySelectorAll(".lang-tab");
+
+        tabs.forEach((tab) => tab.classList.remove("active"));
+
+        if (lang === "pascal") {
+          pascalBlock.classList.add("active");
+          pythonBlock.classList.remove("active");
+          tabs[0].classList.add("active");
+        } else {
+          pythonBlock.classList.add("active");
+          pascalBlock.classList.remove("active");
+          tabs[1].classList.add("active");
+        }
+      }
+
+      // Инициализация интерактивных кнопок пар чисел
+      function initPairButtons() {
+        const container = document.getElementById("pairsContainer");
+        if (!container) return;
+
+        const buttons = container.querySelectorAll(".pair-btn");
+        const yesCountEl = document.getElementById("yesCount");
+        const noCountEl = document.getElementById("noCount");
+
+        buttons.forEach((btn) => {
+          btn.addEventListener("click", function () {
+            // Цикл переключения: нейтральный -> yes -> no -> нейтральный
+            if (this.classList.contains("yes")) {
+              this.classList.remove("yes");
+              this.classList.add("no");
+            } else if (this.classList.contains("no")) {
+              this.classList.remove("no");
+            } else {
+              this.classList.add("yes");
+            }
+
+            // Обновляем счётчики
+            updateCounters(container, yesCountEl, noCountEl);
+          });
+        });
+      }
+
+      function updateCounters(container, yesCountEl, noCountEl) {
+        const yesButtons = container.querySelectorAll(".pair-btn.yes");
+        const noButtons = container.querySelectorAll(".pair-btn.no");
+
+        if (yesCountEl) yesCountEl.textContent = yesButtons.length;
+        if (noCountEl) noCountEl.textContent = noButtons.length;
+      }
+
+      // Инициализация
+      generateTask();
+    </script>
+  </body>
+</html>
