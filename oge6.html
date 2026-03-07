@@ -926,18 +926,19 @@
 
       function findParameterA2(pairs, targetYes, findType) {
         // Условие: (s < A) or (t < A)
-        // Для каждой пары условие истинно, если A > min(s, t)
+        // Для каждой пары условие истинно, если min(s, t) < A
 
         const minValues = pairs.map((p) => Math.min(p.s, p.t));
         minValues.sort((a, b) => a - b);
 
-        // Нам нужно targetYes пар, где условие истинно
-        // A должно быть больше min(s,t) для targetYes пар
-        // Наибольшее A = minValues[targetYes - 1] + 1
+        // Нам нужно ровно targetYes пар, где условие истинно (min(s, t) < A)
+        // Для наибольшего A: A должно быть таким, чтобы ровно targetYes пар имели min < A
+        // Это значит A = minValues[targetYes] (следующее значение после targetYes-го)
+        // Тогда min < A будет верно ровно для targetYes пар (индексы 0..targetYes-1)
 
-        if (targetYes > minValues.length) return null;
+        if (targetYes >= minValues.length) return null;
 
-        const answer = minValues[targetYes - 1] + 1;
+        const answer = minValues[targetYes];
 
         return { answer };
       }
