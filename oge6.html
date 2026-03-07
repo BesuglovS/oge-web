@@ -868,18 +868,20 @@
       function generatePairsForParameter() {
         // Генерируем пары для задачи с параметром A
         // Условие: (s >= A) and (t < 1)
+        // Важно: все s среди пар с t < 1 должны быть уникальными
         const pairs = [
-          { s: -8, t: -11 },
-          { s: 1, t: -20 },
-          { s: 1, t: -25 },
-          { s: 4, t: -37 },
-          { s: 7, t: 46 },
-          { s: 30, t: -14 },
-          { s: 30, t: -4 },
-          { s: 30, t: 15 },
-          { s: 80, t: -30 },
-          { s: 80, t: -3 },
+          { s: -8, t: -11 }, // t < 1, s = -8
+          { s: 1, t: -20 }, // t < 1, s = 1
+          { s: 4, t: -37 }, // t < 1, s = 4
+          { s: 7, t: 46 }, // t >= 1, не подходит
+          { s: 15, t: -14 }, // t < 1, s = 15
+          { s: 30, t: -4 }, // t < 1, s = 30
+          { s: 30, t: 15 }, // t >= 1, не подходит
+          { s: 50, t: -30 }, // t < 1, s = 50
+          { s: 80, t: -3 }, // t < 1, s = 80
+          { s: 100, t: -5 }, // t < 1, s = 100
         ];
+        // Уникальные s среди пар с t < 1: -8, 1, 4, 15, 30, 50, 80, 100 (8 значений)
 
         // Перемешиваем пары
         return shuffleArray([...pairs]);
@@ -941,16 +943,31 @@
         // Сортируем по s
         const sortedS = validPairs.map((p) => p.s).sort((a, b) => a - b);
 
-        // Нам нужно targetYes пар с s >= A
-        // Это значит A должно быть <= s для targetYes пар
-        // Наименьшее A = sortedS[validPairs.length - targetYes]
+        // Нам нужно ровно targetYes пар с s >= A
+        // Это значит A должно быть таким, чтобы ровно targetYes пар удовлетворяли s >= A
+        // Граница: sortedS[validPairs.length - targetYes] - минимальное s из выбранных пар
+        // Но A может быть любым от (предыдущее s + 1) до этого s
+        // Для наименьшего A: A = sortedS[validPairs.length - targetYes - 1] + 1
+        // (на единицу больше предыдущего значения s)
 
         if (sortedS.length < targetYes) return null;
 
         const idx = sortedS.length - targetYes;
-        const answer = sortedS[idx];
 
-        return { answer };
+        // Наименьшее A должно быть больше предыдущего s (чтобы не включить лишнюю пару)
+        // и может быть любым до sortedS[idx] включительно
+        if (idx > 0) {
+          // A должно быть > sortedS[idx - 1] и <= sortedS[idx]
+          // Наименьшее целое A = sortedS[idx - 1] + 1
+          const answer = sortedS[idx - 1] + 1;
+          return { answer };
+        } else {
+          // idx = 0, значит нужно targetYes = validPairs.length пар
+          // A может быть любым <= sortedS[0]
+          // Наименьшее целое A не ограничено снизу, берём минимальное разумное
+          const answer = sortedS[0];
+          return { answer };
+        }
       }
 
       function findParameterA2(pairs, targetYes, findType) {
@@ -1522,6 +1539,11 @@ A = int(input())
           const validPairs = currentTask.pairs.filter((p) => p.t < 1);
           const sortedS = validPairs.map((p) => p.s).sort((a, b) => a - b);
 
+          // Вычисляем границу для A
+          const idx = sortedS.length - currentTask.targetYes;
+          const prevS = idx > 0 ? sortedS[idx - 1] : null;
+          const minSelectedS = sortedS[idx];
+
           html += `
             <div class="solution-step">
               <strong>Шаг 2:</strong> Пары с t < 1: ${validPairs.length}<br>
@@ -1529,11 +1551,13 @@ A = int(input())
             </div>
             <div class="solution-step">
               <strong>Шаг 3:</strong> Нужно ровно ${currentTask.targetYes} «YES».<br>
-              Выбираем ${currentTask.targetYes} наибольших значений s.<br>
+              Для каждого YES нужно s ≥ A.<br>
+              Выбираем ${currentTask.targetYes} наибольших значений s: ${sortedS.slice(-currentTask.targetYes).join(", ")}.<br>
               ${
-                currentTask.findType === "min"
-                  ? `Наименьшее A = ${currentTask.answer}`
-                  : `Наибольшее A = ${currentTask.answer}`
+                prevS !== null
+                  ? `Чтобы ровно ${currentTask.targetYes} пар дали YES, A должно быть > ${prevS} (чтобы исключить пару с s = ${prevS}).<br>
+                     Наименьшее целое A = ${prevS} + 1 = ${currentTask.answer}`
+                  : `A может быть любым ≤ ${minSelectedS}. Наименьшее A = ${currentTask.answer}`
               }
             </div>
           `;
@@ -1580,10 +1604,9 @@ A = int(input())
             </div>
             <div class="solution-step">
               <strong>Шаг 3:</strong> Нужно ровно ${currentTask.targetYes} «YES».<br>
-              Условие min < A истинно для пар, где min меньше A.<br>
-              Для наибольшего A: A = minValues[${currentTask.targetYes}] = ${minValues[currentTask.targetYes]}<br>
-              Тогда min < ${currentTask.answer} верно ровно для ${currentTask.targetYes} пар (с min = ${minValues.slice(0, currentTask.targetYes).join(", ")}).<br>
-              <strong>Ответ: ${currentTask.answer}</strong>
+              Условие min(s, t) < A истинно для пар, где min меньше A.<br>
+              Для наибольшего A: A = ${minValues[currentTask.targetYes]} (следующее значение после ${currentTask.targetYes}-го минимального).<br>
+              Тогда min < ${currentTask.answer} верно ровно для ${currentTask.targetYes} пар (с min = ${minValues.slice(0, currentTask.targetYes).join(", ")}).
             </div>
           `;
         }
