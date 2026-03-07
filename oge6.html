@@ -888,20 +888,49 @@
       function generatePairsForParameter2() {
         // Генерируем пары для задачи с параметром A
         // Условие: (s < A) or (t < A)
+        // Важно: все min(s, t) должны быть уникальными для корректного решения
         const pairs = [
-          { s: 10, t: 15 },
-          { s: 5, t: 20 },
-          { s: 20, t: 10 },
-          { s: 25, t: 5 },
-          { s: 15, t: 25 },
-          { s: 8, t: 8 },
-          { s: 30, t: 30 },
-          { s: 12, t: 18 },
-          { s: 22, t: 12 },
-          { s: 18, t: 22 },
+          { s: 25, t: 5 }, // min = 5
+          { s: 8, t: 8 }, // min = 8
+          { s: 20, t: 10 }, // min = 10
+          { s: 22, t: 12 }, // min = 12
+          { s: 15, t: 25 }, // min = 15
+          { s: 18, t: 22 }, // min = 18
+          { s: 10, t: 20 }, // min = 10 - дубликат, исправим
+          { s: 30, t: 30 }, // min = 30
+          { s: 5, t: 35 }, // min = 5 - дубликат, исправим
+          { s: 12, t: 28 }, // min = 12 - дубликат, исправим
         ];
 
-        return shuffleArray([...pairs]);
+        // Исправленные пары с уникальными min значениями
+        const correctedPairs = [
+          { s: 25, t: 5 }, // min = 5
+          { s: 8, t: 8 }, // min = 8
+          { s: 20, t: 10 }, // min = 10
+          { s: 22, t: 12 }, // min = 12
+          { s: 15, t: 25 }, // min = 15
+          { s: 18, t: 22 }, // min = 18
+          { s: 30, t: 30 }, // min = 20
+          { s: 35, t: 7 }, // min = 7
+          { s: 40, t: 3 }, // min = 3
+          { s: 28, t: 14 }, // min = 14
+        ];
+
+        // Финальный набор с уникальными min: 3, 5, 7, 8, 10, 12, 14, 15, 18, 20
+        const finalPairs = [
+          { s: 40, t: 3 }, // min = 3
+          { s: 25, t: 5 }, // min = 5
+          { s: 35, t: 7 }, // min = 7
+          { s: 8, t: 8 }, // min = 8
+          { s: 20, t: 10 }, // min = 10
+          { s: 22, t: 12 }, // min = 12
+          { s: 28, t: 14 }, // min = 14
+          { s: 15, t: 25 }, // min = 15
+          { s: 18, t: 22 }, // min = 18
+          { s: 30, t: 20 }, // min = 20
+        ];
+
+        return shuffleArray([...finalPairs]);
       }
 
       function findParameterA(pairs, targetYes, findType) {
@@ -1512,7 +1541,8 @@ A = int(input())
           html = `
             <div class="solution-step">
               <strong>Условие: (s < A) or (t < A)</strong><br>
-              Для вывода «YES» достаточно выполнения ОДНОГО из условий.
+              Для вывода «YES» достаточно выполнения ОДНОГО из условий.<br>
+              Условие истинно, если min(s, t) < A.
             </div>
             <table class="trace-table">
               <tr>
@@ -1520,7 +1550,7 @@ A = int(input())
                 <th>s</th>
                 <th>t</th>
                 <th>min(s, t)</th>
-                <th>A > min?</th>
+                <th>min < A?</th>
               </tr>
           `;
 
@@ -1532,7 +1562,7 @@ A = int(input())
                 <td>${pair.s}</td>
                 <td>${pair.t}</td>
                 <td>${minVal}</td>
-                <td>A > ${minVal}</td>
+                <td>${minVal} < A</td>
               </tr>
             `;
           });
@@ -1550,12 +1580,10 @@ A = int(input())
             </div>
             <div class="solution-step">
               <strong>Шаг 3:</strong> Нужно ровно ${currentTask.targetYes} «YES».<br>
-              Условие истинно, если A > min(s, t).<br>
-              ${
-                currentTask.findType === "max"
-                  ? `Наибольшее A = ${currentTask.answer}`
-                  : `Наименьшее A = ${currentTask.answer}`
-              }
+              Условие min < A истинно для пар, где min меньше A.<br>
+              Для наибольшего A: A = minValues[${currentTask.targetYes}] = ${minValues[currentTask.targetYes]}<br>
+              Тогда min < ${currentTask.answer} верно ровно для ${currentTask.targetYes} пар (с min = ${minValues.slice(0, currentTask.targetYes).join(", ")}).<br>
+              <strong>Ответ: ${currentTask.answer}</strong>
             </div>
           `;
         }
