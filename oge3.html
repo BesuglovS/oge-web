@@ -937,11 +937,16 @@
         }
 
         // Находим правильный ответ
+        // Если isTrue = false, ищем число для которого высказывание ЛОЖНО (т.е. !check(x))
+        // Если isTrue = true, ищем число для которого высказывание ИСТИННО (т.е. check(x))
         let correctAnswer;
+        const checkCondition = (x) =>
+          currentTask.isTrue ? currentTask.check(x) : !currentTask.check(x);
+
         if (currentTask.findGreatest) {
           // Ищем наибольшее число
           for (let x = 1000; x >= 1; x--) {
-            if (currentTask.check(x)) {
+            if (checkCondition(x)) {
               correctAnswer = x;
               break;
             }
@@ -949,7 +954,7 @@
         } else {
           // Ищем наименьшее число
           for (let x = 1; x <= 10000; x++) {
-            if (currentTask.check(x)) {
+            if (checkCondition(x)) {
               correctAnswer = x;
               break;
             }
@@ -998,17 +1003,22 @@
         const solutionSteps = document.getElementById("solutionSteps");
 
         // Находим правильный ответ
+        // Если isTrue = false, ищем число для которого высказывание ЛОЖНО (т.е. !check(x))
+        // Если isTrue = true, ищем число для которого высказывание ИСТИННО (т.е. check(x))
         let correctAnswer;
+        const checkCondition = (x) =>
+          currentTask.isTrue ? currentTask.check(x) : !currentTask.check(x);
+
         if (currentTask.findGreatest) {
           for (let x = 1000; x >= 1; x--) {
-            if (currentTask.check(x)) {
+            if (checkCondition(x)) {
               correctAnswer = x;
               break;
             }
           }
         } else {
           for (let x = 1; x <= 10000; x++) {
-            if (currentTask.check(x)) {
+            if (checkCondition(x)) {
               correctAnswer = x;
               break;
             }
