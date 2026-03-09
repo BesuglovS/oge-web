@@ -1,0 +1,2015 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Множества и круги Эйлера</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.6rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-counter {
+        text-align: center;
+        color: #e94560;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-text {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+
+      .task-text .query {
+        background: rgba(102, 126, 234, 0.2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Consolas", monospace;
+        color: #667eea;
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.95rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .data-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .data-table td {
+        background: #f8f9fa;
+      }
+
+      .data-table tr:hover td {
+        background: #e8eaf6;
+      }
+
+      .data-table .value {
+        font-weight: 600;
+        color: #11998e;
+      }
+
+      .data-table .unknown {
+        color: #e94560;
+        font-weight: bold;
+      }
+
+      .question-text {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-size: 1.05rem;
+        margin: 15px 0;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      @media (max-width: 900px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .diagram-section {
+        background: #1a1a2e;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .diagram-title {
+        color: #4fc3f7;
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      .euler-svg {
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      .answer-section {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .input-group label {
+        font-weight: 600;
+        color: #333;
+        min-width: 120px;
+      }
+
+      .input-group input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-family: "Consolas", monospace;
+        max-width: 150px;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #11998e;
+        box-shadow: 0 0 10px rgba(17, 153, 142, 0.3);
+      }
+
+      .input-group span {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 15px;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-diagram {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .feedback {
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        display: none;
+      }
+
+      .feedback.correct {
+        display: block;
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .feedback.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+      }
+
+      .hint-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .hint-box strong {
+        color: #856404;
+      }
+
+      .hint-box .hint-text {
+        color: #856404;
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      .formula-hint {
+        background: #263238;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-family: "Consolas", monospace;
+        color: #4fc3f7;
+        margin-top: 10px;
+        font-size: 0.95rem;
+      }
+
+      .score-board {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .score {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .score span {
+        color: #11998e;
+      }
+
+      /* Euler Diagram Styles */
+      .euler-circle {
+        opacity: 0.5;
+        transition: opacity 0.3s;
+        stroke: rgba(255, 255, 255, 0.4);
+        stroke-width: 2;
+      }
+
+      .euler-circle:hover {
+        opacity: 0.7;
+      }
+
+      .euler-circle.highlighted {
+        opacity: 0.85;
+        stroke: #ffd700;
+        stroke-width: 4;
+        filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+      }
+
+      .click-region {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .click-region:hover {
+        opacity: 0.2;
+        fill: white;
+      }
+
+      .highlight-group {
+        pointer-events: none;
+      }
+
+      .region-overlay {
+        fill: transparent;
+        cursor: pointer;
+        transition: fill 0.2s;
+      }
+
+      .region-overlay:hover {
+        fill: rgba(255, 255, 255, 0.2);
+      }
+
+      .region-overlay.selected {
+        fill: rgba(255, 255, 255, 0.4);
+        stroke: #fff;
+        stroke-width: 2;
+      }
+
+      .region-overlay.correct {
+        fill: rgba(56, 239, 125, 0.5);
+        stroke: #38ef7d;
+        stroke-width: 2;
+      }
+
+      .legend-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 5px 10px;
+        border-radius: 15px;
+      }
+
+      .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+      }
+
+      .legend-label {
+        color: white;
+        font-size: 0.85rem;
+      }
+
+      .region-info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 10px;
+        text-align: center;
+      }
+
+      .region-info .expression {
+        color: #38ef7d;
+        font-family: "Consolas", monospace;
+        font-size: 1.1rem;
+      }
+
+      .region-info .description {
+        color: #b0bec5;
+        font-size: 0.85rem;
+        margin-top: 5px;
+      }
+
+      .explanation-box {
+        background: #263238;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+
+      .explanation-box h4 {
+        color: #4fc3f7;
+        margin-bottom: 10px;
+      }
+
+      .explanation-box p {
+        color: #b0bec5;
+        line-height: 1.6;
+        margin-bottom: 8px;
+      }
+
+      .explanation-box .formula {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-family: "Consolas", monospace;
+        color: #38ef7d;
+        margin: 10px 0;
+      }
+
+      .explanation-box .result {
+        color: #38ef7d;
+        font-weight: bold;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .task-text {
+          font-size: 0.95rem;
+        }
+
+        .data-table {
+          font-size: 0.85rem;
+        }
+
+        .data-table th,
+        .data-table td {
+          padding: 8px 10px;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter - временно отключен для тестирования -->
+    <!--
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    -->
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+      <a href="oge8-t.html" class="back-link">📚 Теория</a>
+
+      <h1>🎯 Задание 8 ОГЭ — Множества и круги Эйлера</h1>
+
+      <div class="task-card">
+        <div class="task-text" id="taskText">Загрузка задания...</div>
+
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th>Запрос</th>
+              <th>Найдено страниц (в тысячах)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+
+        <div class="question-text" id="questionText">
+          Определите количество страниц по запросу...
+        </div>
+
+        <div class="workspace">
+          <div class="diagram-section">
+            <div class="diagram-title">
+              📊 Круги Эйлера (кликните для выбора области)
+            </div>
+            <!-- Диаграмма для 2 множеств -->
+            <svg
+              viewBox="0 0 400 300"
+              class="euler-svg"
+              id="eulerDiagram2"
+              style="max-width: 400px; display: none"
+            >
+              <!-- Background -->
+              <rect
+                x="0"
+                y="0"
+                width="400"
+                height="300"
+                fill="#1a1a2e"
+                rx="10"
+              />
+
+              <!-- Definitions for clipping -->
+              <defs>
+                <clipPath id="clip2A">
+                  <circle cx="140" cy="140" r="90" />
+                </clipPath>
+                <clipPath id="clip2B">
+                  <circle cx="260" cy="140" r="90" />
+                </clipPath>
+                <clipPath id="clip2NotA">
+                  <rect x="0" y="0" width="400" height="300" />
+                  <circle cx="140" cy="140" r="90" fill="black" />
+                </clipPath>
+                <clipPath id="clip2NotB">
+                  <rect x="0" y="0" width="400" height="300" />
+                  <circle cx="260" cy="140" r="90" fill="black" />
+                </clipPath>
+                <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Circle A (Red) - left -->
+              <circle
+                cx="140"
+                cy="140"
+                r="90"
+                fill="#e94560"
+                class="euler-circle"
+                id="circle2A"
+              />
+
+              <!-- Circle B (Green) - right -->
+              <circle
+                cx="260"
+                cy="140"
+                r="90"
+                fill="#38ef7d"
+                class="euler-circle"
+                id="circle2B"
+              />
+
+              <!-- Highlight regions -->
+              <!-- Region: Only A -->
+              <g
+                id="highlight2-onlyA"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clip2NotB)">
+                  <circle
+                    cx="140"
+                    cy="140"
+                    r="90"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    filter="url(#glow2)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: Only B -->
+              <g
+                id="highlight2-onlyB"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clip2NotA)">
+                  <circle
+                    cx="260"
+                    cy="140"
+                    r="90"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    filter="url(#glow2)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: A & B -->
+              <g
+                id="highlight2-AB"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clip2A)">
+                  <circle
+                    cx="260"
+                    cy="140"
+                    r="90"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    filter="url(#glow2)"
+                  />
+                </g>
+              </g>
+
+              <!-- Labels -->
+              <text
+                x="70"
+                y="80"
+                fill="#ff6b6b"
+                font-size="22"
+                font-weight="bold"
+                id="label2A"
+              >
+                A
+              </text>
+              <text
+                x="310"
+                y="80"
+                fill="#38ef7d"
+                font-size="22"
+                font-weight="bold"
+                id="label2B"
+              >
+                B
+              </text>
+
+              <!-- Value labels on diagram -->
+              <text
+                x="90"
+                y="145"
+                fill="white"
+                font-size="14"
+                font-weight="bold"
+                id="value2-onlyA"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="200"
+                y="145"
+                fill="white"
+                font-size="14"
+                font-weight="bold"
+                id="value2-AB"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="280"
+                y="145"
+                fill="white"
+                font-size="14"
+                font-weight="bold"
+                id="value2-onlyB"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+
+              <!-- Interactive overlay circles -->
+              <circle
+                cx="140"
+                cy="140"
+                r="90"
+                fill="transparent"
+                class="click-region"
+                data-set="A"
+              />
+              <circle
+                cx="260"
+                cy="140"
+                r="90"
+                fill="transparent"
+                class="click-region"
+                data-set="B"
+              />
+            </svg>
+
+            <!-- Диаграмма для 3 множеств -->
+            <svg
+              viewBox="0 0 400 350"
+              class="euler-svg"
+              id="eulerDiagram3"
+              style="max-width: 400px"
+            >
+              <!-- Background -->
+              <rect
+                x="0"
+                y="0"
+                width="400"
+                height="350"
+                fill="#1a1a2e"
+                rx="10"
+              />
+
+              <!-- Definitions for clipping -->
+              <defs>
+                <clipPath id="clipA">
+                  <circle cx="130" cy="160" r="100" />
+                </clipPath>
+                <clipPath id="clipB">
+                  <circle cx="270" cy="160" r="100" />
+                </clipPath>
+                <clipPath id="clipC">
+                  <circle cx="200" cy="250" r="100" />
+                </clipPath>
+                <clipPath id="clipNotA">
+                  <rect x="0" y="0" width="400" height="350" />
+                  <circle cx="130" cy="160" r="100" fill="black" />
+                </clipPath>
+                <clipPath id="clipNotB">
+                  <rect x="0" y="0" width="400" height="350" />
+                  <circle cx="270" cy="160" r="100" fill="black" />
+                </clipPath>
+                <clipPath id="clipNotC">
+                  <rect x="0" y="0" width="400" height="350" />
+                  <circle cx="200" cy="250" r="100" fill="black" />
+                </clipPath>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Circle A (Red) - left -->
+              <circle
+                cx="130"
+                cy="160"
+                r="100"
+                fill="#e94560"
+                class="euler-circle"
+                id="circleA"
+              />
+
+              <!-- Circle B (Green) - right -->
+              <circle
+                cx="270"
+                cy="160"
+                r="100"
+                fill="#38ef7d"
+                class="euler-circle"
+                id="circleB"
+              />
+
+              <!-- Circle C (Blue) - bottom -->
+              <circle
+                cx="200"
+                cy="250"
+                r="100"
+                fill="#667eea"
+                class="euler-circle"
+                id="circleC"
+              />
+
+              <!-- Highlight regions with precise clipping -->
+              <!-- Region: Only A -->
+              <g
+                id="highlight-onlyA"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipNotB)">
+                  <circle
+                    cx="130"
+                    cy="160"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotC)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: Only B -->
+              <g
+                id="highlight-onlyB"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipNotA)">
+                  <circle
+                    cx="270"
+                    cy="160"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotC)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: Only C -->
+              <g
+                id="highlight-onlyC"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipNotA)">
+                  <circle
+                    cx="200"
+                    cy="250"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotB)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: A & B -->
+              <g
+                id="highlight-AB"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipA)">
+                  <circle
+                    cx="270"
+                    cy="160"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotC)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: A & C -->
+              <g
+                id="highlight-AC"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipA)">
+                  <circle
+                    cx="200"
+                    cy="250"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotB)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: B & C -->
+              <g
+                id="highlight-BC"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipB)">
+                  <circle
+                    cx="200"
+                    cy="250"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipNotA)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Region: A & B & C -->
+              <g
+                id="highlight-ABC"
+                class="highlight-group"
+                style="display: none"
+              >
+                <g style="clip-path: url(#clipA)">
+                  <circle
+                    cx="270"
+                    cy="160"
+                    r="100"
+                    fill="#FFD700"
+                    opacity="0.5"
+                    style="clip-path: url(#clipC)"
+                    filter="url(#glow)"
+                  />
+                </g>
+              </g>
+
+              <!-- Labels -->
+              <text
+                x="55"
+                y="100"
+                fill="#ff6b6b"
+                font-size="22"
+                font-weight="bold"
+                id="labelA"
+              >
+                A
+              </text>
+              <text
+                x="320"
+                y="100"
+                fill="#38ef7d"
+                font-size="22"
+                font-weight="bold"
+                id="labelB"
+              >
+                B
+              </text>
+              <text
+                x="200"
+                y="335"
+                fill="#a18cd1"
+                font-size="22"
+                font-weight="bold"
+                text-anchor="middle"
+                id="labelC"
+              >
+                C
+              </text>
+
+              <!-- Value labels on diagram -->
+              <text
+                x="70"
+                y="145"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-onlyA"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="200"
+                y="95"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-AB"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="310"
+                y="145"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-onlyB"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="100"
+                y="230"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-AC"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="285"
+                y="230"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-BC"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="200"
+                y="180"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-ABC"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+              <text
+                x="200"
+                y="295"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+                id="value-onlyC"
+                style="pointer-events: none"
+              >
+                ?
+              </text>
+
+              <!-- Interactive overlay circles -->
+              <circle
+                cx="130"
+                cy="160"
+                r="100"
+                fill="transparent"
+                class="click-region"
+                data-set="A"
+              />
+              <circle
+                cx="270"
+                cy="160"
+                r="100"
+                fill="transparent"
+                class="click-region"
+                data-set="B"
+              />
+              <circle
+                cx="200"
+                cy="250"
+                r="100"
+                fill="transparent"
+                class="click-region"
+                data-set="C"
+              />
+            </svg>
+
+            <div
+              class="legend-container"
+              id="legend2Sets"
+              style="display: none"
+            >
+              <div class="legend-item">
+                <div class="legend-color" style="background: #e94560"></div>
+                <span class="legend-label" id="legend2A">Множество A</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #38ef7d"></div>
+                <span class="legend-label" id="legend2B">Множество B</span>
+              </div>
+            </div>
+
+            <div class="legend-container" id="legend3Sets">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #e94560"></div>
+                <span class="legend-label" id="legendA">Множество A</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #38ef7d"></div>
+                <span class="legend-label" id="legendB">Множество B</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #667eea"></div>
+                <span class="legend-label" id="legendC">Множество C</span>
+              </div>
+            </div>
+
+            <div class="region-info" id="regionInfo">
+              <div class="expression" id="regionExpression">
+                Кликните на область
+              </div>
+              <div class="description" id="regionDescription">
+                Выберите область на диаграмме для просмотра логического
+                выражения
+              </div>
+            </div>
+          </div>
+
+          <div class="answer-section">
+            <div class="input-group">
+              <label for="answerInput">Ответ:</label>
+              <input type="number" id="answerInput" placeholder="?" min="0" />
+              <span>тыс. страниц</span>
+            </div>
+
+            <div class="buttons">
+              <button class="btn btn-check" onclick="checkAnswer()">
+                ✓ Проверить
+              </button>
+              <button class="btn btn-hint" onclick="showHint()">
+                💡 Подсказка
+              </button>
+              <button class="btn btn-diagram" onclick="highlightUnknown()">
+                🎯 Показать на схеме
+              </button>
+            </div>
+
+            <div class="hint-box" id="hintBox">
+              <strong>💡 Подсказка:</strong>
+              <div class="hint-text" id="hintText"></div>
+            </div>
+
+            <div class="feedback" id="feedback">
+              <div id="feedbackText"></div>
+            </div>
+
+            <div
+              class="explanation-box"
+              id="explanationBox"
+              style="display: none"
+            >
+              <h4>📝 Решение:</h4>
+              <div id="explanationText"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-board">
+        <button class="btn btn-next" onclick="nextTask()">
+          🔄 Новое задание
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Отладка - проверяем загрузку скрипта
+      console.log("Скрипт начал загружаться, readyState:", document.readyState);
+
+      // Проверяем доступность DOM элементов
+      function checkElements() {
+        const ids = [
+          "taskText",
+          "tableBody",
+          "questionText",
+          "answerInput",
+          "feedback",
+          "hintBox",
+          "explanationBox",
+          "eulerDiagram2",
+          "eulerDiagram3",
+        ];
+        const missing = [];
+        ids.forEach((id) => {
+          if (!document.getElementById(id)) {
+            missing.push(id);
+          }
+        });
+        if (missing.length > 0) {
+          console.error("Отсутствуют элементы:", missing);
+          return false;
+        }
+        console.log("Все DOM элементы найдены");
+        return true;
+      }
+
+      // База данных для генерации задач
+      const setNames = {
+        // Исторические личности и события
+        history: [
+          ["Царь", "Иван", "Полтава"],
+          ["Менделеев", "Таблица", "Химия"],
+          ["Тарас", "Шевченко", "Поэт"],
+          ["Фильм", "Война", "Мир"],
+          ["Басня", "Лиса", "Волк"],
+        ],
+        // География
+        geography: [
+          ["Виноградник", "Крым", "Камчатка"],
+          ["Байкал", "Россия", "Озеро"],
+          ["Ливадия", "Бахчисарай", "Крым"],
+          ["Севастополь", "Оборона", "Картина"],
+          ["Кубачи", "Дагестан", "Серебро"],
+          ["Камчатка", "Долина", "Гейзер"],
+        ],
+        // Общие понятия
+        general: [
+          ["Сказка", "Фольклор", "Литература"],
+          ["Крепость", "Форт", "Замок"],
+          ["Крокодил", "Гена", "Чебурашка"],
+          ["Заяц", "Самурай", "Животное"],
+          ["Комикс", "Черепашка", "Ниндзя"],
+          ["Музыка", "Вальс", "Танец"],
+          ["Ум", "Сила", "Красота"],
+          ["Форт", "Росс", "Крепость"],
+          ["Лекарство", "Насморк", "Температура"],
+        ],
+      };
+
+      // Все наборы имён
+      const allSets = [
+        ...setNames.history,
+        ...setNames.geography,
+        ...setNames.general,
+      ];
+
+      let currentTask = null;
+      let taskNumber = 0;
+      let correctAnswers = 0;
+      let totalAnswered = 0;
+      let answered = false;
+
+      // Типы задач
+      const taskTypes = {
+        // Найти A & B (пересечение двух множеств)
+        intersection2: {
+          name: "intersection2",
+          generate: function (sets) {
+            const [A, B] = sets;
+            const aVal = randomInt(200, 500);
+            const bVal = randomInt(200, 500);
+            const abIntersection = randomInt(
+              Math.max(0, aVal + bVal - 800),
+              Math.min(aVal, bVal) - 10,
+            );
+            const aOrB = aVal + bVal - abIntersection;
+
+            return {
+              data: [
+                { query: A, value: aVal },
+                { query: B, value: bVal },
+                { query: `${A} | ${B}`, value: aOrB },
+              ],
+              question: `${A} & ${B}`,
+              answer: abIntersection,
+              unknownSet: `${A} & ${B}`,
+              hint: `Используйте формулу: A | B = A + B - (A & B). Отсюда: A & B = A + B - (A | B)`,
+              explanation: `По формуле объединения:\n${A} | ${B} = ${A} + ${B} - (${A} & ${B})\n${aOrB} = ${aVal} + ${bVal} - X\nX = ${aVal} + ${bVal} - ${aOrB} = ${abIntersection}`,
+              useThreeSets: false,
+            };
+          },
+        },
+
+        // Найти A | B (объединение двух множеств)
+        union2: {
+          name: "union2",
+          generate: function (sets) {
+            const [A, B] = sets;
+            const aVal = randomInt(200, 500);
+            const bVal = randomInt(200, 500);
+            const abIntersection = randomInt(50, Math.min(aVal, bVal) - 10);
+            const aOrB = aVal + bVal - abIntersection;
+
+            return {
+              data: [
+                { query: A, value: aVal },
+                { query: B, value: bVal },
+                { query: `${A} & ${B}`, value: abIntersection },
+              ],
+              question: `${A} | ${B}`,
+              answer: aOrB,
+              unknownSet: `${A} | ${B}`,
+              hint: `Используйте формулу: A | B = A + B - (A & B)`,
+              explanation: `По формуле объединения:\n${A} | ${B} = ${A} + ${B} - (${A} & ${B})\n${A} | ${B} = ${aVal} + ${bVal} - ${abIntersection} = ${aOrB}`,
+              useThreeSets: false,
+            };
+          },
+        },
+
+        // Три множества: найти A & B & C
+        intersection3: {
+          name: "intersection3",
+          generate: function (sets) {
+            const [A, B, C] = sets;
+            // Генерируем базовые значения для 7 областей
+            const onlyA = randomInt(50, 150);
+            const onlyB = randomInt(50, 150);
+            const onlyC = randomInt(50, 150);
+            const abNotC = randomInt(20, 80);
+            const acNotB = randomInt(20, 80);
+            const bcNotA = randomInt(20, 80);
+            const abc = randomInt(30, 100);
+
+            // Вычисляем значения для запросов
+            const aTotal = onlyA + abNotC + acNotB + abc;
+            const bTotal = onlyB + abNotC + bcNotA + abc;
+            const cTotal = onlyC + acNotB + bcNotA + abc;
+            const aOrBOrC =
+              onlyA + onlyB + onlyC + abNotC + acNotB + bcNotA + abc;
+            const abTotal = abNotC + abc;
+            const acTotal = acNotB + abc;
+            const bcTotal = bcNotA + abc;
+
+            return {
+              data: [
+                { query: A, value: aTotal },
+                { query: B, value: bTotal },
+                { query: C, value: cTotal },
+                { query: `${A} | ${B} | ${C}`, value: aOrBOrC },
+                { query: `${A} & ${B}`, value: abTotal },
+                { query: `${A} & ${C}`, value: acTotal },
+                { query: `${B} & ${C}`, value: bcTotal },
+              ],
+              question: `${A} & ${B} & ${C}`,
+              answer: abc,
+              unknownSet: `${A} & ${B} & ${C}`,
+              hint: `Используйте формулу для трёх множеств:\nA|B|C = A + B + C - A&B - A&C - B&C + A&B&C`,
+              explanation: `По формуле для трёх множеств:\n${A}|${B}|${C} = ${A} + ${B} + ${C} - ${A}&${B} - ${A}&${C} - ${B}&${C} + ${A}&${B}&${C}\n${aOrBOrC} = ${aTotal} + ${bTotal} + ${cTotal} - ${abTotal} - ${acTotal} - ${bcTotal} + X\nX = ${aOrBOrC} - ${aTotal} - ${bTotal} - ${cTotal} + ${abTotal} + ${acTotal} + ${bcTotal}\nX = ${abc}`,
+              useThreeSets: true,
+            };
+          },
+        },
+
+        // Три множества: найти A | B | C (объединение всех трёх)
+        union3: {
+          name: "union3",
+          generate: function (sets) {
+            const [A, B, C] = sets;
+            // Генерируем базовые значения для 7 областей
+            const onlyA = randomInt(50, 150);
+            const onlyB = randomInt(50, 150);
+            const onlyC = randomInt(50, 150);
+            const abNotC = randomInt(20, 80);
+            const acNotB = randomInt(20, 80);
+            const bcNotA = randomInt(20, 80);
+            const abc = randomInt(30, 100);
+
+            // Вычисляем значения для запросов
+            const aTotal = onlyA + abNotC + acNotB + abc;
+            const bTotal = onlyB + abNotC + bcNotA + abc;
+            const cTotal = onlyC + acNotB + bcNotA + abc;
+            const aOrBOrC =
+              onlyA + onlyB + onlyC + abNotC + acNotB + bcNotA + abc;
+            const abTotal = abNotC + abc;
+            const acTotal = acNotB + abc;
+            const bcTotal = bcNotA + abc;
+
+            return {
+              data: [
+                { query: A, value: aTotal },
+                { query: B, value: bTotal },
+                { query: C, value: cTotal },
+                { query: `${A} & ${B}`, value: abTotal },
+                { query: `${A} & ${C}`, value: acTotal },
+                { query: `${B} & ${C}`, value: bcTotal },
+                { query: `${A} & ${B} & ${C}`, value: abc },
+              ],
+              question: `${A} | ${B} | ${C}`,
+              answer: aOrBOrC,
+              unknownSet: `${A} | ${B} | ${C}`,
+              hint: `Используйте формулу для трёх множеств:\nA|B|C = A + B + C - A&B - A&C - B&C + A&B&C`,
+              explanation: `По формуле для трёх множеств:\n${A}|${B}|${C} = ${A} + ${B} + ${C} - ${A}&${B} - ${A}&${C} - ${B}&${C} + ${A}&${B}&${C}\n${A}|${B}|${C} = ${aTotal} + ${bTotal} + ${cTotal} - ${abTotal} - ${acTotal} - ${bcTotal} + ${abc} = ${aOrBOrC}`,
+              useThreeSets: true,
+            };
+          },
+        },
+
+        // Формула A & (B | C) - найти A & B
+        formulaABorC: {
+          name: "formulaABorC",
+          generate: function (sets) {
+            const [A, B, C] = sets;
+            const bcNotA = randomInt(20, 80);
+            const abNotC = randomInt(30, 100);
+            const acNotB = randomInt(30, 100);
+            const abc = randomInt(40, 120);
+            const onlyA = randomInt(50, 150);
+
+            const aOrBOrC =
+              onlyA +
+              abNotC +
+              acNotB +
+              abc +
+              bcNotA +
+              randomInt(50, 100) +
+              randomInt(50, 100);
+            const aAndBorC = abNotC + acNotB + abc;
+            const aAndB = abNotC + abc;
+            const aAndC = acNotB + abc;
+
+            return {
+              data: [
+                { query: `${A} & (${B} | ${C})`, value: aAndBorC },
+                { query: `${A} & ${B} & ${C}`, value: abc },
+                { query: `${A} & ${C}`, value: aAndC },
+              ],
+              question: `${A} & ${B}`,
+              answer: aAndB,
+              unknownSet: `${A} & ${B}`,
+              hint: `Формула: A & (B | C) = A&B + A&C - A&B&C\nРаскройте скобки и выразите неизвестное`,
+              explanation: `По формуле:\n${A} & (${B} | ${C}) = ${A}&${B} + ${A}&${C} - ${A}&${B}&${C}\n${aAndBorC} = X + ${aAndC} - ${abc}\nX = ${aAndBorC} - ${aAndC} + ${abc} = ${aAndB}`,
+              useThreeSets: true,
+            };
+          },
+        },
+      };
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function generateTask() {
+        console.log("generateTask вызвана");
+        try {
+          taskNumber++;
+          answered = false;
+          document.getElementById("feedback").className = "feedback";
+          document.getElementById("feedback").style.display = "none";
+          document.getElementById("hintBox").style.display = "none";
+          document.getElementById("explanationBox").style.display = "none";
+          document.getElementById("answerInput").value = "";
+          document.getElementById("regionExpression").textContent =
+            "Кликните на область";
+          document.getElementById("regionDescription").textContent =
+            "Выберите область на диаграмме для просмотра логического выражения";
+
+          // Выбираем случайный набор имён
+          const sets = allSets[Math.floor(Math.random() * allSets.length)];
+
+          // Выбираем тип задачи
+          const typeWeights = {
+            formulaABorC: 3,
+            intersection3: 2,
+            union3: 2,
+            intersection2: 1,
+            union2: 1,
+          };
+
+          const weightedTypes = [];
+          for (const [type, weight] of Object.entries(typeWeights)) {
+            for (let i = 0; i < weight; i++) {
+              weightedTypes.push(type);
+            }
+          }
+
+          const selectedType =
+            weightedTypes[Math.floor(Math.random() * weightedTypes.length)];
+          currentTask = taskTypes[selectedType].generate(sets);
+
+          // Используем свойство useThreeSets из задачи, или определяем по данным
+          const useThreeSets =
+            currentTask.useThreeSets !== undefined
+              ? currentTask.useThreeSets
+              : (currentTask.data.length >= 3 &&
+                  currentTask.data[2].query.includes("|")) ||
+                currentTask.data.some(
+                  (d) =>
+                    d.query.includes("&") &&
+                    d.query.split("&").length >= 2 &&
+                    !d.query.includes("("),
+                );
+
+          if (useThreeSets) {
+            // Показываем диаграмму для 3 множеств
+            document.getElementById("eulerDiagram2").style.display = "none";
+            document.getElementById("eulerDiagram3").style.display = "block";
+            document.getElementById("legend2Sets").style.display = "none";
+            document.getElementById("legend3Sets").style.display = "flex";
+
+            // Используем все три имени из набора
+            document.getElementById("labelA").textContent = sets[0].substring(
+              0,
+              3,
+            );
+            document.getElementById("labelB").textContent = sets[1].substring(
+              0,
+              3,
+            );
+            document.getElementById("labelC").textContent = sets[2].substring(
+              0,
+              3,
+            );
+            document.getElementById("legendA").textContent = sets[0];
+            document.getElementById("legendB").textContent = sets[1];
+            document.getElementById("legendC").textContent = sets[2];
+            currentTask.sets = sets;
+            currentTask.useThreeSets = true;
+          } else {
+            // Показываем диаграмму для 2 множеств
+            document.getElementById("eulerDiagram2").style.display = "block";
+            document.getElementById("eulerDiagram3").style.display = "none";
+            document.getElementById("legend2Sets").style.display = "flex";
+            document.getElementById("legend3Sets").style.display = "none";
+
+            // Используем только два имени
+            const usedSets = [sets[0], sets[1]];
+            document.getElementById("label2A").textContent =
+              usedSets[0].substring(0, 3);
+            document.getElementById("label2B").textContent =
+              usedSets[1].substring(0, 3);
+            document.getElementById("legend2A").textContent = usedSets[0];
+            document.getElementById("legend2B").textContent = usedSets[1];
+            currentTask.sets = usedSets;
+            currentTask.useThreeSets = false;
+          }
+
+          // Отрисовываем условие
+          renderTask();
+        } catch (err) {
+          console.error("Ошибка в generateTask:", err);
+        }
+      }
+
+      function renderTask() {
+        // Текст задачи
+        let taskText = `В таблице приведены запросы и количество найденных по ним страниц некоторого сегмента сети Интернет:`;
+
+        document.getElementById("taskText").innerHTML = taskText;
+
+        // Таблица данных
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+
+        currentTask.data.forEach((item) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><span class="query">${item.query}</span></td>
+            <td><span class="value">${item.value} тыс.</span></td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        // Добавляем строку с вопросом
+        const questionRow = document.createElement("tr");
+        questionRow.innerHTML = `
+          <td><span class="query">${currentTask.question}</span></td>
+          <td><span class="unknown">?</span></td>
+        `;
+        tableBody.appendChild(questionRow);
+
+        // Вопрос
+        let questionText = `Какое количество страниц (в тысячах) будет найдено по запросу <strong>${currentTask.question}</strong>?`;
+        if (currentTask.isNested) {
+          questionText += `<br><small style="color: #666;">${currentTask.nestedNote}</small>`;
+        }
+        document.getElementById("questionText").innerHTML = questionText;
+      }
+
+      function checkAnswer() {
+        if (answered) return;
+
+        const userAnswer = parseInt(
+          document.getElementById("answerInput").value,
+        );
+
+        if (isNaN(userAnswer)) {
+          alert("Введите числовой ответ!");
+          return;
+        }
+
+        answered = true;
+        totalAnswered++;
+
+        const isCorrect = userAnswer === currentTask.answer;
+
+        const feedback = document.getElementById("feedback");
+        if (isCorrect) {
+          correctAnswers++;
+          feedback.className = "feedback correct";
+          document.getElementById("feedbackText").textContent = "🎉 Правильно!";
+        } else {
+          feedback.className = "feedback incorrect";
+          document.getElementById("feedbackText").textContent =
+            `❌ Неправильно! Правильный ответ: ${currentTask.answer}`;
+        }
+        feedback.style.display = "block";
+
+        // Показываем объяснение
+        document.getElementById("explanationBox").style.display = "block";
+        document.getElementById("explanationText").innerHTML = `
+          <div class="formula">${currentTask.explanation.replace(/\n/g, "<br>")}</div>
+          <p class="result">Ответ: ${currentTask.answer} тыс. страниц</p>
+        `;
+
+        // Подсвечиваем правильную область на диаграмме
+        highlightCorrectRegion();
+      }
+
+      function showHint() {
+        if (answered) return;
+
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+
+        if (hintBox.style.display === "none") {
+          hintText.innerHTML = currentTask.hint.replace(/\n/g, "<br>");
+          hintBox.style.display = "block";
+        } else {
+          hintBox.style.display = "none";
+        }
+      }
+
+      // Центры и радиусы кругов для определения кликов
+      const circlesConfig = {
+        // Для диаграммы 2 множеств
+        diagram2: {
+          A: { cx: 140, cy: 140, r: 90 },
+          B: { cx: 260, cy: 140, r: 90 },
+        },
+        // Для диаграммы 3 множеств
+        diagram3: {
+          A: { cx: 130, cy: 160, r: 100 },
+          B: { cx: 270, cy: 160, r: 100 },
+          C: { cx: 200, cy: 250, r: 100 },
+        },
+      };
+
+      // Данные о регионах
+      const regionData = {
+        // Для 2 множеств
+        onlyA: {
+          expression: "Только A",
+          description: "Элементы только в множестве A",
+        },
+        onlyB: {
+          expression: "Только B",
+          description: "Элементы только в множестве B",
+        },
+        AB: { expression: "A & B", description: "Пересечение множеств A и B" },
+        // Для 3 множеств
+        onlyC: {
+          expression: "Только C",
+          description: "Элементы только в множестве C",
+        },
+        AC: {
+          expression: "A & C",
+          description: "Пересечение A и C",
+        },
+        BC: {
+          expression: "B & C",
+          description: "Пересечение B и C",
+        },
+        ABC: {
+          expression: "A & B & C",
+          description: "Пересечение всех трёх множеств",
+        },
+      };
+
+      // Проверка, находится ли точка внутри круга
+      function isInsideCircle(x, y, circle) {
+        const dx = x - circle.cx;
+        const dy = y - circle.cy;
+        return dx * dx + dy * dy <= circle.r * circle.r;
+      }
+
+      // Определение региона по координатам клика для 2 множеств
+      function getRegion2FromPoint(x, y) {
+        const inA = isInsideCircle(x, y, circlesConfig.diagram2.A);
+        const inB = isInsideCircle(x, y, circlesConfig.diagram2.B);
+
+        if (inA && inB) return "AB";
+        if (inA && !inB) return "onlyA";
+        if (!inA && inB) return "onlyB";
+        return null;
+      }
+
+      // Определение региона по координатам клика для 3 множеств
+      function getRegion3FromPoint(x, y) {
+        const inA = isInsideCircle(x, y, circlesConfig.diagram3.A);
+        const inB = isInsideCircle(x, y, circlesConfig.diagram3.B);
+        const inC = isInsideCircle(x, y, circlesConfig.diagram3.C);
+
+        if (inA && inB && inC) return "ABC";
+        if (inA && inB && !inC) return "AB";
+        if (inA && !inB && inC) return "AC";
+        if (!inA && inB && inC) return "BC";
+        if (inA && !inB && !inC) return "onlyA";
+        if (!inA && inB && !inC) return "onlyB";
+        if (!inA && !inB && inC) return "onlyC";
+        return null;
+      }
+
+      // Очистка всех подсветок
+      function clearHighlights() {
+        document.querySelectorAll(".highlight-group").forEach((g) => {
+          g.style.display = "none";
+        });
+      }
+
+      // Подсветка региона
+      function highlightRegion(regionName) {
+        clearHighlights();
+        const data = regionData[regionName];
+        if (!data) return;
+
+        // Определяем префикс для ID
+        const prefix = currentTask.useThreeSets ? "" : "2";
+        const highlightId = `highlight${prefix}-${regionName}`;
+        const highlightGroup = document.getElementById(highlightId);
+
+        if (highlightGroup) {
+          highlightGroup.style.display = "block";
+        }
+
+        // Получаем реальные названия множеств из условия
+        const sets = currentTask.sets;
+        let expression = data.expression;
+        let description = data.description;
+
+        // Заменяем A, B, C на реальные названия
+        if (sets && sets.length >= 2) {
+          expression = expression.replace(/A/g, sets[0]);
+          expression = expression.replace(/B/g, sets[1]);
+          description = description.replace(/A/g, sets[0]);
+          description = description.replace(/B/g, sets[1]);
+          if (sets.length >= 3) {
+            expression = expression.replace(/C/g, sets[2]);
+            description = description.replace(/C/g, sets[2]);
+          }
+        }
+
+        document.getElementById("regionExpression").textContent = expression;
+        document.getElementById("regionDescription").textContent = description;
+      }
+
+      // Обновление значений на диаграмме из условия задачи
+      function updateDiagramValues() {
+        if (!currentTask) return;
+
+        const prefix = currentTask.useThreeSets ? "" : "2";
+
+        // Сбрасываем все значения на "?"
+        if (currentTask.useThreeSets) {
+          ["onlyA", "onlyB", "onlyC", "AB", "AC", "BC", "ABC"].forEach(
+            (region) => {
+              const el = document.getElementById(`value-${region}`);
+              if (el) el.textContent = "?";
+            },
+          );
+        } else {
+          ["onlyA", "onlyB", "AB"].forEach((region) => {
+            const el = document.getElementById(`value2-${region}`);
+            if (el) el.textContent = "?";
+          });
+        }
+
+        // Заполняем известные значения из условия
+        currentTask.data.forEach((item) => {
+          const query = item.query;
+          const value = item.value;
+
+          // Определяем, какой области соответствует запрос
+          if (!currentTask.useThreeSets) {
+            // Для 2 множеств
+            if (query === currentTask.sets[0]) {
+              // Это всё множество A (onlyA + AB)
+              var elA = document.getElementById("value2-onlyA");
+              if (elA) elA.textContent = "?";
+            } else if (query === currentTask.sets[1]) {
+              // Это всё множество B (onlyB + AB)
+              var elB = document.getElementById("value2-onlyB");
+              if (elB) elB.textContent = "?";
+            } else if (query.includes("&") && !query.includes("|")) {
+              var elAB = document.getElementById("value2-AB");
+              if (elAB) elAB.textContent = value;
+            } else if (query.includes("|")) {
+              // Объединение - отмечаем на диаграмме числом сверху
+            }
+          } else {
+            // Для 3 множеств
+            if (query === currentTask.sets[0]) {
+              // Всё множество A
+            } else if (query === currentTask.sets[1]) {
+              // Всё множество B
+            } else if (query === currentTask.sets[2]) {
+              // Всё множество C
+            } else if (
+              query.includes("A & B & C") ||
+              (query.split("&").length === 3 && !query.includes("|"))
+            ) {
+              var elABC = document.getElementById("value-ABC");
+              if (elABC) elABC.textContent = value;
+            } else if (query.includes("&") && !query.includes("|")) {
+              const parts = query.split("&").map((p) => p.trim());
+              if (parts.length === 2) {
+                // Определяем пару
+                if (
+                  parts[0].includes(currentTask.sets[0]) ||
+                  parts[1].includes(currentTask.sets[0])
+                ) {
+                  if (
+                    parts[0].includes(currentTask.sets[1]) ||
+                    parts[1].includes(currentTask.sets[1])
+                  ) {
+                    var elAB = document.getElementById("value-AB");
+                    if (elAB) elAB.textContent = value;
+                  } else if (
+                    parts[0].includes(currentTask.sets[2]) ||
+                    parts[1].includes(currentTask.sets[2])
+                  ) {
+                    var elAC = document.getElementById("value-AC");
+                    if (elAC) elAC.textContent = value;
+                  }
+                } else {
+                  var elBC = document.getElementById("value-BC");
+                  if (elBC) elBC.textContent = value;
+                }
+              }
+            }
+          }
+        });
+      }
+
+      function highlightUnknown() {
+        if (answered) return;
+
+        // Подсвечиваем область, которую нужно найти
+        const regionExpression = document.getElementById("regionExpression");
+        const regionDescription = document.getElementById("regionDescription");
+
+        regionExpression.textContent = currentTask.unknownSet;
+        regionDescription.textContent = "Это область, которую нужно найти";
+
+        clearHighlights();
+
+        // Определяем регион для подсветки
+        const unknownQuery = currentTask.unknownSet;
+        let regionName = null;
+
+        if (unknownQuery.includes("&") && !unknownQuery.includes("|")) {
+          const parts = unknownQuery.split("&").map((p) => p.trim());
+          if (parts.length === 2) {
+            regionName = "AB";
+          } else if (parts.length === 3) {
+            regionName = "ABC";
+          }
+        } else if (unknownQuery.includes("|") && !unknownQuery.includes("&")) {
+          // Объединение - подсвечиваем оба круга
+          // Просто показываем сообщение
+          return;
+        }
+
+        if (regionName) {
+          highlightRegion(regionName);
+        }
+      }
+
+      function highlightCorrectRegion() {
+        clearHighlights();
+
+        // Подсвечиваем правильную область
+        const unknownQuery = currentTask.unknownSet;
+        let regionName = null;
+
+        if (unknownQuery.includes("&") && !unknownQuery.includes("|")) {
+          const parts = unknownQuery.split("&").map((p) => p.trim());
+          if (parts.length === 2) {
+            regionName = "AB";
+          } else if (parts.length === 3) {
+            regionName = "ABC";
+          }
+        }
+
+        if (regionName) {
+          highlightRegion(regionName);
+        }
+
+        document.getElementById("regionExpression").textContent =
+          currentTask.unknownSet + " = " + currentTask.answer;
+        document.getElementById("regionDescription").textContent =
+          "Правильный ответ";
+      }
+
+      function nextTask() {
+        generateTask();
+        clearHighlights();
+        updateDiagramValues();
+      }
+
+      // Инициализация - вызываем после полной загрузки страницы
+      function init() {
+        console.log("init вызвана, readyState:", document.readyState);
+        try {
+          // Проверяем наличие всех элементов
+          if (!checkElements()) {
+            console.error("Не все DOM элементы найдены!");
+            return;
+          }
+
+          // Регистрируем обработчики событий
+          document
+            .getElementById("eulerDiagram2")
+            .addEventListener("click", function (e) {
+              if (answered) return;
+
+              const svg = e.currentTarget;
+              const rect = svg.getBoundingClientRect();
+              const scaleX = 400 / rect.width;
+              const scaleY = 300 / rect.height;
+
+              const x = (e.clientX - rect.left) * scaleX;
+              const y = (e.clientY - rect.top) * scaleY;
+
+              const region = getRegion2FromPoint(x, y);
+              if (region) {
+                highlightRegion(region);
+              }
+            });
+
+          document
+            .getElementById("eulerDiagram3")
+            .addEventListener("click", function (e) {
+              if (answered) return;
+
+              const svg = e.currentTarget;
+              const rect = svg.getBoundingClientRect();
+              const scaleX = 400 / rect.width;
+              const scaleY = 350 / rect.height;
+
+              const x = (e.clientX - rect.left) * scaleX;
+              const y = (e.clientY - rect.top) * scaleY;
+
+              const region = getRegion3FromPoint(x, y);
+              if (region) {
+                highlightRegion(region);
+              }
+            });
+
+          document
+            .getElementById("answerInput")
+            .addEventListener("keypress", function (e) {
+              if (e.key === "Enter") {
+                checkAnswer();
+              }
+            });
+
+          // Генерируем первую задачу
+          generateTask();
+          updateDiagramValues();
+          console.log("Задача успешно загружена");
+        } catch (e) {
+          console.error("Ошибка при загрузке задачи:", e);
+          document.getElementById("taskText").textContent =
+            "Ошибка загрузки: " + e.message;
+        }
+      }
+
+      // Запускаем инициализацию при загрузке страницы
+      window.onload = function () {
+        console.log("window.onload сработал");
+        init();
+      };
+    </script>
+  </body>
+</html>
