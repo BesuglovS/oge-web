@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория - Задание 10 ОГЭ - Системы счисления</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section h4 {
+        color: #555;
+        margin: 15px 0 8px 0;
+        font-size: 1.05rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .task-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .task-type-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #667eea;
+      }
+
+      .task-type-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .task-type-card p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .num-subscript {
+        font-size: 0.75em;
+        vertical-align: sub;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge10.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>📚 Теория: Задание 10 ОГЭ — Системы счисления</h1>
+
+      <div class="theory-section">
+        <h2>🔢 Что такое система счисления?</h2>
+        <p>
+          <strong>Система счисления</strong> — это способ записи чисел с помощью
+          символов (цифр) по определённым правилам. Каждая система счисления
+          имеет <strong>основание</strong> — количество цифр, используемых для
+          записи чисел.
+        </p>
+        <p>
+          В информатике чаще всего используются следующие системы счисления:
+        </p>
+        <table class="units-table">
+          <tr>
+            <th>Система</th>
+            <th>Основание</th>
+            <th>Цифры</th>
+            <th>Применение</th>
+          </tr>
+          <tr>
+            <td>Двоичная</td>
+            <td>2</td>
+            <td>0, 1</td>
+            <td>Внутреннее представление данных в компьютере</td>
+          </tr>
+          <tr>
+            <td>Восьмеричная</td>
+            <td>8</td>
+            <td>0, 1, 2, 3, 4, 5, 6, 7</td>
+            <td>Компактная запись двоичных чисел</td>
+          </tr>
+          <tr>
+            <td>Десятичная</td>
+            <td>10</td>
+            <td>0, 1, 2, 3, 4, 5, 6, 7, 8, 9</td>
+            <td>Повседневные вычисления</td>
+          </tr>
+          <tr>
+            <td>Шестнадцатеричная</td>
+            <td>16</td>
+            <td>0-9, A, B, C, D, E, F</td>
+            <td>Запись адресов памяти, цветов</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Запись чисел в разных системах счисления</h2>
+        <p>
+          Число записывается как сумма произведений цифр на степени основания:
+        </p>
+        <div class="formula-box">
+          <div class="formula">
+            N = a<sub>n</sub>·q<sup>n</sup> + a<sub>n-1</sub>·q<sup>n-1</sup> +
+            ... + a<sub>1</sub>·q<sup>1</sup> + a<sub>0</sub>·q<sup>0</sup>
+          </div>
+          <div class="formula-description">
+            q — основание системы счисления<br />
+            a<sub>i</sub> — цифры числа (от 0 до q-1)<br />
+            n — номер разряда (начиная с 0)
+          </div>
+        </div>
+
+        <h3>Пример: число 1011<sub>2</sub></h3>
+        <p>
+          1011<sub>2</sub> = 1·2³ + 0·2² + 1·2¹ + 1·2⁰ = 8 + 0 + 2 + 1 = 11<sub
+            >10</sub
+          >
+        </p>
+
+        <h3>Пример: число 2A<sub>16</sub></h3>
+        <p>2A<sub>16</sub> = 2·16¹ + 10·16⁰ = 32 + 10 = 42<sub>10</sub></p>
+        <p>
+          Буквы в шестнадцатеричной системе: A=10, B=11, C=12, D=13, E=14, F=15
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔄 Перевод чисел из одной системы в другую</h2>
+
+        <h3>1. Перевод из любой системы в десятичную</h3>
+        <p>Используем развёрнутую форму записи числа:</p>
+        <div class="example-box">
+          <h4>Пример: 27<sub>8</sub> → ?<sub>10</sub></h4>
+          <div class="example-solution">
+            27<sub>8</sub> = 2·8¹ + 7·8⁰ = 16 + 7 = 23<sub>10</sub>
+          </div>
+        </div>
+
+        <h3>2. Перевод из десятичной системы в другую</h3>
+        <p>
+          Последовательно делим число на основание и записываем остатки в
+          обратном порядке:
+        </p>
+        <div class="example-box">
+          <h4>Пример: 27<sub>10</sub> → ?<sub>2</sub></h4>
+          <div class="example-solution">
+            27 ÷ 2 = 13, остаток 1<br />
+            13 ÷ 2 = 6, остаток 1<br />
+            6 ÷ 2 = 3, остаток 0<br />
+            3 ÷ 2 = 1, остаток 1<br />
+            1 ÷ 2 = 0, остаток 1<br />
+            <strong>Ответ: 11011<sub>2</sub></strong>
+          </div>
+        </div>
+
+        <h3>3. Быстрый перевод между 2, 8 и 16 системами</h3>
+        <p>Используем триады (для 8) и тетрады (для 16):</p>
+        <div class="tip-box">
+          <h4>💡 Триады и тетрады</h4>
+          <p><strong>Двоично-восьмеричный код (триады):</strong></p>
+          <p>0=000, 1=001, 2=010, 3=011, 4=100, 5=101, 6=110, 7=111</p>
+          <p><strong>Двоично-шестнадцатеричный код (тетрады):</strong></p>
+          <p>
+            0=0000, 1=0001, ..., 9=1001, A=1010, B=1011, C=1100, D=1101, E=1110,
+            F=1111
+          </p>
+        </div>
+        <div class="example-box">
+          <h4>Пример: 1A<sub>16</sub> → ?<sub>2</sub></h4>
+          <div class="example-solution">
+            1 = 0001, A = 1010<br />
+            Ответ: 00011010<sub>2</sub> = 11010<sub>2</sub>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>➕ Арифметика в разных системах счисления</h2>
+        <p>
+          Арифметические операции в любой системе счисления выполняются по тем
+          же правилам, что и в десятичной, с учётом основания системы.
+        </p>
+
+        <h3>Сложение</h3>
+        <div class="example-box">
+          <h4>Пример: 101<sub>2</sub> + 11<sub>2</sub></h4>
+          <div class="example-solution">
+            <pre style="font-family: inherit; margin: 0">
+  101
++  11
+-----
+ 1000</pre
+            >
+            <strong>Ответ: 1000<sub>2</sub></strong> (5 + 3 = 8)
+          </div>
+        </div>
+
+        <h3>Вычитание</h3>
+        <div class="example-box">
+          <h4>Пример: 101<sub>2</sub> - 11<sub>2</sub></h4>
+          <div class="example-solution">
+            <pre style="font-family: inherit; margin: 0">
+  101
+-  11
+-----
+   10</pre
+            >
+            <strong>Ответ: 10<sub>2</sub></strong> (5 - 3 = 2)
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>💡 Совет</h4>
+          <p>
+            Для сложных вычислений переведите все числа в десятичную систему,
+            выполните операцию, затем переведите результат обратно.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Сравнение чисел в разных системах</h2>
+        <p>Чтобы сравнить числа в разных системах счисления, нужно:</p>
+        <ol>
+          <li>Перевести все числа в десятичную систему</li>
+          <li>Сравнить полученные значения</li>
+        </ol>
+        <div class="example-box">
+          <h4>
+            Пример: какое число больше: 101<sub>2</sub>, 12<sub>8</sub> или
+            A<sub>16</sub>?
+          </h4>
+          <div class="example-solution">
+            101<sub>2</sub> = 4 + 1 = 5<sub>10</sub><br />
+            12<sub>8</sub> = 8 + 2 = 10<sub>10</sub><br />
+            A<sub>16</sub> = 10<sub>10</sub><br />
+            <strong
+              >Ответ: 12<sub>8</sub> = A<sub>16</sub> > 101<sub>2</sub></strong
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔍 Определение чётности и делимости</h2>
+
+        <h3>Чётность в двоичной системе</h3>
+        <p>
+          В двоичной системе <strong>чётное число</strong> всегда заканчивается
+          на 0, а <strong>нечётное</strong> — на 1.
+        </p>
+        <div class="example-box">
+          <h4>Пример</h4>
+          <div class="example-solution">
+            1010<sub>2</sub> = 10<sub>10</sub> — чётное (заканчивается на 0)<br />
+            1011<sub>2</sub> = 11<sub>10</sub> — нечётное (заканчивается на 1)
+          </div>
+        </div>
+
+        <h3>Делимость на 3</h3>
+        <p>
+          Число делится на 3, если сумма его цифр в десятичной записи делится на
+          3.
+        </p>
+
+        <h3>Делимость на 5</h3>
+        <p>
+          Число делится на 5, если оно заканчивается на 0 или 5 в десятичной
+          записи.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔢 Простые числа</h2>
+        <p>
+          <strong>Простое число</strong> — это натуральное число больше 1,
+          которое делится только на 1 и на себя.
+        </p>
+        <p>
+          Первые простые числа: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
+          43, 47...
+        </p>
+        <div class="warning-box">
+          <h4>⚠️ Важно!</h4>
+          <p>
+            Число 1 не является простым. Число 2 — единственное чётное простое
+            число.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📐 Определение минимального основания системы счисления</h2>
+        <p>
+          Минимальное основание системы счисления на 1 больше максимальной цифры
+          в записи числа.
+        </p>
+        <div class="example-box">
+          <h4>Пример: число 1234 — найти минимальное основание</h4>
+          <div class="example-solution">
+            Максимальная цифра: 4<br />
+            Минимальное основание: 4 + 1 = 5<br />
+            <strong>Ответ: система счисления с основанием 5</strong>
+          </div>
+        </div>
+        <div class="example-box">
+          <h4>Пример: число 1A3 — найти минимальное основание</h4>
+          <div class="example-solution">
+            Максимальная цифра: A = 10<br />
+            Минимальное основание: 10 + 1 = 11<br />
+            <strong>Ответ: система счисления с основанием 11</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Типы задач задания 10 ОГЭ</h2>
+
+        <div class="task-types">
+          <div class="task-type-card">
+            <h4>🔄 Перевод чисел</h4>
+            <p>Перевод чисел из одной системы в другую и анализ результата.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>➕ Арифметические выражения</h4>
+            <p>Вычисление выражений с числами в разных системах счисления.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>📊 Сравнение чисел</h4>
+            <p>Нахождение наибольших/наименьших чисел, суммы двух чисел.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>🔍 Поиск по условию</h4>
+            <p>Поиск чётных, нечётных, делящихся на N, простых чисел.</p>
+          </div>
+
+          <div class="task-type-card">
+            <h4>📐 Определение основания</h4>
+            <p>Найти основание системы счисления по записи числа.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Примеры решения задач</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Перевод и подсчёт единиц</h4>
+          <p>
+            <strong>Условие:</strong> Переведите число 277 из десятичной системы
+            счисления в двоичную. Сколько единиц содержит полученное число?
+          </p>
+          <div class="example-solution">
+            277 ÷ 2 = 138, остаток 1<br />
+            138 ÷ 2 = 69, остаток 0<br />
+            69 ÷ 2 = 34, остаток 1<br />
+            34 ÷ 2 = 17, остаток 0<br />
+            17 ÷ 2 = 8, остаток 1<br />
+            8 ÷ 2 = 4, остаток 0<br />
+            4 ÷ 2 = 2, остаток 0<br />
+            2 ÷ 2 = 1, остаток 0<br />
+            1 ÷ 2 = 0, остаток 1<br />
+            Результат: 100010101<sub>2</sub><br />
+            Количество единиц: 5<br />
+            <strong>Ответ: 5</strong>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Арифметическое выражение</h4>
+          <p>
+            <strong>Условие:</strong> Вычислите значение арифметического
+            выражения 101101101<sub>2</sub> + 110<sub>8</sub> + 10<sub>16</sub>.
+            В ответе запишите число в десятичной системе счисления.
+          </p>
+          <div class="example-solution">
+            101101101<sub>2</sub> = 256 + 64 + 32 + 8 + 4 + 1 = 365<sub>10</sub
+            ><br />
+            110<sub>8</sub> = 64 + 8 = 72<sub>10</sub><br />
+            10<sub>16</sub> = 16<sub>10</sub><br />
+            365 + 72 + 16 = 453<br />
+            <strong>Ответ: 453</strong>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Сравнение чисел</h4>
+          <p>
+            <strong>Условие:</strong> Среди приведённых ниже трёх чисел найдите
+            два наибольших и запишите их сумму в десятичной системе:
+            49<sub>16</sub>, 201<sub>8</sub>, 11101000<sub>2</sub>
+          </p>
+          <div class="example-solution">
+            49<sub>16</sub> = 4·16 + 9 = 64 + 9 = 73<sub>10</sub><br />
+            201<sub>8</sub> = 2·64 + 1 = 128 + 1 = 129<sub>10</sub><br />
+            11101000<sub>2</sub> = 128 + 64 + 32 + 8 = 232<sub>10</sub><br />
+            Два наибольших: 232 и 129<br />
+            Сумма: 232 + 129 = 361<br />
+            <strong>Ответ: 361</strong>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 4: Поиск минимального основания</h4>
+          <p>
+            <strong>Условие:</strong> Число 3322<sub>n</sub> записано в системе
+            счисления с основанием n > 1. Определите наименьшее n. Для этого
+            значения n запишите представление этого числа в десятичной системе
+            счисления.
+          </p>
+          <div class="example-solution">
+            Максимальная цифра в числе 3322: 3<br />
+            Минимальное основание: 3 + 1 = 4<br />
+            Перевод числа в десятичную систему:<br />
+            3322<sub>4</sub> = 3·4³ + 3·4² + 2·4¹ + 2·4⁰<br />
+            = 3·64 + 3·16 + 2·4 + 2·1<br />
+            = 192 + 48 + 8 + 2 = 250<br />
+            <strong>Ответ: 250</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Забыть перевести все числа</strong> — все числа нужно
+            перевести в десятичную систему для сравнения или вычислений
+          </li>
+          <li>
+            <strong>Неправильный перевод шестнадцатеричных чисел</strong> —
+            помните, что A=10, B=11, C=12, D=13, E=14, F=15
+          </li>
+          <li>
+            <strong>Путать порядок остатков</strong> — при переводе из
+            десятичной системы остатки записываются в обратном порядке
+          </li>
+          <li>
+            <strong>Не учесть основание при определении минимума</strong> —
+            минимальное основание на 1 больше максимальной цифры
+          </li>
+          <li>
+            <strong>Считать 1 простым числом</strong> — 1 не является ни
+            простым, ни составным числом
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 План решения задачи</h2>
+        <ol>
+          <li>📝 Внимательно прочитайте условие</li>
+          <li>🔄 Переведите все числа в десятичную систему счисления</li>
+          <li>📊 Выполните необходимые вычисления или сравнения</li>
+          <li>✅ Запишите ответ в требуемом формате</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge10.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
