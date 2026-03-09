@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Теория - Составление URL-адреса</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-intro {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-intro h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+      }
+
+      .theory-intro p {
+        color: #555;
+        line-height: 1.7;
+        margin-bottom: 10px;
+      }
+
+      .theory-intro ul {
+        margin: 15px 0 15px 20px;
+        color: #555;
+      }
+
+      .theory-intro li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+      }
+
+      .category-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .category-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid;
+      }
+
+      .category-header.protocol {
+        border-color: #e94560;
+      }
+
+      .category-header.domain {
+        border-color: #38ef7d;
+      }
+
+      .category-header.path {
+        border-color: #f093fb;
+      }
+
+      .category-header.file {
+        border-color: #667eea;
+      }
+
+      .category-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+      }
+
+      .category-icon.protocol {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+      }
+
+      .category-icon.domain {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .category-icon.path {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .category-icon.file {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .category-title {
+        font-size: 1.5rem;
+        color: #333;
+      }
+
+      .category-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #e94560;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #1a1a2e 0%, #0f3460 100%);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 25px 0;
+        color: white;
+        text-align: center;
+      }
+
+      .formula-box h3 {
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+      }
+
+      .formula {
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 1.1rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px 30px;
+        border-radius: 10px;
+        display: inline-block;
+        word-break: break-all;
+        line-height: 2;
+      }
+
+      .formula-part {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 2px;
+      }
+
+      .formula-part.protocol {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+      }
+
+      .formula-part.separator {
+        background: #607d8b;
+      }
+
+      .formula-part.domain {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .formula-part.path {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .formula-part.file {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .example-box {
+        background: #263238;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        overflow-x: auto;
+      }
+
+      .example-box h4 {
+        color: #4fc3f7;
+        margin-bottom: 12px;
+        font-size: 1rem;
+      }
+
+      .example-url {
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .url-part {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .url-part.protocol {
+        background: rgba(233, 69, 96, 0.3);
+        color: #ff6b6b;
+      }
+
+      .url-part.separator {
+        background: rgba(96, 125, 139, 0.3);
+        color: #b0bec5;
+      }
+
+      .url-part.domain {
+        background: rgba(17, 153, 142, 0.3);
+        color: #38ef7d;
+      }
+
+      .url-part.path {
+        background: rgba(240, 147, 251, 0.3);
+        color: #f5576c;
+      }
+
+      .url-part.file {
+        background: rgba(102, 126, 234, 0.3);
+        color: #a18cd1;
+      }
+
+      .protocols-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+      }
+
+      .protocol-item {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+      }
+
+      .protocol-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-color: #e94560;
+      }
+
+      .protocol-name {
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .protocol-desc {
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      .tip-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-radius: 0 10px 10px 0;
+      }
+
+      .tip-box h4 {
+        color: #856404;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tip-box ul {
+        margin-left: 20px;
+        color: #856404;
+      }
+
+      .warning-box {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 15px 20px;
+        margin: 15px 0;
+        border-radius: 0 10px 10px 0;
+      }
+
+      .warning-box h4 {
+        color: #721c24;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .warning-box ul {
+        margin-left: 20px;
+        color: #721c24;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .comparison-table th {
+        background: linear-gradient(145deg, #1a1a2e 0%, #0f3460 100%);
+        color: white;
+      }
+
+      .comparison-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .comparison-table code {
+        background: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Consolas", monospace;
+        font-weight: 600;
+      }
+
+      .steps-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .step-item {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        align-items: flex-start;
+      }
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .step-number.step1 {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+      }
+
+      .step-number.step2 {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .step-number.step3 {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .step-number.step4 {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .step-content h4 {
+        color: #333;
+        margin-bottom: 8px;
+      }
+
+      .step-content p {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #1a1a2e 0%, #0f3460 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 20px;
+      }
+
+      .interactive-demo {
+        background: #1a1a2e;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+      }
+
+      .interactive-demo h3 {
+        color: white;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .demo-builder {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .demo-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .demo-label {
+        color: #b0bec5;
+        min-width: 100px;
+      }
+
+      .demo-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px 15px;
+        border: 2px solid #37474f;
+        border-radius: 8px;
+        background: #263238;
+        color: white;
+        font-family: "Consolas", monospace;
+        font-size: 1rem;
+      }
+
+      .demo-input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .demo-result {
+        margin-top: 15px;
+        padding: 15px;
+        background: #263238;
+        border-radius: 10px;
+        font-family: "Consolas", monospace;
+        font-size: 1rem;
+        word-break: break-all;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .demo-result.has-content {
+        color: #4fc3f7;
+      }
+
+      .demo-result.empty {
+        color: #607d8b;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .category-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .quick-nav {
+          bottom: 15px;
+          right: 15px;
+        }
+
+        .quick-nav-btn {
+          width: 45px;
+          height: 45px;
+        }
+
+        .formula {
+          font-size: 0.9rem;
+          padding: 15px 20px;
+        }
+
+        .protocols-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .step-item {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge7.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>📚 Теория: Задание 7 ОГЭ — Составление URL-адреса</h1>
+
+      <div class="theory-intro">
+        <h2>🌐 Что такое URL-адрес?</h2>
+        <p>
+          <strong>URL</strong> (Uniform Resource Locator) — это адрес ресурса в
+          интернете. Он указывает, где находится файл и как к нему получить
+          доступ.
+        </p>
+        <p>
+          В задании №4 ВПР по информатике нужно уметь составлять URL-адрес по
+          заданным параметрам:
+        </p>
+        <ul>
+          <li>
+            <strong>Протокол</strong> — способ передачи данных (http, https,
+            ftp)
+          </li>
+          <li><strong>Домен (сервер)</strong> — имя сервера в интернете</li>
+          <li><strong>Путь</strong> — расположение файла на сервере</li>
+          <li><strong>Имя файла</strong> — название файла с расширением</li>
+        </ul>
+      </div>
+
+      <!-- Формула URL -->
+      <div class="formula-box">
+        <h3>📐 Структура URL-адреса</h3>
+        <div class="formula">
+          <span class="formula-part protocol">протокол</span
+          ><span class="formula-part separator">://</span
+          ><span class="formula-part domain">домен</span
+          ><span class="formula-part separator">/</span
+          ><span class="formula-part path">путь</span
+          ><span class="formula-part separator">/</span
+          ><span class="formula-part file">файл</span>
+        </div>
+        <p style="margin-top: 20px; opacity: 0.8; font-size: 0.95rem">
+          После домена всегда идёт символ <code>/</code>, затем путь к файлу и
+          имя файла
+        </p>
+      </div>
+
+      <!-- Протоколы -->
+      <div class="category-section" id="protocol">
+        <div class="category-header protocol">
+          <div class="category-icon protocol">🔗</div>
+          <div>
+            <h2 class="category-title">Протокол</h2>
+          </div>
+        </div>
+        <div class="category-description">
+          <strong>Протокол</strong> — это набор правил, определяющих способ
+          передачи данных. Указывается в начале URL и отделяется от домена
+          символами <code>://</code>
+        </div>
+
+        <div class="protocols-grid">
+          <div class="protocol-item">
+            <div class="protocol-name">http://</div>
+            <div class="protocol-desc">Веб-страницы (незащищённый)</div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-name">https://</div>
+            <div class="protocol-desc">Веб-страницы (защищённый)</div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-name">ftp://</div>
+            <div class="protocol-desc">Передача файлов</div>
+          </div>
+          <div class="protocol-item">
+            <div class="protocol-name">ftps://</div>
+            <div class="protocol-desc">Передача файлов (защищённый)</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>💡 Как запомнить</h4>
+          <ul>
+            <li>
+              <strong>HTTP</strong> = HyperText Transfer Protocol (протокол
+              передачи гипертекста)
+            </li>
+            <li>
+              <strong>HTTPS</strong> = HTTP Secure (безопасный HTTP) —
+              используется шифрование
+            </li>
+            <li>
+              <strong>FTP</strong> = File Transfer Protocol (протокол передачи
+              файлов)
+            </li>
+            <li>
+              Буква <strong>S</strong> в конце означает
+              <strong>Secure</strong> (безопасный/защищённый)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Домен -->
+      <div class="category-section" id="domain">
+        <div class="category-header domain">
+          <div class="category-icon domain">🌐</div>
+          <div>
+            <h2 class="category-title">Домен (сервер)</h2>
+          </div>
+        </div>
+        <div class="category-description">
+          <strong>Домен</strong> — это уникальное имя сервера в интернете. Может
+          состоять из букв латиницы или кириллицы (например,
+          <code>example.com</code> или <code>пример.рф</code>).
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Примеры доменов:</h4>
+          <div class="example-url">
+            <span class="url-part domain">school.edu</span>
+            <span style="color: #b0bec5"> — образовательный сайт</span>
+          </div>
+          <div class="example-url" style="margin-top: 8px">
+            <span class="url-part domain">docs.info</span>
+            <span style="color: #b0bec5"> — сайт с документацией</span>
+          </div>
+          <div class="example-url" style="margin-top: 8px">
+            <span class="url-part domain">файлы.рф</span>
+            <span style="color: #b0bec5"> — домен на кириллице</span>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>💡 Важно помнить</h4>
+          <ul>
+            <li>
+              Домен указывается <strong>без</strong> протокола (без
+              <code>http://</code>)
+            </li>
+            <li>Домен указывается <strong>без</strong> слеша в конце</li>
+            <li>В задании домен часто называют «сервер»</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Путь -->
+      <div class="category-section" id="path">
+        <div class="category-header path">
+          <div class="category-icon path">📁</div>
+          <div>
+            <h2 class="category-title">Путь к файлу</h2>
+          </div>
+        </div>
+        <div class="category-description">
+          <strong>Путь</strong> — это последовательность папок (каталогов), в
+          которых находится файл. Каждая папка отделяется символом
+          <code>/</code>.
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Примеры путей:</h4>
+          <div class="example-url">
+            <span class="url-part separator">/</span
+            ><span class="url-part path">docs</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part file">report.docx</span>
+            <span style="color: #b0bec5"> — файл в папке docs</span>
+          </div>
+          <div class="example-url" style="margin-top: 8px">
+            <span class="url-part separator">/</span
+            ><span class="url-part path">files</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part path">download</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part file">setup.exe</span>
+            <span style="color: #b0bec5">
+              — файл в папке download, которая внутри files</span
+            >
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <h4>⚠️ Типичные ошибки</h4>
+          <ul>
+            <li>Забыть символ <code>/</code> между папками</li>
+            <li>
+              Добавить лишний <code>/</code> в начале пути (он уже есть после
+              домена)
+            </li>
+            <li>
+              Перепутать порядок папок (важно: «внутри каталога X каталог Y»)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Имя файла -->
+      <div class="category-section" id="file">
+        <div class="category-header file">
+          <div class="category-icon file">📄</div>
+          <div>
+            <h2 class="category-title">Имя файла</h2>
+          </div>
+        </div>
+        <div class="category-description">
+          <strong>Имя файла</strong> — это название файла с расширением. В URL
+          всегда указывается в конце адреса.
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Примеры имён файлов:</h4>
+          <div class="example-url">
+            <span class="url-part file">отчёт.docx</span>
+            <span style="color: #b0bec5"> — документ Word</span>
+          </div>
+          <div class="example-url" style="margin-top: 8px">
+            <span class="url-part file">document.pdf</span>
+            <span style="color: #b0bec5"> — PDF-документ</span>
+          </div>
+          <div class="example-url" style="margin-top: 8px">
+            <span class="url-part file">index.html</span>
+            <span style="color: #b0bec5"> — веб-страница</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Алгоритм составления -->
+      <div class="steps-section" id="algorithm">
+        <div class="category-header" style="border-color: #1a1a2e">
+          <div
+            class="category-icon"
+            style="
+              background: linear-gradient(145deg, #1a1a2e 0%, #0f3460 100%);
+            "
+          >
+            📋
+          </div>
+          <div>
+            <h2 class="category-title">Алгоритм составления URL</h2>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number step1">1</div>
+          <div class="step-content">
+            <h4>Запишите протокол</h4>
+            <p>
+              Добавьте <code>://</code> после протокола. Например:
+              <code>https://</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number step2">2</div>
+          <div class="step-content">
+            <h4>Добавьте домен (сервер)</h4>
+            <p>
+              Запишите имя сервера после <code>://</code>. Например:
+              <code>https://example.com</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number step3">3</div>
+          <div class="step-content">
+            <h4>Добавьте путь (если есть)</h4>
+            <p>
+              После домена поставьте <code>/</code> и укажите путь к файлу.
+              Например: <code>https://example.com/docs</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-number step4">4</div>
+          <div class="step-content">
+            <h4>Добавьте имя файла</h4>
+            <p>
+              Поставьте <code>/</code> и запишите имя файла. Результат:
+              <code>https://example.com/docs/report.pdf</code>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Полные примеры -->
+      <div class="category-section" id="examples">
+        <div class="category-header" style="border-color: #11998e">
+          <div
+            class="category-icon"
+            style="
+              background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+            "
+          >
+            ✅
+          </div>
+          <div>
+            <h2 class="category-title">Примеры решения задач</h2>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Пример 1: Простой URL</h4>
+          <p style="color: #b0bec5; margin-bottom: 10px">
+            Доступ к файлу <code style="color: #a18cd1">info.docx</code>,
+            находящемуся на сервере
+            <code style="color: #38ef7d">school.edu</code>, осуществляется по
+            протоколу <code style="color: #ff6b6b">http</code>.
+          </p>
+          <div class="example-url">
+            <span class="url-part protocol">http://</span
+            ><span class="url-part domain">school.edu</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part file">info.docx</span>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Пример 2: URL с путём</h4>
+          <p style="color: #b0bec5; margin-bottom: 10px">
+            Доступ к файлу <code style="color: #a18cd1">readme.txt</code>,
+            находящемуся на сервере
+            <code style="color: #38ef7d">docs.info</code> в каталоге
+            <code style="color: #f5576c">files</code>, осуществляется по
+            протоколу <code style="color: #ff6b6b">https</code>.
+          </p>
+          <div class="example-url">
+            <span class="url-part protocol">https://</span
+            ><span class="url-part domain">docs.info</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part path">files</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part file">readme.txt</span>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>📝 Пример 3: URL с глубоким путём</h4>
+          <p style="color: #b0bec5; margin-bottom: 10px">
+            Доступ к файлу <code style="color: #a18cd1">задание.pdf</code>,
+            находящемуся на сервере
+            <code style="color: #38ef7d">файлы.рф</code> в каталоге
+            <code style="color: #f5576c">2026</code> внутри каталога
+            <code style="color: #f5576c">документы</code>, осуществляется по
+            протоколу <code style="color: #ff6b6b">ftp</code>.
+          </p>
+          <div class="example-url">
+            <span class="url-part protocol">ftp://</span
+            ><span class="url-part domain">файлы.рф</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part path">документы</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part path">2026</span
+            ><span class="url-part separator">/</span
+            ><span class="url-part file">задание.pdf</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Интерактивный конструктор -->
+      <div class="interactive-demo" id="constructor">
+        <h3>🔧 Интерактивный конструктор URL</h3>
+        <div class="demo-builder">
+          <div class="demo-row">
+            <span class="demo-label">Протокол:</span>
+            <input
+              type="text"
+              class="demo-input"
+              id="demoProtocol"
+              placeholder="https"
+              value="https"
+            />
+          </div>
+          <div class="demo-row">
+            <span class="demo-label">Домен:</span>
+            <input
+              type="text"
+              class="demo-input"
+              id="demoDomain"
+              placeholder="example.com"
+              value="example.com"
+            />
+          </div>
+          <div class="demo-row">
+            <span class="demo-label">Путь:</span>
+            <input
+              type="text"
+              class="demo-input"
+              id="demoPath"
+              placeholder="docs/files"
+              value="docs"
+            />
+          </div>
+          <div class="demo-row">
+            <span class="demo-label">Файл:</span>
+            <input
+              type="text"
+              class="demo-input"
+              id="demoFile"
+              placeholder="document.pdf"
+              value="report.pdf"
+            />
+          </div>
+        </div>
+        <div class="demo-result" id="demoResult">
+          https://example.com/docs/report.pdf
+        </div>
+      </div>
+
+      <!-- Сводная таблица -->
+      <div class="category-section" id="summary">
+        <div class="category-header" style="border-color: #ffc107">
+          <div
+            class="category-icon"
+            style="
+              background: linear-gradient(145deg, #ffc107 0%, #ff9800 100%);
+            "
+          >
+            📋
+          </div>
+          <div>
+            <h2 class="category-title">Памятка для запоминания</h2>
+          </div>
+        </div>
+
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Часть URL</th>
+              <th>Что это</th>
+              <th>Пример</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color: #e94560">🔗 Протокол</strong></td>
+              <td>Способ передачи данных</td>
+              <td>
+                <code>http://</code> <code>https://</code> <code>ftp://</code>
+              </td>
+            </tr>
+            <tr>
+              <td><strong style="color: #11998e">🌐 Домен</strong></td>
+              <td>Имя сервера</td>
+              <td><code>school.edu</code> <code>example.com</code></td>
+            </tr>
+            <tr>
+              <td><strong style="color: #f093fb">📁 Путь</strong></td>
+              <td>Папки к файлу</td>
+              <td><code>docs/files</code></td>
+            </tr>
+            <tr>
+              <td><strong style="color: #667eea">📄 Файл</strong></td>
+              <td>Имя файла с расширением</td>
+              <td><code>report.pdf</code> <code>index.html</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="tip-box">
+          <h4>💡 Золотые правила</h4>
+          <ul>
+            <li>После протокола всегда идёт <code>://</code></li>
+            <li>После домена всегда идёт <code>/</code></li>
+            <li>Между папками всегда <code>/</code></li>
+            <li>
+              Путь записывается в порядке вложенности: внешняя папка →
+              внутренняя папка
+            </li>
+            <li>Файл всегда в конце URL</li>
+          </ul>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>Перейдите к заданию, чтобы попрактиковаться в составлении URL!</p>
+      </footer>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge7.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      // Интерактивный конструктор URL
+      function updateDemoResult() {
+        const protocol = document.getElementById("demoProtocol").value.trim();
+        const domain = document.getElementById("demoDomain").value.trim();
+        const path = document.getElementById("demoPath").value.trim();
+        const file = document.getElementById("demoFile").value.trim();
+
+        const resultEl = document.getElementById("demoResult");
+
+        let url = "";
+
+        if (protocol) {
+          url += protocol + "://";
+        }
+
+        if (domain) {
+          url += domain;
+        }
+
+        if (path) {
+          const pathParts = path.split("/").filter((p) => p.trim());
+          pathParts.forEach((part) => {
+            url += "/" + part.trim();
+          });
+        }
+
+        if (file) {
+          url += "/" + file;
+        }
+
+        if (url) {
+          resultEl.textContent = url;
+          resultEl.className = "demo-result has-content";
+        } else {
+          resultEl.textContent = "Введите данные для формирования URL";
+          resultEl.className = "demo-result empty";
+        }
+      }
+
+      // Добавляем обработчики на все поля ввода
+      document
+        .getElementById("demoProtocol")
+        .addEventListener("input", updateDemoResult);
+      document
+        .getElementById("demoDomain")
+        .addEventListener("input", updateDemoResult);
+      document
+        .getElementById("demoPath")
+        .addEventListener("input", updateDemoResult);
+      document
+        .getElementById("demoFile")
+        .addEventListener("input", updateDemoResult);
+
+      // Прокрутка наверх
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Инициализация
+      updateDemoResult();
+    </script>
+  </body>
+</html>

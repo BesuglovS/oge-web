@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Составление URL-адреса</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 50%,
+          #0f3460 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.6rem;
+      }
+
+      .back-link {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        transition: background 0.3s;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-counter {
+        text-align: center;
+        color: #e94560;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        font-weight: bold;
+      }
+
+      .instructions {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 0.95rem;
+        color: #333;
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+
+      .path-workspace {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .path-parts-pool {
+        background: #f0f4f8;
+        border-radius: 12px;
+        padding: 15px;
+        border: 2px dashed #b0bec5;
+      }
+
+      .path-parts-pool h3 {
+        color: #546e7a;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      .parts-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        min-height: 50px;
+      }
+
+      .path-part {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: grab;
+        user-select: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        touch-action: none;
+      }
+
+      .path-part:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      .path-part.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+      }
+
+      .path-part.protocol {
+        background: linear-gradient(145deg, #e94560 0%, #ff6b6b 100%);
+        box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+      }
+
+      .path-part.domain {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+      }
+
+      .path-part.path-segment {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+      }
+
+      .path-part.file {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .path-part.separator {
+        background: #607d8b;
+        padding: 10px 12px;
+        font-weight: bold;
+      }
+
+      .path-assembly {
+        background: #263238;
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 80px;
+      }
+
+      .path-assembly h3 {
+        color: #b0bec5;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      .assembly-zone {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 50px;
+        padding: 10px;
+        border: 2px dashed #546e7a;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        align-items: center;
+      }
+
+      .assembly-zone.drag-over {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .parts-container.drag-over {
+        background: rgba(102, 126, 234, 0.15);
+        border-radius: 8px;
+      }
+
+      .assembly-zone .path-part {
+        margin: 2px;
+      }
+
+      .result-display {
+        background: #1a1a2e;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 1rem;
+        color: #4fc3f7;
+        word-break: break-all;
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .result-display.correct {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .result-display.incorrect {
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+        animation: shake 0.5s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        75% {
+          transform: translateX(10px);
+        }
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-clear {
+        background: linear-gradient(145deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-reset {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+      }
+
+      .score-board {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .score {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .score span {
+        color: #11998e;
+      }
+
+      .feedback {
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        display: none;
+      }
+
+      .feedback.correct {
+        display: block;
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .feedback.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #eb3349 0%, #f45c43 100%);
+        color: white;
+      }
+
+      .correct-answer {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #fff;
+      }
+
+      .hint-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.9rem;
+      }
+
+      .hint-box strong {
+        color: #856404;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .path-part {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107146125",
+        "ym",
+      );
+
+      ym(107146125, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107146125"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+      <h1>🌐 Задание 7 ОГЭ — Составление URL-адреса</h1>
+
+      <div class="instructions">
+        Соберите правильный URL-адрес, перетаскивая части в нужном порядке или
+        нажимая на них. Элементы из пула добавляются в конец, из зоны сборки —
+        возвращаются в пул.
+      </div>
+
+      <div class="task-card">
+        <div class="task-text" id="taskText">Загрузка задания...</div>
+
+        <div class="path-workspace">
+          <div class="path-parts-pool">
+            <h3>📦 Доступные элементы URL</h3>
+            <div class="parts-container" id="partsPool"></div>
+          </div>
+
+          <div class="path-assembly">
+            <h3>🔧 Соберите URL-адрес здесь</h3>
+            <div class="assembly-zone" id="assemblyZone"></div>
+            <div class="result-display" id="resultDisplay">
+              Перетащите элементы для сборки URL
+            </div>
+          </div>
+        </div>
+
+        <div class="hint-box" id="hintBox" style="display: none">
+          <strong>💡 Подсказка:</strong> <span id="hintText"></span>
+        </div>
+
+        <div class="feedback" id="feedback">
+          <div id="feedbackText"></div>
+          <div class="correct-answer" id="correctAnswer"></div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn btn-check" onclick="checkAnswer()">
+            ✓ Проверить
+          </button>
+          <button class="btn btn-clear" onclick="clearAssembly()">
+            ✕ Очистить
+          </button>
+          <button class="btn btn-hint" onclick="showHint()">
+            💡 Подсказка
+          </button>
+        </div>
+      </div>
+
+      <div class="score-board">
+        <button class="btn btn-reset" onclick="resetGame()">
+          🔄 Новое задание
+        </button>
+      </div>
+    </div>
+
+    <script>
+      let protocols = [];
+      let domainsCyrillic = [];
+      let domainsLatin = [];
+      let pathsCyrillic = [];
+      let pathsLatin = [];
+      let filesCyrillic = [];
+      let filesLatin = [];
+
+      let currentTask = null;
+      let answered = false;
+
+      // Загрузка данных из файла
+      async function loadData() {
+        try {
+          const response = await fetch("oge7.txt");
+          const text = await response.text();
+          parseData(text);
+          startGame();
+        } catch (error) {
+          console.error("Ошибка загрузки данных:", error);
+          // Fallback данные
+          protocols = ["http", "https", "ftp", "ftps"];
+          domainsCyrillic = ["тест.рф", "пример.рф", "файлы.рф"];
+          domainsLatin = [
+            "test.org",
+            "example.com",
+            "school.edu",
+            "docs.info",
+            "files.net",
+          ];
+          pathsCyrillic = ["документы", "файлы", "загрузки"];
+          pathsLatin = ["docs", "files", "download", "uploads", "archive"];
+          filesCyrillic = ["отчёт.docx", "документ.pdf", "задание.txt"];
+          filesLatin = [
+            "info.docx",
+            "document.pdf",
+            "readme.txt",
+            "index.html",
+          ];
+          startGame();
+        }
+      }
+
+      // Парсинг данных из файла
+      function parseData(text) {
+        const lines = text.split("\n");
+        let currentSection = "";
+
+        lines.forEach((line) => {
+          line = line.trim();
+          if (line.startsWith("# Протоколы")) {
+            currentSection = "protocols";
+          } else if (line.startsWith("# Домены (кириллица)")) {
+            currentSection = "domainsCyr";
+          } else if (line.startsWith("# Домены (латиница)")) {
+            currentSection = "domainsLat";
+          } else if (line.startsWith("# Пути (кириллица)")) {
+            currentSection = "pathsCyr";
+          } else if (line.startsWith("# Пути (латиница)")) {
+            currentSection = "pathsLat";
+          } else if (line.startsWith("# Имена файлов (кириллица)")) {
+            currentSection = "filesCyr";
+          } else if (line.startsWith("# Имена файлов (латиница)")) {
+            currentSection = "filesLat";
+          } else if (line && !line.startsWith("#")) {
+            if (currentSection === "protocols") protocols.push(line);
+            else if (currentSection === "domainsCyr")
+              domainsCyrillic.push(line);
+            else if (currentSection === "domainsLat") domainsLatin.push(line);
+            else if (currentSection === "pathsCyr") pathsCyrillic.push(line);
+            else if (currentSection === "pathsLat") pathsLatin.push(line);
+            else if (currentSection === "filesCyr") filesCyrillic.push(line);
+            else if (currentSection === "filesLat") filesLatin.push(line);
+          }
+        });
+      }
+
+      // Начало игры
+      function startGame() {
+        generateTask();
+      }
+
+      // Генерация задания
+      function generateTask() {
+        answered = false;
+        document.getElementById("feedback").className = "feedback";
+        document.getElementById("feedback").style.display = "none";
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("resultDisplay").textContent =
+          "Перетащите элементы для сборки URL";
+        document.getElementById("resultDisplay").className = "result-display";
+
+        // Выбираем использование кириллицы или латиницы
+        const useCyrillic = Math.random() > 0.7; // Чаще латиница
+        const domains = useCyrillic ? domainsCyrillic : domainsLatin;
+        const paths = useCyrillic ? pathsCyrillic : pathsLatin;
+        const files = useCyrillic ? filesCyrillic : filesLatin;
+
+        // Выбираем тип задания
+        const taskTypes = ["simple", "withPath", "withDeepPath", "withPath"];
+        const taskType =
+          taskTypes[Math.floor(Math.random() * taskTypes.length)];
+
+        if (taskType === "simple") {
+          currentTask = generateSimpleTask(domains, files);
+        } else if (taskType === "withPath") {
+          currentTask = generateWithPathTask(domains, paths, files);
+        } else {
+          currentTask = generateDeepPathTask(domains, paths, files);
+        }
+
+        renderTask();
+      }
+
+      // Генерация простого задания (только домен и файл)
+      function generateSimpleTask(domains, files) {
+        const protocol =
+          protocols[Math.floor(Math.random() * protocols.length)];
+        const domain = domains[Math.floor(Math.random() * domains.length)];
+        const file = files[Math.floor(Math.random() * files.length)];
+
+        const correctUrl = `${protocol}://${domain}/${file}`;
+
+        const taskText = `Доступ к файлу <span class="highlight">${file}</span>, находящемуся на сервере <span class="highlight">${domain}</span>, осуществляется по протоколу <span class="highlight">${protocol}</span>. Запишите полный URL-адрес файла.`;
+
+        return {
+          text: taskText,
+          correctUrl: correctUrl,
+          protocol: protocol,
+          domain: domain,
+          pathParts: [],
+          file: file,
+          hint: `URL-адрес состоит из: протокол://домен/имя_файла`,
+        };
+      }
+
+      // Генерация задания с путём (одна папка)
+      function generateWithPathTask(domains, paths, files) {
+        const protocol =
+          protocols[Math.floor(Math.random() * protocols.length)];
+        const domain = domains[Math.floor(Math.random() * domains.length)];
+        const path = paths[Math.floor(Math.random() * paths.length)];
+        const file = files[Math.floor(Math.random() * files.length)];
+
+        const correctUrl = `${protocol}://${domain}/${path}/${file}`;
+
+        const taskText = `Доступ к файлу <span class="highlight">${file}</span>, находящемуся на сервере <span class="highlight">${domain}</span> в каталоге <span class="highlight">${path}</span>, осуществляется по протоколу <span class="highlight">${protocol}</span>. Запишите полный URL-адрес файла.`;
+
+        return {
+          text: taskText,
+          correctUrl: correctUrl,
+          protocol: protocol,
+          domain: domain,
+          pathParts: [path],
+          file: file,
+          hint: `URL-адрес состоит из: протокол://домен/путь/имя_файла`,
+        };
+      }
+
+      // Генерация задания с глубоким путём (две папки)
+      function generateDeepPathTask(domains, paths, files) {
+        const protocol =
+          protocols[Math.floor(Math.random() * protocols.length)];
+        const domain = domains[Math.floor(Math.random() * domains.length)];
+
+        // Выбираем два разных пути
+        const usedPaths = new Set();
+        const path1 = paths[Math.floor(Math.random() * paths.length)];
+        usedPaths.add(path1);
+
+        let path2;
+        do {
+          path2 = paths[Math.floor(Math.random() * paths.length)];
+        } while (usedPaths.has(path2));
+
+        const file = files[Math.floor(Math.random() * files.length)];
+
+        const correctUrl = `${protocol}://${domain}/${path1}/${path2}/${file}`;
+
+        const taskText = `Доступ к файлу <span class="highlight">${file}</span>, находящемуся на сервере <span class="highlight">${domain}</span> в каталоге <span class="highlight">${path2}</span> внутри каталога <span class="highlight">${path1}</span>, осуществляется по протоколу <span class="highlight">${protocol}</span>. Запишите полный URL-адрес файла.`;
+
+        return {
+          text: taskText,
+          correctUrl: correctUrl,
+          protocol: protocol,
+          domain: domain,
+          pathParts: [path1, path2],
+          file: file,
+          hint: `URL-адрес состоит из: протокол://домен/путь1/путь2/имя_файла`,
+        };
+      }
+
+      // Счётчик для уникальных ID
+      let partIdCounter = 0;
+
+      // Генерация похожего домена
+      function generateSimilarDomain(domain) {
+        // Изменяем регистр первой буквы до точки
+        if (domain && domain.length > 0) {
+          const parts = domain.split(".");
+          if (parts.length > 0) {
+            const firstPart = parts[0];
+            const newFirstChar =
+              firstPart[0] === firstPart[0].toUpperCase()
+                ? firstPart[0].toLowerCase()
+                : firstPart[0].toUpperCase();
+            parts[0] = newFirstChar + firstPart.substring(1);
+            return parts.join(".");
+          }
+        }
+        return null;
+      }
+
+      // Генерация похожего пути
+      function generateSimilarPath(path) {
+        if (path && path.length > 0) {
+          const firstChar = path[0];
+          const newFirstChar =
+            firstChar === firstChar.toUpperCase()
+              ? firstChar.toLowerCase()
+              : firstChar.toUpperCase();
+          return newFirstChar + path.substring(1);
+        }
+        return null;
+      }
+
+      // Генерация похожего файла
+      function generateSimilarFile(file) {
+        if (file && file.length > 0) {
+          const firstChar = file[0];
+          const newFirstChar =
+            firstChar === firstChar.toUpperCase()
+              ? firstChar.toLowerCase()
+              : firstChar.toUpperCase();
+          return newFirstChar + file.substring(1);
+        }
+        return null;
+      }
+
+      // Отрисовка задания
+      function renderTask() {
+        document.getElementById("taskText").innerHTML = currentTask.text;
+
+        // Создаём части URL
+        const parts = [];
+        const usedTexts = new Set();
+
+        // Протокол (правильный)
+        const protocolWithSuffix = currentTask.protocol + "://";
+        parts.push({ text: protocolWithSuffix, type: "protocol" });
+        usedTexts.add(protocolWithSuffix);
+
+        // Добавляем 1-2 неверных протокола
+        const wrongProtocols = protocols.filter(
+          (p) => p !== currentTask.protocol,
+        );
+        const numWrongProtocols = Math.min(
+          1 + Math.floor(Math.random() * 2),
+          wrongProtocols.length,
+        );
+        for (let i = 0; i < numWrongProtocols; i++) {
+          const idx = Math.floor(Math.random() * wrongProtocols.length);
+          const wrongProtocol = wrongProtocols[idx] + "://";
+          if (!usedTexts.has(wrongProtocol)) {
+            parts.push({ text: wrongProtocol, type: "protocol" });
+            usedTexts.add(wrongProtocol);
+          }
+        }
+
+        // Домен (правильный)
+        parts.push({ text: currentTask.domain, type: "domain" });
+        usedTexts.add(currentTask.domain);
+
+        // Добавляем похожий домен
+        const similarDomain = generateSimilarDomain(currentTask.domain);
+        if (similarDomain && !usedTexts.has(similarDomain)) {
+          parts.push({ text: similarDomain, type: "domain" });
+          usedTexts.add(similarDomain);
+        }
+
+        // Добавляем 1-2 неверных домена
+        const useCyrillic = /[а-яё]/i.test(currentTask.domain);
+        const allDomains = useCyrillic ? domainsCyrillic : domainsLatin;
+        const wrongDomains = allDomains.filter((d) => !usedTexts.has(d));
+        const numWrongDomains = Math.min(1, wrongDomains.length);
+        for (let i = 0; i < numWrongDomains; i++) {
+          const idx = Math.floor(Math.random() * wrongDomains.length);
+          if (!usedTexts.has(wrongDomains[idx])) {
+            parts.push({ text: wrongDomains[idx], type: "domain" });
+            usedTexts.add(wrongDomains[idx]);
+          }
+        }
+
+        // Пути (правильные)
+        currentTask.pathParts.forEach((pathPart) => {
+          parts.push({ text: "/", type: "separator" });
+          parts.push({ text: pathPart, type: "path-segment" });
+          usedTexts.add(pathPart);
+
+          // Добавляем похожий путь
+          const similarPath = generateSimilarPath(pathPart);
+          if (similarPath && !usedTexts.has(similarPath)) {
+            parts.push({ text: similarPath, type: "path-segment" });
+            usedTexts.add(similarPath);
+          }
+        });
+
+        // Файл (правильный)
+        parts.push({ text: "/", type: "separator" });
+        parts.push({ text: currentTask.file, type: "file" });
+        usedTexts.add(currentTask.file);
+
+        // Добавляем похожий файл
+        const similarFile = generateSimilarFile(currentTask.file);
+        if (similarFile && !usedTexts.has(similarFile)) {
+          parts.push({ text: similarFile, type: "file" });
+          usedTexts.add(similarFile);
+        }
+
+        // Добавляем неверные пути
+        const allPaths = useCyrillic ? pathsCyrillic : pathsLatin;
+        const wrongPaths = allPaths.filter((p) => !usedTexts.has(p));
+        const numWrongPaths = Math.min(
+          1 + currentTask.pathParts.length,
+          wrongPaths.length,
+        );
+        for (let i = 0; i < numWrongPaths; i++) {
+          const idx = Math.floor(Math.random() * wrongPaths.length);
+          if (!usedTexts.has(wrongPaths[idx])) {
+            parts.push({ text: "/", type: "separator" });
+            parts.push({ text: wrongPaths[idx], type: "path-segment" });
+            usedTexts.add(wrongPaths[idx]);
+          }
+        }
+
+        // Добавляем неверные файлы
+        const allFiles = useCyrillic ? filesCyrillic : filesLatin;
+        const wrongFiles = allFiles.filter((f) => !usedTexts.has(f));
+        const numWrongFiles = Math.min(1, wrongFiles.length);
+        for (let i = 0; i < numWrongFiles; i++) {
+          const idx = Math.floor(Math.random() * wrongFiles.length);
+          if (!usedTexts.has(wrongFiles[idx])) {
+            parts.push({ text: wrongFiles[idx], type: "file" });
+            usedTexts.add(wrongFiles[idx]);
+          }
+        }
+
+        // Перемешиваем все части
+        const shuffledParts = [...parts];
+        for (let i = shuffledParts.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledParts[i], shuffledParts[j]] = [
+            shuffledParts[j],
+            shuffledParts[i],
+          ];
+        }
+
+        // Отрисовываем пул частей
+        const pool = document.getElementById("partsPool");
+        pool.innerHTML = "";
+
+        shuffledParts.forEach((part) => {
+          const el = createPartElement(part);
+          pool.appendChild(el);
+        });
+
+        // Очищаем зону сборки
+        document.getElementById("assemblyZone").innerHTML = "";
+      }
+
+      // Создание элемента части URL
+      function createPartElement(part) {
+        const el = document.createElement("div");
+        el.className = `path-part ${part.type}`;
+        el.textContent = part.text;
+        el.draggable = true;
+        el.dataset.text = part.text;
+        el.dataset.type = part.type;
+        el.dataset.id = "part-" + partIdCounter++;
+
+        // Drag events
+        el.addEventListener("dragstart", handleDragStart);
+        el.addEventListener("dragend", handleDragEnd);
+
+        // Touch events
+        el.addEventListener("touchstart", handleTouchStart, { passive: false });
+        el.addEventListener("touchmove", handleTouchMove, { passive: false });
+        el.addEventListener("touchend", handleTouchEnd);
+
+        // Click event
+        el.addEventListener("click", handleClick);
+
+        return el;
+      }
+
+      // Обработка клика
+      function handleClick(e) {
+        const el = e.target;
+        const pool = document.getElementById("partsPool");
+        const zone = document.getElementById("assemblyZone");
+
+        if (el.parentElement === pool) {
+          zone.appendChild(el);
+        } else {
+          pool.appendChild(el);
+        }
+
+        updateResultDisplay();
+      }
+
+      // Настройка drop zones
+      const assemblyZone = document.getElementById("assemblyZone");
+      const partsPool = document.getElementById("partsPool");
+
+      assemblyZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        assemblyZone.classList.add("drag-over");
+
+        const afterElement = getDragAfterElement(assemblyZone, e.clientX);
+        const draggingEl = document.querySelector(".dragging");
+
+        if (draggingEl) {
+          if (afterElement == null) {
+            assemblyZone.appendChild(draggingEl);
+          } else {
+            assemblyZone.insertBefore(draggingEl, afterElement);
+          }
+        }
+      });
+
+      assemblyZone.addEventListener("dragleave", (e) => {
+        if (!assemblyZone.contains(e.relatedTarget)) {
+          assemblyZone.classList.remove("drag-over");
+        }
+      });
+
+      assemblyZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        assemblyZone.classList.remove("drag-over");
+        updateResultDisplay();
+      });
+
+      partsPool.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        partsPool.classList.add("drag-over");
+
+        const draggingEl = document.querySelector(".dragging");
+        if (draggingEl) {
+          partsPool.appendChild(draggingEl);
+        }
+      });
+
+      partsPool.addEventListener("dragleave", (e) => {
+        if (!partsPool.contains(e.relatedTarget)) {
+          partsPool.classList.remove("drag-over");
+        }
+      });
+
+      partsPool.addEventListener("drop", (e) => {
+        e.preventDefault();
+        partsPool.classList.remove("drag-over");
+        updateResultDisplay();
+      });
+
+      function getDragAfterElement(container, x) {
+        const draggableElements = [
+          ...container.querySelectorAll(".path-part:not(.dragging)"),
+        ];
+
+        return draggableElements.reduce(
+          (closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+              return { offset: offset, element: child };
+            } else {
+              return closest;
+            }
+          },
+          { offset: Number.NEGATIVE_INFINITY },
+        ).element;
+      }
+
+      // Drag handlers
+      let draggedElement = null;
+
+      function handleDragStart(e) {
+        draggedElement = e.target;
+        e.target.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", e.target.dataset.text);
+        e.dataTransfer.setData("application/type", e.target.dataset.type);
+        e.dataTransfer.setData("application/id", e.target.dataset.id);
+      }
+
+      function handleDragEnd(e) {
+        e.target.classList.remove("dragging");
+        draggedElement = null;
+      }
+
+      // Touch handlers
+      let touchElement = null;
+      let touchClone = null;
+
+      function handleTouchStart(e) {
+        e.preventDefault();
+        touchElement = e.target;
+        const touch = e.touches[0];
+
+        touchClone = touchElement.cloneNode(true);
+        touchClone.style.position = "fixed";
+        touchClone.style.zIndex = "1000";
+        touchClone.style.pointerEvents = "none";
+        touchClone.style.opacity = "0.8";
+        touchClone.style.transform = "scale(1.1)";
+        document.body.appendChild(touchClone);
+
+        updateClonePosition(touch);
+        touchElement.classList.add("dragging");
+      }
+
+      function handleTouchMove(e) {
+        e.preventDefault();
+        if (!touchClone) return;
+
+        const touch = e.touches[0];
+        updateClonePosition(touch);
+
+        const zone = document.getElementById("assemblyZone");
+        const pool = document.getElementById("partsPool");
+        const zoneRect = zone.getBoundingClientRect();
+        const poolRect = pool.getBoundingClientRect();
+
+        zone.classList.remove("drag-over");
+        pool.classList.remove("drag-over");
+
+        if (
+          touch.clientX >= zoneRect.left &&
+          touch.clientX <= zoneRect.right &&
+          touch.clientY >= zoneRect.top &&
+          touch.clientY <= zoneRect.bottom
+        ) {
+          zone.classList.add("drag-over");
+
+          const afterElement = getDragAfterElement(zone, touch.clientX);
+          if (touchElement.parentElement !== zone) {
+            if (afterElement == null) {
+              zone.appendChild(touchElement);
+            } else {
+              zone.insertBefore(touchElement, afterElement);
+            }
+          } else {
+            if (afterElement == null) {
+              zone.appendChild(touchElement);
+            } else if (afterElement !== touchElement) {
+              zone.insertBefore(touchElement, afterElement);
+            }
+          }
+        } else if (
+          touch.clientX >= poolRect.left &&
+          touch.clientX <= poolRect.right &&
+          touch.clientY >= poolRect.top &&
+          touch.clientY <= poolRect.bottom
+        ) {
+          pool.classList.add("drag-over");
+          if (touchElement.parentElement !== pool) {
+            pool.appendChild(touchElement);
+          }
+        }
+      }
+
+      function handleTouchEnd(e) {
+        if (!touchElement || !touchClone) return;
+
+        const zone = document.getElementById("assemblyZone");
+        const pool = document.getElementById("partsPool");
+
+        zone.classList.remove("drag-over");
+        pool.classList.remove("drag-over");
+
+        touchElement.classList.remove("dragging");
+        touchClone.remove();
+        touchClone = null;
+        touchElement = null;
+
+        updateResultDisplay();
+      }
+
+      function updateClonePosition(touch) {
+        if (touchClone) {
+          touchClone.style.left =
+            touch.clientX - touchClone.offsetWidth / 2 + "px";
+          touchClone.style.top =
+            touch.clientY - touchClone.offsetHeight / 2 + "px";
+        }
+      }
+
+      // Обновление отображения результата
+      function updateResultDisplay() {
+        const zone = document.getElementById("assemblyZone");
+        const parts = zone.querySelectorAll(".path-part");
+
+        if (parts.length === 0) {
+          document.getElementById("resultDisplay").textContent =
+            "Перетащите элементы для сборки URL";
+        } else {
+          let url = "";
+          parts.forEach((part) => {
+            url += part.dataset.text;
+          });
+          document.getElementById("resultDisplay").textContent = url;
+        }
+      }
+
+      // Проверка ответа
+      function checkAnswer() {
+        if (answered) return;
+
+        const zone = document.getElementById("assemblyZone");
+        const parts = zone.querySelectorAll(".path-part");
+
+        if (parts.length === 0) {
+          alert("Соберите URL-адрес из предложенных элементов!");
+          return;
+        }
+
+        let userUrl = "";
+        parts.forEach((part) => {
+          userUrl += part.dataset.text;
+        });
+
+        answered = true;
+        const isCorrect =
+          userUrl.toLowerCase() === currentTask.correctUrl.toLowerCase();
+
+        const feedback = document.getElementById("feedback");
+        const resultDisplay = document.getElementById("resultDisplay");
+
+        if (isCorrect) {
+          feedback.className = "feedback correct";
+          document.getElementById("feedbackText").textContent = "🎉 Правильно!";
+          resultDisplay.className = "result-display correct";
+        } else {
+          feedback.className = "feedback incorrect";
+          document.getElementById("feedbackText").textContent =
+            "❌ Неправильно!";
+          document.getElementById("correctAnswer").textContent =
+            `Правильный ответ: ${currentTask.correctUrl}`;
+          resultDisplay.className = "result-display incorrect";
+        }
+
+        feedback.style.display = "block";
+      }
+
+      // Очистка зоны сборки
+      function clearAssembly() {
+        const zone = document.getElementById("assemblyZone");
+        const pool = document.getElementById("partsPool");
+
+        while (zone.firstChild) {
+          pool.appendChild(zone.firstChild);
+        }
+
+        updateResultDisplay();
+      }
+
+      // Сброс игры
+      function resetGame() {
+        startGame();
+      }
+
+      // Показать подсказку
+      function showHint() {
+        if (answered) return;
+
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+
+        if (hintBox.style.display === "none") {
+          hintText.textContent = currentTask.hint;
+          hintBox.style.display = "block";
+        } else {
+          hintBox.style.display = "none";
+        }
+      }
+
+      // Запуск
+      loadData();
+    </script>
+  </body>
+</html>
