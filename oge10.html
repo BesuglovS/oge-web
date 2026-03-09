@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 10 ОГЭ - Системы счисления</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .task-type {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+
+      .task-type.convert {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      .task-type.arithmetic {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+      }
+
+      .task-type.compare {
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      .task-type.base {
+        background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 100%);
+        color: #333;
+      }
+
+      .task-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .task-text .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .task-text .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+
+      .number-block {
+        display: inline-flex;
+        align-items: baseline;
+        font-family: "Courier New", monospace;
+      }
+
+      .number-block .base {
+        font-size: 0.7em;
+        vertical-align: sub;
+        margin-left: 1px;
+      }
+
+      .numbers-list {
+        background: #f5f7fa;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin: 15px 0;
+        font-family: "Courier New", monospace;
+        font-size: 1.1rem;
+      }
+
+      .answer-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+
+      .answer-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .answer-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .answer-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .answer-input.correct {
+        border-color: #4caf50;
+        background: #e8f5e9;
+      }
+
+      .answer-input.incorrect {
+        border-color: #f44336;
+        background: #ffebee;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-check {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-next {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-hint {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .btn-solution {
+        background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .result.correct {
+        display: block;
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border-left: 4px solid #4caf50;
+        color: #2e7d32;
+      }
+
+      .result.incorrect {
+        display: block;
+        background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+        border-left: 4px solid #f44336;
+        color: #c62828;
+      }
+
+      .hint-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        display: none;
+      }
+
+      .hint-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .hint-box p {
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .solution-box {
+        background: #f5f7fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #667eea;
+        display: none;
+      }
+
+      .solution-box h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .solution-step {
+        background: white;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 3px solid #667eea;
+      }
+
+      .solution-step strong {
+        color: #667eea;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.theory {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .task-text {
+          font-size: 1rem;
+        }
+
+        .answer-input {
+          font-size: 1rem;
+          padding: 12px 15px;
+        }
+
+        .btn {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge10-t.html" class="back-link">📚 Теория</a>
+      </div>
+
+      <h1>🎮 Задание 10 ОГЭ — Системы счисления</h1>
+
+      <div class="task-card" id="taskCard">
+        <!-- Задача будет сгенерирована здесь -->
+      </div>
+
+      <div class="hint-box" id="hintBox">
+        <h4>💡 Подсказка</h4>
+        <p id="hintText"></p>
+      </div>
+
+      <div class="solution-box" id="solutionBox">
+        <h4>📝 Решение</h4>
+        <div id="solutionSteps"></div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn theory"
+        onclick="location.href = 'oge10-t.html'"
+        title="Теория"
+      >
+        📚
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      // Вспомогательные функции для работы с системами счисления
+      function toDecimal(numStr, base) {
+        return parseInt(numStr, base);
+      }
+
+      function fromDecimal(num, base) {
+        return num.toString(base).toUpperCase();
+      }
+
+      function countOnes(binaryStr) {
+        return binaryStr.split("").filter((c) => c === "1").length;
+      }
+
+      function isPrime(n) {
+        if (n < 2) return false;
+        if (n === 2) return true;
+        if (n % 2 === 0) return false;
+        for (let i = 3; i <= Math.sqrt(n); i += 2) {
+          if (n % i === 0) return false;
+        }
+        return true;
+      }
+
+      function generateBinary(bits) {
+        let result = "";
+        for (let i = 0; i < bits; i++) {
+          result += Math.random() < 0.5 ? "0" : "1";
+        }
+        // Убеждаемся, что число не начинается с 0
+        if (result[0] === "0") {
+          result = "1" + result.slice(1);
+        }
+        return result;
+      }
+
+      function generateOctal(digits) {
+        const octalDigits = "01234567";
+        let result = "";
+        for (let i = 0; i < digits; i++) {
+          if (i === 0) {
+            result += octalDigits[Math.floor(Math.random() * 7) + 1];
+          } else {
+            result += octalDigits[Math.floor(Math.random() * 8)];
+          }
+        }
+        return result;
+      }
+
+      function generateHex(digits) {
+        const hexDigits = "0123456789ABCDEF";
+        let result = "";
+        for (let i = 0; i < digits; i++) {
+          if (i === 0) {
+            result += hexDigits[Math.floor(Math.random() * 15) + 1];
+          } else {
+            result += hexDigits[Math.floor(Math.random() * 16)];
+          }
+        }
+        return result;
+      }
+
+      function formatNumber(num, base) {
+        return `<span class="number-block">${num}<span class="base">${base}</span></span>`;
+      }
+
+      let currentTask = null;
+
+      // Типы задач
+      const taskTypes = [
+        "convertToBinary",
+        "convertFromBinary",
+        "arithmeticSimple",
+        "arithmeticComplex",
+        "compareTwoSmallest",
+        "compareTwoLargest",
+        "findMaxEven",
+        "findMinOdd",
+        "findMaxDivisible",
+        "findMinDivisible",
+        "findMaxPrime",
+        "findMinPrime",
+        "findMinBase",
+      ];
+
+      function generateTask() {
+        const taskType =
+          taskTypes[Math.floor(Math.random() * taskTypes.length)];
+
+        switch (taskType) {
+          case "convertToBinary":
+            return generateConvertToBinary();
+          case "convertFromBinary":
+            return generateConvertFromBinary();
+          case "arithmeticSimple":
+            return generateArithmeticSimple();
+          case "arithmeticComplex":
+            return generateArithmeticComplex();
+          case "compareTwoSmallest":
+            return generateCompareTwo("smallest");
+          case "compareTwoLargest":
+            return generateCompareTwo("largest");
+          case "findMaxEven":
+            return generateFindCondition("max", "even");
+          case "findMinOdd":
+            return generateFindCondition("min", "odd");
+          case "findMaxDivisible":
+            return generateFindDivisible("max");
+          case "findMinDivisible":
+            return generateFindDivisible("min");
+          case "findMaxPrime":
+            return generateFindPrime("max");
+          case "findMinPrime":
+            return generateFindPrime("min");
+          case "findMinBase":
+            return generateFindMinBase();
+        }
+      }
+
+      // Задача: перевод в двоичную и подсчёт единиц
+      function generateConvertToBinary() {
+        const decimalNum = Math.floor(Math.random() * 500) + 100;
+        const binaryNum = fromDecimal(decimalNum, 2);
+        const ones = countOnes(binaryNum);
+
+        currentTask = {
+          answer: ones.toString(),
+          taskType: "convert",
+          hint: `Переведите число ${decimalNum} в двоичную систему делением на 2, затем подсчитайте количество единиц.`,
+          solution: [
+            `Переводим число ${decimalNum} в двоичную систему:`,
+            `Делим последовательно на 2 и записываем остатки:`,
+            getDivisionSteps(decimalNum, 2),
+            `Результат: ${binaryNum}<sub>2</sub>`,
+            `Количество единиц: ${ones}`,
+            `<strong>Ответ: ${ones}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Переведите число <span class="highlight">${decimalNum}</span> из десятичной системы счисления в двоичную.</p>
+          <p>Сколько единиц содержит полученное число?</p>
+        `;
+
+        renderTask(taskText, "convert", "Перевод чисел");
+      }
+
+      // Задача: перевод из двоичной в десятичную
+      function generateConvertFromBinary() {
+        const bits = Math.floor(Math.random() * 4) + 6;
+        const binaryNum = generateBinary(bits);
+        const decimalNum = toDecimal(binaryNum, 2);
+        const decimalStr = decimalNum.toString();
+        const tensDigit =
+          decimalStr.length >= 2 ? decimalStr[decimalStr.length - 2] : "0";
+
+        currentTask = {
+          answer: tensDigit,
+          taskType: "convert",
+          hint: `Переведите число ${binaryNum}₂ в десятичную систему, затем определите цифру в разряде десятков.`,
+          solution: [
+            `Переводим ${binaryNum}<sub>2</sub> в десятичную систему:`,
+            getExpansion(binaryNum, 2),
+            `Результат: ${decimalNum}<sub>10</sub>`,
+            `Цифра в разряде десятков: ${tensDigit}`,
+            `<strong>Ответ: ${tensDigit}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Переведите число <span class="highlight">${binaryNum}</span> из двоичной системы счисления в десятичную.</p>
+          <p>В ответе укажите цифру, стоящую в разряде десятков полученного числа.</p>
+        `;
+
+        renderTask(taskText, "convert", "Перевод чисел");
+      }
+
+      // Задача: простое арифметическое выражение
+      function generateArithmeticSimple() {
+        const binary1 = generateBinary(Math.floor(Math.random() * 3) + 5);
+        const octal1 = generateOctal(2);
+        const hex1 = generateHex(1);
+
+        const dec1 = toDecimal(binary1, 2);
+        const dec2 = toDecimal(octal1, 8);
+        const dec3 = toDecimal(hex1, 16);
+
+        const result = dec1 + dec2 + dec3;
+
+        currentTask = {
+          answer: result.toString(),
+          taskType: "arithmetic",
+          hint: "Переведите все числа в десятичную систему и выполните сложение.",
+          solution: [
+            `Переводим все числа в десятичную систему:`,
+            `${binary1}<sub>2</sub> = ${getExpansionSimple(binary1, 2)} = ${dec1}<sub>10</sub>`,
+            `${octal1}<sub>8</sub> = ${getExpansionSimple(octal1, 8)} = ${dec2}<sub>10</sub>`,
+            `${hex1}<sub>16</sub> = ${dec3}<sub>10</sub>`,
+            `Вычисляем: ${dec1} + ${dec2} + ${dec3} = ${result}`,
+            `<strong>Ответ: ${result}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Вычислите значение арифметического выражения:</p>
+          <div class="numbers-list">
+            ${formatNumber(binary1, 2)} + ${formatNumber(octal1, 8)} + ${formatNumber(hex1, 16)}
+          </div>
+          <p>В ответе запишите число в десятичной системе счисления.</p>
+        `;
+
+        renderTask(taskText, "arithmetic", "Арифметика");
+      }
+
+      // Задача: сложное арифметическое выражение
+      function generateArithmeticComplex() {
+        const patterns = [
+          {
+            generate: () => {
+              const bin1 = generateBinary(Math.floor(Math.random() * 3) + 5);
+              const oct1 = generateOctal(2);
+              const bin2 = generateBinary(4);
+              const dec1 = toDecimal(bin1, 2);
+              const dec2 = toDecimal(oct1, 8);
+              const dec3 = toDecimal(bin2, 2);
+              const result = Math.floor((dec1 - dec2) / dec3);
+              return {
+                expr: `(${formatNumber(bin1, 2)} - ${formatNumber(oct1, 8)}) : ${formatNumber(bin2, 2)}`,
+                dec1,
+                dec2,
+                dec3,
+                result,
+                steps: [
+                  `Переводим все числа в десятичную систему:`,
+                  `${bin1}<sub>2</sub> = ${dec1}<sub>10</sub>`,
+                  `${oct1}<sub>8</sub> = ${dec2}<sub>10</sub>`,
+                  `${bin2}<sub>2</sub> = ${dec3}<sub>10</sub>`,
+                  `Вычисляем: (${dec1} - ${dec2}) : ${dec3} = ${dec1 - dec2} : ${dec3} = ${result}`,
+                ],
+              };
+            },
+          },
+          {
+            generate: () => {
+              const bin1 = generateBinary(Math.floor(Math.random() * 3) + 6);
+              const hex1 = generateHex(2);
+              const oct1 = generateOctal(2);
+              const dec1 = toDecimal(bin1, 2);
+              const dec2 = toDecimal(hex1, 16);
+              const dec3 = toDecimal(oct1, 8);
+              const result = Math.floor((dec1 - dec2) / dec3);
+              return {
+                expr: `(${formatNumber(bin1, 2)} - ${formatNumber(hex1, 16)}) : ${formatNumber(oct1, 8)}`,
+                dec1,
+                dec2,
+                dec3,
+                result,
+                steps: [
+                  `Переводим все числа в десятичную систему:`,
+                  `${bin1}<sub>2</sub> = ${dec1}<sub>10</sub>`,
+                  `${hex1}<sub>16</sub> = ${dec2}<sub>10</sub>`,
+                  `${oct1}<sub>8</sub> = ${dec3}<sub>10</sub>`,
+                  `Вычисляем: (${dec1} - ${dec2}) : ${dec3} = ${dec1 - dec2} : ${dec3} = ${result}`,
+                ],
+              };
+            },
+          },
+          {
+            generate: () => {
+              const bin1 = generateBinary(6);
+              const oct1 = generateOctal(2);
+              const hex1 = generateHex(2);
+              const dec1 = toDecimal(bin1, 2);
+              const dec2 = toDecimal(oct1, 8);
+              const dec3 = toDecimal(hex1, 16);
+              const result = Math.floor(((dec1 + dec2) * dec3) / 16);
+              return {
+                expr: `(${formatNumber(bin1, 2)} + ${formatNumber(oct1, 8)}) * ${formatNumber(hex1, 16)} : 16`,
+                dec1,
+                dec2,
+                dec3,
+                result,
+                steps: [
+                  `Переводим все числа в десятичную систему:`,
+                  `${bin1}<sub>2</sub> = ${dec1}<sub>10</sub>`,
+                  `${oct1}<sub>8</sub> = ${dec2}<sub>10</sub>`,
+                  `${hex1}<sub>16</sub> = ${dec3}<sub>10</sub>`,
+                  `Вычисляем: (${dec1} + ${dec2}) * ${dec3} : 16 = ${dec1 + dec2} * ${dec3} : 16 = ${result}`,
+                ],
+              };
+            },
+          },
+        ];
+
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const data = pattern.generate();
+
+        // Убеждаемся, что результат положительный
+        if (data.result < 1) {
+          return generateArithmeticComplex();
+        }
+
+        currentTask = {
+          answer: data.result.toString(),
+          taskType: "arithmetic",
+          hint: "Переведите все числа в десятичную систему и выполните вычисления.",
+          solution: [...data.steps, `<strong>Ответ: ${data.result}</strong>`],
+        };
+
+        const taskText = `
+          <p>Вычислите значение арифметического выражения:</p>
+          <div class="numbers-list">${data.expr}</div>
+          <p>В ответе запишите число в десятичной системе счисления.</p>
+        `;
+
+        renderTask(taskText, "arithmetic", "Арифметика");
+      }
+
+      // Задача: сравнение чисел (найти два наибольших/наименьших)
+      function generateCompareTwo(type) {
+        const num1 = { hex: generateHex(2), base: 16 };
+        const num2 = { hex: generateOctal(3), base: 8 };
+        const num3 = { hex: generateBinary(8), base: 2 };
+
+        const nums = [num1, num2, num3].map((n) => ({
+          ...n,
+          decimal: toDecimal(n.hex, n.base),
+        }));
+
+        // Проверяем, что все три числа различны
+        if (
+          nums[0].decimal === nums[1].decimal ||
+          nums[0].decimal === nums[2].decimal ||
+          nums[1].decimal === nums[2].decimal
+        ) {
+          return generateCompareTwo(type);
+        }
+
+        nums.sort((a, b) => a.decimal - b.decimal);
+
+        let answer, selected;
+        if (type === "smallest") {
+          selected = [nums[0], nums[1]];
+          answer = nums[0].decimal + nums[1].decimal;
+        } else {
+          selected = [nums[1], nums[2]];
+          answer = nums[1].decimal + nums[2].decimal;
+        }
+
+        currentTask = {
+          answer: answer.toString(),
+          taskType: "compare",
+          hint: "Переведите все числа в десятичную систему и сравните их.",
+          solution: [
+            `Переводим все числа в десятичную систему:`,
+            ...nums.map(
+              (n) => `${n.hex}<sub>${n.base}</sub> = ${n.decimal}<sub>10</sub>`,
+            ),
+            `Упорядочиваем: ${nums.map((n) => n.decimal).join(" < ")}`,
+            type === "smallest"
+              ? `Два наименьших: ${nums[0].decimal} и ${nums[1].decimal}`
+              : `Два наибольших: ${nums[1].decimal} и ${nums[2].decimal}`,
+            `Сумма: ${answer}`,
+            `<strong>Ответ: ${answer}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Среди приведённых ниже трёх чисел, записанных в разных системах счисления, найдите два ${type === "smallest" ? "наименьших" : "наибольших"} и запишите в ответе их сумму в десятичной системе счисления.</p>
+          <div class="numbers-list">
+            ${formatNumber(num1.hex, 16)}, ${formatNumber(num2.hex, 8)}, ${formatNumber(num3.hex, 2)}
+          </div>
+        `;
+
+        renderTask(taskText, "compare", "Сравнение чисел");
+      }
+
+      // Задача: найти число по условию (чётное/нечётное)
+      function generateFindCondition(extremum, condition) {
+        const generateNum = () => {
+          const bases = [
+            { gen: () => generateHex(2), base: 16 },
+            { gen: () => generateOctal(3), base: 8 },
+            { gen: () => generateBinary(8), base: 2 },
+          ];
+          const b = bases[Math.floor(Math.random() * bases.length)];
+          return { hex: b.gen(), base: b.base };
+        };
+
+        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
+          ...n,
+          decimal: toDecimal(n.hex, n.base),
+        }));
+
+        // Проверяем, что все три числа различны
+        if (
+          nums[0].decimal === nums[1].decimal ||
+          nums[0].decimal === nums[2].decimal ||
+          nums[1].decimal === nums[2].decimal
+        ) {
+          return generateFindCondition(extremum, condition);
+        }
+
+        const filtered = nums.filter((n) =>
+          condition === "even" ? n.decimal % 2 === 0 : n.decimal % 2 === 1,
+        );
+
+        if (filtered.length === 0) {
+          return generateFindCondition(extremum, condition);
+        }
+
+        filtered.sort((a, b) =>
+          extremum === "max" ? b.decimal - a.decimal : a.decimal - b.decimal,
+        );
+
+        const answer = filtered[0].decimal;
+
+        currentTask = {
+          answer: answer.toString(),
+          taskType: "compare",
+          hint: `Переведите числа в десятичную систему, найдите ${condition === "even" ? "чётные" : "нечётные"} и выберите ${extremum === "max" ? "максимальное" : "минимальное"}.`,
+          solution: [
+            `Переводим все числа в десятичную систему:`,
+            ...nums.map(
+              (n) =>
+                `${n.hex}<sub>${n.base}</sub> = ${n.decimal}<sub>10</sub> (${n.decimal % 2 === 0 ? "чётное" : "нечётное"})`,
+            ),
+            condition === "even"
+              ? `Чётные числа: ${filtered.map((f) => f.decimal).join(", ")}`
+              : `Нечётные числа: ${filtered.map((f) => f.decimal).join(", ")}`,
+            `${extremum === "max" ? "Максимальное" : "Минимальное"}: ${answer}`,
+            `<strong>Ответ: ${answer}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Среди приведённых ниже трёх чисел, записанных в разных системах счисления, найдите ${extremum === "max" ? "максимальное" : "минимальное"} ${condition === "even" ? "чётное" : "нечётное"} число и запишите в ответе его в десятичной системе счисления.</p>
+          <div class="numbers-list">
+            ${formatNumber(nums[0].hex, nums[0].base)}, ${formatNumber(nums[1].hex, nums[1].base)}, ${formatNumber(nums[2].hex, nums[2].base)}
+          </div>
+        `;
+
+        renderTask(taskText, "compare", "Поиск по условию");
+      }
+
+      // Задача: найти число, делящееся на N
+      function generateFindDivisible(extremum) {
+        const divisors = [3, 5];
+        const divisor = divisors[Math.floor(Math.random() * divisors.length)];
+
+        const generateNum = () => {
+          const bases = [
+            { gen: () => generateHex(2), base: 16 },
+            { gen: () => generateOctal(3), base: 8 },
+            { gen: () => generateBinary(8), base: 2 },
+          ];
+          const b = bases[Math.floor(Math.random() * bases.length)];
+          return { hex: b.gen(), base: b.base };
+        };
+
+        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
+          ...n,
+          decimal: toDecimal(n.hex, n.base),
+        }));
+
+        // Проверяем, что все три числа различны
+        if (
+          nums[0].decimal === nums[1].decimal ||
+          nums[0].decimal === nums[2].decimal ||
+          nums[1].decimal === nums[2].decimal
+        ) {
+          return generateFindDivisible(extremum);
+        }
+
+        const filtered = nums.filter((n) => n.decimal % divisor === 0);
+
+        if (filtered.length === 0) {
+          return generateFindDivisible(extremum);
+        }
+
+        filtered.sort((a, b) =>
+          extremum === "max" ? b.decimal - a.decimal : a.decimal - b.decimal,
+        );
+
+        const answer = filtered[0].decimal;
+
+        currentTask = {
+          answer: answer.toString(),
+          taskType: "compare",
+          hint: `Переведите числа в десятичную систему и найдите те, которые делятся на ${divisor}.`,
+          solution: [
+            `Переводим все числа в десятичную систему:`,
+            ...nums.map(
+              (n) =>
+                `${n.hex}<sub>${n.base}</sub> = ${n.decimal}<sub>10</sub> (${n.decimal % divisor === 0 ? `делится на ${divisor}` : `не делится на ${divisor}`})`,
+            ),
+            `Числа, делящиеся на ${divisor}: ${filtered.map((f) => f.decimal).join(", ")}`,
+            `${extremum === "max" ? "Максимальное" : "Минимальное"}: ${answer}`,
+            `<strong>Ответ: ${answer}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Среди приведённых ниже трёх чисел, записанных в разных системах счисления, найдите ${extremum === "max" ? "максимальное" : "минимальное"} число, делящееся на <span class="highlight">${divisor}</span>, и запишите в ответе его в десятичной системе счисления.</p>
+          <div class="numbers-list">
+            ${formatNumber(nums[0].hex, nums[0].base)}, ${formatNumber(nums[1].hex, nums[1].base)}, ${formatNumber(nums[2].hex, nums[2].base)}
+          </div>
+        `;
+
+        renderTask(taskText, "compare", "Делимость чисел");
+      }
+
+      // Задача: найти простое число
+      function generateFindPrime(extremum) {
+        const generateNum = () => {
+          const bases = [
+            { gen: () => generateHex(2), base: 16 },
+            { gen: () => generateOctal(2), base: 8 },
+            { gen: () => generateBinary(6), base: 2 },
+          ];
+          const b = bases[Math.floor(Math.random() * bases.length)];
+          return { hex: b.gen(), base: b.base };
+        };
+
+        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
+          ...n,
+          decimal: toDecimal(n.hex, n.base),
+        }));
+
+        // Проверяем, что все три числа различны
+        if (
+          nums[0].decimal === nums[1].decimal ||
+          nums[0].decimal === nums[2].decimal ||
+          nums[1].decimal === nums[2].decimal
+        ) {
+          return generateFindPrime(extremum);
+        }
+
+        const filtered = nums.filter((n) => isPrime(n.decimal));
+
+        if (filtered.length === 0) {
+          return generateFindPrime(extremum);
+        }
+
+        filtered.sort((a, b) =>
+          extremum === "max" ? b.decimal - a.decimal : a.decimal - b.decimal,
+        );
+
+        const answer = filtered[0].decimal;
+
+        currentTask = {
+          answer: answer.toString(),
+          taskType: "compare",
+          hint: "Переведите числа в десятичную систему и проверьте каждое на простоту.",
+          solution: [
+            `Переводим все числа в десятичную систему:`,
+            ...nums.map(
+              (n) =>
+                `${n.hex}<sub>${n.base}</sub> = ${n.decimal}<sub>10</sub> (${isPrime(n.decimal) ? "простое" : "не простое"})`,
+            ),
+            `Простые числа: ${filtered.map((f) => f.decimal).join(", ")}`,
+            `${extremum === "max" ? "Максимальное" : "Минимальное"}: ${answer}`,
+            `<strong>Ответ: ${answer}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Среди приведённых ниже трёх чисел, записанных в разных системах счисления, найдите ${extremum === "max" ? "максимальное" : "минимальное"} простое число и запишите в ответе его в десятичной системе счисления.</p>
+          <div class="numbers-list">
+            ${formatNumber(nums[0].hex, nums[0].base)}, ${formatNumber(nums[1].hex, nums[1].base)}, ${formatNumber(nums[2].hex, nums[2].base)}
+          </div>
+        `;
+
+        renderTask(taskText, "compare", "Простые числа");
+      }
+
+      // Задача: найти минимальное основание
+      function generateFindMinBase() {
+        const patterns = [
+          { digits: "2345", maxDigit: 5 },
+          { digits: "3456", maxDigit: 6 },
+          { digits: "1234", maxDigit: 4 },
+          { digits: "4567", maxDigit: 7 },
+          { digits: "2233", maxDigit: 3 },
+          { digits: "1177", maxDigit: 7 },
+          { digits: "1551", maxDigit: 5 },
+          { digits: "1717", maxDigit: 7 },
+        ];
+
+        const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+        const minBase = pattern.maxDigit + 1;
+
+        // Генерируем число с заданным паттерном
+        let numStr = pattern.digits;
+
+        // Переводим в десятичную систему
+        const decimal = parseInt(numStr, minBase);
+
+        currentTask = {
+          answer: decimal.toString(),
+          taskType: "base",
+          hint: `Минимальное основание системы счисления на 1 больше максимальной цифры в числе.`,
+          solution: [
+            `Максимальная цифра в числе ${numStr}: ${pattern.maxDigit}`,
+            `Минимальное основание: ${pattern.maxDigit} + 1 = ${minBase}`,
+            `Переводим ${numStr}<sub>${minBase}</sub> в десятичную систему:`,
+            getExpansion(numStr, minBase),
+            `Результат: ${decimal}`,
+            `<strong>Ответ: ${decimal}</strong>`,
+          ],
+        };
+
+        const taskText = `
+          <p>Число <span class="highlight">${numStr}<sub>n</sub></span> записано в системе счисления с основанием n > 1.</p>
+          <p>Определите наименьшее n. Для этого значения n запишите представление этого числа в десятичной системе счисления.</p>
+        `;
+
+        renderTask(taskText, "base", "Основание системы");
+      }
+
+      // Вспомогательные функции для решения
+      function getDivisionSteps(num, base) {
+        let steps = [];
+        let n = num;
+        while (n > 0) {
+          const quotient = Math.floor(n / base);
+          const remainder = n % base;
+          steps.push(`${n} ÷ ${base} = ${quotient}, остаток ${remainder}`);
+          n = quotient;
+        }
+        return steps.join("<br>");
+      }
+
+      function getExpansion(numStr, base) {
+        let terms = [];
+        let power = numStr.length - 1;
+        for (let i = 0; i < numStr.length; i++) {
+          const digit = parseInt(numStr[i], base);
+          terms.push(`${digit}·${base}<sup>${power}</sup>`);
+          power--;
+        }
+        return terms.join(" + ");
+      }
+
+      function getExpansionSimple(numStr, base) {
+        let result = 0;
+        let terms = [];
+        for (let i = 0; i < numStr.length; i++) {
+          const digit = parseInt(numStr[i], base);
+          const power = numStr.length - 1 - i;
+          if (digit > 0) {
+            terms.push(`${digit}·${base}<sup>${power}</sup>`);
+            result += digit * Math.pow(base, power);
+          }
+        }
+        return terms.join(" + ") || "0";
+      }
+
+      function renderTask(taskText, typeClass, typeName) {
+        const taskCard = document.getElementById("taskCard");
+
+        taskCard.innerHTML = `
+          <div class="task-header">
+            <span class="task-type ${typeClass}">${typeName}</span>
+          </div>
+          <div class="task-text">${taskText}</div>
+          <div class="answer-section">
+            <label class="answer-label">Ваш ответ:</label>
+            <input type="text" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
+            <div class="buttons">
+              <button class="btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
+              <button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button>
+              <button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button>
+              <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
+            </div>
+            <div class="result" id="result"></div>
+          </div>
+        `;
+
+        document
+          .getElementById("answerInput")
+          .addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              checkAnswer();
+            }
+          });
+
+        document.getElementById("answerInput").focus();
+      }
+
+      function checkAnswer() {
+        const input = document.getElementById("answerInput");
+        const result = document.getElementById("result");
+        const userAnswer = input.value.trim();
+        const correctAnswer = currentTask.answer;
+
+        if (!userAnswer) {
+          input.focus();
+          return;
+        }
+
+        if (userAnswer === correctAnswer) {
+          input.classList.remove("incorrect");
+          input.classList.add("correct");
+          result.className = "result correct";
+          result.innerHTML = "✅ Правильно! Отличная работа!";
+        } else {
+          input.classList.remove("correct");
+          input.classList.add("incorrect");
+          result.className = "result incorrect";
+          result.innerHTML = `❌ Неправильно. Правильный ответ: <strong>${currentTask.answer}</strong>`;
+        }
+      }
+
+      function nextTask() {
+        hideHintsAndSolution();
+        generateTask();
+      }
+
+      function hideHintsAndSolution() {
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("solutionBox").style.display = "none";
+      }
+
+      function showHint() {
+        const hintBox = document.getElementById("hintBox");
+        const hintText = document.getElementById("hintText");
+        hintText.innerHTML = currentTask.hint;
+        hintBox.style.display = "block";
+      }
+
+      function showSolution() {
+        const solutionBox = document.getElementById("solutionBox");
+        const solutionSteps = document.getElementById("solutionSteps");
+        solutionSteps.innerHTML = currentTask.solution
+          .map((step) => `<div class="solution-step">${step}</div>`)
+          .join("");
+        solutionBox.style.display = "block";
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Инициализация
+      generateTask();
+    </script>
+  </body>
+</html>
