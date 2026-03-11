@@ -116,6 +116,60 @@
         height: auto;
       }
 
+      .vertex-input {
+        width: 36px;
+        height: 28px;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        border: 2px solid #00e5ff;
+        border-radius: 6px;
+        background: rgba(26, 26, 46, 0.95);
+        color: #fff;
+        outline: none;
+        padding: 2px;
+        box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+      }
+
+      .vertex-input:focus {
+        border-color: #fff;
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+      }
+
+      .vertex-input.correct {
+        border-color: #4caf50;
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+      }
+
+      .vertex-input.incorrect {
+        border-color: #f44336;
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+      }
+
+      .vertex-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .btn-show-values {
+        background: linear-gradient(145deg, #9c27b0 0%, #673ab7 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4);
+      }
+
+      .btn-check-values {
+        background: linear-gradient(145deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+      }
+
+      .btn-clear-values {
+        background: linear-gradient(145deg, #607d8b 0%, #455a64 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(96, 125, 139, 0.4);
+      }
+
       .answer-section {
         margin-top: 25px;
         padding-top: 20px;
@@ -540,6 +594,15 @@
 
         layers.push([vertexCount - 1]); // Последний слой
 
+        // Функция для подсчёта входящих рёбер в вершину
+        function countIncomingEdges(vertexIndex) {
+          let count = 0;
+          for (let i = 0; i < vertexIndex; i++) {
+            if (edges[i][vertexIndex]) count++;
+          }
+          return count;
+        }
+
         // Генерируем рёбра между соседними слоями
         for (let l = 0; l < layers.length - 1; l++) {
           const currentLayer = layers[l];
@@ -547,13 +610,26 @@
 
           // Каждая вершина в текущем слое должна иметь хотя бы одно исходящее ребро
           for (const source of currentLayer) {
-            const target = nextLayer[randomInt(0, nextLayer.length - 1)];
-            edges[source][target] = true;
+            // Выбираем цель, у которой меньше 4 входящих рёбер
+            let target = nextLayer[randomInt(0, nextLayer.length - 1)];
+            let attempts = 0;
+            while (
+              countIncomingEdges(target) >= 4 &&
+              attempts < nextLayer.length
+            ) {
+              target = nextLayer[randomInt(0, nextLayer.length - 1)];
+              attempts++;
+            }
+            if (countIncomingEdges(target) < 4) {
+              edges[source][target] = true;
+            }
           }
 
           // Каждая вершина в следующем слое должна иметь хотя бы одно входящее ребро
-          // Но не обязательно напрямую из предыдущего слоя - может быть через вершину в своём слое
           for (const target of nextLayer) {
+            // Пропускаем, если уже есть входящее ребро или уже 4 ребра
+            if (countIncomingEdges(target) >= 4) continue;
+
             let hasIncoming = false;
             for (const source of currentLayer) {
               if (edges[source][target]) {
@@ -561,29 +637,36 @@
                 break;
               }
             }
-            // Если нет прямого ребра, добавляем связь от верхней вершины в этом же слое
-            if (!hasIncoming && nextLayer.length > 1) {
+            // Если нет прямого ребра, добавляем связь
+            if (!hasIncoming) {
+              // Сначала пробуем связь от верхней вершины в этом же слое
               const targetIndex = nextLayer.indexOf(target);
-              if (targetIndex > 0) {
-                // Связь от верхней вершины в этом же слое
+              let added = false;
+
+              if (targetIndex > 0 && countIncomingEdges(target) < 4) {
                 edges[nextLayer[targetIndex - 1]][target] = true;
-              } else {
-                // Для первой вершины в слое добавляем связь из предыдущего слоя
+                added = true;
+              }
+
+              // Если не получилось, добавляем связь из предыдущего слоя
+              if (!added) {
                 const source =
                   currentLayer[randomInt(0, currentLayer.length - 1)];
-                edges[source][target] = true;
+                if (countIncomingEdges(target) < 4) {
+                  edges[source][target] = true;
+                }
               }
             }
           }
         }
 
-        // Иногда добавляем рёбра через слой насквозь
+        // Иногда добавляем рёбра через слой насквозь (не более 4 входящих в каждую вершину)
         for (let l = 0; l < layers.length - 2; l++) {
           const currentLayer = layers[l];
           const skipLayer = layers[l + 2];
           for (const source of currentLayer) {
             for (const target of skipLayer) {
-              if (Math.random() < 0.15) {
+              if (Math.random() < 0.15 && countIncomingEdges(target) < 4) {
                 edges[source][target] = true;
               }
             }
@@ -756,6 +839,62 @@
         return positions;
       }
 
+      // Проверка пересечения отрезка с окружностью
+      function lineIntersectsCircle(x1, y1, x2, y2, cx, cy, r) {
+        // Вектор от x1,y1 к x2,y2
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        // Вектор от x1,y1 к центру окружности
+        const fx = x1 - cx;
+        const fy = y1 - cy;
+
+        const a = dx * dx + dy * dy;
+        const b = 2 * (fx * dx + fy * dy);
+        const c = fx * fx + fy * fy - r * r;
+
+        let discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return false;
+
+        discriminant = Math.sqrt(discriminant);
+        const t1 = (-b - discriminant) / (2 * a);
+        const t2 = (-b + discriminant) / (2 * a);
+
+        // Проверяем, есть ли пересечение в пределах отрезка (с небольшим отступом от концов)
+        const eps = 0.15;
+        return (
+          (t1 > eps && t1 < 1 - eps) ||
+          (t2 > eps && t2 < 1 - eps) ||
+          (t1 < 0 && t2 > 1)
+        );
+      }
+
+      // Проверка пересечения двух кривых Безье (приближённо)
+      function curvesIntersect(x1, y1, cx1, cy1, x2, y2, cx2, cy2, threshold) {
+        // Разбиваем кривые на точки и проверяем расстояние
+        const steps = 10;
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          // Точка на первой кривой
+          const px1 =
+            (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx1 + t * t * x2;
+          const py1 =
+            (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy1 + t * t * y2;
+
+          for (let j = 0; j <= steps; j++) {
+            const s = j / steps;
+            // Точка на второй кривой
+            const px2 =
+              (1 - s) * (1 - s) * x1 + 2 * (1 - s) * s * cx2 + s * s * x2;
+            const py2 =
+              (1 - s) * (1 - s) * y1 + 2 * (1 - s) * s * cy2 + s * s * y2;
+
+            const dist = Math.sqrt((px1 - px2) ** 2 + (py1 - py2) ** 2);
+            if (dist < threshold) return true;
+          }
+        }
+        return false;
+      }
+
       // Отрисовка задачи
       function renderTask() {
         const taskCard = document.getElementById("taskCard");
@@ -766,9 +905,85 @@
           ...graph.layers.map((layer) => layer.length),
         );
         const svgHeight = Math.max(350, maxVerticesInLayer * 80 + 60);
-        const svgWidth = 700;
+        const svgWidth = 780; // Увеличена ширина для полей ввода
 
         const positions = calculateVertexPositions(graph, svgWidth, svgHeight);
+
+        // Собираем все рёбра и их параметры для предотвращения наложений
+        const edgeData = [];
+        for (let i = 0; i < graph.vertexCount; i++) {
+          for (let j = 0; j < graph.vertexCount; j++) {
+            if (graph.edges[i][j] && positions[i] && positions[j]) {
+              edgeData.push({ from: i, to: j });
+            }
+          }
+        }
+
+        // Группируем рёбра по парам вершин (для определения параллельных рёбер)
+        const edgeGroups = {};
+        for (const edge of edgeData) {
+          const key = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
+          if (!edgeGroups[key]) edgeGroups[key] = [];
+          edgeGroups[key].push(edge);
+        }
+
+        // Вычисляем параметры кривых для каждого ребра
+        const curveParams = {};
+        const usedOffsets = {}; // Для отслеживания используемых смещений
+
+        for (const edge of edgeData) {
+          const x1 = positions[edge.from].x;
+          const y1 = positions[edge.from].y;
+          const x2 = positions[edge.to].x;
+          const y2 = positions[edge.to].y;
+
+          // Проверяем, проходит ли ребро через какую-либо вершину
+          let needsCurve = false;
+          let curveDirection = 1; // 1 или -1
+          let baseOffset = 0;
+
+          const radius = 22;
+          const safetyRadius = radius + 15; // Увеличиваем радиус безопасности
+
+          for (let k = 0; k < graph.vertexCount; k++) {
+            if (k === edge.from || k === edge.to || !positions[k]) continue;
+
+            const px = positions[k].x;
+            const py = positions[k].y;
+
+            if (lineIntersectsCircle(x1, y1, x2, y2, px, py, safetyRadius)) {
+              needsCurve = true;
+              // Определяем направление изгиба по положению вершины относительно линии
+              const crossProduct =
+                (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1);
+              curveDirection = crossProduct > 0 ? -1 : 1;
+              baseOffset = 35;
+              break;
+            }
+          }
+
+          // Проверяем наложение с другими рёбрами между теми же слоями
+          const edgeKey = `${edge.from}-${edge.to}`;
+          const reverseKey = `${edge.to}-${edge.from}`;
+
+          // Увеличиваем смещение для каждого последующего параллельного ребра
+          const parallelKey = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
+          if (edgeGroups[parallelKey] && edgeGroups[parallelKey].length > 1) {
+            needsCurve = true;
+            const idx = edgeGroups[parallelKey].indexOf(edge);
+            if (idx > 0) {
+              baseOffset = Math.max(baseOffset, 25 + idx * 20);
+              // Чередуем направление для параллельных рёбер
+              curveDirection = idx % 2 === 0 ? 1 : -1;
+            }
+          }
+
+          curveParams[edgeKey] = {
+            needsCurve,
+            curveDirection,
+            baseOffset,
+          };
+        }
 
         // Генерируем SVG
         let svgContent = `<svg viewBox="0 0 ${svgWidth} ${svgHeight}" class="graph-svg" width="${svgWidth}" height="${svgHeight}">
@@ -780,83 +995,50 @@
           <rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="#1a1a2e" rx="10" />`;
 
         // Рисуем рёбра
-        for (let i = 0; i < graph.vertexCount; i++) {
-          for (let j = 0; j < graph.vertexCount; j++) {
-            if (graph.edges[i][j]) {
-              // Пропускаем, если позиция не определена
-              if (!positions[i] || !positions[j]) continue;
+        for (const edge of edgeData) {
+          const i = edge.from;
+          const j = edge.to;
 
-              const x1 = positions[i].x;
-              const y1 = positions[i].y;
-              const x2 = positions[j].x;
-              const y2 = positions[j].y;
+          const x1 = positions[i].x;
+          const y1 = positions[i].y;
+          const x2 = positions[j].x;
+          const y2 = positions[j].y;
 
-              // Вычисляем точку на границе круга
-              const dx = x2 - x1;
-              const dy = y2 - y1;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              const radius = 22;
+          // Вычисляем точку на границе круга
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = 22;
 
-              const startX = x1 + (dx / dist) * radius;
-              const startY = y1 + (dy / dist) * radius;
-              const endX = x2 - (dx / dist) * (radius + 6);
-              const endY = y2 - (dy / dist) * (radius + 6);
+          const startX = x1 + (dx / dist) * radius;
+          const startY = y1 + (dy / dist) * radius;
+          const endX = x2 - (dx / dist) * (radius + 6);
+          const endY = y2 - (dy / dist) * (radius + 6);
 
-              // Проверяем, нужно ли изгибать линию (если она проходит через другую вершину)
-              let needsCurve = false;
-              let curveOffset = 0;
+          const edgeKey = `${i}-${j}`;
+          const params = curveParams[edgeKey];
 
-              for (let k = 0; k < graph.vertexCount; k++) {
-                if (k === i || k === j || !positions[k]) continue;
+          if (params.needsCurve) {
+            // Используем квадратичную кривую Безье для обхода
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+            // Перпендикуляр к линии
+            const perpX = -(endY - startY);
+            const perpY = endX - startX;
+            const perpLen = Math.sqrt(perpX * perpX + perpY * perpY);
+            const curveOffset = params.baseOffset * params.curveDirection;
+            const controlX = midX + (perpX / perpLen) * curveOffset;
+            const controlY = midY + (perpY / perpLen) * curveOffset;
 
-                const px = positions[k].x;
-                const py = positions[k].y;
-
-                // Вычисляем расстояние от точки до линии
-                const lineLen = dist;
-                const t = Math.max(
-                  0,
-                  Math.min(
-                    1,
-                    ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) /
-                      (lineLen * lineLen),
-                  ),
-                );
-                const closestX = x1 + t * (x2 - x1);
-                const closestY = y1 + t * (y2 - y1);
-                const distToPoint = Math.sqrt(
-                  (px - closestX) ** 2 + (py - closestY) ** 2,
-                );
-
-                if (distToPoint < radius * 2) {
-                  needsCurve = true;
-                  curveOffset = 30;
-                  break;
-                }
-              }
-
-              if (needsCurve) {
-                // Используем квадратичную кривую Безье для обхода
-                const midX = (startX + endX) / 2;
-                const midY = (startY + endY) / 2;
-                // Перпендикуляр к линии
-                const perpX = -(endY - startY);
-                const perpY = endX - startX;
-                const perpLen = Math.sqrt(perpX * perpX + perpY * perpY);
-                const controlX = midX + (perpX / perpLen) * curveOffset;
-                const controlY = midY + (perpY / perpLen) * curveOffset;
-
-                svgContent += `<path d="M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}" 
-                  fill="none" stroke="#00e5ff" stroke-width="2.5" marker-end="url(#arrowhead)" opacity="0.9" />`;
-              } else {
-                svgContent += `<line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" 
-                  stroke="#00e5ff" stroke-width="2.5" marker-end="url(#arrowhead)" opacity="0.9" />`;
-              }
-            }
+            svgContent += `<path d="M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}" 
+              fill="none" stroke="#00e5ff" stroke-width="2.5" marker-end="url(#arrowhead)" opacity="0.9" />`;
+          } else {
+            svgContent += `<line x1="${startX}" y1="${startY}" x2="${endX}" y2="${endY}" 
+              stroke="#00e5ff" stroke-width="2.5" marker-end="url(#arrowhead)" opacity="0.9" />`;
           }
         }
 
-        // Рисуем вершины
+        // Рисуем вершины и поля ввода
         for (let i = 0; i < graph.vertexCount; i++) {
           // Пропускаем, если позиция не определена
           if (!positions[i]) continue;
@@ -865,8 +1047,15 @@
           const y = positions[i].y;
           const color = VERTEX_COLORS[i % VERTEX_COLORS.length];
 
-          svgContent += `<circle cx="${x}" cy="${y}" r="22" fill="${color}" />`;
-          svgContent += `<text x="${x}" y="${y + 5}" fill="white" text-anchor="middle" font-weight="bold" font-size="16">${graph.vertices[i]}</text>`;
+          svgContent += `<circle cx="${x}" cy="${y}" r="22" fill="${color}" style="cursor: pointer;" onclick="incrementVertexValue(${i})" />`;
+          svgContent += `<text x="${x}" y="${y + 5}" fill="white" text-anchor="middle" font-weight="bold" font-size="16" style="pointer-events: none;">${graph.vertices[i]}</text>`;
+
+          // Добавляем поле ввода справа от вершины
+          const inputX = x + 30;
+          const inputY = y - 14;
+          svgContent += `<foreignObject x="${inputX}" y="${inputY}" width="42" height="32">
+            <input type="text" class="vertex-input" id="vertex-${i}" data-vertex="${i}" placeholder="?" xmlns="http://www.w3.org/1999/xhtml" />
+          </foreignObject>`;
         }
 
         svgContent += "</svg>";
@@ -892,6 +1081,14 @@
               <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
             </div>
             <div class="result" id="result"></div>
+          </div>
+          <div class="vertex-controls" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
+            <label class="answer-label">Проверка значений вершин:</label>
+            <div class="buttons">
+              <button class="btn btn-check-values" onclick="checkVertexValues()">🔍 Проверить значения</button>
+              <button class="btn btn-show-values" onclick="showVertexValues()">👁 Показать ответ</button>
+              <button class="btn btn-clear-values" onclick="clearVertexValues()">🗑 Очистить</button>
+            </div>
           </div>
         `;
 
@@ -949,9 +1146,15 @@
         if (currentTask.throughVertex) {
           hint += `<br><strong>Для путей ${currentTask.typeClass === "through" ? "через" : "не через"} вершину ${currentTask.throughVertex}:</strong><br>`;
           if (currentTask.typeClass === "through") {
-            hint += `N(через ${currentTask.throughVertex}) = N(${graph.vertices[0]}→${currentTask.throughVertex}) × N(${currentTask.throughVertex}→${graph.vertices[graph.vertexCount - 1]})`;
+            hint += `<span style="color: #2e7d32;"><strong>Метод:</strong> Разбиваем задачу на две части!</span><br><br>`;
+            hint += `1. Считаем пути от ${graph.vertices[0]} до ${currentTask.throughVertex}<br>`;
+            hint += `2. Считаем пути от ${currentTask.throughVertex} до ${graph.vertices[graph.vertexCount - 1]}<br>`;
+            hint += `3. Ответ = пути до ${currentTask.throughVertex} × пути от ${currentTask.throughVertex}<br><br>`;
+            hint += `<em>В полях ввода: для вершин до ${currentTask.throughVertex} — пути от А, для вершин после — пути от ${currentTask.throughVertex}.</em>`;
           } else {
-            hint += `N(не через ${currentTask.throughVertex}) = N(всего) - N(через ${currentTask.throughVertex})`;
+            hint += `<span style="color: #c62828;"><strong>Важно:</strong> Считаем, что в вершину ${currentTask.throughVertex} нельзя попасть!</span><br><br>`;
+            hint += `При подсчёте путей для каждой вершины считаем, что количество путей до ${currentTask.throughVertex} = 0.<br>`;
+            hint += `Это автоматически исключит все пути, проходящие через ${currentTask.throughVertex}.`;
           }
         }
 
@@ -968,90 +1171,133 @@
 
         let solution = "";
 
-        // Таблица подсчёта путей
-        solution += `<p><strong>Подсчёт количества путей для каждой вершины:</strong></p>`;
-        solution += `<table class="solution-table">
-          <tr><th>Вершина</th><th>Откуда можно прийти</th><th>Количество путей</th></tr>`;
+        // Для задач "не через вершину" показываем особую таблицу
+        if (
+          currentTask.typeClass === "not-through" &&
+          currentTask.throughIndex !== -1
+        ) {
+          const pathsWithout = calculatePathsWithoutVertex(
+            graph,
+            currentTask.throughIndex,
+          );
 
-        for (let i = 0; i < graph.vertexCount; i++) {
-          const predecessors = [];
-          for (let j = 0; j < i; j++) {
-            if (graph.edges[j][i]) {
-              predecessors.push(graph.vertices[j]);
+          solution += `<p><strong>Подсчёт количества путей, НЕ проходящих через ${currentTask.throughVertex}:</strong></p>`;
+          solution += `<p style="color: #666; margin-bottom: 10px;">Считаем, что в вершину ${currentTask.throughVertex} нельзя попасть, поэтому количество путей до неё = 0.</p>`;
+          solution += `<table class="solution-table">
+            <tr><th>Вершина</th><th>Откуда можно прийти</th><th>Количество путей</th></tr>`;
+
+          for (let i = 0; i < graph.vertexCount; i++) {
+            const predecessors = [];
+            for (let j = 0; j < i; j++) {
+              if (graph.edges[j][i]) {
+                predecessors.push(graph.vertices[j]);
+              }
             }
+
+            const fromStr =
+              i === 0 ? "— (начало)" : predecessors.join(", ") || "—";
+            const isLast = i === graph.vertexCount - 1;
+            const isForbidden = i === currentTask.throughIndex;
+
+            solution += `<tr>
+              <td${isLast || isForbidden ? ' class="highlight-cell"' : ""}>${graph.vertices[i]}${isForbidden ? " (запрет)" : ""}</td>
+              <td>${fromStr}</td>
+              <td${isLast || isForbidden ? ' class="highlight-cell"' : ""}>${pathsWithout[i]}</td>
+            </tr>`;
           }
 
-          const fromStr =
-            i === 0 ? "— (начало)" : predecessors.join(", ") || "—";
-          const isLast = i === graph.vertexCount - 1;
-          const isThrough = i === currentTask.throughIndex;
+          solution += `</table>`;
+          solution += `<div class="solution-step">`;
+          solution += `<strong>Ответ:</strong> Количество путей из ${graph.vertices[0]} в ${graph.vertices[graph.vertexCount - 1]}, не проходящих через ${currentTask.throughVertex} = <strong>${pathsWithout[graph.vertexCount - 1]}</strong>`;
+          solution += `</div>`;
+        } else if (
+          currentTask.typeClass === "through" &&
+          currentTask.throughIndex !== -1
+        ) {
+          // Для задач "через вершину" показываем две таблицы
+          const pathsThrough = calculatePathsThroughVertex(
+            graph,
+            currentTask.throughIndex,
+          );
 
-          solution += `<tr>
-            <td${isLast || isThrough ? ' class="highlight-cell"' : ""}>${graph.vertices[i]}${isThrough ? " (через)" : ""}</td>
-            <td>${fromStr}</td>
-            <td${isLast || isThrough ? ' class="highlight-cell"' : ""}>${paths[i]}</td>
-          </tr>`;
-        }
+          solution += `<p><strong>Подсчёт количества путей, проходящих через ${currentTask.throughVertex}:</strong></p>`;
+          solution += `<p style="color: #666; margin-bottom: 10px;">Разбиваем задачу на две части: пути от ${graph.vertices[0]} до ${currentTask.throughVertex} и пути от ${currentTask.throughVertex} до ${graph.vertices[graph.vertexCount - 1]}.</p>`;
 
-        solution += `</table>`;
+          solution += `<table class="solution-table">
+            <tr><th>Вершина</th><th>Откуда можно прийти</th><th>Количество путей</th></tr>`;
 
-        // Ответ на вопрос
-        solution += `<div class="solution-step">`;
-        if (currentTask.throughVertex) {
-          if (currentTask.typeClass === "through") {
-            const pathsToThrough = paths[currentTask.throughIndex];
-            // Считаем пути от throughVertex до конца
-            const pathsFrom = new Array(graph.vertexCount).fill(0);
-            pathsFrom[currentTask.throughIndex] = 1;
-            for (
-              let i = currentTask.throughIndex + 1;
-              i < graph.vertexCount;
-              i++
-            ) {
-              let sum = 0;
-              for (let j = currentTask.throughIndex; j < i; j++) {
-                if (graph.edges[j][i]) {
-                  sum += pathsFrom[j];
-                }
+          for (let i = 0; i < graph.vertexCount; i++) {
+            const predecessors = [];
+            for (let j = 0; j < i; j++) {
+              if (graph.edges[j][i]) {
+                predecessors.push(graph.vertices[j]);
               }
-              pathsFrom[i] = sum;
             }
-            const pathsFromThrough = pathsFrom[graph.vertexCount - 1];
 
-            solution += `<strong>Пути через ${currentTask.throughVertex}:</strong><br>`;
-            solution += `N(${graph.vertices[0]}→${currentTask.throughVertex}) = ${pathsToThrough}<br>`;
-            solution += `N(${currentTask.throughVertex}→${graph.vertices[graph.vertexCount - 1]}) = ${pathsFromThrough}<br>`;
-            solution += `N(через ${currentTask.throughVertex}) = ${pathsToThrough} × ${pathsFromThrough} = <strong>${currentTask.answer}</strong>`;
-          } else {
-            const pathsThrough = paths[currentTask.throughIndex];
-            // Считаем пути от throughVertex до конца
-            const pathsFrom = new Array(graph.vertexCount).fill(0);
-            pathsFrom[currentTask.throughIndex] = 1;
-            for (
-              let i = currentTask.throughIndex + 1;
-              i < graph.vertexCount;
-              i++
-            ) {
-              let sum = 0;
-              for (let j = currentTask.throughIndex; j < i; j++) {
-                if (graph.edges[j][i]) {
-                  sum += pathsFrom[j];
-                }
-              }
-              pathsFrom[i] = sum;
+            const fromStr =
+              i === 0 ? "— (начало)" : predecessors.join(", ") || "—";
+            const isLast = i === graph.vertexCount - 1;
+            const isThrough = i === currentTask.throughIndex;
+
+            // Определяем комментарий для ячейки
+            let comment = "";
+            if (i === currentTask.throughIndex) {
+              comment = " (обязательно)";
+            } else if (i < currentTask.throughIndex) {
+              comment = " (от А)";
+            } else {
+              comment = ` (от ${currentTask.throughVertex})`;
             }
-            const pathsFromThrough = pathsFrom[graph.vertexCount - 1];
-            const throughTotal = pathsThrough * pathsFromThrough;
 
-            solution += `<strong>Пути не через ${currentTask.throughVertex}:</strong><br>`;
-            solution += `N(всего) = ${paths[graph.vertexCount - 1]}<br>`;
-            solution += `N(через ${currentTask.throughVertex}) = ${pathsThrough} × ${pathsFromThrough} = ${throughTotal}<br>`;
-            solution += `N(не через ${currentTask.throughVertex}) = ${paths[graph.vertexCount - 1]} - ${throughTotal} = <strong>${currentTask.answer}</strong>`;
+            solution += `<tr>
+              <td${isLast || isThrough ? ' class="highlight-cell"' : ""}>${graph.vertices[i]}${comment}</td>
+              <td>${fromStr}</td>
+              <td${isLast || isThrough ? ' class="highlight-cell"' : ""}>${pathsThrough[i]}</td>
+            </tr>`;
           }
+
+          solution += `</table>`;
+
+          // Ответ на вопрос
+          const pathsToThrough = pathsThrough[currentTask.throughIndex];
+          const pathsFromThrough = pathsThrough[graph.vertexCount - 1];
+
+          solution += `<div class="solution-step">`;
+          solution += `<strong>Итоговый расчёт:</strong><br>`;
+          solution += `N(${graph.vertices[0]}→${currentTask.throughVertex}) = ${pathsToThrough}<br>`;
+          solution += `N(${currentTask.throughVertex}→${graph.vertices[graph.vertexCount - 1]}) = ${pathsFromThrough}<br>`;
+          solution += `N(через ${currentTask.throughVertex}) = ${pathsToThrough} × ${pathsFromThrough} = <strong>${currentTask.answer}</strong>`;
+          solution += `</div>`;
         } else {
+          // Обычная таблица подсчёта путей
+          solution += `<p><strong>Подсчёт количества путей для каждой вершины:</strong></p>`;
+          solution += `<table class="solution-table">
+            <tr><th>Вершина</th><th>Откуда можно прийти</th><th>Количество путей</th></tr>`;
+
+          for (let i = 0; i < graph.vertexCount; i++) {
+            const predecessors = [];
+            for (let j = 0; j < i; j++) {
+              if (graph.edges[j][i]) {
+                predecessors.push(graph.vertices[j]);
+              }
+            }
+
+            const fromStr =
+              i === 0 ? "— (начало)" : predecessors.join(", ") || "—";
+            const isLast = i === graph.vertexCount - 1;
+
+            solution += `<tr>
+              <td${isLast ? ' class="highlight-cell"' : ""}>${graph.vertices[i]}</td>
+              <td>${fromStr}</td>
+              <td${isLast ? ' class="highlight-cell"' : ""}>${paths[i]}</td>
+            </tr>`;
+          }
+
+          solution += `</table>`;
+          solution += `<div class="solution-step">`;
           solution += `<strong>Ответ:</strong> ${currentTask.answer}`;
+          solution += `</div>`;
         }
-        solution += `</div>`;
 
         solutionContent.innerHTML = solution;
         solutionBox.style.display = "block";
@@ -1066,6 +1312,232 @@
       // Прокрутка наверх
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Расчёт путей с учётом запрета вершины (для задач "не через вершину")
+      function calculatePathsWithoutVertex(graph, throughIndex) {
+        const n = graph.vertexCount;
+        const paths = new Array(n).fill(0);
+
+        // Начальная вершина
+        paths[0] = 1;
+
+        // Для каждой вершины считаем количество путей
+        for (let i = 1; i < n; i++) {
+          // Если это запретная вершина, количество путей = 0
+          if (i === throughIndex) {
+            paths[i] = 0;
+            continue;
+          }
+
+          let sum = 0;
+          for (let j = 0; j < i; j++) {
+            if (graph.edges[j][i]) {
+              sum += paths[j];
+            }
+          }
+          paths[i] = sum;
+        }
+
+        return paths;
+      }
+
+      // Расчёт путей для задач "через вершину"
+      // Вершина находится в пути через X, если она лежит на пути от А до конечной через X
+      // Это включает:
+      // 1. Вершины до X, из которых можно попасть в X
+      // 2. Саму вершину X
+      // 3. Вершины после X, в которые можно попасть из X
+      // Все остальные вершины имеют значение 0
+      function calculatePathsThroughVertex(graph, throughIndex) {
+        const n = graph.vertexCount;
+        const paths = new Array(n).fill(0);
+
+        // Находим все вершины, из которых можно попасть в X (включая X)
+        const canReachX = new Set();
+        canReachX.add(throughIndex);
+        // Идём от X назад к А
+        for (let i = throughIndex - 1; i >= 0; i--) {
+          for (let j = i + 1; j <= throughIndex; j++) {
+            if (graph.edges[i][j] && canReachX.has(j)) {
+              canReachX.add(i);
+              break;
+            }
+          }
+        }
+
+        // Находим все вершины, в которые можно попасть из X (включая X)
+        const reachableFromX = new Set();
+        reachableFromX.add(throughIndex);
+        // Идём от X вперёд к конечной
+        for (let i = throughIndex + 1; i < n; i++) {
+          for (let j = throughIndex; j < i; j++) {
+            if (graph.edges[j][i] && reachableFromX.has(j)) {
+              reachableFromX.add(i);
+              break;
+            }
+          }
+        }
+
+        // Вершина в пути через X, если она в canReachX И в reachableFromX
+        // Но это невозможно для вершин до X и после X одновременно
+        // На самом деле: вершина в пути через X, если:
+        // - она в canReachX (для вершин до X и сама X)
+        // - она в reachableFromX (для вершин после X и сама X)
+        const inPathThroughX = new Set();
+        for (let i = 0; i < n; i++) {
+          if (i <= throughIndex && canReachX.has(i)) {
+            inPathThroughX.add(i);
+          } else if (i >= throughIndex && reachableFromX.has(i)) {
+            inPathThroughX.add(i);
+          }
+        }
+
+        // Считаем пути от А до X (только для вершин в пути)
+        paths[0] = 1;
+        for (let i = 1; i <= throughIndex; i++) {
+          if (!inPathThroughX.has(i)) continue;
+          let sum = 0;
+          for (let j = 0; j < i; j++) {
+            if (graph.edges[j][i] && inPathThroughX.has(j)) {
+              sum += paths[j];
+            }
+          }
+          paths[i] = sum;
+        }
+
+        // Считаем пути от X до конечной (только для вершин в пути)
+        for (let i = throughIndex + 1; i < n; i++) {
+          if (!inPathThroughX.has(i)) continue;
+          let sum = 0;
+          for (let j = throughIndex; j < i; j++) {
+            if (graph.edges[j][i] && inPathThroughX.has(j)) {
+              sum += paths[j];
+            }
+          }
+          paths[i] = sum;
+        }
+
+        return paths;
+      }
+
+      // Получить правильные значения для вершин в зависимости от типа задачи
+      function getCorrectVertexValues() {
+        const graph = currentTask.graph;
+        const paths = currentTask.paths;
+
+        // Для задач "не через вершину" показываем пути с учётом запрета
+        if (
+          currentTask.typeClass === "not-through" &&
+          currentTask.throughIndex !== -1
+        ) {
+          return calculatePathsWithoutVertex(graph, currentTask.throughIndex);
+        }
+
+        // Для задач "через вершину" показываем пути до и после вершины
+        if (
+          currentTask.typeClass === "through" &&
+          currentTask.throughIndex !== -1
+        ) {
+          return calculatePathsThroughVertex(graph, currentTask.throughIndex);
+        }
+
+        // Для остальных задач показываем обычные пути
+        return paths;
+      }
+
+      // Проверка значений вершин
+      function checkVertexValues() {
+        const graph = currentTask.graph;
+        // Получаем правильные значения с учётом типа задачи
+        const correctPaths = getCorrectVertexValues();
+        let allCorrect = true;
+        let correctCount = 0;
+        let totalFilled = 0;
+
+        for (let i = 0; i < graph.vertexCount; i++) {
+          const input = document.getElementById(`vertex-${i}`);
+          if (!input) continue;
+
+          const userValue = input.value.trim();
+          if (userValue === "") continue;
+
+          totalFilled++;
+          const userNum = parseInt(userValue, 10);
+
+          if (userNum === correctPaths[i]) {
+            input.classList.remove("incorrect");
+            input.classList.add("correct");
+            correctCount++;
+          } else {
+            input.classList.remove("correct");
+            input.classList.add("incorrect");
+            allCorrect = false;
+          }
+        }
+
+        if (totalFilled === 0) {
+          alert("Заполните хотя бы одно поле для проверки.");
+        } else if (allCorrect && totalFilled === graph.vertexCount) {
+          alert(`✅ Отлично! Все ${correctCount} значений верны!`);
+        } else if (correctCount > 0) {
+          alert(
+            `Правильных значений: ${correctCount} из ${totalFilled} заполненных.`,
+          );
+        } else {
+          alert(`Все заполненные значения неверны. Попробуйте ещё раз.`);
+        }
+      }
+
+      // Показать правильные значения вершин
+      function showVertexValues() {
+        const graph = currentTask.graph;
+        // Получаем правильные значения с учётом типа задачи
+        const correctPaths = getCorrectVertexValues();
+
+        for (let i = 0; i < graph.vertexCount; i++) {
+          const input = document.getElementById(`vertex-${i}`);
+          if (!input) continue;
+
+          input.value = correctPaths[i];
+          input.classList.remove("incorrect");
+          input.classList.add("correct");
+        }
+      }
+
+      // Очистить значения вершин
+      function clearVertexValues() {
+        const graph = currentTask.graph;
+
+        for (let i = 0; i < graph.vertexCount; i++) {
+          const input = document.getElementById(`vertex-${i}`);
+          if (!input) continue;
+
+          input.value = "";
+          input.classList.remove("correct");
+          input.classList.remove("incorrect");
+        }
+      }
+
+      // Увеличить значение в поле ввода вершины на 1
+      function incrementVertexValue(vertexIndex) {
+        const input = document.getElementById(`vertex-${vertexIndex}`);
+        if (!input) return;
+
+        const currentValue = input.value.trim();
+        let newValue = 1;
+
+        if (currentValue !== "") {
+          const currentNum = parseInt(currentValue, 10);
+          if (!isNaN(currentNum)) {
+            newValue = currentNum + 1;
+          }
+        }
+
+        input.value = newValue;
+        // Убираем подсветку при изменении
+        input.classList.remove("correct");
+        input.classList.remove("incorrect");
       }
 
       // Инициализация
