@@ -302,6 +302,39 @@
         vertical-align: middle;
       }
 
+      .task-card.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+        filter: grayscale(0.5);
+      }
+
+      .task-card.disabled:hover {
+        transform: none;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .disabled-badge {
+        background: linear-gradient(145deg, #6c757d 0%, #adb5bd 100%);
+      }
+
+      .exam-mode .task-number {
+        background: linear-gradient(
+          145deg,
+          #ff6b6b 0%,
+          #ee5a24 100%
+        ) !important;
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4) !important;
+      }
+
+      .generator .task-number {
+        background: linear-gradient(
+          145deg,
+          #feca57 0%,
+          #ff9f43 100%
+        ) !important;
+        box-shadow: 0 8px 20px rgba(254, 202, 87, 0.4) !important;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 1.6rem;
@@ -343,6 +376,33 @@
       </p>
 
       <div class="tasks-grid">
+        <div class="task-card exam-mode">
+          <a href="exam.html" class="task-card-link">
+            <div class="task-number">📝</div>
+            <div class="task-icon">✍️</div>
+            <h2 class="task-title">Режим экзамена</h2>
+            <p class="task-description">
+              Полноценный экзаменационный режим с таймером, случайными заданиями
+              и автоматической проверкой результатов.
+            </p>
+          </a>
+        </div>
+
+        <div class="task-card generator disabled">
+          <div style="padding: 30px">
+            <div class="task-number">🔄</div>
+            <div class="task-icon">📋</div>
+            <h2 class="task-title">
+              Генератор вариантов
+              <span class="badge disabled-badge">Скоро</span>
+            </h2>
+            <p class="task-description">
+              Генерация индивидуальных вариантов экзамена для печати или
+              самостоятельного решения.
+            </p>
+          </div>
+        </div>
+
         <div class="task-card">
           <a href="oge1.html" class="task-card-link">
             <div class="task-number">1</div>
@@ -472,6 +532,20 @@
             </p>
           </a>
           <a href="oge10-t.html" class="theory-link">📚 Теория</a>
+        </div>
+
+        <div class="task-card">
+          <a href="excel/index.html" class="task-card-link">
+            <div class="task-number">Excel</div>
+            <div class="task-icon">📊</div>
+            <h2 class="task-title">Microsoft Excel</h2>
+            <p class="task-description">
+              Теория и базовые навыки использования редактора электронных
+              таблиц. Функции: ЕСЛИ, НЕ, И, ИЛИ, СЧЁТ, СЧЁТЕСЛИ, СУММ, СУММЕСЛИ
+              и другие.
+            </p>
+          </a>
+          <a href="excel/index.html" class="theory-link">📚 Теория</a>
         </div>
       </div>
 

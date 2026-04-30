@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Функция СЧЁТ - Excel для ОГЭ</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .function-syntax {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #28a745;
+      }
+
+      .function-syntax h4 {
+        color: #28a745;
+        margin-bottom: 10px;
+      }
+
+            .related-link:hover {
+        text-decoration: underline !important;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="../oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="index.html" class="back-link">📊 К теории Excel</a>
+      </div>
+
+      <h1>🔢 Функция СЧЁТ в Excel</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что делает функция СЧЁТ?</h2>
+        <p>
+          <strong>Функция СЧЁТ</strong> — это статистическая функция, которая
+          подсчитывает количество ячеек, содержащих числа, в указанном
+          диапазоне.
+        </p>
+        <p>
+          Функция СЧЁТ игнорирует текстовые значения, логические значения
+          (ИСТИНА/ЛОЖЬ), пустые ячейки и ячейки с ошибками. Она подсчитывает
+          только ячейки, содержащие числовые значения.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Синтаксис функции СЧЁТ</h2>
+
+        <div class="formula-box">
+          <div class="formula">=СЧЁТ(значение1; [значение2]; ...)</div>
+          <div class="formula-description">
+            значение1 — обязательный аргумент, первое значение или диапазон для
+            подсчёта<br />
+            [значение2]; ... — необязательные аргументы, дополнительные значения
+            или диапазоны
+          </div>
+        </div>
+
+        <h3>🔍 Аргументы функции</h3>
+        <table class="units-table">
+          <tr>
+            <th>Тип аргумента</th>
+            <th>Пример</th>
+            <th>Результат</th>
+          </tr>
+          <tr>
+            <td>Отдельные числа</td>
+            <td><code>=СЧЁТ(10; 20; 30)</code></td>
+            <td>3 (все три аргумента — числа)</td>
+          </tr>
+          <tr>
+            <td>Диапазон ячеек</td>
+            <td><code>=СЧЁТ(A1:A10)</code></td>
+            <td>Количество ячеек с числами в A1-A10</td>
+          </tr>
+          <tr>
+            <td>Несколько диапазонов</td>
+            <td><code>=СЧЁТ(A1:A5; C1:C5)</code></td>
+            <td>Количество чисел в A1-A5 и C1-C5</td>
+          </tr>
+          <tr>
+            <td>Смешанные аргументы</td>
+            <td><code>=СЧЁТ(A1:A3; "текст"; 100)</code></td>
+            <td>Количество чисел в A1-A3 плюс число 100</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Примеры использования</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Подсчёт оценок</h4>
+          <p>
+            <strong>Условие:</strong> В ячейках A1:A10 находятся оценки учеников
+            (некоторые ячейки пустые). Нужно подсчитать, сколько оценок
+            выставлено.
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong><br />
+            A1=4, A2=5, A3=пусто, A4=3, A5=4, A6=5, A7=пусто, A8=4, A9=5,
+            A10=пусто<br /><br />
+            <strong>Формула:</strong> =СЧЁТ(A1:A10)<br /><br />
+            <strong>Результат:</strong> 7 (пустые ячейки игнорируются)
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Подсчёт числовых данных</h4>
+          <p>
+            <strong>Условие:</strong> В ячейках B1:B8 находятся данные разного
+            типа. Нужно подсчитать, сколько из них числовых.
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong><br />
+            B1=100, B2="нет", B3=200, B4=ИСТИНА, B5=300, B6=пусто, B7=400,
+            B8="данные"<br /><br />
+            <strong>Формула:</strong> =СЧЁТ(B1:B8)<br /><br />
+            <strong>Результат:</strong> 4 (только B1, B3, B5, B7 — числа)
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Подсчёт с несколькими диапазонами</h4>
+          <p>
+            <strong>Условие:</strong> В таблице есть данные за два месяца:
+            январь (C1:C10) и февраль (D1:D10). Нужно подсчитать общее
+            количество числовых записей.
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong><br />
+            В январе 8 чисел из 10 ячеек, в феврале 7 чисел из 10 ячеек<br /><br />
+            <strong>Формула:</strong> =СЧЁТ(C1:C10; D1:D10)<br /><br />
+            <strong>Результат:</strong> 8 + 7 = 15
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Особенности работы функции СЧЁТ</h2>
+
+        <div class="function-syntax">
+          <h4>Игнорирование нечисловых значений</h4>
+          <p>
+            <strong>Пример:</strong> =СЧЁТ(A1:A4), где A1=10, A2="текст", A3=20,
+            A4=пусто<br />
+            <strong>Результат:</strong> 2 (только A1 и A3 — числа)
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Подсчёт с нулями</h4>
+          <p>
+            <strong>Пример:</strong> =СЧЁТ(A1:A4), где A1=10, A2=0, A3=20,
+            A4=0<br />
+            <strong>Результат:</strong> 4 (все ячейки содержат числа, включая
+            нули)
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Игнорирование логических значений</h4>
+          <p>
+            <strong>Пример:</strong> =СЧЁТ(A1:A3), где A1=10, A2=ИСТИНА,
+            A3=20<br />
+            <strong>Результат:</strong> 2 (ИСТИНА игнорируется)
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Путаница с функцией СУММ</strong> — СЧЁТ подсчитывает
+            количество чисел, а СУММ складывает числа
+          </li>
+          <li>
+            <strong>Ожидание подсчёта всех ячеек</strong> — функция СЧЁТ
+            подсчитывает только числовые значения
+          </li>
+          <li>
+            <strong>Путаница с СЧЁТЗ</strong> — СЧЁТ подсчитывает только числа,
+            а СЧЁТЗ подсчитывает все непустые ячейки
+          </li>
+          <li>
+            <strong>Забыть знак равенства</strong> — все формулы в Excel
+            начинаются с =
+          </li>
+          <li>
+            <strong>Неправильные разделители</strong> — в русской версии Excel
+            аргументы разделяются точкой с запятой (;), а не запятой (,)
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 Алгоритм работы с функцией СЧЁТ</h2>
+        <ol>
+          <li>📝 Определите, какие ячейки нужно подсчитать</li>
+          <li>🔢 Выберите диапазон ячеек или отдельные значения</li>
+          <li>🧮 Запишите формулу: =СЧЁТ(диапазон_или_значения)</li>
+          <li>✅ Проверьте, что в диапазоне есть числовые данные</li>
+          <li>🔍 Убедитесь, что текстовые значения не будут учтены</li>
+          <li>📊 Протестируйте формулу на тестовых данных</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Практическое задание</h2>
+        <p>
+          <strong>Задача:</strong> В таблице Excel записаны результаты теста
+          учеников (B2:B20). Некоторые ученики не сдали тест (ячейки пустые или
+          содержат "не сдал"). Напишите формулу для ячейки B21, которая
+          подсчитывает количество учеников, сдавших тест (получивших числовую
+          оценку).
+        </p>
+        <div class="example-solution">
+          <strong>Решение:</strong><br />
+          Функция СЧЁТ автоматически игнорирует пустые ячейки и текстовые
+          значения:<br />
+          =СЧЁТ(B2:B20)<br /><br />
+          <strong>Проверка:</strong><br />
+          Если из 19 ячеек 12 содержат оценки (2, 3, 4, 5), 5 пустых, 2 содержат
+          "не сдал"<br />
+          Результат: 12
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Связанные функции</h2>
+        <p>
+          <strong><a href="schetesli.html" class="related-link" style="color:inherit;text-decoration:none;">СЧЁТЕСЛИ</a></strong> — подсчёт ячеек по одному условию<br />
+          <strong><a href="scheteslimn.html" class="related-link" style="color:inherit;text-decoration:none;">СЧЁТЕСЛИМН</a></strong> — подсчёт ячеек по нескольким условиям<br />
+          <strong>СЧЁТЗ</strong> — подсчёт всех непустых ячеек<br />
+          <strong><a href="summ.html" class="related-link" style="color:inherit;text-decoration:none;">СУММ</a></strong> — суммирование чисел в диапазоне<br />
+          <strong><a href="srznach.html" class="related-link" style="color:inherit;text-decoration:none;">СРЗНАЧ</a></strong> — вычисление среднего арифметического
+        </p>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

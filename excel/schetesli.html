@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Функция СЧЁТЕСЛИ - Excel для ОГЭ</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .function-syntax {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #28a745;
+      }
+
+      .function-syntax h4 {
+        color: #28a745;
+        margin-bottom: 10px;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .truth-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .truth-table tr:hover {
+        background: #f0f0f0;
+      }
+
+            .related-link:hover {
+        text-decoration: underline !important;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+
+        .truth-table th,
+        .truth-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="../oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="index.html" class="back-link">📊 К теории Excel</a>
+      </div>
+
+      <h1>🔢 Функция СЧЁТЕСЛИ в Excel</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что делает функция СЧЁТЕСЛИ?</h2>
+        <p>
+          <strong>Функция СЧЁТЕСЛИ</strong> — это статистическая функция,
+          которая подсчитывает количество ячеек в диапазоне, удовлетворяющих
+          заданному условию. Функция возвращает целое число — количество ячеек,
+          которые соответствуют критерию.
+        </p>
+        <p>
+          Функция СЧЁТЕСЛИ используется для анализа данных, когда нужно узнать,
+          сколько элементов в списке соответствуют определённому условию
+          (например, сколько учеников получили оценку "5", сколько товаров стоят
+          больше 1000 рублей и т.д.).
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Синтаксис функции СЧЁТЕСЛИ</h2>
+
+        <div class="formula-box">
+          <div class="formula">=СЧЁТЕСЛИ(диапазон; критерий)</div>
+          <div class="formula-description">
+            диапазон — обязательный аргумент, диапазон ячеек для проверки<br />
+            критерий — обязательный аргумент, условие для подсчёта ячеек
+          </div>
+        </div>
+
+        <h3>🔍 Аргументы функции</h3>
+        <table class="units-table">
+          <tr>
+            <th>Аргумент</th>
+            <th>Описание</th>
+            <th>Пример</th>
+          </tr>
+          <tr>
+            <td>диапазон</td>
+            <td>
+              Диапазон ячеек, в которых нужно подсчитать ячейки по условию
+            </td>
+            <td><code>A1:A10</code>, <code>B2:B100</code></td>
+          </tr>
+          <tr>
+            <td>критерий</td>
+            <td>Условие для подсчёта (число, текст, выражение сравнения)</td>
+            <td><code>5</code>, <code>"отлично"</code>, <code>">100"</code></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Типы критериев в функции СЧЁТЕСЛИ</h2>
+
+        <table class="units-table">
+          <tr>
+            <th>Тип критерия</th>
+            <th>Пример</th>
+            <th>Что подсчитывает</th>
+          </tr>
+          <tr>
+            <td>Числовое значение</td>
+            <td><code>=СЧЁТЕСЛИ(A1:A10; 5)</code></td>
+            <td>Количество ячеек, равных 5</td>
+          </tr>
+          <tr>
+            <td>Текстовое значение</td>
+            <td><code>=СЧЁТЕСЛИ(B1:B10; "отлично")</code></td>
+            <td>Количество ячеек с текстом "отлично"</td>
+          </tr>
+          <tr>
+            <td>Выражение сравнения</td>
+            <td><code>=СЧЁТЕСЛИ(C1:C10; ">100")</code></td>
+            <td>Количество ячеек больше 100</td>
+          </tr>
+          <tr>
+            <td>Символы подстановки</td>
+            <td><code>=СЧЁТЕСЛИ(D1:D10; "А*")</code></td>
+            <td>Количество ячеек, начинающихся с "А"</td>
+          </tr>
+          <tr>
+            <td>Ссылка на ячейку</td>
+            <td><code>=СЧЁТЕСЛИ(E1:E10; F1)</code></td>
+            <td>Количество ячеек, равных значению в F1</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Примеры использования</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Подсчёт оценок "5"</h4>
+          <p>
+            <strong>Условие:</strong> В диапазоне A1:A20 находятся оценки
+            учеников. Нужно подсчитать, сколько учеников получили оценку "5".
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1:A20 = {4, 5, 3, 5, 4, 5, 2, 5, 4, 3, 5,
+            4, 5, 3, 4, 5, 2, 5, 4, 5}<br /><br />
+            <strong>Формула:</strong> =СЧЁТЕСЛИ(A1:A20; 5)<br /><br />
+            <strong>Расчёт:</strong><br />
+            Подсчитываем ячейки со значением 5: позиции 2, 4, 6, 8, 11, 13, 16,
+            18, 20<br />
+            Всего: 9 ячеек<br />
+            <strong>Результат:</strong> 9
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Подсчёт товаров дороже 1000 рублей</h4>
+          <p>
+            <strong>Условие:</strong> В диапазоне B1:B50 находятся цены товаров.
+            Нужно подсчитать, сколько товаров стоят больше 1000 рублей.
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> B1:B50 (предположим, 15 товаров > 1000)<br /><br />
+            <strong>Формула:</strong> =СЧЁТЕСЛИ(B1:B50; ">1000")<br /><br />
+            <strong>Расчёт:</strong><br />
+            Проверяем каждую ячейку: если цена > 1000, считаем<br />
+            <strong>Результат:</strong> 15
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Подсчёт фамилий на букву "И"</h4>
+          <p>
+            <strong>Условие:</strong> В диапазоне C1:C100 находятся фамилии
+            учеников. Нужно подсчитать, сколько фамилий начинаются на букву "И".
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> C1:C100 (предположим, 8 фамилий на "И")<br /><br />
+            <strong>Формула:</strong> =СЧЁТЕСЛИ(C1:C100; "И*")<br /><br />
+            <strong>Расчёт:</strong><br />
+            * — символ подстановки, означает "любые символы после"<br />
+            "И*" — текст, начинающийся с "И"<br />
+            <strong>Результат:</strong> 8
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Особенности работы функции СЧЁТЕСЛИ</h2>
+
+        <div class="function-syntax">
+          <h4>Символы подстановки</h4>
+          <p>
+            <strong>*</strong> — заменяет любое количество символов<br />
+            <strong>?</strong> — заменяет один символ<br />
+            <strong>~</strong> — экранирует символы * и ?<br />
+            <strong>Пример:</strong> =СЧЁТЕСЛИ(A1:A10; "Ив*") — фамилии,
+            начинающиеся с "Ив"
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Регистр букв</h4>
+          <p>
+            <strong>Правило:</strong> Функция СЧЁТЕСЛИ не учитывает регистр
+            букв.<br />
+            <strong>Пример:</strong> =СЧЁТЕСЛИ(A1:A10; "отлично") подсчитает и
+            "Отлично", и "ОТЛИЧНО", и "отлично"
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Пустые и непустые ячейки</h4>
+          <p>
+            <strong>Пустые ячейки:</strong> =СЧЁТЕСЛИ(A1:A10; "")<br />
+            <strong>Непустые ячейки:</strong> =СЧЁТЕСЛИ(A1:A10; "<>")<br />
+            <strong>Пример:</strong> =СЧЁТЕСЛИ(B1:B100; "<>") — подсчёт
+            заполненных ячеек
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Забывание кавычек для текста</strong> — =СЧЁТЕСЛИ(A1:A10;
+            отлично) неправильно, нужно =СЧЁТЕСЛИ(A1:A10; "отлично")
+          </li>
+          <li>
+            <strong>Неправильные кавычки для выражений</strong> —
+            =СЧЁТЕСЛИ(A1:A10; >100) неправильно, нужно =СЧЁТЕСЛИ(A1:A10; ">100")
+          </li>
+          <li>
+            <strong>Путаница с диапазонами</strong> — =СЧЁТЕСЛИ(A1; ">5")
+            неправильно (одиночная ячейка), нужно =СЧЁТЕСЛИ(A1:A10; ">5")
+          </li>
+          <li>
+            <strong>Использование запятой вместо точки с запятой</strong> — в
+            русской версии Excel аргументы разделяются точкой с запятой (;)
+          </li>
+          <li>
+            <strong>Забывание символа * для частичного совпадения</strong> —
+            =СЧЁТЕСЛИ(A1:A10; "Ив") не найдёт "Иванов", нужно =СЧЁТЕСЛИ(A1:A10;
+            "Ив*")
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 Алгоритм работы с функцией СЧЁТЕСЛИ</h2>
+        <ol>
+          <li>📝 Определите диапазон ячеек для анализа</li>
+          <li>🔍 Сформулируйте условие для подсчёта</li>
+          <li>
+            📋 Запишите условие в правильном формате (число, текст в кавычках,
+            выражение в кавычках)
+          </li>
+          <li>🧮 Запишите формулу: =СЧЁТЕСЛИ(диапазон; критерий)</li>
+          <li>
+            ✅ Проверьте, что критерий правильно записан (кавычки, символы
+            сравнения)
+          </li>
+          <li>📊 Протестируйте формулу на примере данных</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Практическое задание</h2>
+        <p>
+          <strong>Задача:</strong> В таблице Excel записаны данные о результатах
+          экзамена: столбец A — фамилии учеников, столбец B — баллы (от 0 до
+          100). Напишите формулу для ячейки C1, которая подсчитывает количество
+          учеников, набравших не менее 60 баллов (проходной балл).
+        </p>
+        <div class="example-solution">
+          <strong>Решение:</strong><br />
+          1. Диапазон для анализа: B1:B100 (баллы учеников)<br />
+          2. Условие: балл ≥ 60<br />
+          3. Формулировка условия: ">=60"<br />
+          4. Формула: =СЧЁТЕСЛИ(B1:B100; ">=60")<br /><br />
+          <strong>Проверка:</strong><br />
+          • Если в B1:B100 есть значения: 45, 78, 92, 55, 61, 59, 85, 72<br />
+          • Условию >=60 удовлетворяют: 78, 92, 61, 85, 72 (5 значений)<br />
+          • Результат формулы: 5
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Связанные функции</h2>
+        <p>
+          <strong><a href="schet.html" class="related-link" style="color:inherit;text-decoration:none;">СЧЁТ</a></strong> — подсчитывает количество числовых значений в
+          диапазоне<br />
+          <strong><a href="scheteslimn.html" class="related-link" style="color:inherit;text-decoration:none;">СЧЁТЕСЛИМН</a></strong> — подсчитывает количество ячеек,
+          удовлетворяющих нескольким условиям<br />
+          <strong><a href="summesli.html" class="related-link" style="color:inherit;text-decoration:none;">СУММЕСЛИ</a></strong> — суммирует значения ячеек, удовлетворяющих
+          условию<br />
+          <strong><a href="summeslimn.html" class="related-link" style="color:inherit;text-decoration:none;">СУММЕСЛИМН</a></strong> — суммирует значения ячеек,
+          удовлетворяющих нескольким условиям<br />
+          <strong><a href="srznachesli.html" class="related-link" style="color:inherit;text-decoration:none;">СРЗНАЧЕСЛИ</a></strong> — вычисляет среднее значение ячеек,
+          удовлетворяющих условию
+        </p>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

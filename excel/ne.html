@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Функция НЕ - Excel для ОГЭ</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .function-syntax {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #28a745;
+      }
+
+      .function-syntax h4 {
+        color: #28a745;
+        margin-bottom: 10px;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .truth-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .truth-table tr:hover {
+        background: #f0f0f0;
+      }
+
+            .related-link:hover {
+        text-decoration: underline !important;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+
+        .truth-table th,
+        .truth-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="../oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="index.html" class="back-link">📊 К теории Excel</a>
+      </div>
+
+      <h1>❌ Функция НЕ в Excel</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что делает функция НЕ?</h2>
+        <p>
+          <strong>Функция НЕ</strong> — это логическая функция, которая
+          возвращает противоположное значение логического выражения. Если
+          выражение истинно (ИСТИНА), функция НЕ возвращает ложь (ЛОЖЬ). Если
+          выражение ложно (ЛОЖЬ), функция НЕ возвращает истину (ИСТИНА).
+        </p>
+        <p>
+          Функция НЕ используется для инвертирования логических значений и часто
+          применяется в комбинации с другими логическими функциями (ЕСЛИ, И,
+          ИЛИ).
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Синтаксис функции НЕ</h2>
+
+        <div class="formula-box">
+          <div class="formula">=НЕ(логическое_выражение)</div>
+          <div class="formula-description">
+            логическое_выражение — выражение, которое можно оценить как ИСТИНА
+            или ЛОЖЬ
+          </div>
+        </div>
+
+        <h3>🔍 Аргументы функции</h3>
+        <table class="units-table">
+          <tr>
+            <th>Тип аргумента</th>
+            <th>Пример</th>
+            <th>Результат</th>
+          </tr>
+          <tr>
+            <td>Логическое значение</td>
+            <td><code>=НЕ(ИСТИНА)</code></td>
+            <td>ЛОЖЬ</td>
+          </tr>
+          <tr>
+            <td>Логическое выражение</td>
+            <td><code>=НЕ(A1>10)</code></td>
+            <td>ИСТИНА, если A1 ≤ 10</td>
+          </tr>
+          <tr>
+            <td>Другая логическая функция</td>
+            <td><code>=НЕ(И(A1>10; B1<5))</code></td>
+            <td>Инверсия результата функции И</td>
+          </tr>
+          <tr>
+            <td>Числовое значение</td>
+            <td><code>=НЕ(0)</code></td>
+            <td>ИСТИНА (0 = ЛОЖЬ)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Таблица истинности функции НЕ</h2>
+
+        <table class="truth-table">
+          <tr>
+            <th>Входное значение</th>
+            <th>Результат НЕ</th>
+            <th>Объяснение</th>
+          </tr>
+          <tr>
+            <td>ИСТИНА</td>
+            <td>ЛОЖЬ</td>
+            <td>Истина становится ложью</td>
+          </tr>
+          <tr>
+            <td>ЛОЖЬ</td>
+            <td>ИСТИНА</td>
+            <td>Ложь становится истиной</td>
+          </tr>
+          <tr>
+            <td>1 (число)</td>
+            <td>ЛОЖЬ</td>
+            <td>1 интерпретируется как ИСТИНА</td>
+          </tr>
+          <tr>
+            <td>0 (число)</td>
+            <td>ИСТИНА</td>
+            <td>0 интерпретируется как ЛОЖЬ</td>
+          </tr>
+          <tr>
+            <td>Любое число ≠ 0</td>
+            <td>ЛОЖЬ</td>
+            <td>Любое ненулевое число = ИСТИНА</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Примеры использования</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Проверка на отрицание условия</h4>
+          <p>
+            <strong>Условие:</strong> В ячейке A1 находится оценка ученика.
+            Нужно проверить, что оценка НЕ является отличной (не равна 5).
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1 = 4<br /><br />
+            <strong>Формула:</strong> =НЕ(A1=5)<br /><br />
+            <strong>Расчёт:</strong><br />
+            A1=5 → 4=5 → ЛОЖЬ<br />
+            НЕ(ЛОЖЬ) → ИСТИНА<br />
+            <strong>Результат:</strong> ИСТИНА (оценка действительно не 5)
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Комбинация с функцией ЕСЛИ</h4>
+          <p>
+            <strong>Условие:</strong> Если ученик НЕ сдал экзамен (оценка < 3),
+            вывести "Не сдал", иначе "Сдал".
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1 = 2<br /><br />
+            <strong>Формула:</strong> =ЕСЛИ(НЕ(A1>=3); "Не сдал"; "Сдал")<br /><br />
+            <strong>Расчёт:</strong><br />
+            A1>=3 → 2>=3 → ЛОЖЬ<br />
+            НЕ(ЛОЖЬ) → ИСТИНА<br />
+            ЕСЛИ(ИСТИНА; "Не сдал"; "Сдал") → "Не сдал"<br />
+            <strong>Результат:</strong> "Не сдал"
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Проверка на пустую ячейку</h4>
+          <p><strong>Условие:</strong> Проверить, что ячейка A1 НЕ пустая.</p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1 = "Иванов"<br /><br />
+            <strong>Формула:</strong> =НЕ(ПУСТО(A1))<br /><br />
+            <strong>Расчёт:</strong><br />
+            ПУСТО(A1) → ЛОЖЬ (ячейка не пустая)<br />
+            НЕ(ЛОЖЬ) → ИСТИНА<br />
+            <strong>Результат:</strong> ИСТИНА (ячейка действительно не пустая)
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Особенности работы функции НЕ</h2>
+
+        <div class="function-syntax">
+          <h4>Работа с числами</h4>
+          <p>
+            <strong>Правило:</strong> В Excel число 0 интерпретируется как ЛОЖЬ,
+            а любое другое число (положительное или отрицательное) — как
+            ИСТИНА.<br />
+            <strong>Пример:</strong> =НЕ(0) → ИСТИНА, =НЕ(1) → ЛОЖЬ, =НЕ(-5) →
+            ЛОЖЬ
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Работа с текстом</h4>
+          <p>
+            <strong>Правило:</strong> Текстовые значения в логических выражениях
+            обычно сравниваются с другими текстовыми значениями.<br />
+            <strong>Пример:</strong> =НЕ(A1="да") → ИСТИНА, если в A1 не "да"
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Вложенные функции</h4>
+          <p>
+            <strong>Правило:</strong> Функция НЕ может принимать результат
+            других логических функций в качестве аргумента.<br />
+            <strong>Пример:</strong> =НЕ(И(A1>10; B1<5)) → ИСТИНА, если НЕ
+            выполняется условие A1>10 И B1<5 одновременно
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Путаница с оператором <></strong> — для проверки "не равно"
+            используйте <>, а не НЕ(=): A1<>10 вместо НЕ(A1=10)
+          </li>
+          <li>
+            <strong>Лишние скобки</strong> — =НЕ((A1>10)) работает, но лишние
+            скобки могут запутать
+          </li>
+          <li>
+            <strong>Неправильный порядок операций</strong> — =НЕ(A1>10 И B1<5)
+            не работает, нужно =НЕ(И(A1>10; B1<5))
+          </li>
+          <li>
+            <strong>Забывание кавычек для текста</strong> — =НЕ(A1="да")
+            правильно, =НЕ(A1=да) неправильно
+          </li>
+          <li>
+            <strong>Использование с нелогическими значениями</strong> — функция
+            НЕ ожидает логическое значение или выражение
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 Алгоритм работы с функцией НЕ</h2>
+        <ol>
+          <li>📝 Определите условие, которое нужно инвертировать</li>
+          <li>🔢 Запишите логическое выражение для этого условия</li>
+          <li>🧮 Примените функцию НЕ к выражению: =НЕ(выражение)</li>
+          <li>✅ Проверьте результат на тестовых данных</li>
+          <li>🔍 Убедитесь, что выражение возвращает ИСТИНА/ЛОЖЬ</li>
+          <li>📊 Протестируйте с разными значениями (0, 1, текст, числа)</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Практическое задание</h2>
+        <p>
+          <strong>Задача:</strong> В таблице Excel в столбце A записаны
+          температуры. Напишите формулу для ячейки B1, которая проверяет, что
+          температура НЕ находится в комфортном диапазоне от 18 до 25 градусов.
+          Если температура вне диапазона, вывести "Не комфортно", иначе
+          "Комфортно".
+        </p>
+        <div class="example-solution">
+          <strong>Решение:</strong><br />
+          1. Условие комфортной температуры: A1>=18 И A1<=25<br />
+          2. Инвертируем условие с помощью НЕ: НЕ(И(A1>=18; A1<=25))<br />
+          3. Используем в функции ЕСЛИ:<br />
+          =ЕСЛИ(НЕ(И(A1>=18; A1<=25)); "Не комфортно"; "Комфортно")<br /><br />
+          <strong>Проверка:</strong><br />
+          • A1=20 → И(20>=18; 20<=25)=ИСТИНА → НЕ(ИСТИНА)=ЛОЖЬ → "Комфортно"<br />
+          • A1=30 → И(30>=18; 30<=25)=ЛОЖЬ → НЕ(ЛОЖЬ)=ИСТИНА → "Не комфортно"<br />
+          • A1=15 → И(15>=18; 15<=25)=ЛОЖЬ → НЕ(ЛОЖЬ)=ИСТИНА → "Не комфортно"
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Связанные функции</h2>
+        <p>
+          <strong><a href="esli.html" class="related-link" style="color:inherit;text-decoration:none;">ЕСЛИ</a></strong> — условное выполнение действий<br />
+          <strong><a href="i.html" class="related-link" style="color:inherit;text-decoration:none;">И</a></strong> — логическое умножение (конъюнкция)<br />
+          <strong><a href="ili.html" class="related-link" style="color:inherit;text-decoration:none;">ИЛИ</a></strong> — логическое сложение (дизъюнкция)<br />
+          <strong>ИСТИНА</strong> — возвращает логическое значение ИСТИНА<br />
+          <strong>ЛОЖЬ</strong> — возвращает логическое значение ЛОЖЬ
+        </p>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>

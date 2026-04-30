@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Функция И - Excel для ОГЭ</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .formula-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+        text-align: center;
+      }
+
+      .formula {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        font-family: "Courier New", monospace;
+      }
+
+      .formula-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-top: 10px;
+      }
+
+      .units-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .units-table th,
+      .units-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .units-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .units-table tr:hover {
+        background: #f5f5f5;
+      }
+
+      .units-table td:first-child {
+        font-weight: 600;
+        color: #667eea;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p {
+        color: #333;
+      }
+
+      .example-solution {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+      }
+
+      .highlight {
+        background: linear-gradient(145deg, #fff9c4 0%, #fff59d 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+      }
+
+      .function-syntax {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #28a745;
+      }
+
+      .function-syntax h4 {
+        color: #28a745;
+        margin-bottom: 10px;
+      }
+
+      .truth-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      .truth-table th,
+      .truth-table td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      .truth-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .truth-table tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+
+      .truth-table tr:hover {
+        background: #f0f0f0;
+      }
+
+            .related-link:hover {
+        text-decoration: underline !important;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .theory-section {
+          padding: 20px 15px;
+        }
+
+        .formula {
+          font-size: 1.1rem;
+        }
+
+        .units-table th,
+        .units-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+
+        .truth-table th,
+        .truth-table td {
+          padding: 8px 10px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="../oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="index.html" class="back-link">📊 К теории Excel</a>
+      </div>
+
+      <h1>🔗 Функция И в Excel</h1>
+
+      <div class="theory-section">
+        <h2>💡 Что делает функция И?</h2>
+        <p>
+          <strong>Функция И</strong> — это логическая функция, которая
+          возвращает ИСТИНА только в том случае, если ВСЕ её аргументы имеют
+          значение ИСТИНА. Если хотя бы один аргумент имеет значение ЛОЖЬ,
+          функция И возвращает ЛОЖЬ.
+        </p>
+        <p>
+          Функция И используется для проверки выполнения нескольких условий
+          одновременно. Это логическое умножение (конъюнкция) в булевой алгебре.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Синтаксис функции И</h2>
+
+        <div class="formula-box">
+          <div class="formula">
+            =И(логическое_значение1; [логическое_значение2]; ...)
+          </div>
+          <div class="formula-description">
+            логическое_значение1 — обязательный аргумент, первое условие для
+            проверки<br />
+            [логическое_значение2]; ... — необязательные аргументы,
+            дополнительные условия
+          </div>
+        </div>
+
+        <h3>🔍 Аргументы функции</h3>
+        <table class="units-table">
+          <tr>
+            <th>Тип аргумента</th>
+            <th>Пример</th>
+            <th>Результат</th>
+          </tr>
+          <tr>
+            <td>Логические значения</td>
+            <td><code>=И(ИСТИНА; ИСТИНА)</code></td>
+            <td>ИСТИНА (оба истинны)</td>
+          </tr>
+          <tr>
+            <td>Логические выражения</td>
+            <td><code>=И(A1>10; B1<5)</code></td>
+            <td>ИСТИНА, если A1>10 И B1<5</td>
+          </tr>
+          <tr>
+            <td>Смешанные аргументы</td>
+            <td><code>=И(A1>10; ИСТИНА; C1="да")</code></td>
+            <td>ИСТИНА, если все три условия истинны</td>
+          </tr>
+          <tr>
+            <td>С числовыми значениями</td>
+            <td><code>=И(1; 1; 1)</code></td>
+            <td>ИСТИНА (все ненулевые)</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Таблица истинности функции И</h2>
+
+        <table class="truth-table">
+          <tr>
+            <th>Аргумент 1</th>
+            <th>Аргумент 2</th>
+            <th>Результат И</th>
+            <th>Объяснение</th>
+          </tr>
+          <tr>
+            <td>ИСТИНА</td>
+            <td>ИСТИНА</td>
+            <td>ИСТИНА</td>
+            <td>Оба истинны → истина</td>
+          </tr>
+          <tr>
+            <td>ИСТИНА</td>
+            <td>ЛОЖЬ</td>
+            <td>ЛОЖЬ</td>
+            <td>Хотя бы один ложен → ложь</td>
+          </tr>
+          <tr>
+            <td>ЛОЖЬ</td>
+            <td>ИСТИНА</td>
+            <td>ЛОЖЬ</td>
+            <td>Хотя бы один ложен → ложь</td>
+          </tr>
+          <tr>
+            <td>ЛОЖЬ</td>
+            <td>ЛОЖЬ</td>
+            <td>ЛОЖЬ</td>
+            <td>Оба ложны → ложь</td>
+          </tr>
+          <tr>
+            <td>1 (число)</td>
+            <td>1 (число)</td>
+            <td>ИСТИНА</td>
+            <td>1 = ИСТИНА, оба истинны</td>
+          </tr>
+          <tr>
+            <td>1 (число)</td>
+            <td>0 (число)</td>
+            <td>ЛОЖЬ</td>
+            <td>0 = ЛОЖЬ, один ложен</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🧮 Примеры использования</h2>
+
+        <div class="example-box">
+          <h4>Пример 1: Проверка двух условий</h4>
+          <p>
+            <strong>Условие:</strong> В ячейке A1 находится возраст, в B1 — стаж
+            работы. Нужно проверить, что возраст больше 18 И стаж больше 1 года.
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1 = 25, B1 = 3<br /><br />
+            <strong>Формула:</strong> =И(A1>18; B1>1)<br /><br />
+            <strong>Расчёт:</strong><br />
+            A1>18 → 25>18 → ИСТИНА<br />
+            B1>1 → 3>1 → ИСТИНА<br />
+            И(ИСТИНА; ИСТИНА) → ИСТИНА<br />
+            <strong>Результат:</strong> ИСТИНА (оба условия выполнены)
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 2: Комбинация с функцией ЕСЛИ</h4>
+          <p>
+            <strong>Условие:</strong> Если ученик сдал математику (оценка ≥ 3) И
+            информатику (оценка ≥ 3), вывести "Сдал оба", иначе "Не сдал".
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1 = 4 (математика), B1 = 2
+            (информатика)<br /><br />
+            <strong>Формула:</strong> =ЕСЛИ(И(A1>=3; B1>=3); "Сдал оба"; "Не
+            сдал")<br /><br />
+            <strong>Расчёт:</strong><br />
+            A1>=3 → 4>=3 → ИСТИНА<br />
+            B1>=3 → 2>=3 → ЛОЖЬ<br />
+            И(ИСТИНА; ЛОЖЬ) → ЛОЖЬ<br />
+            ЕСЛИ(ЛОЖЬ; "Сдал оба"; "Не сдал") → "Не сдал"<br />
+            <strong>Результат:</strong> "Не сдал"
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 3: Проверка трёх условий</h4>
+          <p>
+            <strong>Условие:</strong> Проверить, что товар соответствует всем
+            критериям: цена < 1000, количество > 0, категория = "электроника".
+          </p>
+          <div class="example-solution">
+            <strong>Данные:</strong> A1=800, B1=5, C1="электроника"<br /><br />
+            <strong>Формула:</strong> =И(A1<1000; B1>0; C1="электроника")<br /><br />
+            <strong>Расчёт:</strong><br />
+            A1<1000 → 800<1000 → ИСТИНА<br />
+            B1>0 → 5>0 → ИСТИНА<br />
+            C1="электроника" → "электроника"="электроника" → ИСТИНА<br />
+            И(ИСТИНА; ИСТИНА; ИСТИНА) → ИСТИНА<br />
+            <strong>Результат:</strong> ИСТИНА (все три условия выполнены)
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Особенности работы функции И</h2>
+
+        <div class="function-syntax">
+          <h4>Короткое замыкание (short-circuit)</h4>
+          <p>
+            <strong>Правило:</strong> Excel вычисляет аргументы функции И
+            последовательно. Если найден первый аргумент со значением ЛОЖЬ,
+            дальнейшие аргументы не вычисляются.<br />
+            <strong>Пример:</strong> =И(ЛОЖЬ; A1/0) → ЛОЖЬ (деление на 0 не
+            выполняется)
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Работа с диапазонами</h4>
+          <p>
+            <strong>Правило:</strong> Функция И не работает с диапазонами
+            напрямую. Для проверки условий в диапазоне используйте другие
+            функции.<br />
+            <strong>Пример:</strong> =И(A1:A10>5) не работает, нужно
+            =СЧЁТЕСЛИ(A1:A10; ">5")=10
+          </p>
+        </div>
+
+        <div class="function-syntax">
+          <h4>Ограничение на количество аргументов</h4>
+          <p>
+            <strong>Правило:</strong> В Excel можно использовать до 255
+            аргументов в функции И.<br />
+            <strong>Пример:</strong> =И(A1>0; A2>0; ...; A255>0) — допустимо
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки</h2>
+        <ul>
+          <li>
+            <strong>Путаница с оператором &</strong> — & используется для
+            конкатенации текста, а не для логического И
+          </li>
+          <li>
+            <strong>Использование И с диапазонами</strong> — =И(A1:A10>5) не
+            работает
+          </li>
+          <li>
+            <strong>Забывание кавычек для текста</strong> — =И(A1>10; B1="да")
+            правильно, =И(A1>10; B1=да) неправильно
+          </li>
+          <li>
+            <strong>Неправильные разделители</strong> — в русской версии Excel
+            аргументы разделяются точкой с запятой (;), а не запятой (,)
+          </li>
+          <li>
+            <strong>Использование И вместо ИЛИ</strong> — И требует выполнения
+            ВСЕХ условий, ИЛИ — хотя бы одного
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 Алгоритм работы с функцией И</h2>
+        <ol>
+          <li>📝 Определите все условия, которые должны выполняться</li>
+          <li>🔢 Запишите каждое условие как логическое выражение</li>
+          <li>
+            🧮 Объедините выражения функцией И: =И(условие1; условие2; ...)
+          </li>
+          <li>
+            ✅ Проверьте, что все условия должны быть истинными для получения
+            ИСТИНА
+          </li>
+          <li>🔍 Убедитесь, что выражения возвращают ИСТИНА/ЛОЖЬ</li>
+          <li>📊 Протестируйте с разными комбинациями значений</li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Практическое задание</h2>
+        <p>
+          <strong>Задача:</strong> В таблице Excel записаны данные о
+          абитуриентах: столбец A — балл по математике, столбец B — балл по
+          русскому, столбец C — балл по информатике. Напишите формулу для ячейки
+          D2, которая проверяет, что абитуриент набрал не менее 60 баллов по
+          КАЖДОМУ предмету. Если все баллы ≥ 60, вывести "Проходит", иначе "Не
+          проходит".
+        </p>
+        <div class="example-solution">
+          <strong>Решение:</strong><br />
+          1. Условия: A2>=60, B2>=60, C2>=60<br />
+          2. Объединяем условия функцией И: И(A2>=60; B2>=60; C2>=60)<br />
+          3. Используем в функции ЕСЛИ:<br />
+          =ЕСЛИ(И(A2>=60; B2>=60; C2>=60); "Проходит"; "Не проходит")<br /><br />
+          <strong>Проверка:</strong><br />
+          • A2=70, B2=65, C2=80 → И(ИСТИНА; ИСТИНА; ИСТИНА)=ИСТИНА →
+          "Проходит"<br />
+          • A2=70, B2=55, C2=80 → И(ИСТИНА; ЛОЖЬ; ИСТИНА)=ЛОЖЬ → "Не
+          проходит"<br />
+          • A2=50, B2=55, C2=40 → И(ЛОЖЬ; ЛОЖЬ; ЛОЖЬ)=ЛОЖЬ → "Не проходит"
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔗 Связанные функции</h2>
+        <p>
+          <strong><a href="esli.html" class="related-link" style="color:inherit;text-decoration:none;">ЕСЛИ</a></strong> — условное выполнение действий<br />
+          <strong><a href="ili.html" class="related-link" style="color:inherit;text-decoration:none;">ИЛИ</a></strong> — логическое сложение (дизъюнкция)<br />
+          <strong><a href="ne.html" class="related-link" style="color:inherit;text-decoration:none;">НЕ</a></strong> — логическое отрицание<br />
+          <strong>ИСТИНА</strong> — возвращает логическое значение ИСТИНА<br />
+          <strong>ЛОЖЬ</strong> — возвращает логическое значение ЛОЖЬ
+        </p>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
