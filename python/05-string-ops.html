@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Операции над строками — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>05. Операции над строками</h1>
+        <p class="subtitle">Конкатенация, умножение, методы строк</p>
+      </header>
+
+      <section>
+        <h2>Конкатенация и умножение</h2>
+<p>Строки можно складывать (конкатенация) и умножать на число:</p>
+<pre class="code-block">
+
+hello = "Привет" + ", " + "мир!"   # "Привет, мир!"
+repeated = "Ha" * 3                # "HaHaHa"
+</pre>
+      </section>
+      <section>
+        <h2>Экранирование символов</h2>
+<p>Обратный слеш \ позволяет вставлять специальные символы:</p>
+<pre class="code-block">
+
+text = "Он сказал: \"Привет\""
+path = "C:\\Users\\Name"
+newline = "Строка1\nСтрока2"
+</pre>
+      </section>
+      <section>
+        <h2>Основные методы строк</h2>
+<p>Строки в Python имеют множество встроенных методов:</p>
+<pre class="code-block">
+
+s = "  Hello, World!  "
+print(s.upper())          # "  HELLO, WORLD!  "
+print(s.lower())          # "  hello, world!  "
+print(s.strip())          # "Hello, World!"
+print(s.replace("World", "Python"))  # "  Hello, Python!  "
+print(s.find("World"))    # 8 (индекс начала подстроки)
+print(len(s))              # 18 (длина строки)
+</pre>
+      </section>
+      <section>
+        <h2>Проверка вхождения (in)</h2>
+<p>Оператор in проверяет, содержит ли строка подстроку:</p>
+<pre class="code-block">
+
+text = "Python programming"
+print("Python" in text)    # True
+print("Java" in text)      # False
+
+if "Python" in text:
+    print("Найдено!")
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="04-indentation.html" class="prev-link">← Назад</a>
+        <a href="06-complex-conditions.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

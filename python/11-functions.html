@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Простейшие функции — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>11. Простейшие функции</h1>
+        <p class="subtitle">def, return, параметры, аргументы</p>
+      </header>
+
+      <section>
+        <h2>Определение функции</h2>
+<p>Функция — это именованный блок кода, который можно вызывать:</p>
+<pre class="code-block">
+
+def greet():
+    print("Привет!")
+
+greet()  # Вызов функции -> "Привет!"
+</pre>
+      </section>
+      <section>
+        <h2>Параметры и аргументы</h2>
+<p>Функции могут принимать входные данные:</p>
+<pre class="code-block">
+
+def greet(name):
+    print(f"Привет, {name}!")
+
+greet("Анна")  # "Привет, Анна!"
+greet("Мир")   # "Привет, Мир!"
+</pre>
+      </section>
+      <section>
+        <h2>Возврат значения — return</h2>
+<p>return передаёт результат обратно в вызывающий код:</p>
+<pre class="code-block">
+
+def add(a, b):
+    return a + b
+
+result = add(5, 3)
+print(result)  # 8
+
+# Функция без return возвращает None
+def do_nothing():
+    pass
+
+print(do_nothing())  # None
+</pre>
+      </section>
+      <section>
+        <h2>Параметры по умолчанию</h2>
+<p>Можно задать значения по умолчанию:</p>
+<pre class="code-block">
+
+def greet(name, greeting="Привет"):
+    print(f"{greeting}, {name}!")
+
+greet("Анна")           # "Привет, Анна!"
+greet("Анна", "Здравствуйте")  # "Здравствуйте, Анна!"
+</pre>
+      </section>
+      <section>
+        <h2>Документирование (docstring)</h2>
+<p>Строка документации сразу после def:</p>
+<pre class="code-block">
+
+def add(a, b):
+    """Возвращает сумму двух чисел."""
+    return a + b
+
+print(add.__doc__)  # "Возвращает сумму двух чисел."
+help(add)           # Покажет документацию
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="10-priority.html" class="prev-link">← Назад</a>
+        <a href="12-while.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

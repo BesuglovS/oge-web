@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Строки: индексация и срезы — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>20. Строки: индексация и срезы</h1>
+        <p class="subtitle">Индексы, [start:stop:step]</p>
+      </header>
+
+      <section>
+        <h2>Индексация строк</h2>
+<p>Каждый символ строки имеет индекс — номер позиции:</p>
+<pre class="code-block">
+
+s = "Python"
+#    0 1 2 3 4 5  — положительные индексы
+#   -6-5-4-3-2-1  — отрицательные индексы
+
+print(s[0])    # P
+print(s[2])    # t
+print(s[-1])   # n (последний символ)
+print(s[-3])   # h (третий с конца)
+</pre>
+      </section>
+      <section>
+        <h2>Срезы строк [start:stop:step]</h2>
+<p>Срез — подстрока от start до stop-1 с шагом step:</p>
+<pre class="code-block">
+
+s = "Python Programming"
+
+print(s[0:6])       # "Python" — от 0 до 5
+print(s[7:18])      # "Programming" — от 7 до 17
+print(s[:6])        # "Python" — от начала
+print(s[7:])        # "Programming" — до конца
+print(s[::2])       # "Pto rgamn" — каждый второй
+print(s[::-1])      # "gnimmargorP nohtyP" — разворот
+print(s[-11:-1])    # "Programmin" — отрицательные индексы
+</pre>
+      </section>
+      <section>
+        <h2>Неизменяемость строк</h2>
+<p>Строки нельзя изменить — можно только создать новую:</p>
+<pre class="code-block">
+
+s = "hello"
+# s[0] = "H"  # Ошибка! TypeError
+
+# Правильно — создать новую строку
+s = "H" + s[1:]  # "Hello"
+
+# len() — длина строки
+print(len("Python"))  # 6
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="19-sets.html" class="prev-link">← Назад</a>
+        <a href="21-lists.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

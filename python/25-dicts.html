@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Словари (dict) — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>25. Словари (dict)</h1>
+        <p class="subtitle">dict, ключи и значения, методы</p>
+      </header>
+
+      <section>
+        <h2>Создание словаря</h2>
+<p>Словарь — неупорядоченная коллекция пар ключ-значение:</p>
+<pre class="code-block">
+
+# Через фигурные скобки
+student = {
+    "name": "Иван",
+    "age": 20,
+    "city": "Москва"
+}
+
+# Через функцию dict()
+person = dict(name="Анна", age=25, city="СПб")
+
+# Пустой словарь
+empty = {}
+empty = dict()
+</pre>
+      </section>
+      <section>
+        <h2>Доступ к элементам</h2>
+<p>Получение и изменение значений:</p>
+<pre class="code-block">
+
+student = {"name": "Иван", "age": 20}
+
+# Через ключ
+print(student["name"])   # "Иван"
+
+# Через get() — безопасно (не вызывает ошибку)
+print(student.get("age"))     # 20
+print(student.get("grade"))   # None
+print(student.get("grade", "Нет"))  # "Нет" (значение по умолчанию)
+
+# Изменение
+student["age"] = 21
+student["grade"] = 5  # добавление нового ключа
+</pre>
+      </section>
+      <section>
+        <h2>Методы словарей</h2>
+<p>Основные методы:</p>
+<pre class="code-block">
+
+d = {"a": 1, "b": 2, "c": 3}
+
+print(d.keys())    # dict_keys(["a", "b", "c"])
+print(d.values())  # dict_values([1, 2, 3])
+print(d.items())   # dict_items([("a", 1), ("b", 2), ("c", 3)])
+
+# Обновление
+d.update({"b": 20, "d": 4})  # {"a": 1, "b": 20, "c": 3, "d": 4}
+
+# Удаление
+val = d.pop("a")     # удаляет и возвращает значение
+last = d.popitem()   # удаляет и возвращает последнюю пару
+d.clear()            # очищает словарь
+
+# Проверка наличия ключа
+print("a" in d)  # True/False
+</pre>
+      </section>
+      <section>
+        <h2>Перебор словаря</h2>
+<p>Итерация по словарю:</p>
+<pre class="code-block">
+
+d = {"a": 1, "b": 2, "c": 3}
+
+# По ключам
+for key in d:
+    print(key, d[key])
+
+# По парам
+for key, value in d.items():
+    print(f"{key}: {value}")
+
+# Только значения
+for value in d.values():
+    print(value)
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="24-list-comprehensions.html" class="prev-link">← Назад</a>
+              </footer>
+    </div>
+  </body>
+</html>

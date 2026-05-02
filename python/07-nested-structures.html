@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вложенные структуры — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>07. Вложенные структуры</h1>
+        <p class="subtitle">Условия внутри условий, вложенные блоки</p>
+      </header>
+
+      <section>
+        <h2>Вложенные условные операторы</h2>
+<p>if может находиться внутри другого if:</p>
+<pre class="code-block">
+
+age = 20
+has_id = True
+
+if age >= 18:
+    print("Возраст подходит")
+    if has_id:
+        print("Вход разрешён")
+    else:
+        print("Нужно удостоверение личности")
+else:
+    print("Вход запрещён")
+</pre>
+      </section>
+      <section>
+        <h2>Глубокое вложение</h2>
+<p>Избегайте слишком глубокого вложения (более 3-4 уровней):</p>
+<pre class="code-block">
+
+# Сложно читать:
+if a:
+    if b:
+        if c:
+            print("Все условия выполнены")
+
+# Лучше:
+if a and b and c:
+    print("Все условия выполнены")
+</pre>
+      </section>
+      <section>
+        <h2>Вложенные циклы (анонс)</h2>
+<p>Циклы тоже могут быть вложенными (подробнее в теме 18):</p>
+<pre class="code-block">
+
+for i in range(3):
+    for j in range(2):
+        print(f"i={i}, j={j}")
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="06-complex-conditions.html" class="prev-link">← Назад</a>
+        <a href="08-data-types.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

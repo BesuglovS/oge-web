@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Типы данных — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>08. Типы данных</h1>
+        <p class="subtitle">int, float, str, bool, NoneType, type(), isinstance()</p>
+      </header>
+
+      <section>
+        <h2>Основные встроенные типы</h2>
+<p>В Python у каждого значения есть тип:</p>
+<pre class="code-block">
+
+# Числовые типы
+x = 10          # int — целое число
+y = 3.14        # float — число с плавающей точкой
+z = 1 + 2j      # complex — комплексное число
+
+# Строковый тип
+name = "Python"  # str — строка
+
+# Логический тип
+flag = True      # bool — булево значение
+
+# Пустой тип
+result = None    # NoneType — отсутствие значения
+</pre>
+      </section>
+      <section>
+        <h2>Определение типа — type() и isinstance()</h2>
+<p>Узнать тип переменной:</p>
+<pre class="code-block">
+
+print(type(10))          # <class 'int'>
+print(type("hello"))     # <class 'str'>
+print(type(True))        # <class 'bool'>
+
+# isinstance — проверка принадлежности типу
+print(isinstance(10, int))       # True
+print(isinstance("abc", str))    # True
+print(isinstance(10, (int, float)))  # True
+</pre>
+      </section>
+      <section>
+        <h2>Преобразование типов</h2>
+<p>Явное преобразование между типами:</p>
+<pre class="code-block">
+
+# В целое число
+print(int(3.14))       # 3
+print(int("42"))       # 42
+
+# В число с плавающей точкой
+print(float(5))        # 5.0
+print(float("2.5"))    # 2.5
+
+# В строку
+print(str(100))        # "100"
+print(str(3.14))       # "3.14"
+
+# В булево значение
+print(bool(1))         # True
+print(bool(0))         # False
+print(bool(""))        # False
+print(bool("text"))    # True
+</pre>
+      </section>
+      <section>
+        <h2>Изменяемые и неизменяемые типы</h2>
+<p>Неизменяемые (immutable): int, float, str, bool, tuple, frozenset</p>
+<p>Изменяемые (mutable): list, dict, set</p>
+<pre class="code-block">
+
+# Строки неизменяемы
+s = "hello"
+# s[0] = "H"  # Ошибка! Нельзя изменить символ
+s = "H" + s[1:]  # Нужно создать новую строку
+
+# Списки изменяемы
+lst = [1, 2, 3]
+lst[0] = 10  # Работает!
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="07-nested-structures.html" class="prev-link">← Назад</a>
+        <a href="09-number-ops.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

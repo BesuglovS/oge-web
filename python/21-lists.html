@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Списки (list) — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>21. Списки (list)</h1>
+        <p class="subtitle">list, методы списков</p>
+      </header>
+
+      <section>
+        <h2>Создание списков</h2>
+<p>Список — упорядоченная изменяемая коллекция:</p>
+<pre class="code-block">
+
+# Пустой список
+empty = []
+empty = list()
+
+# С элементами
+numbers = [1, 2, 3, 4, 5]
+mixed = [1, "hello", 3.14, True]
+nested = [[1, 2], [3, 4]]  # список списков
+</pre>
+      </section>
+      <section>
+        <h2>Индексация и срезы</h2>
+<p>Работает так же, как со строками:</p>
+<pre class="code-block">
+
+nums = [10, 20, 30, 40, 50]
+
+print(nums[0])     # 10
+print(nums[-1])    # 50
+print(nums[1:4])   # [20, 30, 40]
+print(nums[::-1])  # [50, 40, 30, 20, 10]
+
+# В отличие от строк, списки можно изменять
+nums[0] = 100
+print(nums)  # [100, 20, 30, 40, 50]
+</pre>
+      </section>
+      <section>
+        <h2>Методы списков</h2>
+<p>Основные методы для работы со списками:</p>
+<pre class="code-block">
+
+nums = [1, 2, 3]
+
+nums.append(4)        # [1, 2, 3, 4] — добавить в конец
+nums.extend([5, 6])   # [1, 2, 3, 4, 5, 6] — расширить
+nums.insert(0, 0)     # [0, 1, 2, 3, 4, 5, 6] — вставить
+nums.remove(3)        # [0, 1, 2, 4, 5, 6] — удалить по значению
+popped = nums.pop()   # 6 — удалить и вернуть последний
+popped = nums.pop(0)  # 0 — удалить и вернуть по индексу
+nums.sort()           # сортировка
+nums.reverse()        # разворот
+print(nums.index(4))  # 2 — индекс элемента
+print(nums.count(2))  # 1 — количество вхождений
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="20-strings-index-slice.html" class="prev-link">← Назад</a>
+        <a href="22-tuples.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

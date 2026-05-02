@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Множества (set) — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>19. Множества (set)</h1>
+        <p class="subtitle">set(), операции над множествами</p>
+      </header>
+
+      <section>
+        <h2>Создание множества</h2>
+<p>Множество — неупорядоченная коллекция уникальных элементов:</p>
+<pre class="code-block">
+
+# Через фигурные скобки
+fruits = {"яблоко", "банан", "вишня"}
+
+# Через функцию set()
+numbers = set([1, 2, 2, 3, 3, 3])  # {1, 2, 3}
+
+# Пустое множество (не {} — это словарь!)
+empty = set()
+</pre>
+      </section>
+      <section>
+        <h2>Операции над множествами</h2>
+<p>Математические операции:</p>
+<pre class="code-block">
+
+a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+
+print(a | b)   # {1, 2, 3, 4, 5, 6} — объединение
+print(a & b)   # {3, 4} — пересечение
+print(a - b)   # {1, 2} — разность
+print(a ^ b)   # {1, 2, 5, 6} — симметрическая разность
+</pre>
+      </section>
+      <section>
+        <h2>Методы множеств</h2>
+<p>Основные методы:</p>
+<pre class="code-block">
+
+s = {1, 2, 3}
+s.add(4)          # {1, 2, 3, 4}
+s.remove(2)       # {1, 3, 4} — ошибка, если нет
+s.discard(10)     # {1, 3, 4} — без ошибки
+s.pop()           # удаляет и возвращает случайный элемент
+s.clear()         # set() — очищает множество
+
+print(3 in s)     # True — проверка вхождения
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="18-nested-loops.html" class="prev-link">← Назад</a>
+        <a href="20-strings-index-slice.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

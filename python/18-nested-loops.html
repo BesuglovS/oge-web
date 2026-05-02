@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Вложенные циклы — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>18. Вложенные циклы</h1>
+        <p class="subtitle">Циклы внутри циклов</p>
+      </header>
+
+      <section>
+        <h2>Вложенные циклы for</h2>
+<p>Цикл внутри другого цикла — внешний и внутренний:</p>
+<pre class="code-block">
+
+for i in range(3):
+    for j in range(2):
+        print(f"i={i}, j={j}")
+
+# Вывод:
+# i=0, j=0
+# i=0, j=1
+# i=1, j=0
+# i=1, j=1
+# i=2, j=0
+# i=2, j=1
+</pre>
+      </section>
+      <section>
+        <h2>Таблица умножения</h2>
+<p>Классический пример вложенных циклов:</p>
+<pre class="code-block">
+
+for i in range(1, 10):
+    for j in range(1, 10):
+        print(f"{i}*{j}={i*j:2}", end="  ")
+    print()  # новая строка
+</pre>
+      </section>
+      <section>
+        <h2>break и continue во вложенных циклах</h2>
+<p>break/continue действуют только на ближайший цикл:</p>
+<pre class="code-block">
+
+for i in range(3):
+    for j in range(3):
+        if j == 1:
+            break  # прерывает только внутренний цикл
+        print(f"({i},{j})", end=" ")
+    print()
+
+# Вывод:
+# (0,0)
+# (1,0)
+# (2,0)
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="17-continue.html" class="prev-link">← Назад</a>
+        <a href="19-sets.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

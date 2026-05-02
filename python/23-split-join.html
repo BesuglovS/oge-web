@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>split + join — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>23. split + join</h1>
+        <p class="subtitle">Разделение и объединение строк</p>
+      </header>
+
+      <section>
+        <h2>split() — разделение строки</h2>
+<p>split() разбивает строку на список подстрок:</p>
+<pre class="code-block">
+
+text = "яблоко банан вишня"
+words = text.split()
+print(words)  # ["яблоко", "банан", "вишня"]
+
+# С указанием разделителя
+csv = "1,2,3,4,5"
+nums = csv.split(",")
+print(nums)  # ["1", "2", "3", "4", "5"]
+
+# Ограничение количества разбиений
+data = "a-b-c-d"
+print(data.split("-", 2))  # ["a", "b", "c-d"]
+</pre>
+      </section>
+      <section>
+        <h2>join() — объединение в строку</h2>
+<p>join() объединяет список строк через разделитель:</p>
+<pre class="code-block">
+
+words = ["Python", "это", "здорово"]
+sentence = " ".join(words)
+print(sentence)  # "Python это здорово"
+
+# Другие разделители
+print("-".join(["1", "2", "3"]))  # "1-2-3"
+print(", ".join(["a", "b", "c"]))  # "a, b, c"
+
+# join() работает только со строками!
+nums = [1, 2, 3]
+# ", ".join(nums)  # Ошибка!
+print(", ".join(map(str, nums)))  # "1, 2, 3"
+</pre>
+      </section>
+      <section>
+        <h2>Практический пример</h2>
+<p>Парсинг и форматирование данных:</p>
+<pre class="code-block">
+
+data = "Иван,25,Москва"
+fields = data.split(",")
+name, age, city = fields
+print(f"{name} из {city}, возраст {age}")
+
+# Обратно в строку
+new_data = ";".join(fields)
+print(new_data)  # "Иван;25;Москва"
+</pre>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="22-tuples.html" class="prev-link">← Назад</a>
+        <a href="24-list-comprehensions.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Переменные — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>2. Переменные</h1>
+        <p class="subtitle">Объявление, присваивание, соглашения об именах</p>
+      </header>
+
+      <section>
+        <h2>Что такое переменная?</h2>
+        <p>
+          Переменная — это имя для области памяти, в которой хранятся данные. В
+          Python переменная создаётся в момент первого присваивания:
+        </p>
+        <pre class="code-block">
+name = "Анна"
+age = 25
+pi = 3.14159</pre
+        >
+        <p>
+          Тип переменной определяется автоматически (динамическая типизация):
+        </p>
+        <pre class="code-block">
+x = 10        # int
+x = "hello"   # теперь str
+x = 3.14      # теперь float</pre
+        >
+      </section>
+
+      <section>
+        <h2>Правила именования</h2>
+        <ul>
+          <li>
+            Имя может содержать буквы, цифры и символ подчёркивания
+            <code>_</code>
+          </li>
+          <li>Не может начинаться с цифры</li>
+          <li>Регистр имеет значение: <code>age</code> ≠ <code>Age</code></li>
+          <li>
+            Нельзя использовать ключевые слова Python (<code>if</code>,
+            <code>for</code>, <code>while</code> и др.)
+          </li>
+        </ul>
+        <div class="tip">
+          <strong>PEP 8 — стиль:</strong> используйте
+          <code>snake_case</code> для переменных: <code>user_name</code>,
+          <code>total_count</code>.
+        </div>
+      </section>
+
+      <section>
+        <h2>Множественное присваивание</h2>
+        <pre class="code-block">
+a, b, c = 1, 2, 3
+a = b = c = 0     # всем трём присвоится 0</pre
+        >
+      </section>
+
+      <section>
+        <h2>Полезные функции</h2>
+        <table>
+          <tr>
+            <th>Функция</th>
+            <th>Описание</th>
+          </tr>
+          <tr>
+            <td><code>type(x)</code></td>
+            <td>Возвращает тип переменной</td>
+          </tr>
+          <tr>
+            <td><code>id(x)</code></td>
+            <td>Возвращает адрес объекта в памяти</td>
+          </tr>
+          <tr>
+            <td><code>isinstance(x, type)</code></td>
+            <td>Проверяет принадлежность типу</td>
+          </tr>
+        </table>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="01-io.html" class="prev-link">← Назад</a>
+        <a href="03-conditional.html" class="next-link"
+          >Далее: Условный оператор →</a
+        >
+      </footer>
+    </div>
+  </body>
+</html>
