@@ -10,7 +10,7 @@
     <div class="container">
       <header class="topic-header">
         <a href="index.html" class="back-link">← Назад к оглавлению</a>
-        <h1>08. Типы данных</h1>
+        <h1>4. Типы данных</h1>
         <p class="subtitle">int, float, str, bool, NoneType, type(), isinstance()</p>
       </header>
 
@@ -51,26 +51,63 @@ print(isinstance(10, (int, float)))  # True
       </section>
       <section>
         <h2>Преобразование типов</h2>
-<p>Явное преобразование между типами:</p>
-<pre class="code-block">
+<p>Явное преобразование (приведение) типов — превращение значения из одного типа в другой с помощью функций-конструкторов: <code>int()</code>, <code>float()</code>, <code>str()</code>, <code>bool()</code>.</p>
 
-# В целое число
+<h3>Числовые преобразования</h3>
+<pre class="code-block">
+# int → float
+print(float(5))        # 5.0
+
+# float → int (дробная часть отбрасывается!)
 print(int(3.14))       # 3
+print(int(3.99))       # 3  (не округляет, а отбрасывает)
+
+# int → str
+print(str(100))        # "100"
+
+# float → str
+print(str(3.14))       # "3.14"
+</pre>
+
+<h3>Преобразование строк в числа</h3>
+<pre class="code-block">
+# Строка → int
 print(int("42"))       # 42
 
-# В число с плавающей точкой
-print(float(5))        # 5.0
+# Строка → float
 print(float("2.5"))    # 2.5
+print(float("3"))      # 3.0  (float допускает целое в строке)
+</pre>
 
-# В строку
-print(str(100))        # "100"
-print(str(3.14))       # "3.14"
+<p class="warning">
+  <strong>Ошибка преобразования.</strong> Если строка не является числом, Python
+  выбросит ошибку <code>ValueError</code>:
+</p>
+<pre class="code-block">
+# int("abc")    # ValueError: invalid literal for int()
+# float("12,5") # ValueError: 12,5 — нужна точка, а не запятая
+</pre>
 
-# В булево значение
+<h3>Преобразование в bool</h3>
+<p>Любое значение можно превратить в <code>bool</code>. Правило простое: «пустые» значения дают <code>False</code>, всё остальное — <code>True</code>.</p>
+<pre class="code-block">
 print(bool(1))         # True
-print(bool(0))         # False
-print(bool(""))        # False
-print(bool("text"))    # True
+print(bool(0))         # False   (ноль — «пустое» число)
+print(bool(-5))        # True
+print(bool(""))        # False   (пустая строка)
+print(bool("text"))    # True    (непустая строка)
+print(bool([]))        # False   (пустой список)
+print(bool([1, 2]))    # True
+print(bool(None))      # False
+</pre>
+
+<h3>Bool как число</h3>
+<p><code>True</code> ведёт себя как <code>1</code>, <code>False</code> — как <code>0</code>:</p>
+<pre class="code-block">
+print(int(True))       # 1
+print(int(False))      # 0
+print(True + 5)        # 6
+print(False * 10)      # 0
 </pre>
       </section>
       <section>
@@ -91,8 +128,8 @@ lst[0] = 10  # Работает!
       </section>
 
       <footer class="topic-footer">
-        <a href="07-nested-structures.html" class="prev-link">← Назад</a>
-        <a href="09-number-ops.html" class="next-link">Далее: →</a>
+        <a href="03-variables.html" class="prev-link">← Назад</a>
+        <a href="05-io.html" class="next-link">Далее: →</a>
       </footer>
     </div>
   </body>

@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Настройка IDE: VS Code и PyCharm — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>2. Создание проекта в IDLE, VS Code и PyCharm</h1>
+        <p class="subtitle">Настройка окружения для разработки на Python</p>
+        <p>
+          Самый простой способ начать — использовать <strong>IDLE</strong>,
+          встроенную среду, которая устанавливается вместе с Python. Для более
+          серьёзной работы подойдут <strong>Visual Studio Code</strong> (VS
+          Code) и <strong>PyCharm</strong>. Прежде чем писать код, нужно
+          подготовить рабочее окружение. Современные IDE (Integrated Development
+          Environment) — среды разработки — предоставляют удобный редактор кода,
+          автодополнение, отладчик и управление проектами. В этом уроке мы
+          рассмотрим все три инструмента.
+        </p>
+      </header>
+
+      <section>
+        <h2>Обзор IDLE, VS Code и PyCharm</h2>
+        <table>
+          <tr>
+            <th>Характеристика</th>
+            <th>IDLE</th>
+            <th>VS Code</th>
+            <th>PyCharm</th>
+          </tr>
+          <tr>
+            <td>Разработчик</td>
+            <td>Python Software Foundation</td>
+            <td>Microsoft</td>
+            <td>JetBrains</td>
+          </tr>
+          <tr>
+            <td>Вес</td>
+            <td>Очень лёгкий (~10 МБ)</td>
+            <td>Лёгкий (~200 МБ)</td>
+            <td>Тяжёлый (~1 ГБ)</td>
+          </tr>
+          <tr>
+            <td>Лицензия</td>
+            <td>Бесплатно (Open Source)</td>
+            <td>Бесплатно (Open Source)</td>
+            <td>Community — бесплатно, Professional — платно</td>
+          </tr>
+          <tr>
+            <td>Python "из коробки"</td>
+            <td>Да (встроен в Python)</td>
+            <td>Требуется установка расширения</td>
+            <td>Полная поддержка сразу</td>
+          </tr>
+          <tr>
+            <td>Лучше всего подходит</td>
+            <td>Для обучения и простых скриптов</td>
+            <td>Для лёгких проектов, скриптов, веб-разработки</td>
+            <td>Для крупных проектов, Data Science, Django</td>
+          </tr>
+        </table>
+        <p>
+          Все IDE отлично подходят для изучения Python. Вы можете выбрать любую
+          — разница для начинающего минимальна. Мы рассмотрим их чтобы вы могли
+          принять взвешенное решение.
+        </p>
+      </section>
+
+      <section>
+        <h2>Запуск Python через IDLE (встроенная среда)</h2>
+        <p>
+          <strong>IDLE</strong> (Integrated Development and Learning
+          Environment) — это простая среда разработки, которая входит в состав
+          дистрибутива Python. Чтобы её использовать, необходимо сначала скачать
+          и установить сам интерпретатор Python с официального сайта
+          <a href="https://python.org" target="_blank">python.org</a>. При
+          установке обязательно отметьте галочку «Add Python to PATH» — это
+          позволит запускать Python из командной строки. IDLE не требует
+          дополнительной установки или настроек — идеальный вариант для первых
+          шагов.
+        </p>
+
+        <h3>Как запустить IDLE</h3>
+        <p>Способ зависит от вашей операционной системы:</p>
+        <ul>
+          <li>
+            <strong>Windows:</strong> нажмите <kbd>Win</kbd>, введите
+            <kbd>IDLE</kbd> и выберите приложение «IDLE (Python 3.xx)». Либо
+            откройте <kbd>Пуск → Python 3.xx → IDLE</kbd>.
+          </li>
+          <li>
+            <strong>macOS:</strong> откройте <kbd>Terminal</kbd> и выполните
+            команду <code>idle3</code> (или <code>idle</code>).
+          </li>
+          <li>
+            <strong>Linux:</strong> в терминале выполните <code>idle3</code> или
+            <code>idle</code>. Если команда не найдена, установите IDLE через
+            пакетный менеджер:
+            <code>sudo apt install idle3</code> (Debian/Ubuntu) или
+            <code>sudo dnf install python3-idle</code> (Fedora).
+          </li>
+        </ul>
+
+        <h3>Создание и запуск файла в IDLE</h3>
+        <ol>
+          <li>
+            Запустите IDLE — откроется окно интерактивной оболочки (Python
+            Shell).
+          </li>
+          <li>
+            Нажмите <code>Ctrl+N</code> (или <code>File → New File</code>),
+            чтобы создать новый файл.
+          </li>
+          <li>
+            Напишите код, например:
+            <pre class="code-block">
+print("Привет, IDLE!")
+print("Python работает!")</pre
+            >
+          </li>
+          <li>
+            Сохраните файл (<code>Ctrl+S</code> или <code>File → Save</code>) с
+            расширением <code>.py</code>, например <code>main.py</code>.
+          </li>
+          <li>
+            Запустите программу клавишей <code>F5</code> или командой
+            <code>Run → Run Module</code>. Результат появится в окне Python
+            Shell.
+          </li>
+        </ol>
+
+        <h3>Работа в интерактивном режиме (Python Shell)</h3>
+        <p>
+          IDLE можно использовать как калькулятор или песочницу: после запуска
+          сразу появляется приглашение <code>>>></code>. Введите команду и
+          нажмите <kbd>Enter</kbd> — результат покажется мгновенно:
+        </p>
+        <pre class="code-block">
+>>> 2 + 2
+4
+>>> print("Hello, World!")
+Hello, World!</pre
+        >
+        <p class="tip">
+          <strong>Совет:</strong> IDLE отлично подходит для самых первых
+          экспериментов — в нём нет лишних настроек, он сразу готов к работе.
+          Когда вы освоитесь, можно перейти к более мощным инструментам — VS
+          Code или PyCharm.
+        </p>
+      </section>
+
+      <section>
+        <h2>Настройка VS Code</h2>
+
+        <h3>Шаг 1. Установка VS Code</h3>
+        <p>
+          Скачайте установщик с официального сайта
+          <a href="https://code.visualstudio.com" target="_blank"
+            >code.visualstudio.com</a
+          >. Запустите установку — все параметры можно оставить по умолчанию.
+        </p>
+
+        <h3>Шаг 2. Установка Python</h3>
+        <p>
+          Скачайте Python с
+          <a href="https://python.org" target="_blank">python.org</a>. При
+          установке обязательно отметьте галочку
+          <strong>«Add Python to PATH»</strong> — это позволит запускать Python
+          из командной строки.
+        </p>
+        <p>Проверьте установку в терминале:</p>
+        <pre class="code-block">
+python --version
+# Пример вывода: Python 3.13.x</pre
+        >
+
+        <h3>Шаг 3. Установка расширения Python</h3>
+        <p>
+          VS Code сам по себе не знает Python — ему нужно расширение. Нажмите
+          <code>Ctrl+Shift+X</code> (или иконка расширений слева), в поиске
+          введите «Python» и установите расширение от Microsoft:
+        </p>
+        <pre class="code-block">
+# Расширение: Python (by Microsoft)
+# ID: ms-python.python</pre
+        >
+        <p>
+          Это расширение добавляет подсветку синтаксиса, автодополнение
+          (IntelliSense), отладчик, форматирование кода и поддержку Jupyter
+          Notebook.
+        </p>
+
+        <h3>Шаг 4. Создание проекта</h3>
+        <p>Создайте папку для проекта и откройте её в VS Code:</p>
+        <ol>
+          <li>
+            Нажмите <code>Ctrl+K Ctrl+O</code> (или
+            <code>File → Open Folder</code>)
+          </li>
+          <li>
+            Выберите или создайте новую папку, например
+            <code>my-first-project</code>
+          </li>
+          <li>Нажмите <code>Ctrl+N</code> — создайте новый файл</li>
+          <li>
+            Сохраните его с расширением <code>.py</code>, например
+            <code>main.py</code>
+          </li>
+        </ol>
+
+        <h3>Шаг 5. Запуск кода</h3>
+        <p>Напишите простую программу и запустите её:</p>
+        <pre class="code-block">
+print("Привет, VS Code!")
+print("Python работает!")</pre
+        >
+        <p>Способы запуска:</p>
+        <ul>
+          <li>
+            <strong>Через терминал:</strong> <code>Ctrl+Shift+`</code> → введите
+            <code>python main.py</code>
+          </li>
+          <li><strong>Кнопка Run ▶</strong> (в правом верхнем углу)</li>
+          <li>
+            <strong>Правой кнопкой мыши</strong> на файле → «Run Python File in
+            Terminal»
+          </li>
+        </ul>
+        <p class="tip">
+          <strong>Совет:</strong> Установите также расширение
+          <strong>Python Debugger</strong> (ms-python.debugger) для удобной
+          отладки кода с точками останова.
+        </p>
+
+        <h3>Дополнительные полезные расширения</h3>
+        <ul>
+          <li>
+            <strong>Pylance</strong> — улучшенное автодополнение и проверка
+            типов
+          </li>
+          <li>
+            <strong>Python Docstring Generator</strong> — автоматическая
+            генерация docstring
+          </li>
+          <li>
+            <strong>Jupyter</strong> — поддержка Jupyter Notebook прямо в VS
+            Code
+          </li>
+          <li><strong>GitLens</strong> — удобная работа с Git</li>
+          <li><strong>Prettier / Black</strong> — форматирование кода</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Настройка PyCharm</h2>
+
+        <h3>Шаг 1. Установка PyCharm</h3>
+        <p>
+          Скачайте установщик с официального сайта
+          <a href="https://www.jetbrains.com/pycharm/download" target="_blank"
+            >jetbrains.com/pycharm</a
+          >. Для обучения достаточно
+          <strong>PyCharm Community Edition</strong> — он бесплатен и содержит
+          все необходимые функции.
+        </p>
+
+        <h3>Шаг 2. Установка Python</h3>
+        <p>
+          Если вы ещё не установили Python — сделайте это так же, как описано в
+          разделе VS Code. PyCharm может автоматически обнаружить установленный
+          Python при создании проекта.
+        </p>
+
+        <h3>Шаг 3. Создание нового проекта</h3>
+        <p>Запустите PyCharm — откроется окно приветствия:</p>
+        <ol>
+          <li>Нажмите <strong>«New Project»</strong></li>
+          <li>
+            Выберите расположение проекта (Location), например
+            <code>C:\Users\Имя\PycharmProjects\my-first-project</code>
+          </li>
+          <li>
+            В разделе <strong>«Base interpreter»</strong> выберите установленный
+            Python (PyCharm обычно находит его автоматически)
+          </li>
+          <li>
+            Отметьте <strong>«Create a main.py welcome script»</strong> — будет
+            создан файл <code>main.py</code> с готовым кодом
+          </li>
+          <li>Нажмите <strong>«Create»</strong></li>
+        </ol>
+
+        <h3>Шаг 4. Запуск кода</h3>
+        <p>
+          PyCharm создаст файл <code>main.py</code> с шаблоном. Вы можете
+          заменить его содержимое:
+        </p>
+        <pre class="code-block">
+print("Привет, PyCharm!")
+print("Python работает!")</pre
+        >
+        <p>Способы запуска:</p>
+        <ul>
+          <li><strong>Зелёная стрелка ▶</strong> в правом верхнем углу</li>
+          <li><strong>Правой кнопкой мыши</strong> на файле → «Run 'main'»</li>
+          <li><strong>Горячие клавиши:</strong> <code>Shift+F10</code></li>
+        </ul>
+        <p class="note">
+          <strong>Важно:</strong> PyCharm может автоматически создавать
+          виртуальное окружение (venv) для каждого проекта — это хорошая
+          практика, так как зависимости разных проектов не будут конфликтовать.
+        </p>
+
+        <h3>Полезные возможности PyCharm</h3>
+        <ul>
+          <li>
+            <strong>Автодополнение кода</strong> — PyCharm предлагает варианты
+            по мере ввода
+          </li>
+          <li>
+            <strong>Отладчик</strong> — ставьте точки останова (кликнув слева от
+            номера строки) и нажимайте иконку жука для отладки
+          </li>
+          <li>
+            <strong>Рефакторинг</strong> — переименование переменных, выделение
+            методов и т.д.
+          </li>
+          <li>
+            <strong>Проверка кода</strong> — PyCharm подсвечивает ошибки и
+            предлагает исправления
+          </li>
+          <li>
+            <strong>Интеграция с Git</strong> — встроенные инструменты для
+            работы с системами контроля версий
+          </li>
+          <li>
+            <strong>Навигация</strong> — быстрый переход к определению функции
+            или класса (<code>Ctrl+Click</code>)
+          </li>
+        </ul>
+
+        <h3>Советы по настройке PyCharm</h3>
+        <ul>
+          <li>
+            <strong>Тема оформления:</strong>
+            <code>File → Settings → Appearance & Behavior → Theme</code>
+            (выберите Dracula, One Dark или другую)
+          </li>
+          <li>
+            <strong>Размер шрифта:</strong>
+            <code>Settings → Editor → Font</code>
+          </li>
+          <li>
+            <strong>Автосохранение:</strong> PyCharm сохраняет файлы
+            автоматически, но можно включить явно в
+            <code
+              >Settings → Appearance & Behavior → System Settings →
+              Synchronization</code
+            >
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Сравнение: VS Code vs PyCharm для новичка</h2>
+        <table>
+          <tr>
+            <th>Критерий</th>
+            <th>IDLE</th>
+            <th>VS Code</th>
+            <th>PyCharm</th>
+          </tr>
+          <tr>
+            <td>Скорость запуска</td>
+            <td>Мгновенно</td>
+            <td>Мгновенно</td>
+            <td>10–30 секунд</td>
+          </tr>
+          <tr>
+            <td>Сложность освоения</td>
+            <td>Очень просто</td>
+            <td>Проще, минимум настроек</td>
+            <td>Больше функций, круче кривая обучения</td>
+          </tr>
+          <tr>
+            <td>Python "из коробки"</td>
+            <td>Да</td>
+            <td>Нет (нужно расширение)</td>
+            <td>Да</td>
+          </tr>
+          <tr>
+            <td>Универсальность</td>
+            <td>Низкая (только Python)</td>
+            <td>Высокая (много языков)</td>
+            <td>Средняя (фокус на Python)</td>
+          </tr>
+          <tr>
+            <td>Потребление памяти</td>
+            <td>~20–50 МБ</td>
+            <td>~300–500 МБ</td>
+            <td>~1–2 ГБ</td>
+          </tr>
+        </table>
+        <p>
+          <strong>Что выбрать?</strong> Если вы делаете самые первые шаги —
+          начните с <strong>IDLE</strong>, он не требует установки и настроек.
+          Если хотите что-то лёгкое и универсальное — переходите на
+          <strong>VS Code</strong>. Если планируете серьёзно изучать Python и
+          Data Science — <strong>PyCharm Community Edition</strong> будет
+          отличным выбором. Все три среды бесплатны.
+        </p>
+        <div class="tip">
+          <strong>Совет:</strong> Попробуйте все три! Начните с IDLE, затем
+          установите VS Code и PyCharm, создайте в каждом простой проект и
+          выберите ту среду, в которой вам комфортнее работать.
+        </div>
+      </section>
+
+      <section>
+        <h2>Виртуальное окружение (venv)</h2>
+        <p>
+          <strong>Виртуальное окружение</strong> — это изолированная среда для
+          Python-проекта, в которой устанавливаются свои пакеты и зависимости.
+          Это нужно, чтобы библиотеки разных проектов не конфликтовали между
+          собой.
+        </p>
+        <p>Создание виртуального окружения в терминале:</p>
+        <pre class="code-block">
+# Создать виртуальное окружение
+python -m venv .venv
+
+# Активировать (Windows)
+.venv\Scripts\activate
+
+# Активировать (Mac/Linux)
+source .venv/bin/activate
+
+# Установить пакет
+pip install numpy
+
+# Выйти из окружения
+deactivate</pre
+        >
+        <p>
+          VS Code предложит использовать виртуальное окружение при открытии
+          проекта. PyCharm создаёт его автоматически при создании нового
+          проекта.
+        </p>
+      </section>
+
+      <footer class="topic-footer">
+        <a href="01-history.html" class="prev-link">← История и обзор Python</a>
+        <a href="03-variables.html" class="next-link">Далее: Переменные →</a>
+      </footer>
+    </div>
+  </body>
+</html>

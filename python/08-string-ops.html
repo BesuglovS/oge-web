@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Операции над строками — Python: основы</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topic-header">
+        <a href="index.html" class="back-link">← Назад к оглавлению</a>
+        <h1>8. Операции над строками</h1>
+        <p class="subtitle">
+          Конкатенация, умножение, методы строк, форматирование
+        </p>
+      </header>
+
+      <section>
+        <h2>Конкатенация и умножение</h2>
+        <p>Строки можно складывать (конкатенация) и умножать на число:</p>
+        <pre class="code-block">
+
+hello = "Привет" + ", " + "мир!"   # "Привет, мир!"
+repeated = "Ha" * 3                # "HaHaHa"
+line = "-" * 20                    # "--------------------"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Экранирование символов</h2>
+        <p>Обратный слеш \ позволяет вставлять специальные символы:</p>
+        <pre class="code-block">
+
+text = "Он сказал: \"Привет\""
+path = "C:\\Users\\Name"
+newline = "Строка1\nСтрока2"
+tab = "Колонка1\tКолонка2"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>f-строки (f-strings)</h2>
+        <p>
+          Современный способ встраивать переменные и выражения прямо в строку.
+          Ставится буква <code>f</code> перед кавычками, а внутри
+          <code>{}</code> — код Python:
+        </p>
+        <pre class="code-block">
+
+name = "Анна"
+age = 17
+print(f"Меня зовут {name}, мне {age} лет.")
+# Меня зовут Анна, мне 17 лет.
+
+# Внутри фигурных скобок можно писать выражения:
+print(f"Через год будет {age + 1}.")
+# Через год будет 18.
+
+# Можно указывать ширину поля и выравнивание:
+price = 12.5
+print(f"Цена: {price:>10.2f} руб.")   # "Цена:      12.50 руб."
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Сырые строки (raw strings)</h2>
+        <p>
+          Если перед кавычками поставить <code>r</code>, обратный слеш не
+          экранируется — строка остаётся «как есть». Удобно для путей и
+          регулярных выражений:
+        </p>
+        <pre class="code-block">
+
+path = r"C:\Users\Name\Documents"
+print(path)   # C:\Users\Name\Documents
+
+# Без r пришлось бы писать "C:\\Users\\Name\\Documents"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Многострочные строки (triple quotes)</h2>
+        <p>
+          Тройные кавычки <code>"""</code> или <code>'''</code> позволяют писать
+          текст на нескольких строках:
+        </p>
+        <pre class="code-block">
+
+text = """Это многострочная
+строка. Она сохраняет
+переносы строк."""
+
+print(text)
+# Это многострочная
+# строка. Она сохраняет
+# переносы строк.
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Основные методы строк</h2>
+        <p>
+          Строки в Python имеют множество встроенных методов. Все методы
+          возвращают <strong>новую</strong> строку — исходная не меняется:
+        </p>
+        <pre class="code-block">
+
+s = "  Hello, World!  "
+print(s.upper())                # "  HELLO, WORLD!  "
+print(s.lower())                # "  hello, world!  "
+print(s.strip())                # "Hello, World!"
+print(s.replace("World", "Python"))  # "  Hello, Python!  "
+print(s.find("World"))          # 8 (индекс начала подстроки)
+print(len(s))                   # 18 (длина строки)
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Методы изменения регистра</h2>
+        <pre class="code-block">
+
+word = "python programming"
+
+print(word.capitalize())   # "Python programming" (первая буква заглавная)
+print(word.title())        # "Python Programming" (каждое слово с заглавной)
+print(word.swapcase())     # "PYTHON PROGRAMMING" (меняет регистр на обратный)
+
+# upper() / lower() — перевод в верхний / нижний регистр
+print(word.upper())        # "PYTHON PROGRAMMING"
+print(word.lower())        # "python programming"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Методы проверки символов</h2>
+        <p>Возвращают <code>True</code> или <code>False</code>:</p>
+        <pre class="code-block">
+
+print("123".isdigit())      # True  — только цифры
+print("abc".isalpha())      # True  — только буквы
+print("abc123".isalnum())   # True  — только буквы и цифры
+print("   ".isspace())      # True  — только пробельные символы
+print("Hello".isupper())    # False — не все буквы заглавные
+print("HELLO".isupper())    # True
+print("hello".islower())    # True
+print("Hello World".istitle())  # True — каждое слово с заглавной
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Методы поиска и подсчёта</h2>
+        <pre class="code-block">
+
+text = "раз два раз два раз"
+
+print(text.count("раз"))        # 3 — сколько раз встречается подстрока
+print(text.startswith("раз"))   # True — начинается ли с подстроки
+print(text.endswith("два"))     # True — заканчивается ли подстрокой
+
+# find — ищет слева, возвращает индекс или -1
+print(text.find("два"))         # 4
+print(text.find("три"))         # -1 (не найдено)
+
+# rfind — ищет справа
+print(text.rfind("два"))        # 12
+
+# index — как find, но вызывает ошибку, если не найдено
+print(text.index("два"))        # 4
+# print(text.index("три"))      # ValueError!
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Разделение и объединение строк</h2>
+        <pre class="code-block">
+
+# split() — разбивает строку на список по разделителю
+csv = "яблоко,груша,банан"
+fruits = csv.split(",")
+print(fruits)                   # ['яблоко', 'груша', 'банан']
+
+# split() без аргумента — разбивает по пробелам
+words = "Привет   мир!".split()
+print(words)                    # ['Привет', 'мир!']
+
+# join() — объединяет список в строку через разделитель
+joined = ", ".join(fruits)
+print(joined)                   # "яблоко, груша, банан"
+
+# partition() — делит строку на три части (до, разделитель, после)
+phone = "+7-123-456-78-90"
+print(phone.partition("-"))     # ('+7', '-', '123-456-78-90')
+print(phone.rpartition("-"))    # ('+7-123-456-78', '-', '90')
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Удаление пробелов</h2>
+        <pre class="code-block">
+
+s = "  \tтекст\n  "
+
+print(s.strip())    # "текст"       — удаляет пробелы с обоих концов
+print(s.lstrip())   # "текст\n  "   — только слева
+print(s.rstrip())   # "  \tтекст"   — только справа
+
+# Можно указать, какие символы удалять:
+url = "www.example.com"
+print(url.strip("w"))            # ".example.com"
+print(url.strip("."))            # "www.example.com"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Выравнивание и заполнение</h2>
+        <pre class="code-block">
+
+text = "Привет"
+
+print(text.center(15))          # "    Привет    "
+print(text.ljust(15))           # "Привет         "
+print(text.rjust(15))           # "         Привет"
+print(text.center(15, "-"))     # "----Привет----"
+
+# zfill — дополняет слева нулями (удобно для чисел)
+num = "42"
+print(num.zfill(5))             # "00042"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Проверка вхождения (in)</h2>
+        <p>Оператор <code>in</code> проверяет, содержит ли строка подстроку:</p>
+        <pre class="code-block">
+
+text = "Python programming"
+print("Python" in text)    # True
+print("Java" in text)      # False
+
+if "Python" in text:
+    print("Найдено!")
+
+# not in — проверка отсутствия
+if "Java" not in text:
+    print("Java не найдена")
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Неизменяемость строк (immutability)</h2>
+        <p>
+          Строки в Python <strong>нельзя изменить</strong> после создания. Любой
+          метод строки возвращает <strong>новую</strong> строку, а исходная
+          остаётся без изменений:
+        </p>
+        <pre class="code-block">
+
+s = "Привет"
+# s[0] = "п"          # Ошибка! TypeError
+s_upper = s.upper()   # Создаётся новая строка
+print(s)              # "Привет" — исходная не изменилась
+print(s_upper)        # "ПРИВЕТ"
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Сравнение строк</h2>
+        <p>Строки сравниваются лексикографически (по кодам символов):</p>
+        <pre class="code-block">
+
+print("abc" == "abc")   # True
+print("abc" != "xyz")   # True
+print("abc" < "abd")    # True  — 'c' < 'd'
+print("abc" > "ABC")    # True  — строчные буквы имеют больший код
+
+# Сравнение без учёта регистра:
+print("Hello".lower() == "HELLO".lower())   # True
+</pre
+        >
+      </section>
+
+      <section>
+        <h2>Преобразование типов</h2>
+        <pre class="code-block">
+
+# Число → строка
+n = 42
+s = str(n)               # "42"
+
+# Строка → число
+s = "123"
+n = int(s)               # 123
+f = float("3.14")        # 3.14
+</pre
+        >
+      </section>
+
+      <footer class="topic-footer">
+        <a href="07-indentation.html" class="prev-link">← Назад</a>
+        <a href="09-complex-conditions.html" class="next-link">Далее: →</a>
+      </footer>
+    </div>
+  </body>
+</html>

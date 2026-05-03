@@ -10,14 +10,14 @@
     <div class="container">
       <header class="topic-header">
         <a href="index.html" class="back-link">← Назад к оглавлению</a>
-        <h1>06. Сложные условия</h1>
+        <h1>9. Сложные условия</h1>
         <p class="subtitle">and, or, not — логические операторы</p>
       </header>
 
       <section>
         <h2>Логический оператор and</h2>
-<p>and возвращает True, только если оба условия истинны:</p>
-<pre class="code-block">
+        <p>and возвращает True, только если оба условия истинны:</p>
+        <pre class="code-block">
 
 age = 25
 has_license = True
@@ -30,12 +30,13 @@ if age >= 18 and has_license:
 # True and False  -> False
 # False and True  -> False
 # False and False -> False
-</pre>
+</pre
+        >
       </section>
       <section>
         <h2>Логический оператор or</h2>
-<p>or возвращает True, если хотя бы одно условие истинно:</p>
-<pre class="code-block">
+        <p>or возвращает True, если хотя бы одно условие истинно:</p>
+        <pre class="code-block">
 
 is_weekend = True
 is_holiday = False
@@ -48,12 +49,13 @@ if is_weekend or is_holiday:
 # True or False  -> True
 # False or True  -> True
 # False or False -> False
-</pre>
+</pre
+        >
       </section>
       <section>
         <h2>Логический оператор not</h2>
-<p>not инвертирует булево значение:</p>
-<pre class="code-block">
+        <p>not инвертирует булево значение:</p>
+        <pre class="code-block">
 
 is_raining = False
 if not is_raining:
@@ -61,12 +63,13 @@ if not is_raining:
 
 # not True  -> False
 # not False -> True
-</pre>
+</pre
+        >
       </section>
       <section>
         <h2>Сложные составные условия</h2>
-<p>Можно комбинировать несколько операторов:</p>
-<pre class="code-block">
+        <p>Можно комбинировать несколько операторов:</p>
+        <pre class="code-block">
 
 age = 20
 has_ticket = True
@@ -76,12 +79,16 @@ if (age >= 18 and has_ticket) or is_vip:
     print("Проход разрешён")
 
 # Скобки помогают задать порядок вычислений
-</pre>
+</pre
+        >
       </section>
       <section>
         <h2>Short-circuit evaluation</h2>
-<p>Python вычисляет условия слева направо и останавливается, как только результат определён:</p>
-<pre class="code-block">
+        <p>
+          Python вычисляет условия слева направо и останавливается, как только
+          результат определён:
+        </p>
+        <pre class="code-block">
 
 # Если first() вернёт False, second() не вызовется
 if first() and second():
@@ -90,12 +97,13 @@ if first() and second():
 # Если first() вернёт True, second() не вызовется
 if first() or second():
     pass
-</pre>
+</pre
+        >
       </section>
 
       <footer class="topic-footer">
-        <a href="05-string-ops.html" class="prev-link">← Назад</a>
-        <a href="07-nested-structures.html" class="next-link">Далее: →</a>
+        <a href="08-string-ops.html" class="prev-link">← Назад</a>
+        <a href="10-nested-structures.html" class="next-link">Далее: →</a>
       </footer>
     </div>
   </body>
