@@ -1022,21 +1022,8 @@
             t.testData.expected +
             "</td></tr></table>";
         }
-        var defCode, ph;
-        if (
-          t.type == "count-digits" ||
-          t.type == "sum-digits" ||
-          t.type == "minmax"
-        ) {
-          defCode = "x = int(input())\n# Ваш код здесь\nprint(...)";
-          ph =
-            "# Напишите ваше решение здесь...\nx = int(input())\n# Разберите число на цифры\n# while x > 0:\n#     digit = x % 10\n#     x //= 10\nprint(...)";
-        } else {
-          defCode =
-            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if ... :\n        total += x\nprint(total)";
-          ph =
-            "# Напишите ваше решение здесь...\n# Пример:\nn = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if ... :\n        total += x\nprint(total)";
-        }
+        var defCode = "";
+        var ph = "";
         h +=
           '</div><div class="code-section"><label class="code-label">💻 Напишите программу на Python:</label><textarea class="code-editor" id="codeEditor" placeholder="' +
           ph +
