@@ -400,45 +400,16 @@
       </div>
 
       <div class="theory-section">
-        <h2>📋 Типы задач</h2>
-
-        <div class="task-types">
-          <div class="task-type-card">
-            <h4>🔢 Проверка окончания в системе счисления</h4>
-            <p>
-              Дана последовательность чисел. Найти сумму тех, запись которых в
-              системе счисления с основанием p оканчивается на заданную цифру
-              или последовательность цифр.
-            </p>
-          </div>
-
-          <div class="task-type-card">
-            <h4>📊 Проверка предпоследней цифры</h4>
-            <p>
-              Дана последовательность чисел. Найти сумму тех, у которых
-              предпоследняя цифра в записи в системе счисления с основанием p
-              равна заданному значению.
-            </p>
-          </div>
-
-          <div class="task-type-card">
-            <h4>🔍 Анализ цифр числа</h4>
-            <p>
-              Дано натуральное число. Подсчитать сумму или количество его цифр,
-              удовлетворяющих определённому условию (кратность, сравнение с
-              порогом, поиск минимума/максимума).
-            </p>
-          </div>
-
-          <div class="task-type-card" style="border-top-color: #ff9800">
-            <h4>🚦 Ввод до сигнального значения</h4>
-            <p>
-              Количество чисел заранее не известно. Числа вводятся до тех пор,
-              пока не встретится особое сигнальное значение (обычно 0).
-              Программа обрабатывает каждое число, а 0 — признак конца ввода.
-            </p>
-          </div>
-        </div>
+        <h2>🐍 Основы Python</h2>
+        <p>
+          Для успешного выполнения задания 16 необходимо владеть основами языка
+          Python. Полный курс <strong>«Основы Python»</strong> (от истории
+          языка, типов данных, переменных, условий и циклов до множеств,
+          списков, словарей и списочных выражений) доступен на сайте
+          <a href="https://python.nayanovaacademy.ru/"
+            >python.nayanovaacademy.ru</a
+          >.
+        </p>
       </div>
 
       <div class="theory-section">
@@ -805,6 +776,58 @@
             0 — сигнал конца, не обрабатываем<br />
             <strong>Ответ:</strong> 13 + 18 = 31
           </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Вариант: найти среднее арифметическое</h2>
+        <p>
+          Помимо подсчёта <strong>суммы</strong> отобранных чисел или их
+          <strong>количества</strong>, в задании 16 может потребоваться найти
+          <strong>среднее арифметическое</strong> тех элементов
+          последовательности, которые удовлетворяют заданному условию.
+        </p>
+        <p>Для этого нужно накапливать одновременно две переменные:</p>
+        <div class="code-block">
+          total_sum = <span class="number">0</span><br />
+          count = <span class="number">0</span><br />
+          <br />
+          <span class="keyword">for</span> i <span class="keyword">in</span>
+          <span class="builtin">range</span>(n):<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;x = <span class="builtin">int</span>(<span
+            class="builtin"
+            >input</span
+          >())<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>
+          <span class="comment"># условие отбора</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_sum += x<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count +=
+          <span class="number">1</span><br />
+          <br />
+          <span class="keyword">if</span> count >
+          <span class="number">0</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="builtin">print</span>(total_sum /
+          count)<br />
+          <span class="keyword">else</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="builtin">print</span>(<span
+            class="number"
+            >0</span
+          >)
+        </div>
+        <p>
+          Важно помнить, что если ни одно число не подошло под условие, то
+          <code>count == 0</code>. Делить на ноль нельзя, поэтому сначала
+          проверяем <code>count > 0</code>. В ответ при таком случае, вероятнее
+          всего, нужно вывести <strong>0</strong>.
+        </p>
+        <div class="tip-box">
+          <h4>💡 Связь со стандартными формулами</h4>
+          <p>
+            Среднее арифметическое отобранных чисел считается так же, как и
+            всегда: <strong>сумма ÷ количество</strong>. Поэтому в коде
+            достаточно завести две переменные-счётчика: одна для суммы, другая
+            для количества подходящих чисел.
+          </p>
         </div>
       </div>
 
