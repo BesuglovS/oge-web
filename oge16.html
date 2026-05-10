@@ -1,0 +1,1253 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 16 ОГЭ - Программирование</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 1.8rem;
+      }
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .task-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .task-type {
+        background: linear-gradient(145deg, #11998e, #38ef7d);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+      .task-type.end-digit {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+      }
+      .task-type.end-two {
+        background: linear-gradient(145deg, #f093fb, #f5576c);
+      }
+      .task-type.penult {
+        background: linear-gradient(145deg, #4facfe, #00f2fe);
+      }
+      .task-type.count-digits {
+        background: linear-gradient(145deg, #fa709a, #fee140);
+      }
+      .task-type.sum-digits {
+        background: linear-gradient(145deg, #a18cd1, #fbc2eb);
+      }
+      .task-type.minmax {
+        background: linear-gradient(145deg, #ff9a9e, #fecfef);
+      }
+      .task-text {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+        margin-bottom: 20px;
+      }
+      .task-text .highlight {
+        background: linear-gradient(145deg, #fff9c4, #fff59d);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .task-text .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+      }
+      .input-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        max-width: 500px;
+      }
+      .input-table th,
+      .input-table td {
+        padding: 10px 15px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+      .input-table th {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+      }
+      .input-table td {
+        background: #f9f9f9;
+      }
+      .code-section {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+      .code-label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        display: block;
+        font-size: 1.05rem;
+      }
+      .code-editor {
+        width: 100%;
+        min-height: 220px;
+        padding: 16px 20px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #d4d4d4;
+        background: #1e1e1e;
+        border: 2px solid #333;
+        border-radius: 10px;
+        resize: vertical;
+        tab-size: 4;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .code-editor:focus {
+        outline: none;
+        border-color: #569cd6;
+        box-shadow: 0 0 10px rgba(86, 156, 214, 0.3);
+      }
+      .code-editor::placeholder {
+        color: #6a9955;
+        font-style: italic;
+      }
+      .buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        font-weight: 500;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+      .btn-run {
+        background: linear-gradient(145deg, #11998e, #38ef7d);
+        color: white;
+      }
+      .btn-run:hover:not(:disabled) {
+        background: linear-gradient(145deg, #0e8a7f, #2ed86e);
+      }
+      .btn-next {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+        color: white;
+      }
+      .btn-hint {
+        background: linear-gradient(145deg, #ff9800, #ffc107);
+        color: white;
+      }
+      .btn-solution {
+        background: linear-gradient(145deg, #6c757d, #adb5bd);
+        color: white;
+      }
+      .output-section {
+        margin-top: 20px;
+        padding: 16px 20px;
+        border-radius: 10px;
+        display: none;
+      }
+      .output-section.show {
+        display: block;
+      }
+      .output-section.success {
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+      }
+      .output-section.error {
+        background: #ffebee;
+        border: 2px solid #f44336;
+      }
+      .output-section.runtime-error {
+        background: #fff3e0;
+        border: 2px solid #ff9800;
+      }
+      .output-section.loading {
+        background: #e3f2fd;
+        border: 2px solid #2196f3;
+        display: block;
+      }
+      .output-title {
+        font-weight: bold;
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+      }
+      .output-content {
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 12px 16px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      .output-detail {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      .hint-box,
+      .solution-box {
+        background: #fff8e1;
+        border: 2px solid #ffc107;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        display: none;
+      }
+      .solution-box {
+        background: #f3e5f5;
+        border-color: #9c27b0;
+      }
+      .hint-title,
+      .solution-title {
+        font-weight: bold;
+        margin-bottom: 12px;
+        font-size: 1.05rem;
+      }
+      .solution-step {
+        background: rgba(255, 255, 255, 0.8);
+        border-left: 4px solid #9c27b0;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        border-radius: 0 8px 8px 0;
+        line-height: 1.6;
+      }
+      .solution-step .code-block-display {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin: 12px 0;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-x: auto;
+      }
+      .quick-nav {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .quick-nav-btn {
+        width: 55px;
+        height: 55px;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+      .quick-nav-btn.practice {
+        background: linear-gradient(145deg, #11998e, #38ef7d);
+        color: white;
+      }
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+        color: white;
+      }
+      .spinner {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Test results table */
+      .test-results {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.9rem;
+      }
+      .test-results th,
+      .test-results td {
+        padding: 8px 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+      .test-results th {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+      }
+      .test-results td {
+        background: #f9f9f9;
+      }
+      .test-results .pass {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .test-results .fail {
+        color: #f44336;
+        font-weight: bold;
+      }
+      .test-summary {
+        margin-top: 15px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.05rem;
+        text-align: center;
+      }
+      .test-summary.all-pass {
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        color: #2e7d32;
+      }
+      .test-summary.some-fail {
+        background: #ffebee;
+        border: 2px solid #f44336;
+        color: #c62828;
+      }
+      .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        margin: 10px 0;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+      @media (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+        .task-card {
+          padding: 15px;
+        }
+        .btn {
+          flex: 1;
+          text-align: center;
+          font-size: 0.9rem;
+          padding: 10px 16px;
+        }
+        .quick-nav {
+          bottom: 15px;
+          right: 15px;
+        }
+        .quick-nav-btn {
+          width: 45px;
+          height: 45px;
+          font-size: 1.1rem;
+        }
+        .test-results {
+          font-size: 0.8rem;
+        }
+        .test-results th,
+        .test-results td {
+          padding: 5px 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📝 Задание 16 ОГЭ: Программирование на Python</h1>
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← Назад к списку заданий</a>
+        <a href="oge16-t.html" class="back-link" target="_blank">📖 Теория</a>
+      </div>
+      <div class="task-card" id="taskCard"></div>
+      <div class="hint-box" id="hintBox">
+        <div class="hint-title">💡 Подсказка</div>
+        <div id="hintText"></div>
+      </div>
+      <div class="solution-box" id="solutionBox">
+        <div class="solution-title">📝 Решение</div>
+        <div id="solutionSteps"></div>
+      </div>
+    </div>
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn practice"
+        onclick="location.href = 'oge16-t.html'"
+        title="Теория"
+      >
+        📖
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+    <script>
+      var tasks = [
+        {
+          id: "16-01",
+          type: "end-digit",
+          typeLabel: "Окончание на цифру",
+          base: 5,
+          baseText: "5-ричной",
+          conditionText: "оканчивается на цифру 3",
+          testData: { input: "5\n15\n13\n18\n17\n19", expected: "31" },
+          hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=5, d=3.',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 5 == 3:\n        total += x\nprint(total)",
+          tests: [
+            { input: "5\n15\n13\n18\n17\n19", expected: "31" },
+            { input: "1\n3", expected: "3" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n4", expected: "0" },
+            { input: "3\n3\n8\n13", expected: "24" },
+            { input: "2\n1003\n2003", expected: "3006" },
+            { input: "2\n5\n10", expected: "0" },
+            { input: "3\n3\n18\n23", expected: "44" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n7\n12\n17\n22", expected: "58" },
+          ],
+        },
+        {
+          id: "16-02",
+          type: "end-digit",
+          typeLabel: "Окончание на цифру",
+          base: 9,
+          baseText: "9-ричной",
+          conditionText: "оканчивается на цифру 5",
+          testData: { input: "5\n15\n14\n9\n5\n19", expected: "19" },
+          hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=9, d=5.',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 9 == 5:\n        total += x\nprint(total)",
+          tests: [
+            { input: "5\n15\n14\n9\n5\n19", expected: "19" },
+            { input: "1\n5", expected: "5" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n5\n14\n23", expected: "42" },
+            { input: "2\n1004\n2003", expected: "3007" },
+            { input: "2\n9\n18", expected: "0" },
+            { input: "3\n5\n23\n32", expected: "60" },
+            { input: "1\n999", expected: "0" },
+            { input: "4\n14\n23\n32\n41", expected: "110" },
+          ],
+        },
+        {
+          id: "16-03",
+          type: "end-digit",
+          typeLabel: "Окончание на цифру",
+          base: 11,
+          baseText: "11-ричной",
+          conditionText: "оканчивается на цифру 4",
+          testData: { input: "5\n15\n13\n26\n41\n19", expected: "41" },
+          hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=11, d=4.',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 11 == 4:\n        total += x\nprint(total)",
+          tests: [
+            { input: "5\n15\n13\n26\n41\n19", expected: "41" },
+            { input: "1\n4", expected: "4" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n4\n15\n26", expected: "45" },
+            { input: "2\n15\n26", expected: "41" },
+            { input: "2\n11\n22", expected: "0" },
+            { input: "3\n4\n26\n37", expected: "67" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n15\n26\n37\n48", expected: "126" },
+          ],
+        },
+        {
+          id: "16-04",
+          type: "end-digit",
+          typeLabel: "Окончание на цифру",
+          base: 12,
+          baseText: "12-ричной",
+          conditionText: "оканчивается на цифру 7",
+          testData: { input: "5\n15\n31\n50\n61\n19", expected: "50" },
+          hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=12, d=7.',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 12 == 7:\n        total += x\nprint(total)",
+          tests: [
+            { input: "5\n15\n31\n50\n61\n19", expected: "50" },
+            { input: "1\n7", expected: "7" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n7\n19\n31", expected: "57" },
+            { input: "2\n1003\n2003", expected: "1003" },
+            { input: "2\n12\n24", expected: "0" },
+            { input: "3\n7\n31\n43", expected: "81" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n19\n31\n43\n55", expected: "148" },
+          ],
+        },
+        {
+          id: "16-05",
+          type: "end-two",
+          typeLabel: "Окончание на две цифры",
+          base: 7,
+          baseText: "7-ричной",
+          conditionText: "оканчивается на 21",
+          testData: { input: "4\n15\n79\n64\n121", expected: "79" },
+          hint: 'Две последние цифры ab в p-ричной системе: <span class="code">x % (p*p) == a*p + b</span>. 2*7+1=15, p*p=49.',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 49 == 15:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n15\n79\n64\n121", expected: "79" },
+            { input: "1\n15", expected: "15" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n15\n64\n113", expected: "192" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n49\n98", expected: "0" },
+            { input: "3\n15\n113\n162", expected: "290" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n64\n113\n162\n211", expected: "550" },
+          ],
+        },
+        {
+          id: "16-06",
+          type: "end-two",
+          typeLabel: "Окончание на две цифры",
+          base: 8,
+          baseText: "8-ричной",
+          conditionText: "оканчивается на 32",
+          testData: { input: "4\n90\n116\n26\n32", expected: "116" },
+          hint: '3*8+2=26, 8*8=64. Условие: <span class="code">x % 64 == 26</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 64 == 26:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n90\n116\n26\n32", expected: "116" },
+            { input: "1\n26", expected: "26" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n26\n90\n154", expected: "270" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n64\n128", expected: "0" },
+            { input: "3\n26\n154\n218", expected: "398" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n90\n154\n218\n282", expected: "744" },
+          ],
+        },
+        {
+          id: "16-07",
+          type: "end-two",
+          typeLabel: "Окончание на две цифры",
+          base: 5,
+          baseText: "5-ричной",
+          conditionText: "оканчивается на 11",
+          testData: { input: "4\n131\n31\n27\n162", expected: "162" },
+          hint: '1*5+1=6, 5*5=25. Условие: <span class="code">x % 25 == 6</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 25 == 6:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n131\n31\n27\n162", expected: "162" },
+            { input: "1\n6", expected: "6" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n6\n31\n56", expected: "93" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n25\n50", expected: "0" },
+            { input: "3\n6\n56\n81", expected: "143" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n31\n56\n81\n106", expected: "274" },
+          ],
+        },
+        {
+          id: "16-08",
+          type: "end-two",
+          typeLabel: "Окончание на три цифры",
+          base: 3,
+          baseText: "3-ичной",
+          conditionText: "оканчивается на 121",
+          testData: { input: "4\n16\n31\n70\n86", expected: "86" },
+          hint: '1*9+2*3+1=16, 3*3*3=27. Условие: <span class="code">x % 27 == 16</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 27 == 16:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n16\n31\n70\n86", expected: "86" },
+            { input: "1\n16", expected: "16" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n16\n43\n70", expected: "129" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n27\n54", expected: "0" },
+            { input: "3\n16\n70\n97", expected: "183" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n43\n70\n97\n124", expected: "334" },
+          ],
+        },
+        {
+          id: "16-09",
+          type: "penult",
+          typeLabel: "Предпоследняя цифра",
+          base: 8,
+          baseText: "8",
+          conditionText:
+            "предпоследняя цифра в записи которых в системе счисления с основанием 8 равна 3",
+          testData: { input: "4\n24\n32\n88\n112", expected: "112" },
+          hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=8: <span class="code">(x // 8) % 8 == 3</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 8) % 8 == 3:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n24\n32\n88\n112", expected: "112" },
+            { input: "1\n24", expected: "24" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n24\n88\n152", expected: "264" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n64\n128", expected: "0" },
+            { input: "3\n24\n152\n216", expected: "392" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n88\n152\n216\n280", expected: "736" },
+          ],
+        },
+        {
+          id: "16-10",
+          type: "penult",
+          typeLabel: "Предпоследняя цифра",
+          base: 7,
+          baseText: "7",
+          conditionText:
+            "предпоследняя цифра в записи которых в системе счисления с основанием 7 равна 2",
+          testData: { input: "4\n16\n67\n200\n117", expected: "200" },
+          hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=7: <span class="code">(x // 7) % 7 == 2</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 7) % 7 == 2:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n16\n67\n200\n117", expected: "200" },
+            { input: "1\n14", expected: "14" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n14\n63\n112", expected: "189" },
+            { input: "2\n1000\n2000", expected: "1000" },
+            { input: "2\n49\n98", expected: "0" },
+            { input: "3\n14\n112\n161", expected: "287" },
+            { input: "1\n1000", expected: "1000" },
+            { input: "4\n63\n112\n161\n210", expected: "546" },
+          ],
+        },
+        {
+          id: "16-11",
+          type: "penult",
+          typeLabel: "Предпоследняя цифра",
+          base: 4,
+          baseText: "4",
+          conditionText:
+            "предпоследняя цифра в записи которых в системе счисления с основанием 4 равна 3",
+          testData: { input: "4\n12\n67\n30\n42", expected: "42" },
+          hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=4: <span class="code">(x // 4) % 4 == 3</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 4) % 4 == 3:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n12\n67\n30\n42", expected: "42" },
+            { input: "1\n12", expected: "12" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n3", expected: "0" },
+            { input: "3\n12\n28\n44", expected: "84" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n16\n32", expected: "0" },
+            { input: "3\n12\n44\n60", expected: "116" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n28\n44\n60\n76", expected: "208" },
+          ],
+        },
+        {
+          id: "16-12",
+          type: "penult",
+          typeLabel: "Предпоследняя цифра",
+          base: 3,
+          baseText: "3",
+          conditionText:
+            "предпоследняя цифра в записи которых в системе счисления с основанием 3 равна 1",
+          testData: { input: "4\n5\n101\n13\n85", expected: "103" },
+          hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=3: <span class="code">(x // 3) % 3 == 1</span>',
+          solutionCode:
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 3) % 3 == 1:\n        total += x\nprint(total)",
+          tests: [
+            { input: "4\n5\n101\n13\n85", expected: "103" },
+            { input: "1\n3", expected: "3" },
+            { input: "1\n1", expected: "0" },
+            { input: "3\n1\n2\n4", expected: "0" },
+            { input: "3\n3\n12\n21", expected: "36" },
+            { input: "2\n1000\n2000", expected: "0" },
+            { input: "2\n9\n18", expected: "0" },
+            { input: "3\n3\n21\n30", expected: "54" },
+            { input: "1\n1000", expected: "0" },
+            { input: "4\n12\n21\n30\n39", expected: "102" },
+          ],
+        },
+        {
+          id: "16-13",
+          type: "count-digits",
+          typeLabel: "Подсчёт цифр",
+          number: 326,
+          conditionText:
+            "количества цифр в записи натурального числа, числовое значение которых кратно 3",
+          testData: { input: "326", expected: "2" },
+          hint: 'Разберите число на цифры через <span class="code">while temp > 0: digit = temp % 10; temp //= 10</span>. Считайте цифры, кратные 3.',
+          solutionCode:
+            "x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 3 == 0:\n        count += 1\n    temp //= 10\nprint(count)",
+          tests: [
+            { input: "326", expected: "2" },
+            { input: "3", expected: "1" },
+            { input: "1", expected: "0" },
+            { input: "369", expected: "3" },
+            { input: "124", expected: "0" },
+            { input: "9999999999", expected: "10" },
+            { input: "100", expected: "2" },
+            { input: "123456789", expected: "3" },
+            { input: "10", expected: "1" },
+            { input: "9999999998", expected: "9" },
+          ],
+        },
+        {
+          id: "16-14",
+          type: "count-digits",
+          typeLabel: "Подсчёт цифр",
+          number: 28461,
+          conditionText:
+            "количества цифр в записи натурального числа, числовое значение которых кратно 4",
+          testData: { input: "28461", expected: "2" },
+          hint: 'Цифры числа: 2,8,4,6,1. Кратны 4: 8 и 4. Используйте <span class="code">digit % 4 == 0</span>',
+          solutionCode:
+            "x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 4 == 0:\n        count += 1\n    temp //= 10\nprint(count)",
+          tests: [
+            { input: "28461", expected: "2" },
+            { input: "4", expected: "1" },
+            { input: "1", expected: "0" },
+            { input: "48", expected: "2" },
+            { input: "123", expected: "0" },
+            { input: "4444444444", expected: "10" },
+            { input: "100", expected: "2" },
+            { input: "12345678", expected: "2" },
+            { input: "40", expected: "2" },
+            { input: "8888888888", expected: "10" },
+          ],
+        },
+        {
+          id: "16-15",
+          type: "sum-digits",
+          typeLabel: "Сумма цифр",
+          number: 28461,
+          conditionText:
+            "суммы цифр в записи натурального числа, числовое значение которых не кратно 4",
+          testData: { input: "28461", expected: "9" },
+          hint: "Цифры числа: 2,8,4,6,1. Не кратны 4: 2,6,1. Сумма = 2+6+1 = 9",
+          solutionCode:
+            "x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 4 != 0:\n        total += digit\n    temp //= 10\nprint(total)",
+          tests: [
+            { input: "28461", expected: "9" },
+            { input: "4", expected: "0" },
+            { input: "1", expected: "1" },
+            { input: "48", expected: "0" },
+            { input: "123", expected: "6" },
+            { input: "4444444444", expected: "0" },
+            { input: "100", expected: "1" },
+            { input: "12345678", expected: "24" },
+            { input: "40", expected: "0" },
+            { input: "123", expected: "6" },
+          ],
+        },
+        {
+          id: "16-16",
+          type: "sum-digits",
+          typeLabel: "Сумма цифр",
+          number: 28463,
+          conditionText:
+            "суммы цифр в записи натурального числа, числовое значение которых не кратно 3",
+          testData: { input: "28463", expected: "14" },
+          hint: "Цифры числа: 2,8,4,6,3. Не кратны 3: 2,8,4. Сумма = 2+8+4 = 14",
+          solutionCode:
+            "x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 3 != 0:\n        total += digit\n    temp //= 10\nprint(total)",
+          tests: [
+            { input: "28463", expected: "14" },
+            { input: "3", expected: "0" },
+            { input: "1", expected: "1" },
+            { input: "369", expected: "0" },
+            { input: "124", expected: "7" },
+            { input: "3333333333", expected: "0" },
+            { input: "100", expected: "1" },
+            { input: "123456789", expected: "27" },
+            { input: "40", expected: "4" },
+            { input: "124578", expected: "27" },
+          ],
+        },
+        {
+          id: "16-17",
+          type: "sum-digits",
+          typeLabel: "Сумма цифр",
+          number: 84069,
+          conditionText:
+            "суммы цифр в записи натурального числа, числовое значение которых больше 7",
+          testData: { input: "84069", expected: "17" },
+          hint: "Цифры числа: 8,4,0,6,9. Больше 7: 8,9. Сумма = 8+9 = 17",
+          solutionCode:
+            "x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit > 7:\n        total += digit\n    temp //= 10\nprint(total)",
+          tests: [
+            { input: "84069", expected: "17" },
+            { input: "8", expected: "8" },
+            { input: "1", expected: "0" },
+            { input: "89", expected: "17" },
+            { input: "123", expected: "0" },
+            { input: "9999999999", expected: "90" },
+            { input: "100", expected: "0" },
+            { input: "123456789", expected: "17" },
+            { input: "70", expected: "0" },
+            { input: "8888888888", expected: "80" },
+          ],
+        },
+        {
+          id: "16-18",
+          type: "sum-digits",
+          typeLabel: "Сумма цифр",
+          number: 84059,
+          conditionText:
+            "суммы цифр в записи натурального числа, числовое значение которых не больше 6",
+          testData: { input: "84059", expected: "9" },
+          hint: "Цифры числа: 8,4,0,5,9. Не больше 6: 4,0,5. Сумма = 4+0+5 = 9",
+          solutionCode:
+            "x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit <= 6:\n        total += digit\n    temp //= 10\nprint(total)",
+          tests: [
+            { input: "84059", expected: "9" },
+            { input: "6", expected: "6" },
+            { input: "7", expected: "0" },
+            { input: "123", expected: "6" },
+            { input: "789", expected: "0" },
+            { input: "1111111111", expected: "10" },
+            { input: "100", expected: "1" },
+            { input: "123456789", expected: "21" },
+            { input: "60", expected: "6" },
+            { input: "6666666666", expected: "60" },
+          ],
+        },
+        {
+          id: "16-19",
+          type: "minmax",
+          typeLabel: "Минимальная цифра",
+          number: 84159,
+          conditionText: "минимальную цифру в записи натурального числа",
+          testData: { input: "84159", expected: "1" },
+          hint: 'Инициализируйте <span class="code">min_digit = 9</span> и сравнивайте каждую цифру.',
+          solutionCode:
+            "x = int(input())\nmin_digit = 9\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit < min_digit:\n        min_digit = digit\n    temp //= 10\nprint(min_digit)",
+          tests: [
+            { input: "84159", expected: "1" },
+            { input: "5", expected: "5" },
+            { input: "111", expected: "1" },
+            { input: "9876543210", expected: "0" },
+            { input: "123456789", expected: "1" },
+            { input: "9999999999", expected: "9" },
+            { input: "100", expected: "0" },
+            { input: "12", expected: "1" },
+            { input: "987654321", expected: "1" },
+            { input: "1000000000", expected: "0" },
+          ],
+        },
+        {
+          id: "16-20",
+          type: "minmax",
+          typeLabel: "Максимальная цифра",
+          number: 84951,
+          conditionText: "максимальную цифру в записи натурального числа",
+          testData: { input: "84951", expected: "9" },
+          hint: 'Инициализируйте <span class="code">max_digit = 0</span> и сравнивайте каждую цифру.',
+          solutionCode:
+            "x = int(input())\nmax_digit = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit > max_digit:\n        max_digit = digit\n    temp //= 10\nprint(max_digit)",
+          tests: [
+            { input: "84951", expected: "9" },
+            { input: "5", expected: "5" },
+            { input: "111", expected: "1" },
+            { input: "123456789", expected: "9" },
+            { input: "9876543210", expected: "9" },
+            { input: "1111111111", expected: "1" },
+            { input: "100", expected: "1" },
+            { input: "12", expected: "2" },
+            { input: "123456789", expected: "9" },
+            { input: "1000000000", expected: "1" },
+          ],
+        },
+      ];
+
+      var cur = 0;
+      var task = null;
+
+      function genTask() {
+        cur = Math.floor(Math.random() * tasks.length);
+        task = tasks[cur];
+        renderTask(task);
+        hideHints();
+        var os = document.getElementById("outputSection");
+        if (os) os.className = "output-section";
+      }
+
+      function renderTask(t) {
+        var c = document.getElementById("taskCard");
+        var h =
+          '<div class="task-header"><span class="task-type ' +
+          t.type +
+          '">' +
+          t.typeLabel +
+          '</span><span class="task-type" style="background:linear-gradient(145deg,#6c757d,#adb5bd);">Задание ' +
+          t.id +
+          '</span></div><div class="task-text"><p>Напишите программу подсчёта';
+        if (t.type == "end-digit" || t.type == "end-two") {
+          h +=
+            ' суммы элементов последовательности натуральных чисел, запись которых в <span class="highlight">' +
+            t.baseText +
+            "</span> системе счисления " +
+            t.conditionText +
+            '. В ответе запишите только сумму.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — искомую сумму элементов, записанную в десятичной системе счисления.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            t.testData.input.replace(/\n/g, "<br>") +
+            "</td><td>" +
+            t.testData.expected +
+            "</td></tr></table>";
+        } else if (t.type == "penult") {
+          h +=
+            " суммы элементов последовательности натуральных чисел, " +
+            t.conditionText +
+            '. В ответе запишите только сумму.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — искомую сумму элементов, записанную в десятичной системе счисления.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            t.testData.input.replace(/\n/g, "<br>") +
+            "</td><td>" +
+            t.testData.expected +
+            "</td></tr></table>";
+        } else if (t.type == "count-digits") {
+          h +=
+            " " +
+            t.conditionText +
+            '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только одно число — искомое количество цифр.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            t.number +
+            "</td><td>" +
+            t.testData.expected +
+            "</td></tr></table>";
+        } else if (t.type == "sum-digits") {
+          h +=
+            " " +
+            t.conditionText +
+            '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только одно число — искомую сумму цифр.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            t.number +
+            "</td><td>" +
+            t.testData.expected +
+            "</td></tr></table>";
+        } else if (t.type == "minmax") {
+          h +=
+            " " +
+            t.conditionText +
+            '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только искомую цифру.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            t.number +
+            "</td><td>" +
+            t.testData.expected +
+            "</td></tr></table>";
+        }
+        var defCode, ph;
+        if (
+          t.type == "count-digits" ||
+          t.type == "sum-digits" ||
+          t.type == "minmax"
+        ) {
+          defCode = "x = int(input())\n# Ваш код здесь\nprint(...)";
+          ph =
+            "# Напишите ваше решение здесь...\nx = int(input())\n# Разберите число на цифры\n# while x > 0:\n#     digit = x % 10\n#     x //= 10\nprint(...)";
+        } else {
+          defCode =
+            "n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if ... :\n        total += x\nprint(total)";
+          ph =
+            "# Напишите ваше решение здесь...\n# Пример:\nn = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if ... :\n        total += x\nprint(total)";
+        }
+        h +=
+          '</div><div class="code-section"><label class="code-label">💻 Напишите программу на Python:</label><textarea class="code-editor" id="codeEditor" placeholder="' +
+          ph +
+          '" spellcheck="false">' +
+          defCode +
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div></div><div class="output-section" id="outputSection"></div>';
+        c.innerHTML = h;
+        var ed = document.getElementById("codeEditor");
+        if (ed) ed.focus();
+      }
+
+      function runCode() {
+        var code = document.getElementById("codeEditor").value.trim();
+        var runBtn = document.getElementById("runBtn");
+        var os = document.getElementById("outputSection");
+        if (!code) {
+          os.className = "output-section show runtime-error";
+          os.innerHTML =
+            '<div class="output-title">⚠️ Ошибка</div><div class="output-content">Введите код программы.</div>';
+          return;
+        }
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<span class="spinner"></span> Выполнение...';
+        os.className = "output-section show loading";
+        os.innerHTML =
+          '<div class="output-title">⏳ Запуск тестов (0/10)...</div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="output-content">Запускаем вашу программу на 10 тестах...</div>';
+
+        var tests = task.tests;
+        var results = [];
+        var passed = 0;
+        var failed = 0;
+        var currentTest = 0;
+
+        function runNextTest() {
+          if (currentTest >= tests.length) {
+            // All tests done
+            runBtn.disabled = false;
+            runBtn.innerHTML = "▶ Запустить и проверить (10 тестов)";
+            showTestResults(results, passed, failed);
+            return;
+          }
+
+          var test = tests[currentTest];
+          var testNum = currentTest + 1;
+          var progressBar = document.getElementById("progressBar");
+          if (progressBar) {
+            progressBar.style.width = (currentTest / tests.length) * 100 + "%";
+          }
+
+          var loadingContent = document.querySelector(
+            ".output-section.loading .output-content",
+          );
+          if (loadingContent) {
+            loadingContent.textContent =
+              "Тест " +
+              testNum +
+              "/10: " +
+              test.input.replace(/\n/g, " ") +
+              " → ожидается " +
+              test.expected;
+          }
+
+          var fd = new FormData();
+          fd.append("code", code);
+          fd.append("test_input", test.input);
+          fd.append("expected_output", test.expected);
+
+          fetch("run_python.php", { method: "POST", body: fd })
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (d) {
+              var ok = false;
+              var output = "";
+              if (d.error) {
+                output = "Ошибка: " + d.error;
+                ok = false;
+              } else if (d.matched) {
+                output = d.output;
+                ok = true;
+              } else {
+                output = d.output !== undefined ? d.output : "(пусто)";
+                ok = false;
+              }
+              results.push({
+                num: testNum,
+                input: test.input,
+                expected: test.expected,
+                got: output,
+                passed: ok,
+              });
+              if (ok) passed++;
+              else failed++;
+              currentTest++;
+              runNextTest();
+            })
+            .catch(function (err) {
+              results.push({
+                num: testNum,
+                input: test.input,
+                expected: test.expected,
+                got: "Ошибка соединения: " + err.message,
+                passed: false,
+              });
+              failed++;
+              currentTest++;
+              runNextTest();
+            });
+        }
+
+        runNextTest();
+      }
+
+      function showTestResults(results, passed, failed) {
+        var os = document.getElementById("outputSection");
+        var total = results.length;
+        var allPassed = failed === 0;
+
+        var h =
+          '<div class="output-title">' +
+          (allPassed
+            ? "✅ Все тесты пройдены!"
+            : "❌ Пройдено " + passed + "/" + total + " тестов") +
+          "</div>";
+
+        h +=
+          '<div class="test-summary ' +
+          (allPassed ? "all-pass" : "some-fail") +
+          '">' +
+          "Результат: " +
+          passed +
+          " ✓ / " +
+          failed +
+          " ✗ из " +
+          total +
+          "</div>";
+
+        h +=
+          '<table class="test-results"><tr><th>#</th><th>Входные данные</th><th>Ожидалось</th><th>Получено</th><th>Статус</th></tr>';
+
+        for (var i = 0; i < results.length; i++) {
+          var r = results[i];
+          var statusClass = r.passed ? "pass" : "fail";
+          var statusText = r.passed ? "✓" : "✗";
+          h +=
+            "<tr><td>" +
+            r.num +
+            '</td><td style="font-size:0.85rem;font-family:monospace;">' +
+            esc(r.input.replace(/\n/g, " ")) +
+            '</td><td style="font-family:monospace;">' +
+            esc(r.expected) +
+            '</td><td style="font-family:monospace;">' +
+            esc(r.got) +
+            '</td><td class="' +
+            statusClass +
+            '">' +
+            statusText +
+            "</td></tr>";
+        }
+
+        h += "</table>";
+
+        if (!allPassed) {
+          h +=
+            '<div class="output-detail" style="margin-top:12px;">💡 Проверьте логику вашей программы. ' +
+            "Обратите внимание на тесты, которые не прошли.</div>";
+        }
+
+        os.className =
+          "output-section show " + (allPassed ? "success" : "error");
+        os.innerHTML = h;
+      }
+
+      function nextTask() {
+        genTask();
+      }
+
+      function showHint() {
+        document.getElementById("hintBox").style.display = "block";
+        document.getElementById("hintText").innerHTML = task.hint;
+      }
+
+      function showSolution() {
+        var sb = document.getElementById("solutionBox");
+        var ss = document.getElementById("solutionSteps");
+        var sc = task.solutionCode;
+        ss.innerHTML =
+          '<div class="solution-step"><strong>Программа на Python:</strong><div class="code-block-display">' +
+          sc.replace(/\n/g, "<br>").replace(/  /g, "&nbsp;&nbsp;") +
+          '</div></div><div class="solution-step" style="background:#e8f5e9;border-left-color:#4caf50;"><strong>Ожидаемый результат: ' +
+          task.testData.expected +
+          '</strong></div><div class="solution-step"><strong>💡 Как это работает:</strong><br>Программа считывает данные, обрабатывает каждое число, проверяет условие и накапливает результат. В конце выводит его.</div>';
+        sb.style.display = "block";
+      }
+
+      function hideHints() {
+        document.getElementById("hintBox").style.display = "none";
+        document.getElementById("solutionBox").style.display = "none";
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function esc(s) {
+        var d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      genTask();
+    </script>
+  </body>
+</html>
