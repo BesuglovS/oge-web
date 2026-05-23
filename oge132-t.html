@@ -1,0 +1,2606 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Теория: Текстовые редакторы и Задание 13.2 ОГЭ — Изучение офисных приложений
+    </title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .back-link.active {
+        background: rgba(255, 255, 255, 0.35);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .theory-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .theory-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .theory-section h3 {
+        color: #444;
+        margin: 20px 0 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .theory-section h4 {
+        color: #555;
+        margin: 15px 0 8px 0;
+        font-size: 1.05rem;
+      }
+
+      .theory-section p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 12px;
+      }
+
+      .theory-section ul,
+      .theory-section ol {
+        margin: 10px 0 15px 25px;
+        color: #555;
+        line-height: 1.8;
+      }
+
+      .theory-section li {
+        margin-bottom: 8px;
+      }
+
+      .theory-section table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+
+      .theory-section table th {
+        background: linear-gradient(145deg, #2b5876 0%, #4e4376 100%);
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .theory-section table td {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        color: #555;
+        vertical-align: top;
+      }
+
+      .theory-section table tr:nth-child(even) {
+        background: #f5f7fa;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .feature-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #2b5876;
+      }
+
+      .feature-card h4 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .feature-card p {
+        color: #666;
+        font-size: 0.95rem;
+        margin: 0;
+      }
+
+      .example-box {
+        background: #e8f5e9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4caf50;
+      }
+
+      .example-box h4 {
+        color: #2e7d32;
+        margin-bottom: 10px;
+      }
+
+      .example-box p,
+      .example-box li {
+        color: #333;
+      }
+
+      .tip-box {
+        background: #e3f2fd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #2196f3;
+      }
+
+      .tip-box h4 {
+        color: #1565c0;
+        margin-bottom: 10px;
+      }
+
+      .warning-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #ff9800;
+      }
+
+      .warning-box h4 {
+        color: #e65100;
+        margin-bottom: 10px;
+      }
+
+      .error-box {
+        background: #fce4ec;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #e53935;
+      }
+
+      .error-box h4 {
+        color: #c62828;
+        margin-bottom: 10px;
+      }
+
+      .checklist-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 15px;
+        margin: 8px 0;
+        background: #f5f7fa;
+        border-radius: 10px;
+        border-left: 4px solid #2b5876;
+      }
+
+      .checklist-item .check-icon {
+        font-size: 1.3rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .checklist-item .check-text {
+        color: #444;
+        line-height: 1.6;
+      }
+
+      .checklist-item .check-text strong {
+        color: #2b5876;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #2b5876 0%, #4e4376 100%);
+        color: white;
+      }
+
+      .code {
+        background: #f5f5f5;
+        padding: 2px 8px;
+        border-radius: 4px;
+              font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        border: 1px solid #ddd;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        margin: 15px 0;
+      }
+
+      .sample-text {
+        background: #fafafa;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 25px;
+        margin: 15px 0;
+        font-family: "Times New Roman", serif;
+      }
+
+      .sample-text .title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+      }
+
+      .sample-text .body {
+        font-size: 1rem;
+        line-height: 1.5;
+        text-align: justify;
+        text-indent: 1cm;
+      }
+
+      .sample-text .sample-table {
+        width: 60%;
+        margin: 15px auto;
+        border-collapse: collapse;
+        font-size: 1rem;
+      }
+
+      .sample-text .sample-table th,
+      .sample-text .sample-table td {
+        border: 1px solid #333;
+        padding: 6px 12px;
+        text-align: center;
+      }
+
+      .sample-text .sample-table td:first-child {
+        text-align: left;
+      }
+
+      .sample-text .sample-table th {
+        font-weight: bold;
+      }
+
+      .element-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 15px 0;
+      }
+
+      .element-card {
+        border-radius: 10px;
+        padding: 20px;
+      }
+
+      .element-card.text-card {
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+      }
+
+      .element-card.table-card {
+        background: #e3f2fd;
+        border: 2px solid #2196f3;
+      }
+
+      .element-card h4 {
+        margin-bottom: 10px;
+      }
+
+      .element-card.text-card h4 {
+        color: #2e7d32;
+      }
+      .element-card.table-card h4 {
+        color: #1565c0;
+      }
+
+      .time-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .time-card {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border-top: 4px solid #2b5876;
+        text-align: center;
+      }
+
+      .time-card .minutes {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2b5876;
+        display: block;
+      }
+
+      .time-card .label {
+        color: #666;
+        font-size: 0.95rem;
+        margin-top: 5px;
+      }
+
+      .secret-card {
+        background: linear-gradient(145deg, #f1f8e9 0%, #dcedc8 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 10px 0;
+        border-left: 4px solid #8bc34a;
+      }
+
+      .secret-card h4 {
+        color: #33691e;
+        margin-bottom: 8px;
+      }
+
+      .secret-card p {
+        color: #444;
+        margin: 0;
+      }
+
+      .score-box {
+        background: linear-gradient(145deg, #f5f7fa 0%, #e4e8eb 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .score-box .score {
+        font-size: 2.5rem;
+        font-weight: 700;
+        display: block;
+      }
+
+      .score-box .score.good {
+        color: #2e7d32;
+      }
+      .score-box .score.medium {
+        color: #e65100;
+      }
+      .score-box .score.bad {
+        color: #c62828;
+      }
+
+      .requirements-list {
+        list-style: none;
+        padding: 0;
+        margin: 15px 0;
+      }
+
+      .requirements-list li {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 4px solid #2b5876;
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .requirements-list li strong {
+        color: #333;
+      }
+
+      .comparison-table th:first-child {
+        width: 30%;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+        .theory-section {
+          padding: 20px 15px;
+        }
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+        .element-grid {
+          grid-template-columns: 1fr;
+        }
+        .time-grid {
+          grid-template-columns: 1fr;
+        }
+        .sample-text .sample-table {
+          width: 100%;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+      </div>
+
+      <h1>📚 Полная теория: Текстовые редакторы и Задание 13.2 ОГЭ</h1>
+
+      <!-- ===== Раздел 1: Основы текстовых редакторов (из index.html) ===== -->
+      <div class="theory-section">
+        <h2>💡 Что такое текстовый редактор?</h2>
+        <p>
+          <strong>Текстовый редактор</strong> (текстовый процессор) — это
+          программа, предназначенная для создания, редактирования и
+          форматирования текстовых документов. Текстовые редакторы являются
+          одними из самых востребованных офисных приложений.
+        </p>
+        <p>
+          Наиболее популярными текстовыми редакторами являются
+          <strong>Microsoft Word</strong> (из пакета Microsoft Office) и
+          <strong>LibreOffice Writer</strong> (из свободного пакета
+          LibreOffice). Они используются для создания документов любой сложности
+          — от простых записок до сложных отчётов, диссертаций и книг.
+          Большинство базовых приёмов работы универсальны для обеих программ.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Основные возможности текстовых редакторов</h2>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>✏️ Ввод и редактирование текста</h4>
+            <p>
+              Создание и изменение текстового содержимого с поддержкой различных
+              шрифтов, размеров и стилей.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <h4>🎨 Форматирование документа</h4>
+            <p>
+              Настройка внешнего вида текста: выравнивание, отступы, межстрочные
+              интервалы, списки и многое другое.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <h4>📊 Таблицы и диаграммы</h4>
+            <p>
+              Вставка и форматирование таблиц, добавление диаграмм и графиков
+              для наглядного представления данных.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <h4>🖼️ Изображения и объекты</h4>
+            <p>
+              Вставка изображений, фигур, SmartArt-объектов и других графических
+              элементов.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <h4>📑 Колонтитулы и нумерация</h4>
+            <p>
+              Добавление верхних и нижних колонтитулов, нумерации страниц,
+              сносок и ссылок.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <h4>🔍 Проверка правописания</h4>
+            <p>
+              Автоматическая проверка орфографии и грамматики, подбор синонимов,
+              перевод текста.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📖 Основные понятия</h2>
+
+        <h3>📄 Документ</h3>
+        <p>
+          <strong>Документ</strong> — основной файл, создаваемый в текстовом
+          редакторе. В Microsoft Word документы сохраняются с расширением .docx,
+          в LibreOffice Writer — с расширением .odt.
+        </p>
+
+        <h3>🔤 Шрифт и форматирование</h3>
+        <p>
+          <strong>Шрифт</strong> определяет начертание символов. Текстовые
+          редакторы поддерживают множество шрифтов и позволяют настраивать
+          размер, цвет, жирность, курсив и другие параметры текста.
+        </p>
+
+        <h3>📐 Абзац</h3>
+        <p>
+          <strong>Абзац</strong> — логически завершённая часть текста. Редакторы
+          позволяют настраивать отступы, выравнивание и межстрочные интервалы
+          для каждого абзаца.
+        </p>
+
+        <h3>📑 Страница</h3>
+        <p>
+          <strong>Страница</strong> — физический лист документа. Можно
+          настраивать поля, ориентацию (книжная/альбомная), размер бумаги и
+          разрывы страниц.
+        </p>
+
+        <h3>📋 Стили</h3>
+        <p>
+          <strong>Стили</strong> — наборы параметров форматирования, которые
+          можно применять к тексту. Использование стилей обеспечивает
+          единообразие оформления всего документа.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>✏️ Пример работы с текстовым редактором</h2>
+
+        <div class="example-box">
+          <h4>Пример: Создание простого документа</h4>
+          <p>
+            <strong>Задача:</strong> Создать документ с заголовком "Мой первый
+            документ" и несколькими абзацами текста. Заголовок должен быть
+            отформатирован стилем "Заголовок 1", текст — основным шрифтом Times
+            New Roman, размер 14 pt.
+          </p>
+          <p style="margin-top: 10px">
+            <strong>Порядок действий (Word / Writer):</strong>
+          </p>
+          <ol style="margin-top: 10px">
+            <li>Откройте программу (Word или Writer)</li>
+            <li>Напечатайте "Мой первый документ"</li>
+            <li>
+              Выделите текст и выберите стиль "Заголовок 1" на вкладке «Главная»
+            </li>
+            <li>Нажмите Enter для перехода на новую строку</li>
+            <li>Напечатайте несколько абзацев текста</li>
+            <li>
+              Выделите текст и выберите шрифт Times New Roman, размер 14 pt
+            </li>
+            <li>Сохраните документ: Файл → Сохранить как → выберите папку</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>💡 Полезные советы (общие)</h2>
+
+        <div class="tip-box">
+          <h4>⌨️ Горячие клавиши</h4>
+          <ul>
+            <li><strong>Ctrl + S</strong> — сохранить документ</li>
+            <li><strong>Ctrl + C</strong> — копировать выделенный текст</li>
+            <li><strong>Ctrl + V</strong> — вставить скопированный текст</li>
+            <li><strong>Ctrl + X</strong> — вырезать выделенный текст</li>
+            <li><strong>Ctrl + Z</strong> — отменить последнее действие</li>
+            <li><strong>Ctrl + B</strong> — жирное начертание</li>
+            <li><strong>Ctrl + I</strong> — курсив</li>
+            <li><strong>Ctrl + U</strong> — подчёркивание</li>
+          </ul>
+        </div>
+
+        <div class="tip-box">
+          <h4>📌 Полезные рекомендации</h4>
+          <ul>
+            <li>
+              Используйте стили для быстрого форматирования заголовков и текста
+            </li>
+            <li>Регулярно сохраняйте документ, чтобы не потерять изменения</li>
+            <li>
+              Используйте раздел «Рецензирование» (Word) или проверку орфографии
+              (Writer) для проверки правописания
+            </li>
+            <li>
+              Для вставки специальных символов используйте меню «Вставка» →
+              «Символ»
+            </li>
+            <li>Настройте автоматическое сохранение в параметрах программы</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Частые ошибки (общие)</h2>
+        <ul>
+          <li>
+            <strong>Неправильное форматирование заголовков</strong> — не
+            используйте просто жирный шрифт, применяйте стили заголовков
+          </li>
+          <li>
+            <strong>Разрывы страниц вручную</strong> — используйте Ctrl + Enter
+            для вставки разрыва страницы
+          </li>
+          <li>
+            <strong>Пропуск проверки орфографии</strong> — всегда проверяйте
+            правописание перед печатью
+          </li>
+          <li>
+            <strong>Забыли сохранить документ</strong> — настройте
+            автосохранение и используйте Ctrl + S
+          </li>
+          <li>
+            <strong>Неправильные отступы</strong> — используйте линейку или
+            диалоговое окно «Абзац» для точной настройки
+          </li>
+        </ul>
+      </div>
+
+      <!-- ===== Раздел 2: Теория задания 13.2 (из oge132-t.html) ===== -->
+      <div class="theory-section">
+        <h2>🎯 Что такое задание 13.2?</h2>
+        <p>
+          <strong>Задание 13.2</strong> — практическое задание ОГЭ по
+          информатике, в котором требуется создать текстовый документ в
+          текстовом редакторе (Microsoft Word или LibreOffice Writer), точно
+          воспроизведя оформление текста по образцу.
+        </p>
+        <p>
+          Участнику экзамена предоставляется каталог с файлами, содержащий
+          текстовый файл (<strong>*.txt</strong>) с текстом задания — в нём
+          описан текст, который нужно набрать, и требования к его оформлению. В
+          отличие от задания 13.1 (презентация), задание 13.2 менее творческое,
+          но требует <strong>точного соответствия</strong> результата работы
+          образцу, представленному в условии.
+        </p>
+        <div class="warning-box">
+          <h4>⚠️ Важно!</h4>
+          <p>
+            Документ необходимо сохранить в формате <strong>*.odt</strong>
+            (OpenDocument Text). Имя файла сообщат организаторы экзамена.
+            Текстовый редактор на экзамене — Microsoft Word или LibreOffice
+            Writer (в зависимости от региона).
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📝 Пример задания</h2>
+        <div class="example-box">
+          <h4>Пример: «Варенье из ежевики»</h4>
+          <p>
+            <em
+              >Создайте в текстовом редакторе документ и напишите в нём
+              следующий текст, точно воспроизведя всё оформление текста,
+              имеющееся в образце.</em
+            >
+          </p>
+          <div class="sample-text">
+            <div class="title">ВАРЕНЬЕ ИЗ ЕЖЕВИКИ</div>
+            <table class="sample-table">
+              <tr>
+                <th>Ингредиенты</th>
+                <th>Количество</th>
+              </tr>
+              <tr>
+                <td>Ягоды ежевики</td>
+                <td>1 кг</td>
+              </tr>
+              <tr>
+                <td>Сахар</td>
+                <td>1,1 кг</td>
+              </tr>
+              <tr>
+                <td>Лимонная кислота</td>
+                <td>0,25 ч. л.</td>
+              </tr>
+            </table>
+            <div class="body">
+              Перебрать килограмм ежевики, удалить мятые ягоды и веточки. Высыпать
+              плоды на дуршлаг, помыть и дать стечь воде. Засыпать сахарным
+              песком, оставить на 4 часа. Поставить сахарно-плодовую смесь на
+              плиту. Постоянно помешивая, довести до кипения и проварить 3 минуты.
+              Дать остыть. Повторить процедуру 3 раза. В конце по вкусу добавить
+              лимонную кислоту, разложить горячее ежевичное варенье по
+              стерилизованным банкам, закатать банки.
+            </div>
+          </div>
+          <p style="margin-top: 10px">
+            <strong>Требования к оформлению:</strong> шрифт 14 пт, отступ первой
+            строки 1 см, выравнивание по ширине, междустрочный интервал от
+            одинарного до полуторного. Заголовок — по центру. Таблица —
+            необходимое количество строк и столбцов, выравнивание по образцу.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📐 Структура документа</h2>
+        <p>
+          В задании 13.2 документ состоит из
+          <strong>двух основных объектов</strong>, которые необходимо оформить в
+          точном соответствии с образцом:
+        </p>
+
+        <div class="element-grid">
+          <div class="element-card text-card">
+            <h4>📄 Основной текст</h4>
+            <ul>
+              <li>Один или два абзаца (до ~200 символов)</li>
+              <li>Шрифт 14 пт, обычное начертание</li>
+              <li>Отступ первой строки 1 см</li>
+              <li>Междустрочный интервал от одинарного до полуторного</li>
+              <li>Выравнивание по ширине</li>
+              <li>Выделение слов (полужирный/курсив/подчёркивание)</li>
+            </ul>
+          </div>
+          <div class="element-card table-card">
+            <h4>📊 Таблица</h4>
+            <ul>
+              <li>Необходимое количество строк и столбцов</li>
+              <li>Заголовок таблицы — полужирный, по центру</li>
+              <li>Второй столбец — по центру</li>
+              <li>Первый столбец (кроме заголовка) — по левому краю</li>
+              <li>Ширина таблицы меньше ширины текста</li>
+              <li>Таблица по центру страницы</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>📋 Детальная структура</h3>
+
+        <h4>Заголовок</h4>
+        <ul>
+          <li>Располагается перед таблицей</li>
+          <li>Выравнивание по центру</li>
+          <li>Размер шрифта — 14 пт (может быть полужирным по образцу)</li>
+        </ul>
+
+        <h4>Таблица</h4>
+        <ul>
+          <li>Располагается между заголовком и основным текстом</li>
+          <li>Количество строк и столбцов — по образцу</li>
+          <li>
+            Заголовок таблицы (первая строка) — полужирное начертание,
+            выравнивание по центру
+          </li>
+          <li>
+            Первый столбец (кроме заголовка) — выравнивание по левому краю
+          </li>
+          <li>Второй столбец — выравнивание по центру</li>
+          <li>Ширина таблицы — меньше ширины основного текста</li>
+          <li>Таблица выровнена по центру страницы</li>
+        </ul>
+
+        <h4>Основной текст</h4>
+        <ul>
+          <li>Располагается после таблицы</li>
+          <li>Шрифт 14 пт, обычное начертание</li>
+          <li>Выравнивание по ширине</li>
+          <li>Отступ первой строки 1 см</li>
+          <li>Междустрочный интервал — от одинарного до полуторного</li>
+          <li>
+            При необходимости — выделение слов полужирным, курсивом или
+            подчёркиванием по образцу
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>📏 Требования к оформлению</h2>
+
+        <h3>🔤 Параметры текста</h3>
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Параметр</th>
+                <th>Значение</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Формат файла</td>
+                <td>*.odt (OpenDocument Text)</td>
+              </tr>
+              <tr>
+                <td>Шрифт основного текста</td>
+                <td>Размер 14 пунктов, обычное начертание</td>
+              </tr>
+              <tr>
+                <td>Отступ первой строки (абзацный отступ)</td>
+                <td>1 см (запрещено использовать пробелы!)</td>
+              </tr>
+              <tr>
+                <td>Междустрочный интервал</td>
+                <td>Не менее одинарного, но не более полуторного</td>
+              </tr>
+              <tr>
+                <td>Выравнивание основного текста</td>
+                <td>По ширине</td>
+              </tr>
+              <tr>
+                <td>Выравнивание заголовка</td>
+                <td>По центру</td>
+              </tr>
+              <tr>
+                <td>Выравнивание текста в заголовке таблицы</td>
+                <td>По центру</td>
+              </tr>
+              <tr>
+                <td>Выравнивание второго столбца таблицы</td>
+                <td>По центру</td>
+              </tr>
+              <tr>
+                <td>Выравнивание первого столбца таблицы (кроме заголовка)</td>
+                <td>По левому краю</td>
+              </tr>
+              <tr>
+                <td>Ширина таблицы</td>
+                <td>Меньше ширины основного текста</td>
+              </tr>
+              <tr>
+                <td>Выравнивание таблицы на странице</td>
+                <td>По центру горизонтали</td>
+              </tr>
+              <tr>
+                <td>Интервал между заголовком/текстом и таблицей</td>
+                <td>Не менее 14 пт (5 мм), но не более 24 пт (8,5 мм)</td>
+              </tr>
+              <tr>
+                <td>Запрещено</td>
+                <td>Использование «пустого абзаца» для интервала</td>
+              </tr>
+              <tr>
+                <td>Выделения в тексте и таблице</td>
+                <td>Полужирный шрифт, курсив, подчёркивание</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>📄 Требования к тексту</h3>
+        <ul>
+          <li>Текст в абзаце выровнен по ширине (за исключением заголовка)</li>
+          <li>
+            Правильно установлен абзацный отступ (1 см), не допускается
+            использование пробелов
+          </li>
+          <li>
+            Разбиение текста на строки осуществляется текстовым редактором
+            автоматически (не используются разрывы строк)
+          </li>
+          <li>
+            Допускается не более 5 ошибок (орфографических, пунктуационных,
+            пробелы, знаки, пропуски) в основном тексте
+          </li>
+          <li>
+            Допускается не более 3 ошибок (орфографических, пунктуационных,
+            пробелы, знаки, пропуски) в таблице
+          </li>
+        </ul>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Критерии оценивания</h2>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Баллы</th>
+                <th>Описание</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>2 балла</strong></td>
+                <td>
+                  <strong>Задание выполнено правильно.</strong> Контролируется
+                  выполнение всех элементов оформления: размер шрифта 14 пт,
+                  верное выделение слов, междустрочный интервал, абзацный отступ
+                  1 см, выравнивание по ширине, правильная структура таблицы,
+                  интервал между текстом и таблицей без использования пустого
+                  абзаца.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>1 балл</strong></td>
+                <td>
+                  В работе допущена суммарно не более одной ошибки в структуре
+                  документа, или допущена одна ошибка одного из следующих типов:
+                  неверный размер шрифта, неверно задан абзацный отступ, ошибка
+                  в выравнивании, нарушение межстрочного интервала, ошибка в
+                  оформлении таблицы (пропуск строки/столбца).
+                </td>
+              </tr>
+              <tr>
+                <td><strong>0 баллов</strong></td>
+                <td>
+                  Работа не соответствует требованиям, отсутствует таблица, либо
+                  допущено более одной грубой ошибки.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Блоки проверки</h3>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>📄 Основной текст</h4>
+            <p>
+              Размер шрифта 14 пт, верное выделение слов, междустрочный
+              интервал, абзацный отступ 1 см, выравнивание по ширине, интервал
+              между текстом и таблицей без пустых абзацев, не более 5
+              орфографических ошибок.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h4>📊 Таблица</h4>
+            <p>
+              Необходимое количество строк и столбцов, полужирный заголовок,
+              правильное выравнивание столбцов, ширина меньше ширины текста,
+              таблица по центру, не более 3 орфографических ошибок.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h4>🎨 Оформление</h4>
+            <p>
+              Интервал между объектами 14–24 пт (без пустых абзацев), отступ
+              первой строки 1 см (не пробелами), отсутствие разрывов строк
+              внутри абзаца, формат файла *.odt.
+            </p>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <h4>📌 Важное замечание</h4>
+          <p>
+            При проверке контролируются только те элементы, которые явно
+            перечислены в критериях. Расхождение работы с образцом в параметрах,
+            не указанных в критериях, не влияет на оценку.
+          </p>
+          <p style="margin-top: 10px">
+            <strong>Исключение:</strong> если параметры шрифтового или абзацного
+            оформления искажены столь значительно, что явно нарушается
+            эстетическое восприятие текста, оценка снижается на балл.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📌 Порядок выполнения задания</h2>
+        <ol>
+          <li>
+            <strong>Откройте текстовый редактор</strong> (Microsoft Word или
+            LibreOffice Writer)
+          </li>
+          <li>
+            <strong>Прочитайте задание</strong> в предоставленном текстовом
+            файле (*.txt) — обратите внимание на образец оформления и требования
+          </li>
+          <li>
+            <strong>Наберите заголовок</strong> — выровняйте по центру,
+            установите размер шрифта 14 пт. Выделите нужные слова полужирным или
+            курсивом по образцу
+          </li>
+          <li>
+            <strong>Создайте таблицу:</strong> Вставка → Таблица → укажите
+            количество строк и столбцов по образцу. Заполните ячейки, настройте
+            выравнивание (заголовок и второй столбец — по центру, первый столбец
+            — по левому краю)
+          </li>
+          <li>
+            <strong>Установите ширину таблицы</strong> — меньше ширины основного
+            текста (через Свойства таблицы). Выровняйте таблицу по центру
+            страницы
+          </li>
+          <li>
+            <strong>Наберите основной текст:</strong>
+            <ul>
+              <li>Шрифт 14 пт, обычное начертание</li>
+              <li>Выравнивание по ширине</li>
+              <li>
+                Отступ первой строки 1 см (Формат → Абзац → Первая строка →
+                Отступ → 1 см)
+              </li>
+              <li>Междустрочный интервал — от одинарного до полуторного</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Установите интервал</strong> между заголовком/текстом и
+            таблицей — от 14 до 24 пт (через настройки абзаца, НЕ пустым
+            абзацем!)
+          </li>
+          <li>
+            <strong>Выделите слова</strong> в тексте и таблице полужирным,
+            курсивом или подчёркиванием в соответствии с образцом
+          </li>
+          <li>
+            <strong>Проверьте невидимые символы:</strong> включите режим
+            отображения невидимых символов (¶) — убедитесь, что нет лишних
+            пробелов для отступа, нет пустых абзацев
+          </li>
+          <li>
+            <strong>Сохраните файл</strong> в формате *.odt (Файл → Сохранить
+            как → Тип файла → ODF Text Document (.odt))
+          </li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚙️ Настройки текстового редактора</h2>
+
+        <h3>Microsoft Word</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Действие</th>
+                <th>Путь в меню</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Установить размер шрифта</td>
+                <td>Главная → Размер шрифта (выбрать 14)</td>
+              </tr>
+              <tr>
+                <td>Абзацный отступ 1 см</td>
+                <td>
+                  Главная → Абзац (диалоговое окно) → Отступы → Первая строка →
+                  Отступ → 1 см
+                </td>
+              </tr>
+              <tr>
+                <td>Междустрочный интервал</td>
+                <td>
+                  Главная → Абзац (диалоговое окно) → Междустрочный → Одинарный
+                  / Полуторный
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание по ширине</td>
+                <td>Главная → Выравнивание → По ширине (Ctrl + J)</td>
+              </tr>
+              <tr>
+                <td>Интервал до/после абзаца</td>
+                <td>
+                  Главная → Абзац (диалоговое окно) → Интервал → Перед/После
+                  (указать в пт)
+                </td>
+              </tr>
+              <tr>
+                <td>Вставка таблицы</td>
+                <td>Вставка → Таблица → выбрать количество строк/столбцов</td>
+              </tr>
+              <tr>
+                <td>Ширина таблицы</td>
+                <td>
+                  Выделить таблицу → Свойства таблицы → Таблица → Ширина
+                  (указать %)
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание таблицы</td>
+                <td>
+                  Выделить таблицу → Свойства таблицы → Таблица → Выравнивание →
+                  По центру
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание в ячейках</td>
+                <td>
+                  Выделить ячейки → Главная → Выравнивание (по центру / по
+                  левому краю)
+                </td>
+              </tr>
+              <tr>
+                <td>Невидимые символы</td>
+                <td>Главная → Отобразить все знаки (¶)</td>
+              </tr>
+              <tr>
+                <td>Сохранение в .odt</td>
+                <td>
+                  Файл → Сохранить как → Тип файла → OpenDocument Text (*.odt)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>LibreOffice Writer</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Действие</th>
+                <th>Путь в меню</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Установить размер шрифта</td>
+                <td>Панель форматирования → Размер шрифта (выбрать 14)</td>
+              </tr>
+              <tr>
+                <td>Абзацный отступ 1 см</td>
+                <td>
+                  Формат → Абзац → Отступы и интервалы → Отступ → Первая строка
+                  → 1 см
+                </td>
+              </tr>
+              <tr>
+                <td>Междустрочный интервал</td>
+                <td>
+                  Формат → Абзац → Отступы и интервалы → Междустрочный →
+                  Одинарный / Полуторный
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание по ширине</td>
+                <td>Панель форматирования → По ширине (Ctrl + J)</td>
+              </tr>
+              <tr>
+                <td>Интервал до/после абзаца</td>
+                <td>
+                  Формат → Абзац → Отступы и интервалы → Интервал → Сверху/Снизу
+                  (указать в пт)
+                </td>
+              </tr>
+              <tr>
+                <td>Вставка таблицы</td>
+                <td>Таблица → Вставить таблицу → указать строки/столбцы</td>
+              </tr>
+              <tr>
+                <td>Ширина таблицы</td>
+                <td>
+                  Выделить таблицу → Свойства таблицы → Таблица → Ширина
+                  (указать %)
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание таблицы</td>
+                <td>
+                  Выделить таблицу → Свойства таблицы → Таблица → Выравнивание →
+                  По центру
+                </td>
+              </tr>
+              <tr>
+                <td>Выравнивание в ячейках</td>
+                <td>
+                  Выделить ячейки → Панель форматирования → Выравнивание (по
+                  центру / по левому краю)
+                </td>
+              </tr>
+              <tr>
+                <td>Невидимые символы</td>
+                <td>Вид → Непечатаемые символы (Ctrl + F10)</td>
+              </tr>
+              <tr>
+                <td>Сохранение в .odt</td>
+                <td>
+                  Файл → Сохранить как → Тип файла → ODF Text Document (.odt)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📖 Разница между Microsoft Word и LibreOffice Writer</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Параметр</th>
+                <th>Microsoft Word</th>
+                <th>LibreOffice Writer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Формат по умолчанию</td>
+                <td>.docx</td>
+                <td>.odt</td>
+              </tr>
+              <tr>
+                <td>Сохранение в .odt</td>
+                <td>Файл → Сохранить как → OpenDocument Text</td>
+                <td>Файл → Сохранить как → ODF Text Document (по умолчанию)</td>
+              </tr>
+              <tr>
+                <td>Абзацный отступ</td>
+                <td>Главная → Абзац → Первая строка → Отступ</td>
+                <td>Формат → Абзац → Отступы → Первая строка</td>
+              </tr>
+              <tr>
+                <td>Невидимые символы</td>
+                <td>Главная → ¶ (Ctrl + Shift + 8)</td>
+                <td>Вид → Непечатаемые символы (Ctrl + F10)</td>
+              </tr>
+              <tr>
+                <td>Свойства таблицы</td>
+                <td>ПКМ на таблице → Свойства таблицы</td>
+                <td>ПКМ на таблице → Свойства таблицы</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tip-box">
+          <h4>💡 Важно знать</h4>
+          <p>
+            На экзамене может быть установлен как Microsoft Word, так и
+            LibreOffice Writer. Функциональность обеих программ практически
+            идентична для выполнения задания 13.2. Основное отличие — формат
+            сохранения по умолчанию. В любом случае сохранять файл нужно в
+            формате <strong>*.odt</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Типичные ошибки (задание 13.2)</h2>
+
+        <div class="error-box">
+          <h4>❌ Использование пробелов для абзацного отступа</h4>
+          <p>
+            <strong>Ошибка:</strong> вместо настройки отступа первой строки
+            через диалог «Абзац» ученик ставит несколько пробелов в начале
+            абзаца.
+          </p>
+          <p>
+            <strong>Решение:</strong> используйте Формат → Абзац → Отступы →
+            Первая строка → Отступ → 1 см. Включите показ невидимых символов
+            (¶), чтобы убедиться в отсутствии лишних пробелов и табуляции.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Пустые абзацы для интервала между текстом и таблицей</h4>
+          <p>
+            <strong>Ошибка:</strong> несколько нажатий Enter между текстом и
+            таблицей вместо настройки интервала через параметры абзаца.
+          </p>
+          <p>
+            <strong>Решение:</strong> установите интервал после текстового
+            абзаца (или перед таблицей) через Формат → Абзац → Интервал
+            после/перед.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверный размер шрифта</h4>
+          <p>
+            <strong>Ошибка:</strong> использование шрифта 12 пт (по умолчанию)
+            вместо 14 пт, указанного в задании.
+          </p>
+          <p>
+            <strong>Решение:</strong> перед началом работы установите размер
+            шрифта 14 пт на вкладке «Главная». Проверьте, что размер применён ко
+            всему тексту.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверная ширина таблицы</h4>
+          <p>
+            <strong>Ошибка:</strong> таблица занимает всю ширину страницы или,
+            наоборот, слишком узкая.
+          </p>
+          <p>
+            <strong>Решение:</strong> ширина таблицы должна быть меньше ширины
+            основного текста. Выделите таблицу → Свойства таблицы → укажите
+            ширину (например, 80–90% от ширины текста).
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверное выравнивание в таблице</h4>
+          <p>
+            <strong>Ошибка:</strong> все ячейки таблицы выровнены одинаково
+            (например, только по центру или только по левому краю).
+          </p>
+          <p>
+            <strong>Решение:</strong> заголовок и второй столбец — по центру,
+            первый столбец (кроме заголовка) — по левому краю.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Использование разрывов строк внутри абзаца</h4>
+          <p>
+            <strong>Ошибка:</strong> принудительный перенос строки (Shift +
+            Enter) внутри абзаца вместо того, чтобы позволить редактору
+            автоматически разбивать текст на строки.
+          </p>
+          <p>
+            <strong>Решение:</strong> текст должен переноситься автоматически.
+            Включите невидимые символы и убедитесь, что внутри абзаца нет
+            символов разрыва строки (↵).
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Сохранение в неверном формате</h4>
+          <p>
+            <strong>Ошибка:</strong> сохранение файла в формате .docx или .doc
+            вместо .odt.
+          </p>
+          <p>
+            <strong>Решение:</strong> при сохранении выберите тип файла
+            «OpenDocument Text (*.odt)». В Word: Файл → Сохранить как → Тип
+            файла → OpenDocument Text.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>💡 Полезные советы (задание 13.2)</h2>
+
+        <div class="tip-box">
+          <h4>📌 Как получить максимальный балл</h4>
+          <ul>
+            <li>
+              <strong>Используйте настройки, а не пробелы.</strong> Абзацный
+              отступ — через диалог «Абзац». Интервал между текстом и таблицей —
+              тоже через «Абзац» (интервал после/перед).
+            </li>
+            <li>
+              <strong>Включите показ невидимых символов</strong> (¶) — так вы
+              увидите лишние пробелы, пустые абзацы, разрывы строк и сможете их
+              удалить.
+            </li>
+            <li>
+              <strong>Проверьте ширину таблицы</strong> — она должна быть меньше
+              ширины основного текста.
+            </li>
+            <li>
+              <strong>Проверьте выравнивание в таблице</strong> — для каждого
+              столбца своё выравнивание (заголовок и второй — по центру, первый
+              — по левому краю).
+            </li>
+            <li>
+              <strong>Не используйте разрывы строк</strong> для перехода на
+              новую строку внутри абзаца — разбиение на строки должно
+              выполняться автоматически.
+            </li>
+            <li>
+              <strong>Сохраните в правильном формате</strong> — *.odt (не .docx,
+              не .doc).
+            </li>
+            <li>
+              <strong>Проверьте орфографию</strong> — ошибки в тексте снижают
+              балл (допускается не более 5 ошибок в тексте и 3 в таблице).
+            </li>
+          </ul>
+        </div>
+
+        <div class="tip-box">
+          <h4>🔑 Ключевые сочетания клавиш</h4>
+          <ul>
+            <li><strong>Ctrl + J</strong> — выравнивание по ширине</li>
+            <li><strong>Ctrl + E</strong> — выравнивание по центру</li>
+            <li><strong>Ctrl + S</strong> — сохранить документ</li>
+            <li><strong>Ctrl + Z</strong> — отменить последнее действие</li>
+            <li><strong>Ctrl + B</strong> — полужирное начертание</li>
+            <li><strong>Ctrl + I</strong> — курсив</li>
+            <li><strong>Ctrl + U</strong> — подчёркивание</li>
+            <li>
+              <strong>Ctrl + Shift + 8</strong> (Word) — показать невидимые
+              символы
+            </li>
+            <li>
+              <strong>Ctrl + F10</strong> (Writer) — показать невидимые символы
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Примеры из практики оценивания</h2>
+
+        <div class="example-box">
+          <h4>✅ Пример работы на 2 балла</h4>
+          <p>
+            <strong>Основной текст:</strong> размер шрифта 14 пт, отступ первой
+            строки 1 см, выравнивание по ширине, все слова выделены правильно,
+            междустрочный интервал одинарный, интервал между текстом и таблицей
+            установлен через настройки абзаца (16 пт).
+          </p>
+          <p>
+            <strong>Таблица:</strong> верное количество строк и столбцов,
+            заголовок полужирный по центру, второй столбец по центру, первый
+            столбец по левому краю, ширина таблицы меньше ширины текста, таблица
+            по центру страницы.
+          </p>
+          <p>
+            <strong>Орфография:</strong> опечаток нет. Оценка —
+            <strong>2 балла</strong>.
+          </p>
+        </div>
+
+        <div class="warning-box">
+          <h4>⚠️ Пример работы на 1 балл (одна ошибка)</h4>
+          <p>
+            Пропущена одна строка таблицы (отсутствует последняя строка с
+            данными). Все остальные элементы выполнены верно. Ошибка в структуре
+            таблицы — <strong>1 балл</strong>.
+          </p>
+        </div>
+
+        <div class="warning-box">
+          <h4>⚠️ Пример работы на 1 балл (ошибка оформления)</h4>
+          <p>
+            Размер шрифта основного текста указан 12 пт вместо 14 пт. Все
+            остальные требования выполнены верно. Одна ошибка —
+            <strong>1 балл</strong>.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Пример работы на 0 баллов</h4>
+          <p>
+            Абзацный отступ выполнен пробелами, интервал между текстом и
+            таблицей — пустыми абзацами (два нажатия Enter), таблица
+            отсутствует. Множественные нарушения — <strong>0 баллов</strong>.
+          </p>
+        </div>
+
+        <div class="tip-box">
+          <h4>📌 Интересный случай из практики</h4>
+          <p>
+            Участник экзамена полностью выполнил работу в области верхнего
+            колонтитула. Проверка показала: размер шрифта, отступ первой строки
+            и выравнивание абзаца выполнены верно, все слова правильно выделены,
+            опечаток нет. Таблица имеет структуру, полностью соответствующую
+            образцу.
+          </p>
+          <p style="margin-top: 10px">
+            <strong>Результат:</strong> согласно критериям, работу необходимо
+            оценить максимальным баллом — <strong>2 балла</strong>. Единственное
+            отличие — размещение текста и таблицы в области колонтитула, что не
+            является ошибкой по критериям.
+          </p>
+          <p style="margin-top: 10px; color: #1565c0">
+            ⚠️ Однако при подготовке к экзамену не следует поощрять учеников
+            выполнять задание подобным образом.
+          </p>
+        </div>
+      </div>
+
+      <!-- ===== Раздел 3: Важные аспекты при сдаче ОГЭ (из oge13-important.html) ===== -->
+      <div class="theory-section">
+        <h2>⏱️ Как распределить время на экзамене</h2>
+        <p>
+          На выполнение задания 13.2 у вас есть примерно
+          <strong>15–20 минут</strong>. Правильное распределение времени поможет
+          уложиться в срок и избежать ошибок.
+        </p>
+
+        <div class="time-grid">
+          <div class="time-card">
+            <span class="minutes">2 мин</span>
+            <div class="label">Внимательно прочитать условие и образец</div>
+          </div>
+          <div class="time-card">
+            <span class="minutes">5 мин</span>
+            <div class="label">Набрать текст и создать таблицу</div>
+          </div>
+          <div class="time-card">
+            <span class="minutes">5 мин</span>
+            <div class="label">
+              Настроить форматирование (шрифт, отступы, интервалы, выравнивание)
+            </div>
+          </div>
+          <div class="time-card">
+            <span class="minutes">3 мин</span>
+            <div class="label">
+              Проверить невидимые символы и исправить ошибки
+            </div>
+          </div>
+          <div class="time-card">
+            <span class="minutes">3 мин</span>
+            <div class="label">
+              Финальная проверка по чек-листу и сохранение
+            </div>
+          </div>
+          <div class="time-card">
+            <span class="minutes">2 мин</span>
+            <div class="label">Резерв на исправление неожиданных проблем</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>✅ Чек-лист проверки перед сдачей</h2>
+        <p>Перед сохранением файла последовательно проверьте каждый пункт:</p>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Формат файла *.odt</strong> — Файл → Сохранить как → Тип
+            файла → ODF Text Document (.odt)
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Размер шрифта 14 пт</strong> — выделите весь текст (Ctrl+A)
+            и установите размер 14 пт
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Отступ первой строки 1 см</strong> — Формат → Абзац → Первая
+            строка → Отступ → 1 см (НЕ пробелами!)
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Междустрочный интервал</strong> — не менее одинарного, не
+            более полуторного
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Выравнивание</strong> — основной текст по ширине, заголовок
+            по центру, заголовок таблицы и второй столбец по центру, первый
+            столбец (кроме заголовка) по левому краю
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Выделение слов</strong> — все необходимые слова выделены
+            полужирным, курсивом или подчёркиванием по образцу
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Таблица</strong> — нужное количество строк и столбцов,
+            ширина меньше ширины текста, выравнивание по центру страницы
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Интервал между текстом и таблицей</strong> — от 14 до 24 пт
+            (через Формат → Абзац, НЕ пустым абзацем!)
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <span class="check-icon">☐</span>
+          <div class="check-text">
+            <strong>Проверка невидимых символов</strong> — включите ¶, убедитесь
+            в отсутствии лишних пробелов, пустых абзацев, ручных разрывов строк
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔤 Ключевые правила шрифта</h2>
+        <p>
+          Шрифт — один из самых важных контролируемых элементов задания 13.2.
+        </p>
+
+        <table>
+          <tr>
+            <th>Параметр</th>
+            <th>Требование</th>
+          </tr>
+          <tr>
+            <td>Размер шрифта</td>
+            <td>14 пунктов для всего текста</td>
+          </tr>
+          <tr>
+            <td>Начертание основного текста</td>
+            <td>Прямое (обычное), кроме специально выделенных слов</td>
+          </tr>
+          <tr>
+            <td>Выделение слов</td>
+            <td>Полужирное, курсивное или подчёркнутое по образцу</td>
+          </tr>
+          <tr>
+            <td>Заголовок таблицы</td>
+            <td>Полужирный шрифт</td>
+          </tr>
+          <tr>
+            <td>Тип шрифта</td>
+            <td>
+              Не указан конкретно — можно любой (Times New Roman, Arial, Calibri
+              и др.)
+            </td>
+          </tr>
+        </table>
+
+        <div class="tip-box">
+          <h4>💡 Совет</h4>
+          <p>
+            Если в образце не указан конкретный тип шрифта, используйте
+            стандартный шрифт по умолчанию (например, Times New Roman или
+            Calibri). Главное — чтобы размер был 14 пт и выделения совпадали с
+            образцом.
+          </p>
+        </div>
+
+        <div class="warning-box">
+          <h4>⚠️ Важно</h4>
+          <p>
+            Размер шрифта проверяется на всём документе. Даже одно слово
+            неверного размера — это ошибка! Используйте Ctrl+A для выделения
+            всего текста, затем установите размер 14 пт, после чего примените
+            выделения (жирный, курсив, подчёркивание) к нужным словам.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📐 Как правильно настроить абзац и интервалы</h2>
+
+        <h3>🔧 Абзацный отступ 1 см</h3>
+        <p>
+          <strong>Правильно:</strong> Формат → Абзац → Отступы → Первая строка →
+          Отступ → 1 см
+        </p>
+        <p>
+          <strong>Неправильно:</strong> пробелы в начале абзаца, табуляция
+          (клавиша Tab)
+        </p>
+
+        <div class="example-box">
+          <h4>✅ Как должно выглядеть (с невидимыми символами)</h4>
+          <p
+            style="
+              font-family: "Courier New", monospace;
+              font-size: 0.95rem;
+              background: #f5f5f5;
+              padding: 10px;
+              border-radius: 6px;
+            "
+          >
+            ¶<br />
+            Заголовок¶<br />
+            ¶ (интервал 14-24 пт, НЕ пустой абзац!)<br />
+            [таблица]<br />
+            ¶ (интервал 14-24 пт, НЕ пустой абзац!)<br />
+            →→→→→→→→→→→→→→→→→→→→Текст с отступом 1 см...¶
+          </p>
+          <p style="margin-top: 8px; color: #555">
+            Знак ¶ обозначает конец абзаца. Отступ первой строки обозначается
+            стрелкой → в виде знака табуляции на линейке. Пробелы в начале
+            строки отображаются как точки ··· и их быть НЕ должно.
+          </p>
+        </div>
+
+        <h3>📏 Междустрочный интервал</h3>
+        <p>
+          Установите значение от <strong>1,0</strong> (одинарный) до
+          <strong>1,5</strong> (полуторный). Обычно используют
+          <strong>1,5</strong>
+          для лучшей читаемости.
+        </p>
+        <p>
+          <strong>Как настроить:</strong> Формат → Абзац → Отступы и интервалы →
+          Междустрочный → Одинарный / 1,5 строки. Или на вкладке «Главная»
+          кнопка «Междустрочный интервал».
+        </p>
+
+        <h3>📏 Интервал между текстом/заголовком и таблицей</h3>
+        <p><strong>Требование:</strong> от 14 пт (5 мм) до 24 пт (8,5 мм).</p>
+        <p>
+          <strong>Как настроить:</strong> выделите абзац текста (или заголовка)
+          → Формат → Абзац → Интервал после → укажите значение (например, 18
+          пт). Или выделите таблицу → Свойства таблицы → Таблица → Интервал
+          перед → укажите значение.
+        </p>
+        <p>
+          <strong>Запрещено:</strong> несколько нажатий Enter (пустые абзацы).
+          При включённом показе невидимых символов пустые абзацы видны как
+          лишние знаки ¶.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Работа с таблицей — ключевые моменты</h2>
+
+        <h3>📐 Ширина таблицы</h3>
+        <p>
+          Таблица должна быть <strong>меньше ширины основного текста</strong>.
+          Не занимайте всю ширину страницы!
+        </p>
+        <p>
+          <strong>Как настроить:</strong> выделите таблицу → Свойства таблицы →
+          Таблица → Ширина → укажите значение в процентах от ширины страницы
+          (обычно 60–80%). Также убедитесь, что таблица выровнена по центру
+          страницы.
+        </p>
+
+        <h3>🎯 Выравнивание в ячейках</h3>
+        <table>
+          <tr>
+            <th>Часть таблицы</th>
+            <th>Выравнивание</th>
+          </tr>
+          <tr>
+            <td>Заголовок (первая строка)</td>
+            <td>По центру</td>
+          </tr>
+          <tr>
+            <td>Второй столбец (все ячейки)</td>
+            <td>По центру</td>
+          </tr>
+          <tr>
+            <td>Первый столбец, кроме заголовка</td>
+            <td>По левому краю</td>
+          </tr>
+        </table>
+
+        <div class="warning-box">
+          <h4>⚠️ Частая ошибка</h4>
+          <p>
+            Ученики часто выравнивают все ячейки таблицы одинаково (только по
+            центру или только по левому краю). Не забывайте, что для разных
+            столбцов выравнивание разное!
+          </p>
+        </div>
+
+        <h3>🔤 Выделение в таблице</h3>
+        <p>
+          Текст в ячейках <strong>заголовка таблицы</strong> должен быть набран
+          шрифтом с <strong>полужирным начертанием</strong>. Проверьте это
+          обязательно.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔍 Как правильно использовать невидимые символы</h2>
+        <p>
+          Включение режима отображения невидимых символов — один из важнейших
+          приёмов проверки. В этом режиме вы увидите:
+        </p>
+        <ul>
+          <li>
+            <strong>¶</strong> — конец абзаца. Если между текстом и таблицей
+            несколько знаков ¶ — это ошибка (пустые абзацы)
+          </li>
+          <li>
+            <strong>·</strong> (точка) — пробел. Если в начале абзаца много
+            точек — это ошибка (пробелы для отступа)
+          </li>
+          <li>
+            <strong>→</strong> (стрелка) — табуляция. Допускается только если
+            отступ табуляции = 1 см
+          </li>
+          <li>
+            <strong>↵</strong> — разрыв строки (Shift+Enter). Не должен
+            использоваться внутри абзаца
+          </li>
+        </ul>
+
+        <div class="tip-box">
+          <h4>💡 Как включить невидимые символы</h4>
+          <ul>
+            <li>
+              <strong>Microsoft Word:</strong> вкладка «Главная» → кнопка ¶ (или
+              Ctrl+Shift+8)
+            </li>
+            <li>
+              <strong>LibreOffice Writer:</strong> вкладка «Вид» → «Непечатаемые
+              символы» (или Ctrl+F10)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Как эксперт проверяет работу</h2>
+        <p>Эксперт проверяет задание 13.2 по трём блокам:</p>
+
+        <h3>1️⃣ Проверка структуры</h3>
+        <ul>
+          <li>Наличие основного текста и таблицы</li>
+          <li>Количество строк и столбцов в таблице соответствует образцу</li>
+          <li>
+            Расположение заголовка, текста и таблицы относительно друг друга
+          </li>
+        </ul>
+
+        <h3>2️⃣ Проверка шрифта и форматирования</h3>
+        <ul>
+          <li>Размер шрифта 14 пт во всём документе</li>
+          <li>Выделение слов (полужирный, курсив, подчёркивание)</li>
+          <li>Выравнивание текста и таблицы</li>
+          <li>Абзацный отступ 1 см (без пробелов)</li>
+          <li>Междустрочный интервал (одинарный–полуторный)</li>
+          <li>
+            Интервал между текстом и таблицей (14–24 пт, без пустых абзацев)
+          </li>
+        </ul>
+
+        <h3>3️⃣ Проверка оформления таблицы</h3>
+        <ul>
+          <li>Ширина таблицы меньше ширины текста</li>
+          <li>Таблица по центру страницы</li>
+          <li>Выравнивание в ячейках по образцу</li>
+          <li>Полужирный заголовок таблицы</li>
+        </ul>
+
+        <div class="tip-box">
+          <h4>📌 Важно знать</h4>
+          <p>
+            Эксперт может не заметить мелкие отклонения, не указанные в
+            критериях. Но грубые ошибки (неверный размер шрифта, пробелы вместо
+            отступа, пустые абзацы, отсутствие таблицы) гарантированно приведут
+            к снижению оценки.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🎯 5 секретов успешного выполнения задания 13.2</h2>
+
+        <div class="secret-card">
+          <h4>🔑 Секрет 1: Начните с настройки шрифта</h4>
+          <p>
+            Перед тем как набирать текст, установите размер шрифта 14 пт. Так вы
+            сразу будете видеть, как текст будет выглядеть в готовом документе,
+            и не забудете изменить размер потом.
+          </p>
+        </div>
+
+        <div class="secret-card">
+          <h4>🔑 Секрет 2: Сначала таблица, потом текст</h4>
+          <p>
+            Создайте таблицу сразу после заголовка. Так вам будет проще
+            настроить интервалы между заголовком и таблицей, а также между
+            таблицей и основным текстом. Интервалы настраиваются через абзац, а
+            не пустыми строками.
+          </p>
+        </div>
+
+        <div class="secret-card">
+          <h4>🔑 Секрет 3: Используйте Ctrl+A для проверки шрифта</h4>
+          <p>
+            После завершения работы выделите весь текст (Ctrl+A) и проверьте в
+            панели инструментов, что везде установлен размер 14 пт. Если где-то
+            остался 12 пт или 16 пт — это будет ошибкой.
+          </p>
+        </div>
+
+        <div class="secret-card">
+          <h4>🔑 Секрет 4: Всегда включайте невидимые символы</h4>
+          <p>
+            Это самый быстрый способ обнаружить ошибки: лишние пробелы, пустые
+            абзацы, ручные разрывы строк. Потратьте 1 минуту на эту проверку —
+            это может спасти 1 балл.
+          </p>
+        </div>
+
+        <div class="secret-card">
+          <h4>🔑 Секрет 5: Сохраняйте в правильном формате</h4>
+          <p>
+            Самая обидная ошибка — сделать всё правильно, но сохранить в .docx
+            вместо .odt. Внимательно выбирайте тип файла при сохранении: ODF
+            Text Document (.odt). В LibreOffice Writer это формат по умолчанию,
+            в Microsoft Word нужно выбирать специально.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>❓ Часто задаваемые вопросы</h2>
+
+        <h3>Каким шрифтом нужно набирать текст?</h3>
+        <p>
+          В условии не указан конкретный шрифт. Вы можете использовать любой:
+          Times New Roman, Arial, Calibri, Courier New и т.д. Главное — размер
+          14 пт. Рекомендуем использовать стандартный шрифт, который стоит по
+          умолчанию (обычно Times New Roman или Calibri).
+        </p>
+
+        <h3>Можно ли использовать табуляцию для отступа?</h3>
+        <p>
+          Да, использование символа табуляции допускается, но только если отступ
+          табуляции соответствует требуемому в задании абзацному отступу (1 см).
+          Лучше использовать настройку абзаца — это надёжнее и точнее.
+        </p>
+
+        <h3>Что делать, если я допустил орфографическую ошибку?</h3>
+        <p>
+          В критериях указано, что допускается не более 5 ошибок (в тексте) и не
+          более 3 ошибок (в таблице). Постарайтесь проверить правописание перед
+          сдачей. В Word и Writer есть встроенная проверка орфографии.
+        </p>
+
+        <h3>Какой междустрочный интервал лучше выбрать?</h3>
+        <p>
+          Требование — не менее одинарного (1,0) и не более полуторного (1,5).
+          Рекомендуем выбрать 1,5 — текст будет выглядеть аккуратнее и читаемее.
+          Но можно и 1,0, если так удобнее.
+        </p>
+
+        <h3>Что делать, если таблица не помещается на страницу?</h3>
+        <p>
+          Уменьшите ширину таблицы (до 60–70% от ширины текста). Также можно
+          уменьшить поля страницы (Формат → Страница → Поля), но обычно поля уже
+          настроены по умолчанию и их не нужно менять.
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Краткая памятка на экзамен</h2>
+        <div class="warning-box">
+          <h4>📝 Запомните главное</h4>
+          <ul>
+            <li><strong>Формат:</strong> *.odt</li>
+            <li><strong>Шрифт:</strong> 14 пт</li>
+            <li><strong>Отступ:</strong> 1 см (через абзац, не пробелами)</li>
+            <li><strong>Интервал строк:</strong> 1,0–1,5</li>
+            <li>
+              <strong>Интервал до/после таблицы:</strong> 14–24 пт (не пустыми
+              абзацами)
+            </li>
+            <li><strong>Выравнивание текста:</strong> по ширине</li>
+            <li><strong>Заголовок:</strong> по центру</li>
+            <li>
+              <strong>Таблица:</strong> меньше ширины текста, по центру страницы
+            </li>
+            <li><strong>Заголовок таблицы:</strong> полужирный, по центру</li>
+            <li><strong>Второй столбец:</strong> по центру</li>
+            <li>
+              <strong>Первый столбец (кроме заголовка):</strong> по левому краю
+            </li>
+            <li>
+              <strong>Невидимые символы:</strong> включить ¶ для проверки!
+            </li>
+            <li><strong>Ошибки в тексте:</strong> не более 5</li>
+            <li><strong>Ошибки в таблице:</strong> не более 3</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+      <!-- ===== Раздел 4: Пример задания 13.2 (из oge132.html) ===== -->
+
+      <div class="theory-section">
+        <h2>💡 Что такое задание 13.2?</h2>
+        <p>
+          <strong>Задание 13.2</strong> — практическое задание ОГЭ по
+          информатике, в котором требуется создать текстовый документ в
+          текстовом редакторе (Microsoft Word или LibreOffice Writer), точно
+          воспроизведя оформление текста по образцу.
+        </p>
+        <p>
+          В отличие от задания 13.1 (презентация), задание 13.2 менее
+          творческое, но требует
+          <strong>точного соответствия</strong> результата работы образцу,
+          представленному в условии. В задании два основных объекта:
+          <strong>основной текст</strong> (один или два небольших абзаца) и
+          <strong>таблица</strong>.
+        </p>
+        <p>
+          Файл ответа необходимо сохранить в формате
+          <strong>*.odt</strong> (OpenDocument Text).
+        </p>
+      </div>
+
+      <div class="theory-section">
+        <h2>📋 Пример задания 13.2</h2>
+        <p>
+          Создайте в текстовом редакторе документ и напишите в нём следующий
+          текст, точно воспроизведя всё оформление текста, имеющееся в образце.
+        </p>
+
+        <div class="sample-text">
+          <div class="title">ВАРЕНЬЕ ИЗ ЕЖЕВИКИ</div>
+          <table class="sample-table">
+            <tr>
+              <th>Ингредиенты</th>
+              <th>Количество</th>
+            </tr>
+            <tr>
+              <td>Ягоды ежевики</td>
+              <td>1 кг</td>
+            </tr>
+            <tr>
+              <td>Сахар</td>
+              <td>1,1 кг</td>
+            </tr>
+            <tr>
+              <td>Лимонная кислота</td>
+              <td>0,25 ч. л.</td>
+            </tr>
+          </table>
+          <div class="body">
+            Перебрать килограмм ежевики, удалить мятые ягоды и веточки. Высыпать
+            плоды на дуршлаг, помыть и дать стечь воде. Засыпать сахарным
+            песком, оставить на 4 часа. Поставить сахарно-плодовую смесь на
+            плиту. Постоянно помешивая, довести до кипения и проварить 3 минуты.
+            Дать остыть. Повторить процедуру 3 раза. В конце по вкусу добавить
+            лимонную кислоту, разложить горячее ежевичное варенье по
+            стерилизованным банкам, закатать банки.
+          </div>
+        </div>
+
+        <h3>📐 Требования к оформлению</h3>
+        <table>
+          <tr>
+            <th>Параметр</th>
+            <th>Значение</th>
+          </tr>
+          <tr>
+            <td>Формат файла</td>
+            <td>*.odt</td>
+          </tr>
+          <tr>
+            <td>Шрифт</td>
+            <td>Размер 14 пунктов, обычное начертание</td>
+          </tr>
+          <tr>
+            <td>Отступ первой строки</td>
+            <td>1 см (запрещено использовать пробелы!)</td>
+          </tr>
+          <tr>
+            <td>Междустрочный интервал</td>
+            <td>Не менее одинарного, но не более полуторного</td>
+          </tr>
+          <tr>
+            <td>Выравнивание основного текста</td>
+            <td>По ширине</td>
+          </tr>
+          <tr>
+            <td>Выравнивание заголовка</td>
+            <td>По центру</td>
+          </tr>
+          <tr>
+            <td>Выравнивание текста в таблице (заголовок и второй столбец)</td>
+            <td>По центру</td>
+          </tr>
+          <tr>
+            <td>Выравнивание первого столбца таблицы (кроме заголовка)</td>
+            <td>По левому краю</td>
+          </tr>
+          <tr>
+            <td>Ширина таблицы</td>
+            <td>Меньше ширины основного текста</td>
+          </tr>
+          <tr>
+            <td>Выравнивание таблицы на странице</td>
+            <td>По центру горизонтали</td>
+          </tr>
+          <tr>
+            <td>Интервал между заголовком/текстом и таблицей</td>
+            <td>Не менее 14 пт (5 мм), но не более 24 пт (8,5 мм)</td>
+          </tr>
+          <tr>
+            <td>Запрещено</td>
+            <td>Использование «пустого абзаца» для интервала</td>
+          </tr>
+          <tr>
+            <td>Выделения в тексте и таблице</td>
+            <td>Полужирный шрифт, курсив, подчёркивание</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔍 Два основных объекта задания</h2>
+
+        <div class="element-grid">
+          <div class="element-card text-card">
+            <h4>📄 Основной текст</h4>
+            <ul>
+              <li>Один или два абзаца (до ~200 символов)</li>
+              <li>Шрифт 14 пт, обычное начертание</li>
+              <li>Отступ первой строки 1 см</li>
+              <li>Междустрочный интервал от одинарного до полуторного</li>
+              <li>Выравнивание по ширине</li>
+              <li>Выделение слов (полужирный/курсив/подчёркивание)</li>
+            </ul>
+          </div>
+          <div class="element-card table-card">
+            <h4>📊 Таблица</h4>
+            <ul>
+              <li>Необходимое количество строк и столбцов</li>
+              <li>Заголовок таблицы — полужирный, по центру</li>
+              <li>Второй столбец — по центру</li>
+              <li>Первый столбец (кроме заголовка) — по левому краю</li>
+              <li>Ширина таблицы меньше ширины текста</li>
+              <li>Таблица по центру страницы</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📏 Критерии оценивания</h2>
+        <p>
+          <strong>Правильным решением</strong> является текст, соответствующий
+          заданному образцу. Максимальный балл — <strong>2</strong>.
+        </p>
+
+        <table>
+          <tr>
+            <th style="width: 20%">Оценка</th>
+            <th>Описание</th>
+          </tr>
+          <tr>
+            <td
+              style="
+                text-align: center;
+                font-weight: bold;
+                color: #2e7d32;
+                font-size: 1.5rem;
+              "
+            >
+              2 балла
+            </td>
+            <td>
+              <strong>Задание выполнено правильно.</strong> Контролируется
+              выполнение следующих элементов:
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <h4 style="margin: 10px 0 5px 0">Основной текст:</h4>
+              <ul>
+                <li>
+                  Текст набран прямым нормальным шрифтом размером 14 пунктов
+                </li>
+                <li>
+                  Верно выделены все необходимые слова полужирным, курсивным или
+                  подчёркнутым начертанием
+                </li>
+                <li>
+                  Междустрочный интервал не менее одинарного, но не более
+                  полуторного
+                </li>
+                <li>
+                  Интервал между текстом и таблицей не менее 14 пт, но не более
+                  24 пт
+                </li>
+                <li>Интервал установлен без использования «пустого» абзаца</li>
+                <li>Текст в абзаце выровнен по ширине</li>
+                <li>
+                  Правильно установлен абзацный отступ (1 см), не допускается
+                  использование пробелов
+                </li>
+                <li>
+                  Разбиение текста на строки осуществляется текстовым редактором
+                  (не используются разрывы строк)
+                </li>
+                <li>
+                  Допускается не более 5 ошибок (орфографических,
+                  пунктуационных, пробелы, знаки, пропуски)
+                </li>
+              </ul>
+              <h4 style="margin: 10px 0 5px 0">Таблица:</h4>
+              <ul>
+                <li>Таблица имеет необходимое количество строк и столбцов</li>
+                <li>
+                  Текст в ячейках заголовка таблицы набран шрифтом с полужирным
+                  начертанием
+                </li>
+                <li>
+                  Текст в ячейках заголовка и второго столбца выровнен по центру
+                </li>
+                <li>
+                  Текст в ячейках первого столбца (кроме заголовка) выровнен по
+                  левому краю
+                </li>
+                <li>
+                  Допускается не более 3 ошибок (орфографических,
+                  пунктуационных, пробелы, знаки, пропуски)
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                text-align: center;
+                font-weight: bold;
+                color: #e65100;
+                font-size: 1.5rem;
+              "
+            >
+              1 балл
+            </td>
+            <td>
+              В работе допущена суммарно не более одной ошибки в структуре
+              документа, или допущена одна ошибка одного из следующих типов:
+              <ul>
+                <li>Неверный размер шрифта</li>
+                <li>Неверно задан абзацный отступ</li>
+                <li>Ошибка в выравнивании</li>
+                <li>Нарушение межстрочного интервала</li>
+                <li>Ошибка в оформлении таблицы (пропуск строки/столбца)</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                text-align: center;
+                font-weight: bold;
+                color: #c62828;
+                font-size: 1.5rem;
+              "
+            >
+              0 баллов
+            </td>
+            <td>
+              Работа не соответствует требованиям, отсутствует таблица, либо
+              допущено более одной грубой ошибки.
+            </td>
+          </tr>
+        </table>
+
+        <div class="tip-box">
+          <h4>📌 Важное замечание</h4>
+          <p>
+            При проверке контролируются только те элементы, которые явно
+            перечислены в критериях. Расхождение работы с образцом в параметрах,
+            не указанных в критериях, не влияет на оценку.
+          </p>
+          <p style="margin-top: 10px">
+            <strong>Исключение:</strong> если параметры шрифтового или абзацного
+            оформления искажены столь значительно, что явно нарушается
+            эстетическое восприятие текста, оценка снижается на балл.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🛠️ Пошаговый порядок выполнения</h2>
+        <ol>
+          <li>
+            <strong>Откройте текстовый редактор</strong> (Word или LibreOffice
+            Writer)
+          </li>
+          <li>
+            <strong>Настройте параметры страницы:</strong> установите нужные
+            поля и ориентацию (по умолчанию обычно книжная)
+          </li>
+          <li>
+            <strong>Наберите заголовок</strong> — выровняйте по центру. У
+            становите размер шрифта 14 пт. Выделите нужные слова полужирным или
+            курсивом по образцу
+          </li>
+          <li>
+            <strong>Создайте таблицу:</strong> Вставка → Таблица → укажите
+            количество строк и столбцов по образцу. Заполните ячейки, настройте
+            выравнивание (заголовок и второй столбец — по центру, первый столбец
+            — по левому краю)
+          </li>
+          <li>
+            <strong>Установите ширину таблицы</strong> — меньше ширины основного
+            текста. Выровняйте таблицу по центру страницы
+          </li>
+          <li>
+            <strong>Наберите основной текст:</strong>
+            <ul>
+              <li>Шрифт 14 пт, обычное начертание</li>
+              <li>Выравнивание по ширине</li>
+              <li>
+                Отступ первой строки 1 см (Формат → Абзац → Первая строка →
+                Отступ → 1 см)
+              </li>
+              <li>Междустрочный интервал — от одинарного до полуторного</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Установите интервал</strong> между заголовком/текстом и
+            таблицей — от 14 до 24 пт (через настройки абзаца, НЕ пустым
+            абзацем!)
+          </li>
+          <li>
+            <strong>Выделите слова</strong> в тексте и таблице полужирным,
+            курсивом или подчёркиванием в соответствии с образцом
+          </li>
+          <li>
+            <strong>Проверьте невидимые символы:</strong> включите режим
+            отображения невидимых символов (¶) — убедитесь, что нет лишних
+            пробелов для отступа, нет пустых абзацев
+          </li>
+          <li>
+            <strong>Сохраните файл</strong> в формате *.odt (Файл → Сохранить
+            как → Тип файла → ODF Text Document (.odt))
+          </li>
+        </ol>
+      </div>
+
+      <div class="theory-section">
+        <h2>⚠️ Типичные ошибки и как их избежать</h2>
+
+        <div class="error-box">
+          <h4>❌ Использование пробелов для абзацного отступа</h4>
+          <p>
+            <strong>Ошибка:</strong> вместо настройки отступа первой строки
+            через диалог «Абзац» ученик ставит несколько пробелов в начале
+            абзаца.
+          </p>
+          <p>
+            <strong>Решение:</strong> используйте Формат → Абзац → Отступы →
+            Первая строка → Отступ → 1 см. Включите показ невидимых символов
+            (¶), чтобы убедиться в отсутствии лишних пробелов и табуляции.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Пустые абзацы для интервала между текстом и таблицей</h4>
+          <p>
+            <strong>Ошибка:</strong> несколько нажатий Enter между текстом и
+            таблицей вместо настройки интервала через параметры абзаца.
+          </p>
+          <p>
+            <strong>Решение:</strong> установите интервал после текстового
+            абзаца (или перед таблицей) через Формат → Абзац → Интервал
+            после/перед.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверный размер шрифта</h4>
+          <p>
+            <strong>Ошибка:</strong> использование шрифта 12 пт (по умолчанию)
+            вместо 14 пт, указанного в задании.
+          </p>
+          <p>
+            <strong>Решение:</strong> перед началом работы установите размер
+            шрифта 14 пт на вкладке «Главная». Проверьте, что размер применён ко
+            всему тексту.
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверная ширина таблицы</h4>
+          <p>
+            <strong>Ошибка:</strong> таблица занимает всю ширину страницы или,
+            наоборот, слишком узкая.
+          </p>
+          <p>
+            <strong>Решение:</strong> ширина таблицы должна быть меньше ширины
+            основного текста. Выделите таблицу → Свойства таблицы → укажите
+            ширину (например, 80–90% от ширины текста).
+          </p>
+        </div>
+
+        <div class="error-box">
+          <h4>❌ Неверное выравнивание в таблице</h4>
+          <p>
+            <strong>Ошибка:</strong> все ячейки таблицы выровнены одинаково
+            (например, только по центру или только по левому краю).
+          </p>
+          <p>
+            <strong>Решение:</strong> заголовок и второй столбец — по центру,
+            первый столбец (кроме заголовка) — по левому краю.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>📊 Разбор примеров оценивания</h2>
+
+        <h3>Пример 1 — 2 балла</h3>
+        <div class="example-box">
+          <h4>✅ Работа полностью соответствует образцу</h4>
+          <p>
+            Результат выполнения задания практически совпадает с эталонным.
+            Размер шрифта 14 пт, отступ первой строки 1 см, выравнивание по
+            ширине, все слова выделены правильно, таблица имеет верную
+            структуру, опечаток нет. Оценка — <strong>2 балла</strong>.
+          </p>
+        </div>
+
+        <h3>Пример 2 — 1 балл</h3>
+        <div class="warning-box">
+          <h4>⚠️ Пропущена одна строка таблицы</h4>
+          <p>
+            В таблице отсутствует одна из строк, что является ошибкой структуры.
+            Все остальные элементы выполнены верно. Оценка —
+            <strong>1 балл</strong>.
+          </p>
+        </div>
+
+        <h3>Пример 3 — 0 баллов</h3>
+        <div class="error-box">
+          <h4>❌ Множественные нарушения</h4>
+          <p>
+            Не выполнено практически ни одного требования к оформлению
+            документа, кроме того, отсутствует таблица. Оценка —
+            <strong>0 баллов</strong>.
+          </p>
+        </div>
+
+        <h3>Пример 4 — 2 балла (выполнение в колонтитуле)</h3>
+        <div class="tip-box">
+          <h4>📌 Интересный случай</h4>
+          <p>
+            Участник экзамена полностью выполнил работу в области верхнего
+            колонтитула. Проверка показала: размер шрифта, отступ первой строки
+            и выравнивание абзаца выполнены верно, все слова правильно выделены,
+            опечаток нет. Таблица имеет структуру, полностью соответствующую
+            образцу.
+          </p>
+          <p style="margin-top: 10px">
+            <strong>Результат:</strong> согласно критериям, работу необходимо
+            оценить максимальным баллом — <strong>2 балла</strong>. Единственное
+            отличие — размещение текста и таблицы в области колонтитула, что не
+            является ошибкой по критериям.
+          </p>
+          <p style="margin-top: 10px; color: #1565c0">
+            ⚠️ Однако при подготовке к экзамену не следует поощрять учеников
+            выполнять задание подобным образом.
+          </p>
+        </div>
+      </div>
+
+      <div class="theory-section">
+        <h2>🔑 Ключевые правила для успешного выполнения</h2>
+        <ul>
+          <li>
+            <strong>Используйте настройки, а не пробелы.</strong> Абзацный
+            отступ — через диалог «Абзац». Интервал между текстом и таблицей —
+            тоже через «Абзац» (интервал после/перед).
+          </li>
+          <li>
+            <strong>Включите показ невидимых символов</strong> (¶) — так вы
+            увидите лишние пробелы, пустые абзацы, разрывы строк и сможете их
+            удалить.
+          </li>
+          <li>
+            <strong>Проверьте ширину таблицы</strong> — она должна быть меньше
+            ширины основного текста.
+          </li>
+          <li>
+            <strong>Проверьте выравнивание в таблице</strong> — для каждого
+            столбца своё выравнивание (заголовок и второй — по центру, первый —
+            по левому краю).
+          </li>
+          <li>
+            <strong>Не используйте разрывы строк</strong> для перехода на новую
+            строку внутри абзаца — разбиение на строки должно выполняться
+            автоматически.
+          </li>
+          <li>
+            <strong>Сохраните в правильном формате</strong> — *.odt (не .docx,
+            не .doc).
+          </li>
+        </ul>
+      </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
