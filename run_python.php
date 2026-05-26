@@ -19,7 +19,7 @@ $testInput = isset($_POST['test_input']) ? $_POST['test_input'] : '';
 $expectedOutput = isset($_POST['expected_output']) ? $_POST['expected_output'] : '';
 
 // Валидация
-if (empty(trim($code))) {
+if (trim($code) === '') {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Код не может быть пустым']);
     exit;
@@ -80,13 +80,13 @@ try {
     file_put_contents($codeFile, $code);
 
     // Записываем входные данные
-    if (!empty($testInput)) {
+    if ($testInput !== '') {
         file_put_contents($inputFile, $testInput);
     }
 
     // Команда запуска: python3 code.py < input.txt (если есть входные данные)
     $cmd = '/usr/bin/python3 ' . escapeshellarg($codeFile);
-    if (!empty($testInput)) {
+    if ($testInput !== '') {
         $cmd .= ' < ' . escapeshellarg($inputFile);
     }
 
