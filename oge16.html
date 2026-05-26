@@ -211,6 +211,40 @@
         background: linear-gradient(145deg, #6c757d, #adb5bd);
         color: white;
       }
+      .btn-select {
+        background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+      }
+      .task-selector {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        background: #f0f0f0;
+        border-radius: 10px;
+      }
+      .task-selector label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95rem;
+      }
+      .task-selector input[type="number"] {
+        width: 70px;
+        padding: 8px 10px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .task-selector input[type="number"]:focus {
+        border-color: #667eea;
+      }
       .output-section {
         margin-top: 20px;
         padding: 16px 20px;
@@ -489,7 +523,7 @@
             { input: "2\n5\n10", expected: "0" },
             { input: "3\n3\n18\n23", expected: "44" },
             { input: "1\n1000", expected: "0" },
-            { input: "4\n7\n12\n17\n22", expected: "58" },
+            { input: "4\n7\n12\n17\n22", expected: "0" },
           ],
         },
         {
@@ -950,6 +984,894 @@
             { input: "1000000000", expected: "1" },
           ],
         },
+        {
+          id: '16-21',
+          type: 'end-digit',
+          typeLabel: 'Количество (конец на 2 в 5-ричной)',
+          base: 5,
+          baseText: '5-ричной',
+          conditionText: 'оканчиваются на цифру 2',
+          testData: { input: '5\n7\n12\n17\n2\n22', expected: '5' },
+          hint: 'Проверяем: if x % 5 == 2. Считаем количество совпадений.',
+          solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 5 == 2:\n        count += 1\nprint(count)',
+          tests: [
+            { input: '5\n7\n12\n17\n2\n22', expected: '5' },
+            { input: '1\n2', expected: '1' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '1' },
+            { input: '3\n2\n7\n12', expected: '3' },
+            { input: '2\n1003\n2003', expected: '0' },
+            { input: '2\n5\n10', expected: '0' },
+            { input: '3\n2\n22\n27', expected: '3' },
+            { input: '1\n1000', expected: '0' },
+            { input: '4\n2\n7\n12\n17', expected: '4' }
+          ]
+        },
+{
+          id: '16-22',
+          type: 'end-digit',
+          typeLabel: 'Количество (конец на 0 в 3-ричной)',
+          base: 3,
+          baseText: '3-ричной',
+          conditionText: 'оканчиваются на цифру 0',
+          testData: { input: '5\n3\n6\n9\n12\n15', expected: '5' },
+          hint: 'Проверяем: if x % 3 == 0. Считаем количество.',
+          solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 3 == 0:\n        count += 1\nprint(count)',
+          tests: [
+            { input: '5\n3\n6\n9\n12\n15', expected: '5' },
+            { input: '1\n3', expected: '1' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n4', expected: '0' },
+            { input: '3\n3\n6\n9', expected: '3' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n3\n6', expected: '2' },
+            { input: '3\n0\n3\n6', expected: '3' },
+            { input: '1\n1000', expected: '0' },
+            { input: '4\n3\n6\n9\n12', expected: '4' }
+          ]
+        },
+{
+          id: '16-23',
+          type: 'end-digit',
+          typeLabel: 'Сумма (конец на 5 в 6-ричной)',
+          base: 6,
+          baseText: '6-ричной',
+          conditionText: 'оканчиваются на цифру 5',
+          testData: { input: '4\n5\n11\n17\n23', expected: '56' },
+          hint: 'Проверяем: if x % 6 == 5. Суммируем совпадения.',
+          solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 5:\n        s += x\nprint(s)',
+          tests: [
+            { input: '4\n5\n11\n17\n23', expected: '56' },
+            { input: '1\n5', expected: '5' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n5\n11\n17', expected: '33' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n6\n12', expected: '0' },
+            { input: '3\n5\n17\n23', expected: '45' },
+            { input: '1\n1000', expected: '0' },
+            { input: '4\n5\n11\n17\n23', expected: '56' }
+          ]
+        },
+{
+          id: '16-24',
+          type: 'end-digit',
+          typeLabel: 'Сумма (конец на 0 или 4 в 5-ричной)',
+          base: 5,
+          baseText: '5-ричной',
+          conditionText: 'оканчиваются на 0 или 4',
+          testData: { input: '4\n4\n9\n14\n19', expected: '46' },
+          hint: 'Проверяем: if x % 5 == 0 or x % 5 == 4.',
+          solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 5 == 0 or x % 5 == 4:\n        s += x\nprint(s)',
+          tests: [
+            { input: '4\n4\n9\n14\n19', expected: '46' },
+            { input: '1\n4', expected: '4' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n4\n9\n14', expected: '27' },
+            { input: '2\n1000\n2000', expected: '3000' },
+            { input: '2\n5\n10', expected: '15' },
+            { input: '3\n0\n5\n10', expected: '15' },
+            { input: '1\n1000', expected: '1000' },
+            { input: '4\n4\n14\n19\n24', expected: '61' }
+          ]
+        },
+{
+          id: '16-25',
+          type: 'end-digit',
+          typeLabel: 'Среднее (конец на 4 в 6-ричной)',
+          base: 6,
+          baseText: '6-ричной',
+          conditionText: 'оканчиваются на цифру 4',
+          testData: { input: '3\n4\n10\n16', expected: '10.0' },
+          hint: 'Вычисляем среднее арифметическое как sum / count.',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 4:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '3\n4\n10\n16', expected: '10.0' },
+            { input: '1\n4', expected: '4.0' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n4\n10\n16', expected: '10.0' },
+            { input: '2\n1000\n2000', expected: '1000.0' },
+            { input: '2\n6\n12', expected: '0' },
+            { input: '3\n4\n16\n22', expected: '14.0' },
+            { input: '1\n1000', expected: '1000.0' },
+            { input: '4\n4\n10\n16\n22', expected: '13.0' }
+          ]
+        },
+{
+          id: '16-26',
+          type: 'end-digit',
+          typeLabel: 'Среднее (конец на 0 или 3 в 7-ричной)',
+          base: 7,
+          baseText: '7-ричной',
+          conditionText: 'оканчиваются на 0 или 3',
+          testData: { input: '3\n7\n10\n14', expected: '10.333333333333334' },
+          hint: 'Проверяем два условия: if x % 7 == 0 or x % 7 == 3.',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '3\n7\n10\n14', expected: '10.333333333333334' },
+            { input: '1\n7', expected: '7.0' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '3.0' },
+            { input: '3\n7\n14\n21', expected: '14.0' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n7\n14', expected: '10.5' },
+            { input: '3\n7\n14\n1000', expected: '10.5' }
+          ]
+        },
+{
+          id: '16-27',
+          type: 'end-two',
+          typeLabel: 'Сумма (конец на 43 в 6-ричной)',
+          base: 6,
+          baseText: '6-ричной',
+          conditionText: 'оканчивается на 43',
+          testData: { input: '3\n27\n105\n183', expected: '27' },
+          hint: '43 в 6-ричной = 4*6+3=27, p²=36. Условие x % 36 == 27.',
+          solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 36 == 27:\n        total += x\nprint(total)',
+          tests: [
+            { input: '3\n27\n105\n183', expected: '27' },
+            { input: '1\n27', expected: '27' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n27\n69\n111', expected: '27' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n36\n72', expected: '0' },
+            { input: '3\n27\n111\n195', expected: '27' }
+          ]
+        },
+{
+          id: '16-28',
+          type: 'end-two',
+          typeLabel: 'Сумма (конец на 54 в 9-ричной)',
+          base: 9,
+          baseText: '9-ричной',
+          conditionText: 'оканчивается на 54',
+          testData: { input: '3\n49\n130\n211', expected: '390' },
+          hint: '54 в 9-ричной = 5*9+4=49, p²=81. Условие x % 81 == 49.',
+          solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 81 == 49:\n        total += x\nprint(total)',
+          tests: [
+            { input: '3\n49\n130\n211', expected: '390' },
+            { input: '1\n49', expected: '49' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n49\n130\n211', expected: '390' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n81\n162', expected: '0' },
+            { input: '3\n49\n211\n292', expected: '552' }
+          ]
+        },
+{
+          id: '16-29',
+          type: 'penult',
+          typeLabel: 'Сумма (предпосл. цифра = 5 в 6-ричной)',
+          base: 6,
+          baseText: '6',
+          conditionText: 'предпоследняя цифра в записи которых в 6-ричной системе равна 5',
+          testData: { input: '4\n30\n186\n114\n66', expected: '96' },
+          hint: 'Предпоследняя цифра: (x // 6) % 6 == 5.',
+          solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 6) % 6 == 5:\n        total += x\nprint(total)',
+          tests: [
+            { input: '4\n30\n186\n114\n66', expected: '96' },
+            { input: '1\n30', expected: '30' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n30\n114\n198', expected: '30' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n36\n72', expected: '0' },
+            { input: '3\n30\n198\n240', expected: '30' }
+          ]
+        },
+{
+          id: '16-30',
+          type: 'penult',
+          typeLabel: 'Сумма (предпосл. цифра = 2 в 5-ричной)',
+          base: 5,
+          baseText: '5',
+          conditionText: 'предпоследняя цифра в записи которых в 5-ричной системе равна 2',
+          testData: { input: '4\n10\n35\n60\n85', expected: '190' },
+          hint: 'Предпоследняя цифра: (x // 5) % 5 == 2.',
+          solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 5) % 5 == 2:\n        total += x\nprint(total)',
+          tests: [
+            { input: '4\n10\n35\n60\n85', expected: '190' },
+            { input: '1\n10', expected: '10' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n10\n35\n60', expected: '105' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n25\n50', expected: '0' },
+            { input: '3\n10\n60\n85', expected: '155' }
+          ]
+        },
+{
+          id: '16-31',
+          type: 'end-digit',
+          typeLabel: 'Кол-во (до 0, конец на 3 в 4-ричной)',
+          base: 4,
+          baseText: '4-ричной',
+          conditionText: 'оканчиваются на цифру 3 (ввод до 0)',
+          testData: { input: '7\n11\n3\n15\n0', expected: '4' },
+          hint: 'Ввод до 0: while x != 0: обрабатываем и читаем следующее.',
+          solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 4 == 3:\n        count += 1\n    x = int(input())\nprint(count)',
+          tests: [
+            { input: '7\n11\n3\n15\n0', expected: '4' },
+            { input: '3\n0', expected: '1' },
+            { input: '7\n11\n15\n0', expected: '3' },
+            { input: '3\n7\n11\n0', expected: '3' },
+            { input: '3\n0', expected: '1' },
+            { input: '4\n3\n7\n11\n0', expected: '3' },
+            { input: '11\n0', expected: '1' },
+            { input: '3\n15\n19\n0', expected: '3' },
+            { input: '0', expected: '0' },
+            { input: '7\n3\n7\n15\n0', expected: '4' }
+          ]
+        },
+{
+          id: '16-32',
+          type: 'end-digit',
+          typeLabel: 'Сумма (до 0, конец на 1 в 8-ричной)',
+          base: 8,
+          baseText: '8-ричной',
+          conditionText: 'оканчиваются на цифру 1 (ввод до 0)',
+          testData: { input: '1\n9\n17\n0', expected: '27' },
+          hint: 'Ввод до 0 с суммированием.',
+          solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 8 == 1:\n        total += x\n    x = int(input())\nprint(total)',
+          tests: [
+            { input: '1\n9\n17\n0', expected: '27' },
+            { input: '9\n0', expected: '9' },
+            { input: '1\n0', expected: '1' },
+            { input: '9\n17\n25\n0', expected: '51' },
+            { input: '1\n0', expected: '1' },
+            { input: '9\n17\n0', expected: '26' },
+            { input: '0', expected: '0' },
+            { input: '1\n9\n17\n25\n0', expected: '52' },
+            { input: '1\n0', expected: '1' },
+            { input: '9\n1\n17\n0', expected: '27' }
+          ]
+        },
+{
+          id: '16-33',
+          type: 'end-digit',
+          typeLabel: 'Среднее (до 0, конец на 2 в 9-ричной)',
+          base: 9,
+          baseText: '9-ричной',
+          conditionText: 'оканчиваются на цифру 2 (ввод до 0)',
+          testData: { input: '2\n11\n20\n0', expected: '11.0' },
+          hint: 'Среднее арифметическое: сумма / количество.',
+          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '2\n11\n20\n0', expected: '11.0' },
+            { input: '2\n0', expected: '2.0' },
+            { input: '0', expected: '0' },
+            { input: '11\n20\n29\n0', expected: '20.0' },
+            { input: '2\n0', expected: '2.0' },
+            { input: '11\n0', expected: '11.0' },
+            { input: '0', expected: '0' },
+            { input: '2\n11\n20\n0', expected: '11.0' },
+            { input: '2\n29\n0', expected: '15.5' },
+            { input: '2\n11\n0', expected: '6.5' }
+          ]
+        },
+{
+          id: '16-34',
+          type: 'end-two',
+          typeLabel: 'Сумма (до 0, конец на 21 в 4-ричной)',
+          base: 4,
+          baseText: '4-ричной',
+          conditionText: 'оканчивается на 21 (ввод до 0)',
+          testData: { input: '9\n25\n41\n0', expected: '75' },
+          hint: '21 в 4-ричной = 2*4+1=9, p²=16. Условие x % 16 == 9, ввод до 0.',
+          solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 16 == 9:\n        total += x\n    x = int(input())\nprint(total)',
+          tests: [
+            { input: '9\n25\n41\n0', expected: '75' },
+            { input: '9\n0', expected: '9' },
+            { input: '1\n0', expected: '0' },
+            { input: '25\n41\n57\n0', expected: '123' },
+            { input: '0', expected: '0' },
+            { input: '9\n25\n0', expected: '34' },
+            { input: '9\n0', expected: '9' },
+            { input: '25\n41\n0', expected: '66' },
+            { input: '0', expected: '0' },
+            { input: '9\n57\n0', expected: '66' }
+          ]
+        },
+{
+          id: '16-35',
+          type: 'penult',
+          typeLabel: 'Сумма (до 0, предпосл. цифра = 4 в 7-ричной)',
+          base: 7,
+          baseText: '7',
+          conditionText: 'предпоследняя цифра = 4 в 7-ричной (ввод до 0)',
+          testData: { input: '28\n77\n126\n0', expected: '231' },
+          hint: '(x // 7) % 7 == 4, ввод до 0.',
+          solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if (x // 7) % 7 == 4:\n        total += x\n    x = int(input())\nprint(total)',
+          tests: [
+            { input: '28\n77\n126\n0', expected: '231' },
+            { input: '28\n0', expected: '28' },
+            { input: '1\n0', expected: '0' },
+            { input: '77\n126\n175\n0', expected: '378' },
+            { input: '0', expected: '0' },
+            { input: '28\n77\n0', expected: '105' },
+            { input: '28\n0', expected: '28' },
+            { input: '77\n126\n0', expected: '203' },
+            { input: '0', expected: '0' },
+            { input: '28\n175\n0', expected: '203' }
+          ]
+        },
+{
+          id: '16-36',
+          type: 'end-digit',
+          typeLabel: 'Кол-во (до 0, конец на 1 в 5-ричной)',
+          base: 5,
+          baseText: '5-ричной',
+          conditionText: 'оканчиваются на 1 (ввод до 0)',
+          testData: { input: '1\n6\n11\n0', expected: '3' },
+          hint: 'if x % 5 == 1, ввод до 0.',
+          solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 5 == 1:\n        count += 1\n    x = int(input())\nprint(count)',
+          tests: [
+            { input: '1\n6\n11\n0', expected: '3' },
+            { input: '1\n0', expected: '1' },
+            { input: '0', expected: '0' },
+            { input: '6\n11\n16\n0', expected: '3' },
+            { input: '1\n0', expected: '1' },
+            { input: '6\n0', expected: '1' },
+            { input: '0', expected: '0' },
+            { input: '1\n6\n11\n0', expected: '3' },
+            { input: '1\n16\n0', expected: '2' },
+            { input: '6\n11\n0', expected: '2' }
+          ]
+        },
+{
+          id: '16-37',
+          type: 'end-two',
+          typeLabel: 'Сумма (до 0, конец на 32 в 5-ричной)',
+          base: 5,
+          baseText: '5-ричной',
+          conditionText: 'оканчивается на 32 (ввод до 0)',
+          testData: { input: '17\n42\n67\n0', expected: '126' },
+          hint: '32 в 5-ричной = 3*5+2=17, p²=25.',
+          solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 25 == 17:\n        total += x\n    x = int(input())\nprint(total)',
+          tests: [
+            { input: '17\n42\n67\n0', expected: '126' },
+            { input: '17\n0', expected: '17' },
+            { input: '1\n0', expected: '0' },
+            { input: '42\n67\n92\n0', expected: '201' },
+            { input: '0', expected: '0' },
+            { input: '17\n42\n0', expected: '59' },
+            { input: '17\n0', expected: '17' },
+            { input: '42\n67\n0', expected: '109' },
+            { input: '0', expected: '0' },
+            { input: '17\n92\n0', expected: '109' }
+          ]
+        },
+{
+          id: '16-38',
+          type: 'penult',
+          typeLabel: 'Сумма (до 0, предпосл. = 3 в 5-ричной)',
+          base: 5,
+          baseText: '5',
+          conditionText: 'предпоследняя цифра = 3 в 5-ричной (ввод до 0)',
+          testData: { input: '15\n40\n65\n0', expected: '120' },
+          hint: '(x // 5) % 5 == 3, ввод до 0.',
+          solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if (x // 5) % 5 == 3:\n        total += x\n    x = int(input())\nprint(total)',
+          tests: [
+            { input: '15\n40\n65\n0', expected: '120' },
+            { input: '15\n0', expected: '15' },
+            { input: '1\n0', expected: '0' },
+            { input: '40\n65\n90\n0', expected: '195' },
+            { input: '0', expected: '0' },
+            { input: '15\n40\n0', expected: '55' },
+            { input: '15\n0', expected: '15' },
+            { input: '40\n65\n0', expected: '105' },
+            { input: '0', expected: '0' },
+            { input: '15\n90\n0', expected: '105' }
+          ]
+        },
+{
+          id: '16-39',
+          type: 'count-digits',
+          typeLabel: 'Подсчёт цифр >= 5',
+          number: 84951,
+          conditionText: 'количества цифр >= 5 в записи натурального числа',
+          testData: { input: '84951', expected: '3' },
+          hint: 'Используем условие if digit >= 5.',
+          solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit >= 5:\n        count += 1\n    temp //= 10\nprint(count)',
+          tests: [
+            { input: '84951', expected: '3' },
+            { input: '5', expected: '1' },
+            { input: '1', expected: '0' },
+            { input: '1234', expected: '0' },
+            { input: '56789', expected: '5' },
+            { input: '5555555555', expected: '10' },
+            { input: '100', expected: '0' },
+            { input: '123456789', expected: '5' },
+            { input: '40', expected: '0' },
+            { input: '9876543210', expected: '5' }
+          ]
+        },
+{
+          id: '16-40',
+          type: 'sum-digits',
+          typeLabel: 'Сумма цифр <= 3',
+          number: 12306,
+          conditionText: 'суммы цифр <= 3 в записи натурального числа',
+          testData: { input: '12306', expected: '6' },
+          hint: 'if digit <= 3, суммируем.',
+          solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit <= 3:\n        total += digit\n    temp //= 10\nprint(total)',
+          tests: [
+            { input: '12306', expected: '6' },
+            { input: '3', expected: '3' },
+            { input: '5', expected: '0' },
+            { input: '123', expected: '6' },
+            { input: '3000', expected: '3' },
+            { input: '1111111111', expected: '10' },
+            { input: '100', expected: '1' },
+            { input: '123456789', expected: '6' },
+            { input: '30', expected: '3' },
+            { input: '3333333333', expected: '30' }
+          ]
+        },
+{
+          id: '16-41',
+          type: 'count-digits',
+          typeLabel: 'Подсчёт простых цифр',
+          number: 2357,
+          conditionText: 'количества простых цифр (2,3,5,7) в записи натурального числа',
+          testData: { input: '2357', expected: '4' },
+          hint: 'Простые цифры: 2,3,5,7.',
+          solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit in (2,3,5,7):\n        count += 1\n    temp //= 10\nprint(count)',
+          tests: [
+            { input: '2357', expected: '4' },
+            { input: '2', expected: '1' },
+            { input: '1', expected: '0' },
+            { input: '1234', expected: '2' },
+            { input: '5678', expected: '2' },
+            { input: '2222222222', expected: '10' },
+            { input: '100', expected: '0' },
+            { input: '123456789', expected: '4' },
+            { input: '40', expected: '0' },
+            { input: '7777777777', expected: '10' }
+          ]
+        },
+{
+          id: '16-42',
+          type: 'count-digits',
+          typeLabel: 'Подсчёт чётных цифр',
+          number: 28461,
+          conditionText: 'количества чётных цифр в записи натурального числа',
+          testData: { input: '28461', expected: '4' },
+          hint: 'Чётные цифры: digit % 2 == 0.',
+          solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0:\n        count += 1\n    temp //= 10\nprint(count)',
+          tests: [
+            { input: '28461', expected: '4' },
+            { input: '4', expected: '1' },
+            { input: '1', expected: '0' },
+            { input: '123', expected: '1' },
+            { input: '2222222222', expected: '10' },
+            { input: '13579', expected: '0' },
+            { input: '100', expected: '2' },
+            { input: '123456789', expected: '4' },
+            { input: '40', expected: '2' },
+            { input: '8888888888', expected: '10' }
+          ]
+        },
+{
+          id: '16-43',
+          type: 'sum-digits',
+          typeLabel: 'Сумма нечётных цифр',
+          number: 28461,
+          conditionText: 'суммы нечётных цифр в записи натурального числа',
+          testData: { input: '28461', expected: '1' },
+          hint: 'Нечётные цифры: digit % 2 != 0.',
+          solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 != 0:\n        total += digit\n    temp //= 10\nprint(total)',
+          tests: [
+            { input: '28461', expected: '1' },
+            { input: '5', expected: '5' },
+            { input: '2', expected: '0' },
+            { input: '123', expected: '4' },
+            { input: '13579', expected: '25' },
+            { input: '2222222222', expected: '0' },
+            { input: '100', expected: '1' },
+            { input: '123456789', expected: '25' },
+            { input: '40', expected: '0' },
+            { input: '1111111111', expected: '10' }
+          ]
+        },
+{
+          id: '16-44',
+          type: 'minmax',
+          typeLabel: 'Минимальная чётная цифра',
+          number: 28461,
+          conditionText: 'минимальную чётную цифру в записи натурального числа',
+          testData: { input: '28461', expected: '2' },
+          hint: 'Находим минимальную чётную цифру.',
+          solutionCode:'x = int(input())\nmin_digit = 9\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit < min_digit:\n        min_digit = digit\n    temp //= 10\nif min_digit == 9:\n    print(0)\nelse:\n    print(min_digit)',
+          tests: [
+            { input: '28461', expected: '2' },
+            { input: '8', expected: '8' },
+            { input: '1', expected: '0' },
+            { input: '13579', expected: '0' },
+            { input: '2222222222', expected: '2' },
+            { input: '100', expected: '0' },
+            { input: '12', expected: '2' },
+            { input: '123456789', expected: '2' },
+            { input: '40', expected: '0' },
+            { input: '8888888888', expected: '8' }
+          ]
+        },
+{
+          id: '16-45',
+          type: 'minmax',
+          typeLabel: 'Максимальная нечётная цифра',
+          number: 28461,
+          conditionText: 'максимальную нечётную цифру в записи натурального числа',
+          testData: { input: '28461', expected: '1' },
+          hint: 'Находим максимальную нечётную цифру.',
+          solutionCode:'x = int(input())\nmax_digit = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 != 0 and digit > max_digit:\n        max_digit = digit\n    temp //= 10\nprint(max_digit)',
+          tests: [
+            { input: '28461', expected: '1' },
+            { input: '5', expected: '5' },
+            { input: '2', expected: '0' },
+            { input: '13579', expected: '9' },
+            { input: '2222222222', expected: '0' },
+            { input: '100', expected: '1' },
+            { input: '12', expected: '1' },
+            { input: '123456789', expected: '9' },
+            { input: '40', expected: '0' },
+            { input: '7777777777', expected: '7' }
+          ]
+        },
+{
+          id: '16-46',
+          type: 'end-digit',
+          typeLabel: 'Минимум (до 0, конец на 3 в 7-ричной)',
+          base: 7,
+          baseText: '7-ричной',
+          conditionText: 'оканчиваются на 3 (ввод до 0) найти минимум',
+          testData: { input: '3\n10\n17\n0', expected: '3' },
+          hint: 'Находим минимальное среди чисел, оканчивающихся на 3 в 7-ричной. Ввод до 0.',
+          solutionCode:'min_val = 10**9\ncount = 0\nx = int(input())\nwhile x != 0:\n    if x % 7 == 3:\n        if x < min_val:\n            min_val = x\n        count += 1\n    x = int(input())\nif count > 0:\n    print(min_val)\nelse:\n    print(0)',
+          tests: [
+            { input: '3\n10\n17\n0', expected: '3' },
+            { input: '3\n0', expected: '3' },
+            { input: '0', expected: '0' },
+            { input: '10\n17\n24\n0', expected: '10' },
+            { input: '3\n0', expected: '3' },
+            { input: '17\n10\n0', expected: '10' },
+            { input: '0', expected: '0' },
+            { input: '3\n10\n17\n0', expected: '3' },
+            { input: '24\n31\n0', expected: '24' },
+            { input: '10\n3\n0', expected: '3' }
+          ]
+        },
+{
+          id: '16-47',
+          type: 'end-digit',
+          typeLabel: 'Максимум (до 0, конец на 6 в 9-ричной)',
+          base: 9,
+          baseText: '9-ричной',
+          conditionText: 'оканчиваются на 6 (ввод до 0) найти максимум',
+          testData: { input: '6\n15\n24\n0', expected: '24' },
+          hint: 'Находим максимальное среди чисел, оканчивающихся на 6 в 9-ричной. Ввод до 0.',
+          solutionCode:'max_val = 0\ncount = 0\nx = int(input())\nwhile x != 0:\n    if x % 9 == 6:\n        if x > max_val:\n            max_val = x\n        count += 1\n    x = int(input())\nif count > 0:\n    print(max_val)\nelse:\n    print(0)',
+          tests: [
+            { input: '6\n15\n24\n0', expected: '24' },
+            { input: '6\n0', expected: '6' },
+            { input: '0', expected: '0' },
+            { input: '15\n24\n33\n0', expected: '33' },
+            { input: '6\n0', expected: '6' },
+            { input: '24\n15\n0', expected: '24' },
+            { input: '0', expected: '0' },
+            { input: '6\n15\n24\n0', expected: '24' },
+            { input: '33\n42\n0', expected: '42' },
+            { input: '15\n6\n0', expected: '15' }
+          ]
+        },
+{
+          id: '16-48',
+          type: 'end-digit',
+          typeLabel: 'Количество (конец на 7)',
+          base: 10,
+          baseText: '10-ричной',
+          conditionText: 'оканчиваются на цифру 7',
+          testData: { input: '5\n7\n17\n27\n37\n47', expected: '5' },
+          hint: 'Считаем количество чисел, оканчивающихся на 7.',
+          solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 10 == 7:\n        count += 1\nprint(count)',
+          tests: [
+            { input: '5\n7\n17\n27\n37\n47', expected: '5' },
+            { input: '1\n7', expected: '1' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n7\n17\n27', expected: '3' },
+            { input: '2\n1003\n2003', expected: '0' },
+            { input: '2\n10\n20', expected: '0' },
+            { input: '3\n7\n27\n37', expected: '3' },
+            { input: '1\n1000', expected: '0' },
+            { input: '4\n7\n17\n27\n37', expected: '4' }
+          ]
+        },
+{
+          id: '16-49',
+          type: 'end-digit',
+          typeLabel: 'Сумма (конец на 8 в 11-ричной)',
+          base: 11,
+          baseText: '11-ричной',
+          conditionText: 'оканчиваются на цифру 8',
+          testData: { input: '4\n8\n19\n30\n41', expected: '98' },
+          hint: 'x % 11 == 8, суммируем.',
+          solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 11 == 8:\n        s += x\nprint(s)',
+          tests: [
+            { input: '4\n8\n19\n30\n41', expected: '98' },
+            { input: '1\n8', expected: '8' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n8\n19\n30', expected: '57' },
+            { input: '2\n1003\n2003', expected: '0' },
+            { input: '2\n11\n22', expected: '0' },
+            { input: '3\n8\n30\n41', expected: '79' }
+          ]
+        },
+{
+          id: '16-50',
+          type: 'end-digit',
+          typeLabel: 'Среднее (конец на 0 в 13-ричной)',
+          base: 13,
+          baseText: '13-ричной',
+          conditionText: 'оканчиваются на 0',
+          testData: { input: '4\n13\n26\n39\n52', expected: '32.5' },
+          hint: 'x % 13 == 0 (оканчивается на 0 в 13-ричной).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 13 == 0:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '4\n13\n26\n39\n52', expected: '32.5' },
+            { input: '1\n13', expected: '13.0' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n13\n26\n39', expected: '26.0' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n13\n26', expected: '19.5' },
+            { input: '3\n13\n39\n52', expected: '34.666666666666664' }
+          ]
+        },
+{
+          id: '16-51',
+          type: 'penult',
+          typeLabel: 'Количество (предпосл. = 2 в 4-ричной)',
+          base: 4,
+          baseText: '4',
+          conditionText: 'предпоследняя цифра = 2 в 4-ричной системе',
+          testData: { input: '4\n8\n24\n40\n56', expected: '4' },
+          hint: '(x // 4) % 4 == 2, считаем.',
+          solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 4) % 4 == 2:\n        count += 1\nprint(count)',
+          tests: [
+            { input: '4\n8\n24\n40\n56', expected: '4' },
+            { input: '1\n8', expected: '1' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n8\n24\n40', expected: '3' },
+            { input: '2\n1000\n2000', expected: '1' },
+            { input: '2\n16\n32', expected: '0' },
+            { input: '3\n8\n40\n56', expected: '3' }
+          ]
+        },
+{
+          id: '16-52',
+          type: 'penult',
+          typeLabel: 'Среднее (предпосл. = 1 в 3-ричной)',
+          base: 3,
+          baseText: '3',
+          conditionText: 'предпоследняя цифра = 1 в 3-ричной системе',
+          testData: { input: '4\n3\n12\n21\n30', expected: '16.5' },
+          hint: '(x // 3) % 3 == 1, среднее.',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 3) % 3 == 1:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '4\n3\n12\n21\n30', expected: '16.5' },
+            { input: '1\n3', expected: '3.0' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n4', expected: '4.0' },
+            { input: '3\n3\n12\n21', expected: '12.0' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n9\n18', expected: '0' },
+            { input: '3\n3\n21\n30', expected: '18.0' }
+          ]
+        },
+{
+          id: '16-53',
+          type: 'end-two',
+          typeLabel: 'Количество (конец на 10 в 4-ричной)',
+          base: 4,
+          baseText: '4-ричной',
+          conditionText: 'оканчивается на 10',
+          testData: { input: '4\n4\n20\n36\n52', expected: '4' },
+          hint: '10 в 4-ричной = 4, p²=16. x % 16 == 4, считаем.',
+          solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 16 == 4:\n        count += 1\nprint(count)',
+          tests: [
+            { input: '4\n4\n20\n36\n52', expected: '4' },
+            { input: '1\n4', expected: '1' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n4\n20\n36', expected: '3' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n16\n32', expected: '0' },
+            { input: '3\n4\n36\n52', expected: '3' }
+          ]
+        },
+{
+          id: '16-54',
+          type: 'end-two',
+          typeLabel: 'Среднее (конец на 23 в 5-ричной)',
+          base: 5,
+          baseText: '5-ричной',
+          conditionText: 'оканчивается на 23',
+          testData: { input: '3\n13\n38\n63', expected: '38.0' },
+          hint: '23 в 5-ричной = 2*5+3=13, p²=25.',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 25 == 13:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '3\n13\n38\n63', expected: '38.0' },
+            { input: '1\n13', expected: '13.0' },
+            { input: '1\n1', expected: '0' },
+            { input: '3\n1\n2\n3', expected: '0' },
+            { input: '3\n13\n38\n63', expected: '38.0' },
+            { input: '2\n1000\n2000', expected: '0' },
+            { input: '2\n25\n50', expected: '0' },
+            { input: '3\n13\n63\n88', expected: '54.666666666666664' }
+          ]
+        },
+{
+          id: '16-55',
+          type: 'end-two',
+          typeLabel: 'Среднее (до 0, конец на 12 в 3-ричной)',
+          base: 3,
+          baseText: '3-ричной',
+          conditionText: 'оканчивается на 12 (ввод до 0) найти среднее',
+          testData: { input: '5\n8\n11\n0', expected: '5.0' },
+          hint: '12 в 3-ричной = 1*3+2=5, p²=9. Ввод до 0, среднее.',
+          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 5:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print(0)',
+          tests: [
+            { input: '5\n8\n11\n0', expected: '5.0' },
+            { input: '5\n0', expected: '5.0' },
+            { input: '0', expected: '0' },
+            { input: '8\n11\n14\n0', expected: '14.0' },
+            { input: '5\n0', expected: '5.0' },
+            { input: '5\n8\n0', expected: '5.0' },
+            { input: '0', expected: '0' },
+            { input: '5\n14\n0', expected: '9.5' },
+            { input: '8\n5\n0', expected: '5.0' },
+            { input: '5\n8\n11\n0', expected: '5.0' }
+          ]
+        },
+{
+          id: '16-56',
+          type: 'penult',
+          typeLabel: 'Кол-во (до 0, предпосл. = 2 в 6-ричной)',
+          base: 6,
+          baseText: '6',
+          conditionText: 'предпоследняя цифра = 2 в 6-ричной (ввод до 0)',
+          testData: { input: '12\n48\n84\n0', expected: '3' },
+          hint: '(x // 6) % 6 == 2, считаем, ввод до 0.',
+          solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if (x // 6) % 6 == 2:\n        count += 1\n    x = int(input())\nprint(count)',
+          tests: [
+            { input: '12\n48\n84\n0', expected: '3' },
+            { input: '12\n0', expected: '1' },
+            { input: '0', expected: '0' },
+            { input: '48\n84\n120\n0', expected: '3' },
+            { input: '12\n0', expected: '1' },
+            { input: '12\n48\n0', expected: '2' },
+            { input: '0', expected: '0' },
+            { input: '12\n84\n0', expected: '2' },
+            { input: '48\n12\n0', expected: '2' },
+            { input: '12\n120\n0', expected: '2' }
+          ]
+        },
+{
+          id: '16-57',
+          type: 'end-two',
+          typeLabel: 'Кол-во (до 0, конец на 20 в 3-ричной)',
+          base: 3,
+          baseText: '3-ричной',
+          conditionText: 'оканчивается на 20 (ввод до 0)',
+          testData: { input: '6\n15\n24\n0', expected: '3' },
+          hint: '20 в 3-ричной = 2*3+0=6, p²=9. Ввод до 0.',
+          solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 9 == 6:\n        count += 1\n    x = int(input())\nprint(count)',
+          tests: [
+            { input: '6\n15\n24\n0', expected: '3' },
+            { input: '6\n0', expected: '1' },
+            { input: '0', expected: '0' },
+            { input: '15\n24\n33\n0', expected: '3' },
+            { input: '6\n0', expected: '1' },
+            { input: '6\n15\n0', expected: '2' },
+            { input: '0', expected: '0' },
+            { input: '6\n24\n0', expected: '2' },
+            { input: '15\n6\n0', expected: '2' },
+            { input: '6\n33\n0', expected: '2' }
+          ]
+        },
+{
+          id: '16-58',
+          type: 'sum-digits',
+          typeLabel: 'Сумма цифр, кратных 5',
+          number: 85059,
+          conditionText: 'суммы цифр, кратных 5, в записи натурального числа',
+          testData: { input: '85059', expected: '10' },
+          hint: 'if digit % 5 == 0, суммируем.',
+          solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 5 == 0:\n        total += digit\n    temp //= 10\nprint(total)',
+          tests: [
+            { input: '85059', expected: '10' },
+            { input: '5', expected: '5' },
+            { input: '1', expected: '0' },
+            { input: '123', expected: '0' },
+            { input: '5555555555', expected: '50' },
+            { input: '100', expected: '0' },
+            { input: '123456789', expected: '5' },
+            { input: '50', expected: '5' },
+            { input: '555000', expected: '15' }
+          ]
+        },
+{
+          id: '16-59',
+          type: 'minmax',
+          typeLabel: 'Максимальная чётная цифра',
+          number: 84951,
+          conditionText: 'максимальную чётную цифру в записи натурального числа',
+          testData: { input: '84951', expected: '8' },
+          hint: 'Находим максимальную чётную цифру.',
+          solutionCode:'x = int(input())\nmax_digit = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit > max_digit:\n        max_digit = digit\n    temp //= 10\nprint(max_digit)',
+          tests: [
+            { input: '84951', expected: '8' },
+            { input: '8', expected: '8' },
+            { input: '1', expected: '0' },
+            { input: '13579', expected: '0' },
+            { input: '2222222222', expected: '2' },
+            { input: '100', expected: '0' },
+            { input: '12', expected: '2' },
+            { input: '123456789', expected: '8' },
+            { input: '40', expected: '4' },
+            { input: '8888888888', expected: '8' }
+          ]
+        },
+{
+          id: '16-60',
+          type: 'end-digit',
+          typeLabel: 'Кол-во (до 0, конец на 9)',
+          base: 10,
+          baseText: '10-ричной',
+          conditionText: 'оканчиваются на 9 (ввод до 0)',
+          testData: { input: '9\n19\n29\n0', expected: '3' },
+          hint: 'if x % 10 == 9, считаем, ввод до 0.',
+          solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 10 == 9:\n        count += 1\n    x = int(input())\nprint(count)',
+          tests: [
+            { input: '9\n19\n29\n0', expected: '3' },
+            { input: '9\n0', expected: '1' },
+            { input: '0', expected: '0' },
+            { input: '19\n29\n39\n0', expected: '3' },
+            { input: '9\n0', expected: '1' },
+            { input: '9\n19\n0', expected: '2' },
+            { input: '0', expected: '0' },
+            { input: '9\n29\n0', expected: '2' },
+            { input: '19\n9\n0', expected: '2' },
+            { input: '9\n39\n0', expected: '2' }
+          ]
+        }
       ];
 
       var cur = 0;
@@ -962,6 +1884,24 @@
         hideHints();
         var os = document.getElementById("outputSection");
         if (os) os.className = "output-section";
+        var numInput = document.getElementById("taskNumInput");
+        if (numInput) numInput.value = cur + 1;
+      }
+
+      function selectTaskByNumber() {
+        var input = document.getElementById("taskNumInput");
+        var num = parseInt(input.value);
+        if (isNaN(num) || num < 1 || num > tasks.length) {
+          alert("Введите номер от 1 до " + tasks.length);
+          return;
+        }
+        cur = num - 1;
+        task = tasks[cur];
+        renderTask(task);
+        hideHints();
+        var os = document.getElementById("outputSection");
+        if (os) os.className = "output-section";
+        document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
       function renderTask(t) {
@@ -1029,7 +1969,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
