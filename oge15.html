@@ -1,0 +1,1753 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Тренажёр — Задание 15 ОГЭ (Исполнитель Робот)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 15px;
+}
+
+.header {
+  max-width: 1400px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  font-size: 1.5rem;
+}
+
+.back-link {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: background 0.3s;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.back-link:hover { background: rgba(255,255,255,0.3); }
+
+.main-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+/* Left column — code editor */
+.left-col {
+  flex: 1 1 45%;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Right column — field */
+.right-col {
+  flex: 1 1 55%;
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.panel h2 {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Code editor */
+.editor-wrapper {
+  position: relative;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1e1e2e;
+  min-height: 350px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.editor-wrapper textarea,
+.editor-wrapper .editor-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  margin: 0;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  resize: none;
+}
+
+.editor-wrapper textarea {
+  z-index: 2;
+  color: transparent;
+  background: transparent;
+  caret-color: white;
+  outline: none;
+}
+
+.editor-wrapper .editor-highlight {
+  z-index: 1;
+  color: #f8f8f2;
+  pointer-events: none;
+}
+
+.editor-highlight .kw { color: #ff79c6; font-weight: bold; }
+.editor-highlight .cmd { color: #50fa7b; }
+.editor-highlight .cond { color: #8be9fd; }
+.editor-highlight .logic { color: #ffb86c; }
+.editor-highlight .comment { color: #6272a4; font-style: italic; }
+.editor-highlight .paren { color: #f1fa8c; }
+.editor-highlight .err { color: #ff5555; text-decoration: underline; text-decoration-color: #ff5555; }
+
+/* Controls */
+.control-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.control-bar button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.control-bar button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.control-bar button:active { transform: translateY(0); }
+.control-bar button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-run { background: #4caf50; color: white; }
+.btn-step { background: #2196f3; color: white; }
+.btn-pause { background: #ff9800; color: white; }
+.btn-stop { background: #f44336; color: white; }
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #555;
+  margin-left: auto;
+}
+.speed-control input[type="range"] { width: 100px; }
+
+/* Log */
+.log-area {
+  background: #1e1e2e;
+  color: #f8f8f2;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  min-height: 80px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+.log-area .log-ok { color: #50fa7b; }
+.log-area .log-err { color: #ff5555; }
+.log-area .log-info { color: #8be9fd; }
+
+/* Canvas */
+.field-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#fieldCanvas {
+  border: 2px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  background: white;
+  touch-action: none;
+}
+
+/* Field controls */
+.field-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.field-controls label {
+  font-size: 0.85rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-controls input[type="number"] {
+  width: 50px;
+  padding: 3px 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.field-controls .btn-sm {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: transform 0.15s;
+}
+.field-controls .btn-sm:hover { transform: translateY(-1px); }
+
+.btn-sm.primary { background: #667eea; color: white; }
+.btn-sm.warning { background: #ff9800; color: white; }
+.btn-sm.danger { background: #f44336; color: white; }
+.btn-sm.success { background: #4caf50; color: white; }
+
+.btn-sm.secondary {
+  background: #607d8b;
+  color: white;
+}
+
+.field-info {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 5px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  .left-col, .right-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+  }
+  .editor-wrapper { min-height: 200px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="oge.html" class="back-link">← На главную</a>
+  <a href="oge15-t.html" class="back-link">📚 Теория</a>
+  <h1>🤖 Тренажёр — Исполнитель Робот (Задание 15)</h1>
+</div>
+
+<div class="main-layout">
+
+  <!-- Left column: Code editor + controls -->
+  <div class="left-col">
+    <div class="panel">
+      <h2>📝 Программа на Кумир</h2>
+      <div class="editor-wrapper" id="editorWrapper">
+        <div class="editor-highlight" id="editorHighlight"></div>
+        <textarea id="codeEditor" spellcheck="false">| Пример: движение вправо с закрашиванием
+нц пока справа свободно
+  закрасить
+  вправо
+кц
+закрасить</textarea>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="control-bar">
+        <button class="btn-run"    id="btnRun"    title="Запустить (F5)">▶ Запустить</button>
+        <button class="btn-step"  id="btnStep"   title="Шаг (F10)">⏭ Шаг</button>
+        <button class="btn-pause" id="btnPause"  title="Пауза">⏸ Пауза</button>
+        <button class="btn-stop"  id="btnStop"   title="Стоп">⏹ Стоп</button>
+        <div class="speed-control">
+          <span>🐢</span>
+          <input type="range" id="speedSlider" min="0" max="10" value="5">
+          <span>🐇</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>📋 Лог выполнения</h2>
+      <div class="log-area" id="logArea">▶ Готов к работе. Нажмите «Запустить» или «Шаг».</div>
+    </div>
+  </div>
+
+  <!-- Right column: Field -->
+  <div class="right-col">
+    <div class="panel">
+      <h2>🎯 Поле</h2>
+      <div class="field-container">
+        <canvas id="fieldCanvas"></canvas>
+        <div class="field-info" id="fieldInfo">Клик по границе — стена / убрать стену. Клик по клетке — закрасить. Перетащите робота (🔵) мышкой.</div>
+      </div>
+      <div class="field-controls">
+        <label>Строк: <input type="number" id="fieldRows" value="10" min="2" max="30"></label>
+        <label>Столбцов: <input type="number" id="fieldCols" value="10" min="2" max="30"></label>
+        <button class="btn-sm primary" id="btnResize">Применить</button>
+        <span style="margin:0 4px;color:#ddd">|</span>
+        <button class="btn-sm warning"  id="btnClearWalls">🧱 Очистить стены</button>
+        <button class="btn-sm danger"   id="btnClearPaint">🎨 Очистить закраску</button>
+        <button class="btn-sm secondary" id="btnResetRobot">🤖 Сбросить робота</button>
+        <span style="margin:0 4px;color:#ddd">|</span>
+        <button class="btn-sm success" id="btnSave">💾 Сохранить</button>
+        <button class="btn-sm primary" id="btnLoad">📂 Загрузить</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =====================================================
+// 1. FIELD STATE
+// =====================================================
+const field = {
+  rows: 10,
+  cols: 10,
+  walls: new Set(),   // "h:r,c" or "v:r,c"
+  painted: new Set(), // "r,c"
+  robot: { row: 4, col: 4 },
+  defaultRobot: { row: 4, col: 4 },
+
+  reset() {
+    this.walls.clear();
+    this.painted.clear();
+    this.robot = { ...this.defaultRobot };
+  },
+
+  clearWalls() { this.walls.clear(); },
+  clearPaint() { this.painted.clear(); },
+
+  resize(r, c) {
+    // Remove walls/painted that are out of bounds
+    for (const key of this.walls) {
+      const [type, pos] = key.split(':');
+      const [rr, cc] = pos.split(',').map(Number);
+      if (rr >= r || cc >= c) this.walls.delete(key);
+      if (type === 'h' && rr >= r - 1) this.walls.delete(key);
+      if (type === 'v' && cc >= c - 1) this.walls.delete(key);
+    }
+    for (const key of this.painted) {
+      const [rr, cc] = key.split(',').map(Number);
+      if (rr >= r || cc >= c) this.painted.delete(key);
+    }
+    this.rows = r;
+    this.cols = c;
+    if (this.robot.row >= r) this.robot.row = r - 1;
+    if (this.robot.col >= c) this.robot.col = c - 1;
+  },
+
+  hasWall(row, col, dir) {
+    if (dir === 'up')    return row > 0 && this.walls.has(`h:${row-1},${col}`);
+    if (dir === 'down')  return row < this.rows && this.walls.has(`h:${row},${col}`);
+    if (dir === 'left')  return col > 0 && this.walls.has(`v:${row},${col-1}`);
+    if (dir === 'right') return col < this.cols && this.walls.has(`v:${row},${col}`);
+    return false;
+  },
+
+  isFree(row, col, dir) { return !this.hasWall(row, col, dir); },
+
+  toggleWall(row, col, dir) {
+    let key;
+    if (dir === 'right') key = `v:${row},${col}`;
+    else if (dir === 'down') key = `h:${row},${col}`;
+    else if (dir === 'left' && col > 0) key = `v:${row},${col-1}`;
+    else if (dir === 'up' && row > 0) key = `h:${row-1},${col}`;
+    else return;
+    if (this.walls.has(key)) this.walls.delete(key);
+    else this.walls.add(key);
+  },
+
+  togglePainted(row, col) {
+    const key = `${row},${col}`;
+    if (this.painted.has(key)) this.painted.delete(key);
+    else this.painted.add(key);
+  },
+
+  moveRobot(dir) {
+    const { row, col } = this.robot;
+    let nr = row, nc = col;
+    if (dir === 'up') nr--;
+    else if (dir === 'down') nr++;
+    else if (dir === 'left') nc--;
+    else if (dir === 'right') nc++;
+
+    if (nr < 0 || nr >= this.rows || nc < 0 || nc >= this.cols)
+      return { error: 'Робот вышел за границы поля' };
+    if (this.hasWall(row, col, dir))
+      return { error: 'Робот разрушился! Стена в направлении ' + dir };
+    this.robot = { row: nr, col: nc };
+    return { ok: true };
+  },
+
+  toJSON() {
+    return {
+      rows: this.rows,
+      cols: this.cols,
+      walls: [...this.walls],
+      painted: [...this.painted],
+      robot: { ...this.robot }
+    };
+  },
+
+  fromJSON(data) {
+    this.rows = data.rows;
+    this.cols = data.cols;
+    this.walls = new Set(data.walls || []);
+    this.painted = new Set(data.painted || []);
+    this.robot = data.robot || { row: Math.floor(this.rows/2), col: Math.floor(this.cols/2) };
+    this.defaultRobot = { ...this.robot };
+  }
+};
+
+// =====================================================
+// 2. CANVAS RENDERER & INTERACTION
+// =====================================================
+const canvas = document.getElementById('fieldCanvas');
+const ctx = canvas.getContext('2d');
+
+const CELL = 45;
+const PADDING = 2;
+const MARGIN = 20; // Space for row/column numbers
+const WALL_W = 4;
+const ROBOT_RADIUS = 14;
+
+let dragging = false;
+let dragValid = false;
+let dragTarget = null;
+
+function computeCanvasSize() {
+  return {
+    w: field.cols * CELL + PADDING * 2 + MARGIN,
+    h: field.rows * CELL + PADDING * 2 + MARGIN
+  };
+}
+
+function resizeCanvas() {
+  const { w, h } = computeCanvasSize();
+  canvas.width = w;
+  canvas.height = h;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+}
+
+function cellToCanvas(r, c) {
+  return { x: MARGIN + PADDING + c * CELL, y: MARGIN + PADDING + r * CELL };
+}
+
+function canvasToCell(mx, my) {
+  const c = Math.floor((mx - MARGIN - PADDING) / CELL);
+  const r = Math.floor((my - MARGIN - PADDING) / CELL);
+  if (r < 0 || r >= field.rows || c < 0 || c >= field.cols) return null;
+  return { row: r, col: c };
+}
+
+function canvasToEdge(mx, my) {
+  // Check if click is near a wall (edge between cells)
+  const cx = mx - MARGIN - PADDING;
+  const cy = my - MARGIN - PADDING;
+  const c = Math.floor(cx / CELL);
+  const r = Math.floor(cy / CELL);
+  if (r < 0 || r >= field.rows || c < 0 || c >= field.cols) return null;
+
+  const rx = cx - c * CELL;
+  const ry = cy - r * CELL;
+
+  // Near right edge
+  if (rx >= CELL - WALL_W - 2 && rx <= CELL + WALL_W + 2 && r >= 0 && r < field.rows && c < field.cols - 1) {
+    return { row: r, col: c, dir: 'right' };
+  }
+  // Near bottom edge
+  if (ry >= CELL - WALL_W - 2 && ry <= CELL + WALL_W + 2 && c >= 0 && c < field.cols && r < field.rows - 1) {
+    return { row: r, col: c, dir: 'down' };
+  }
+  // Near left edge
+  if (rx <= WALL_W + 2 && r >= 0 && r < field.rows && c > 0) {
+    return { row: r, col: c, dir: 'left' };
+  }
+  // Near top edge
+  if (ry <= WALL_W + 2 && c >= 0 && c < field.cols && r > 0) {
+    return { row: r, col: c, dir: 'up' };
+  }
+  return null;
+}
+
+function drawField() {
+  const { w, h } = computeCanvasSize();
+  if (canvas.width !== w || canvas.height !== h) resizeCanvas();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background
+  ctx.fillStyle = '#f5f5f5';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw row numbers (left side)
+  ctx.fillStyle = '#999';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let r = 0; r < field.rows; r++) {
+    const y = MARGIN + PADDING + r * CELL + CELL / 2;
+    ctx.fillText(String(r + 1), MARGIN + PADDING - 5, y);
+  }
+
+  // Draw column numbers (top side)
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (let c = 0; c < field.cols; c++) {
+    const x = MARGIN + PADDING + c * CELL + CELL / 2;
+    ctx.fillText(String(c + 1), x, MARGIN + PADDING - 5);
+  }
+
+  // Draw painted cells
+  for (const key of field.painted) {
+    const [r, c] = key.split(',').map(Number);
+    const { x, y } = cellToCanvas(r, c);
+    ctx.fillStyle = '#a5d6a7';
+    ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+  }
+
+  // Draw grid lines
+  ctx.strokeStyle = '#bbb';
+  ctx.lineWidth = 1;
+  for (let r = 0; r <= field.rows; r++) {
+    const y = MARGIN + PADDING + r * CELL;
+    ctx.beginPath(); ctx.moveTo(MARGIN + PADDING, y); ctx.lineTo(MARGIN + PADDING + field.cols * CELL, y); ctx.stroke();
+  }
+  for (let c = 0; c <= field.cols; c++) {
+    const x = MARGIN + PADDING + c * CELL;
+    ctx.beginPath(); ctx.moveTo(x, MARGIN + PADDING); ctx.lineTo(x, MARGIN + PADDING + field.rows * CELL); ctx.stroke();
+  }
+
+  // Draw walls
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = WALL_W;
+  ctx.lineCap = 'round';
+
+  for (const key of field.walls) {
+    const [type, pos] = key.split(':');
+    const [r, c] = pos.split(',').map(Number);
+    if (type === 'h') {
+      // Horizontal wall between (r,c) and (r+1,c)
+      const y = MARGIN + PADDING + (r + 1) * CELL;
+      const x1 = MARGIN + PADDING + c * CELL;
+      const x2 = MARGIN + PADDING + (c + 1) * CELL;
+      ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+    } else {
+      // Vertical wall between (r,c) and (r,c+1)
+      const x = MARGIN + PADDING + (c + 1) * CELL;
+      const y1 = MARGIN + PADDING + r * CELL;
+      const y2 = MARGIN + PADDING + (r + 1) * CELL;
+      ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y2); ctx.stroke();
+    }
+  }
+
+  // Draw drag target highlight
+  if (dragging && dragTarget) {
+    const { x, y } = cellToCanvas(dragTarget.row, dragTarget.col);
+    ctx.fillStyle = 'rgba(33, 150, 243, 0.2)';
+    ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+    ctx.strokeStyle = '#2196f3';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(x + 1, y + 1, CELL - 2, CELL - 2);
+    ctx.setLineDash([]);
+  }
+
+  // Draw robot (if alive)
+  const robotVisible = interpreter ? interpreter.alive : true;
+  if (robotVisible) {
+    const { x, y } = cellToCanvas(field.robot.row, field.robot.col);
+    const cx = x + CELL / 2;
+    const cy = y + CELL / 2;
+
+    // Shadow
+    ctx.beginPath();
+    ctx.arc(cx + 1, cy + 2, ROBOT_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fill();
+
+    const R = ROBOT_RADIUS;
+    const hw = R * 0.7; // half width of body
+    const hh = R * 0.85; // half height of body
+
+    // Body (rounded rectangle)
+    const bx = cx - hw, by = cy - hh + 2;
+    const bw = hw * 2, bh = hh * 2;
+    ctx.beginPath();
+    ctx.moveTo(bx + 3, by);
+    ctx.lineTo(bx + bw - 3, by);
+    ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + 3);
+    ctx.lineTo(bx + bw, by + bh - 3);
+    ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - 3, by + bh);
+    ctx.lineTo(bx + 3, by + bh);
+    ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - 3);
+    ctx.lineTo(bx, by + 3);
+    ctx.quadraticCurveTo(bx, by, bx + 3, by);
+    ctx.closePath();
+
+    const bodyGrad = ctx.createLinearGradient(cx, by, cx, by + bh);
+    bodyGrad.addColorStop(0, '#78909c');
+    bodyGrad.addColorStop(0.4, '#546e7a');
+    bodyGrad.addColorStop(1, '#37474f');
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.strokeStyle = '#263238';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Antenna
+    ctx.strokeStyle = '#78909c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, by - 4);
+    ctx.lineTo(cx, by - R + 4);
+    ctx.stroke();
+    ctx.fillStyle = '#ff5252';
+    ctx.beginPath();
+    ctx.arc(cx, by - R + 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head (slightly wider than body)
+    const hx = cx - hw * 0.85, hy = by - 6;
+    const hw2 = hw * 1.7, hh2 = hh * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(hx + 3, hy);
+    ctx.lineTo(hx + hw2 - 3, hy);
+    ctx.quadraticCurveTo(hx + hw2, hy, hx + hw2, hy + 3);
+    ctx.lineTo(hx + hw2, hy + hh2);
+    ctx.lineTo(hx + hw2 - 8, hy + hh2 + 4);
+    ctx.lineTo(hx + 8, hy + hh2 + 4);
+    ctx.lineTo(hx, hy + hh2);
+    ctx.lineTo(hx, hy + 3);
+    ctx.quadraticCurveTo(hx, hy, hx + 3, hy);
+    ctx.closePath();
+
+    const headGrad = ctx.createLinearGradient(cx, hy, cx, hy + hh2 + 4);
+    headGrad.addColorStop(0, '#90a4ae');
+    headGrad.addColorStop(1, '#607d8b');
+    ctx.fillStyle = headGrad;
+    ctx.fill();
+    ctx.strokeStyle = '#263238';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Eyes (LED-style)
+    ctx.fillStyle = '#00e676';
+    ctx.shadowColor = '#00e676';
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    ctx.arc(cx - 5, hy + 7, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx + 5, hy + 7, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Mouth / grill
+    ctx.strokeStyle = '#455a64';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(cx - 6, hy + 14 + i * 3);
+      ctx.lineTo(cx + 6, hy + 14 + i * 3);
+      ctx.stroke();
+    }
+
+    // Arms (small stubs)
+    ctx.strokeStyle = '#546e7a';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    // Left arm
+    ctx.beginPath();
+    ctx.moveTo(bx - 1, cy - 2);
+    ctx.lineTo(bx - 6, cy + 2);
+    ctx.stroke();
+    // Right arm
+    ctx.beginPath();
+    ctx.moveTo(bx + bw + 1, cy - 2);
+    ctx.lineTo(bx + bw + 6, cy + 2);
+    ctx.stroke();
+
+    // Legs
+    ctx.strokeStyle = '#455a64';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx - 5, by + bh);
+    ctx.lineTo(cx - 5, by + bh + 5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + 5, by + bh);
+    ctx.lineTo(cx + 5, by + bh + 5);
+    ctx.stroke();
+  }
+}
+
+// Mouse events for field editing and robot dragging
+let mouseDown = false;
+let mouseIsOnRobot = false;
+let dragStartCell = null;
+
+canvas.addEventListener('mousedown', (e) => {
+  if (isRunning()) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // Check if click is on robot
+  const { x: rx, y: ry } = cellToCanvas(field.robot.row, field.robot.col);
+  const rcx = rx + CELL / 2;
+  const rcy = ry + CELL / 2;
+  const dist = Math.sqrt((mx - rcx) ** 2 + (my - rcy) ** 2);
+
+  if (dist <= ROBOT_RADIUS + 4) {
+    mouseDown = true;
+    mouseIsOnRobot = true;
+    dragging = true;
+    dragTarget = { ...field.robot };
+    return;
+  }
+
+  // Check if click is on an edge (wall toggle)
+  const edge = canvasToEdge(mx, my);
+  if (edge) {
+    mouseDown = true;
+    mouseIsOnRobot = false;
+    field.toggleWall(edge.row, edge.col, edge.dir);
+    drawField();
+    return;
+  }
+
+  // Check if click is on a cell (paint toggle)
+  const cell = canvasToCell(mx, my);
+  if (cell) {
+    mouseDown = true;
+    mouseIsOnRobot = false;
+    field.togglePainted(cell.row, cell.col);
+    drawField();
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  if (dragging && mouseIsOnRobot) {
+    const cell = canvasToCell(mx, my);
+    if (cell && (cell.row !== field.robot.row || cell.col !== field.robot.col)) {
+      dragTarget = cell;
+    } else {
+      dragTarget = null;
+    }
+    drawField();
+    return;
+  }
+
+  // Hover effect for walls
+  if (!mouseDown && !dragging) {
+    const edge = canvasToEdge(mx, my);
+    const cell = canvasToCell(mx, my);
+    canvas.style.cursor = edge ? 'pointer' : (cell ? 'pointer' : 'default');
+  }
+});
+
+canvas.addEventListener('mouseup', (e) => {
+  if (dragging && mouseIsOnRobot && dragTarget) {
+    field.robot = { ...dragTarget };
+    field.defaultRobot = { ...dragTarget };
+  }
+  mouseDown = false;
+  mouseIsOnRobot = false;
+  dragging = false;
+  dragTarget = null;
+  updateRobotInputs();
+  drawField();
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (mouseIsOnRobot && dragging) {
+    mouseDown = false;
+    mouseIsOnRobot = false;
+    dragging = false;
+    dragTarget = null;
+    drawField();
+  }
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const mx = touch.clientX - rect.left;
+  const my = touch.clientY - rect.top;
+
+  const { x: rx, y: ry } = cellToCanvas(field.robot.row, field.robot.col);
+  const rcx = rx + CELL / 2;
+  const rcy = ry + CELL / 2;
+  if (Math.sqrt((mx - rcx) ** 2 + (my - rcy) ** 2) <= ROBOT_RADIUS + 6) {
+    dragging = true;
+    mouseIsOnRobot = true;
+    dragTarget = { ...field.robot };
+    return;
+  }
+
+  const edge = canvasToEdge(mx, my);
+  if (edge) {
+    field.toggleWall(edge.row, edge.col, edge.dir);
+    drawField();
+    return;
+  }
+  const cell = canvasToCell(mx, my);
+  if (cell) {
+    field.togglePainted(cell.row, cell.col);
+    drawField();
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (!dragging || !mouseIsOnRobot) return;
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const mx = touch.clientX - rect.left;
+  const my = touch.clientY - rect.top;
+  const cell = canvasToCell(mx, my);
+  if (cell && (cell.row !== field.robot.row || cell.col !== field.robot.col)) {
+    dragTarget = cell;
+  } else {
+    dragTarget = null;
+  }
+  drawField();
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  e.preventDefault();
+  if (dragging && mouseIsOnRobot && dragTarget) {
+    field.robot = { ...dragTarget };
+    field.defaultRobot = { ...dragTarget };
+  }
+  dragging = false;
+  mouseIsOnRobot = false;
+  dragTarget = null;
+  updateRobotInputs();
+  drawField();
+}, { passive: false });
+
+// =====================================================
+// 3. FIELD CONTROLS
+// =====================================================
+function updateRobotInputs() {
+  document.getElementById('robotRow').value = field.robot.row + 1;
+  document.getElementById('robotCol').value = field.robot.col + 1;
+}
+
+document.getElementById('btnResize').addEventListener('click', () => {
+  const r = parseInt(document.getElementById('fieldRows').value) || 10;
+  const c = parseInt(document.getElementById('fieldCols').value) || 10;
+  if (r < 2 || r > 30 || c < 2 || c > 30) { alert('Размеры от 2 до 30'); return; }
+  field.resize(r, c);
+  drawField();
+  updateRobotInputs();
+});
+
+document.getElementById('btnClearWalls').addEventListener('click', () => {
+  if (isRunning()) return;
+  field.clearWalls();
+  drawField();
+  log('Стены удалены', 'info');
+});
+
+document.getElementById('btnClearPaint').addEventListener('click', () => {
+  if (isRunning()) return;
+  field.clearPaint();
+  drawField();
+  log('Закраска очищена', 'info');
+});
+
+document.getElementById('btnResetRobot').addEventListener('click', () => {
+  if (isRunning()) return;
+  field.robot = { ...field.defaultRobot };
+  drawField();
+  updateRobotInputs();
+  log('Робот возвращён в начальное положение', 'info');
+});
+
+// Robot position inputs
+const robotRowInput = document.createElement('input');
+robotRowInput.type = 'number';
+robotRowInput.id = 'robotRow';
+robotRowInput.value = '5';
+robotRowInput.min = 1;
+robotRowInput.style.width = '45px';
+
+const robotColInput = document.createElement('input');
+robotColInput.type = 'number';
+robotColInput.id = 'robotCol';
+robotColInput.value = '5';
+robotColInput.min = 1;
+robotColInput.style.width = '45px';
+
+// Insert robot position controls
+const robotGroup = document.createElement('span');
+robotGroup.innerHTML = '<label>Робот: строка <input type="number" id="robotRow" value="5" min="1" max="10" style="width:45px"></label> ' +
+  '<label>столбец <input type="number" id="robotCol" value="5" min="1" max="10" style="width:45px"></label> ' +
+  '<button class="btn-sm primary" id="btnSetRobot">Установить</button>';
+document.querySelector('.field-controls').insertBefore(robotGroup, document.querySelector('.field-controls').children[3]);
+
+document.getElementById('btnSetRobot').addEventListener('click', () => {
+  if (isRunning()) return;
+  const r = (parseInt(document.getElementById('robotRow').value) || 1) - 1;
+  const c = (parseInt(document.getElementById('robotCol').value) || 1) - 1;
+  if (r < 0 || r >= field.rows || c < 0 || c >= field.cols) {
+    alert('Позиция вне поля');
+    return;
+  }
+  field.robot = { row: r, col: c };
+  field.defaultRobot = { row: r, col: c };
+  drawField();
+  log(`Робот установлен в (${r + 1}, ${c + 1})`, 'info');
+});
+
+// Save / Load
+document.getElementById('btnSave').addEventListener('click', () => {
+  const data = field.toJSON();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'robot-field.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  log('Обстановка сохранена', 'info');
+});
+
+document.getElementById('btnLoad').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      field.fromJSON(data);
+      document.getElementById('fieldRows').value = field.rows;
+      document.getElementById('fieldCols').value = field.cols;
+      updateRobotInputs();
+      drawField();
+      log('Обстановка загружена', 'info');
+    } catch (err) {
+      log('Ошибка загрузки файла: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// =====================================================
+// 4. KUMIR LEXER
+// =====================================================
+function lex(code) {
+  const tokens = [];
+  let i = 0;
+  const len = code.length;
+
+  while (i < len) {
+    const ch = code[i];
+
+    // Newline
+    if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && i + 1 < len && code[i + 1] === '\n') i++;
+      tokens.push({ type: 'NEWLINE', value: '\n' });
+      i++;
+      continue;
+    }
+
+    // Whitespace
+    if (ch === ' ' || ch === '\t') { i++; continue; }
+
+    // Comment
+    if (ch === '|') {
+      let comment = '';
+      i++;
+      while (i < len && code[i] !== '\n' && code[i] !== '\r') {
+        comment += code[i];
+        i++;
+      }
+      tokens.push({ type: 'COMMENT', value: comment });
+      continue;
+    }
+
+    // Parentheses
+    if (ch === '(') { tokens.push({ type: 'LPAREN', value: '(' }); i++; continue; }
+    if (ch === ')') { tokens.push({ type: 'RPAREN', value: ')' }); i++; continue; }
+
+    // Multi-character tokens (keywords, commands, conditions)
+    if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
+      let word = '';
+      while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) {
+        word += code[i];
+        i++;
+      }
+
+      // Commands
+      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
+        tokens.push({ type: 'COMMAND', value: word });
+      }
+      // Keywords
+      else if (word === 'нц') tokens.push({ type: 'NC', value: word });
+      else if (word === 'кц') tokens.push({ type: 'KC', value: word });
+      else if (word === 'пока') tokens.push({ type: 'POKA', value: word });
+      else if (word === 'если') tokens.push({ type: 'ESLI', value: word });
+      else if (word === 'то') tokens.push({ type: 'TO', value: word });
+      else if (word === 'иначе') tokens.push({ type: 'INACHE', value: word });
+      else if (word === 'все') tokens.push({ type: 'VSE', value: word });
+      else if (word === 'и') tokens.push({ type: 'AND', value: word });
+      else if (word === 'или') tokens.push({ type: 'OR', value: word });
+      else if (word === 'не') tokens.push({ type: 'NOT', value: word });
+      // Conditions (check for "свободно" after direction word)
+      else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
+        // Skip whitespace
+        while (i < len && (code[i] === ' ' || code[i] === '\t')) i++;
+        let nextWord = '';
+        while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) {
+          nextWord += code[i];
+          i++;
+        }
+        if (nextWord === 'свободно') {
+          tokens.push({ type: 'CONDITION', value: word });
+        } else {
+          // Unknown token - create error token
+          tokens.push({ type: 'ERROR', value: word + ' ' + nextWord });
+        }
+      }
+      else {
+        // Unknown word - could be user text, treat as error
+        tokens.push({ type: 'UNKNOWN', value: word });
+      }
+      continue;
+    }
+
+    // Skip other characters
+    i++;
+  }
+
+  tokens.push({ type: 'EOF', value: '' });
+  return tokens;
+}
+
+// =====================================================
+// 5. KUMIR PARSER
+// =====================================================
+class ParseError extends Error {
+  constructor(msg, token) {
+    super(msg + ' (на "' + (token ? token.value : '?') + '")');
+    this.token = token;
+  }
+}
+
+class Parser {
+  constructor(tokens) {
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+
+  peek() { return this.tokens[this.pos] || { type: 'EOF', value: '' }; }
+  next() { const t = this.peek(); this.pos++; return t; }
+
+  expect(type) {
+    const t = this.peek();
+    if (t.type !== type) throw new ParseError(`Ожидалось ${type}, получено ${t.type}`, t);
+    return this.next();
+  }
+
+  skipNewlines() {
+    while (this.peek().type === 'NEWLINE' || this.peek().type === 'COMMENT') {
+      this.next();
+    }
+  }
+
+  // program ::= (statement)*
+  parseProgram() {
+    const stmts = [];
+    this.skipNewlines();
+    while (this.peek().type !== 'EOF') {
+      stmts.push(this.parseStatement());
+      this.skipNewlines();
+    }
+    return stmts;
+  }
+
+  parseStatement() {
+    this.skipNewlines();
+    const t = this.peek();
+    switch (t.type) {
+      case 'COMMAND':
+        return { type: 'command', value: this.next().value };
+      case 'ESLI':
+        return this.parseIf();
+      case 'NC':
+        return this.parseWhile();
+      default:
+        if (t.type === 'EOF') return null;
+        throw new ParseError('Неизвестная конструкция', t);
+    }
+  }
+
+  // if ::= ESLI condition TO body (INACHE body)? VSE
+  parseIf() {
+    this.expect('ESLI');
+    const cond = this.parseCondition();
+    this.expect('TO');
+    this.skipNewlines();
+    const thenBody = [];
+    while (this.peek().type !== 'INACHE' && this.peek().type !== 'VSE' && this.peek().type !== 'EOF') {
+      const stmt = this.parseStatement();
+      if (stmt) thenBody.push(stmt);
+      this.skipNewlines();
+    }
+    let elseBody = [];
+    if (this.peek().type === 'INACHE') {
+      this.next();
+      this.skipNewlines();
+      while (this.peek().type !== 'VSE' && this.peek().type !== 'EOF') {
+        const stmt = this.parseStatement();
+        if (stmt) elseBody.push(stmt);
+        this.skipNewlines();
+      }
+    }
+    this.expect('VSE');
+    return { type: 'if', condition: cond, thenBody, elseBody };
+  }
+
+  // while ::= NC POKA condition body KC
+  parseWhile() {
+    this.expect('NC');
+    this.expect('POKA');
+    const cond = this.parseCondition();
+    this.skipNewlines();
+    const body = [];
+    while (this.peek().type !== 'KC' && this.peek().type !== 'EOF') {
+      const stmt = this.parseStatement();
+      if (stmt) body.push(stmt);
+      this.skipNewlines();
+    }
+    this.expect('KC');
+    return { type: 'while', condition: cond, body };
+  }
+
+  // condition ::= disjunction
+  parseCondition() {
+    return this.parseDisjunction();
+  }
+
+  parseDisjunction() {
+    let left = this.parseConjunction();
+    while (this.peek().type === 'OR') {
+      this.next();
+      const right = this.parseConjunction();
+      left = { type: 'or', left, right };
+    }
+    return left;
+  }
+
+  parseConjunction() {
+    let left = this.parseNegation();
+    while (this.peek().type === 'AND') {
+      this.next();
+      const right = this.parseNegation();
+      left = { type: 'and', left, right };
+    }
+    return left;
+  }
+
+  parseNegation() {
+    if (this.peek().type === 'NOT') {
+      this.next();
+      const operand = this.parseNegation();
+      return { type: 'not', operand };
+    }
+    return this.parsePrimary();
+  }
+
+  parsePrimary() {
+    if (this.peek().type === 'LPAREN') {
+      this.next();
+      const cond = this.parseCondition();
+      this.expect('RPAREN');
+      return cond;
+    }
+    if (this.peek().type === 'CONDITION') {
+      return { type: 'check', value: this.next().value };
+    }
+    throw new ParseError('Ожидалось условие', this.peek());
+  }
+}
+
+// =====================================================
+// 6. KUMIR INTERPRETER
+// =====================================================
+class Interpreter {
+  constructor(ast, field) {
+    this.ast = ast;
+    this.field = field;
+    this.gen = null;
+    this.running = false;
+    this.finished = false;
+    this.alive = true;
+    this.error = null;
+    this.paused = false;
+    this.currentCommand = null;
+    this.stepCount = 0;
+    this.maxSteps = 100000;
+  }
+
+  start() {
+    this.running = true;
+    this.finished = false;
+    this.alive = true;
+    this.error = null;
+    this.paused = false;
+    this.stepCount = 0;
+    this.gen = this.executeProgram(this.ast);
+  }
+
+  stop() {
+    this.running = false;
+    this.finished = true;
+    this.gen = null;
+    this.currentCommand = null;
+  }
+
+  pause() {
+    this.paused = true;
+  }
+
+  resume() {
+    this.paused = false;
+    return this.step();
+  }
+
+  // Returns { done: true/false, command: '...', error: '...' }
+  step() {
+    if (!this.gen || this.finished) return { done: true };
+    if (this.error) return { done: true, error: this.error };
+
+    try {
+      const result = this.gen.next();
+      if (result.done) {
+        this.finished = true;
+        this.running = false;
+        return { done: true };
+      }
+      this.stepCount++;
+      if (this.stepCount > this.maxSteps) {
+        this.error = 'Превышено максимальное количество шагов (возможно, бесконечный цикл)';
+        this.running = false;
+        this.finished = true;
+        return { done: true, error: this.error };
+      }
+      return result.value;
+    } catch (err) {
+      this.error = err.message;
+      this.alive = false;
+      this.running = false;
+      this.finished = true;
+      return { done: true, error: this.error };
+    }
+  }
+
+  // Generator: execute program
+  *executeProgram(ast) {
+    for (const stmt of ast) {
+      yield* this.executeStatement(stmt);
+    }
+  }
+
+  *executeStatement(stmt) {
+    switch (stmt.type) {
+      case 'command': {
+        const cmd = stmt.value;
+        this.currentCommand = cmd;
+
+        // Capture position BEFORE executing the command
+        const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
+
+        if (cmd === 'закрасить') {
+          this.field.painted.add(`${this.field.robot.row},${this.field.robot.col}`);
+        } else {
+          const dirMap = { 'вверх': 'up', 'вниз': 'down', 'влево': 'left', 'вправо': 'right' };
+          const dir = dirMap[cmd];
+          const result = this.field.moveRobot(dir);
+          if (result.error) {
+            this.alive = false;
+            this.error = result.error;
+            yield { command: cmd, type: 'command', error: result.error, beforePos };
+            return;
+          }
+        }
+
+        yield { command: cmd, type: 'command', beforePos };
+        break;
+      }
+      case 'if': {
+        const condValue = yield* this.evaluateCondition(stmt.condition);
+        this.currentCommand = null;
+        if (condValue) {
+          for (const s of stmt.thenBody) {
+            yield* this.executeStatement(s);
+            if (!this.alive) return;
+          }
+        } else if (stmt.elseBody) {
+          for (const s of stmt.elseBody) {
+            yield* this.executeStatement(s);
+            if (!this.alive) return;
+          }
+        }
+        break;
+      }
+      case 'while': {
+        while (true) {
+          const condValue = yield* this.evaluateCondition(stmt.condition);
+          this.currentCommand = null;
+          if (!condValue) break;
+          for (const s of stmt.body) {
+            yield* this.executeStatement(s);
+            if (!this.alive) return;
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  *evaluateCondition(cond) {
+    switch (cond.type) {
+      case 'check': {
+        const dirMap = { 'сверху': 'up', 'снизу': 'down', 'слева': 'left', 'справа': 'right' };
+        const dir = dirMap[cond.value];
+        const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
+        const free = this.field.isFree(this.field.robot.row, this.field.robot.col, dir);
+        this.currentCommand = cond.value + ' свободно';
+        yield { command: this.currentCommand, type: 'check', result: free, beforePos };
+        return free;
+      }
+      case 'not': {
+        const val = yield* this.evaluateCondition(cond.operand);
+        return !val;
+      }
+      case 'and': {
+        const left = yield* this.evaluateCondition(cond.left);
+        if (!left) return false;
+        return yield* this.evaluateCondition(cond.right);
+      }
+      case 'or': {
+        const left = yield* this.evaluateCondition(cond.left);
+        if (left) return true;
+        return yield* this.evaluateCondition(cond.right);
+      }
+      default:
+        return false;
+    }
+  }
+}
+
+let interpreter = null;
+
+// =====================================================
+// 7. CODE EDITOR & SYNTAX HIGHLIGHTING
+// =====================================================
+const textarea = document.getElementById('codeEditor');
+const highlight = document.getElementById('editorHighlight');
+
+function highlightCode() {
+  const code = textarea.value;
+  let html = '';
+  let i = 0;
+  const len = code.length;
+
+  while (i < len) {
+    const ch = code[i];
+
+    // Newline
+    if (ch === '\n') { html += '\n'; i++; continue; }
+    if (ch === '\r') { html += '\n'; i++; if (i < len && code[i] === '\n') i++; continue; }
+
+    // Whitespace
+    if (ch === ' ' || ch === '\t') { html += ch; i++; continue; }
+
+    // Comment
+    if (ch === '|') {
+      let text = '|';
+      i++;
+      while (i < len && code[i] !== '\n' && code[i] !== '\r') {
+        text += code[i];
+        i++;
+      }
+      html += '<span class="comment">' + escHtml(text) + '</span>';
+      continue;
+    }
+
+    // Parentheses
+    if (ch === '(' || ch === ')') { html += '<span class="paren">' + ch + '</span>'; i++; continue; }
+
+    // Words
+    if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
+      let word = '';
+      while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) {
+        word += code[i];
+        i++;
+      }
+
+      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
+        html += '<span class="cmd">' + word + '</span>';
+      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все'].includes(word)) {
+        html += '<span class="kw">' + word + '</span>';
+      } else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
+        // Look ahead for свободно
+        let j = i;
+        while (j < len && (code[j] === ' ' || code[j] === '\t')) j++;
+        let nextWord = '';
+        while (j < len && /[\u0400-\u04FFа-яa-z]/.test(code[j])) {
+          nextWord += code[j];
+          j++;
+        }
+        if (nextWord === 'свободно') {
+          // Consume whitespace and next word
+          while (i < len && (code[i] === ' ' || code[i] === '\t')) { html += code[i]; i++; }
+          let nw = '';
+          while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) { nw += code[i]; i++; }
+          html += '<span class="cond">' + word + ' ' + nw + '</span>';
+        } else {
+          html += '<span class="err">' + word + '</span>';
+        }
+      } else if (['и', 'или', 'не'].includes(word)) {
+        html += '<span class="logic">' + word + '</span>';
+      } else {
+        html += word;
+      }
+      continue;
+    }
+
+    // Other characters
+    html += escHtml(ch);
+    i++;
+  }
+
+  highlight.innerHTML = html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+}
+
+// Sync scroll
+textarea.addEventListener('scroll', () => {
+  highlight.scrollTop = textarea.scrollTop;
+  highlight.scrollLeft = textarea.scrollLeft;
+});
+
+textarea.addEventListener('input', highlightCode);
+
+// Tab support
+textarea.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + 2;
+    highlightCode();
+  }
+  if (e.key === 'F5') { e.preventDefault(); runProgram(); }
+  if (e.key === 'F10') { e.preventDefault(); stepProgram(); }
+});
+
+// =====================================================
+// 8. EXECUTION CONTROLS
+// =====================================================
+const btnRun = document.getElementById('btnRun');
+const btnStep = document.getElementById('btnStep');
+const btnPause = document.getElementById('btnPause');
+const btnStop = document.getElementById('btnStop');
+const speedSlider = document.getElementById('speedSlider');
+const logArea = document.getElementById('logArea');
+
+let runInterval = null;
+
+function log(msg, type = 'info') {
+  const cls = type === 'err' ? 'log-err' : (type === 'ok' ? 'log-ok' : 'log-info');
+  logArea.innerHTML += `<div class="${cls}">${escHtml(msg)}</div>`;
+  logArea.scrollTop = logArea.scrollHeight;
+}
+
+function clearLog() {
+  logArea.innerHTML = '';
+}
+
+function isRunning() {
+  return interpreter && interpreter.running && !interpreter.paused;
+}
+
+function isExecuting() {
+  return interpreter && (interpreter.running || interpreter.paused) && !interpreter.finished;
+}
+
+function getSpeed() {
+  const v = parseInt(speedSlider.value);
+  // Map 0-10 to delay 800ms - 50ms
+  return Math.max(50, 800 - v * 75);
+}
+
+function runProgram() {
+  if (isExecuting()) {
+    // If paused, resume
+    if (interpreter.paused) {
+      interpreter.resume();
+      startAutoRun();
+      updateButtons();
+      return;
+    }
+    return;
+  }
+
+  const code = textarea.value;
+  let tokens, ast;
+  try {
+    tokens = lex(code);
+    const parser = new Parser(tokens);
+    ast = parser.parseProgram();
+  } catch (err) {
+    log('Ошибка синтаксиса: ' + err.message, 'err');
+    return;
+  }
+
+  // Reset field painted cells for fresh run
+  // Keep the current configuration, but reset robot position
+  field.robot = { ...field.defaultRobot };
+  drawField();
+
+  interpreter = new Interpreter(ast, field);
+  interpreter.start();
+  clearLog();
+  log('Запуск программы...', 'info');
+
+  startAutoRun();
+  updateButtons();
+}
+
+function startAutoRun() {
+  stopAutoRun();
+  runInterval = setInterval(() => {
+    if (!interpreter || interpreter.finished || interpreter.paused) {
+      if (interpreter && interpreter.finished) {
+        stopAutoRun();
+        updateButtons();
+        if (interpreter.error) {
+          log('Ошибка: ' + interpreter.error, 'err');
+        } else {
+          log('✓ Программа завершена. Шагов: ' + interpreter.stepCount, 'ok');
+        }
+        drawField();
+      }
+      return;
+    }
+    const result = interpreter.step();
+    drawField();
+    if (result.command) {
+      const before = result.beforePos
+        ? `(${result.beforePos.row + 1}, ${result.beforePos.col + 1}) `
+        : '';
+      if (result.error) {
+        log('💥 ' + before + result.command + ' — ' + result.error, 'err');
+      } else if (result.type === 'check') {
+        log('❓ ' + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
+      } else if (['вверх', 'вниз', 'вправо', 'влево'].includes(result.command) && interpreter && interpreter.alive) {
+        log('⚡ ' + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
+      } else {
+        log('⚡ ' + before + result.command, 'ok');
+      }
+    }
+    if (result.done || interpreter.finished) {
+      stopAutoRun();
+      updateButtons();
+      if (interpreter.error) {
+        log('❌ Ошибка: ' + interpreter.error, 'err');
+      } else {
+        log('✓ Программа завершена. Шагов: ' + interpreter.stepCount, 'ok');
+      }
+      drawField();
+    }
+    document.getElementById('fieldRows').value = field.rows;
+    document.getElementById('fieldCols').value = field.cols;
+    updateRobotInputs();
+  }, getSpeed());
+}
+
+function stopAutoRun() {
+  if (runInterval) { clearInterval(runInterval); runInterval = null; }
+}
+
+function stepProgram() {
+  if (isRunning()) {
+    // If running, pause first
+    if (interpreter) interpreter.pause();
+    stopAutoRun();
+    updateButtons();
+    return;
+  }
+
+  if (!interpreter || interpreter.finished) {
+    // Start new execution
+    const code = textarea.value;
+    let tokens, ast;
+    try {
+      tokens = lex(code);
+      const parser = new Parser(tokens);
+      ast = parser.parseProgram();
+    } catch (err) {
+      log('Ошибка синтаксиса: ' + err.message, 'err');
+      return;
+    }
+    field.robot = { ...field.defaultRobot };
+    drawField();
+    interpreter = new Interpreter(ast, field);
+    interpreter.start();
+    clearLog();
+    log('Пошаговое выполнение...', 'info');
+  }
+
+  const result = interpreter.step();
+  drawField();
+
+  if (result.command) {
+    const before = result.beforePos
+      ? `(${result.beforePos.row + 1}, ${result.beforePos.col + 1}) `
+      : '';
+    if (result.error) {
+      log('💥 ' + before + result.command + ' — ' + result.error, 'err');
+    } else if (result.type === 'check') {
+      log('❓ ' + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
+    } else if (['вверх', 'вниз', 'вправо', 'влево'].includes(result.command) && interpreter && interpreter.alive) {
+      log('⚡ ' + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
+    } else {
+      log('⚡ ' + before + result.command, 'ok');
+    }
+  }
+
+  if (result.done || interpreter.finished) {
+    if (interpreter.error) {
+      log('❌ Ошибка: ' + interpreter.error, 'err');
+    } else {
+      log('✓ Программа завершена. Шагов: ' + interpreter.stepCount, 'ok');
+    }
+    updateButtons();
+  }
+
+  updateRobotInputs();
+}
+
+function stopProgram() {
+  stopAutoRun();
+  if (interpreter) {
+    interpreter.stop();
+    interpreter = null;
+  }
+  field.robot = { ...field.defaultRobot };
+  drawField();
+  updateButtons();
+  log('⏹ Выполнение остановлено', 'info');
+}
+
+function pauseProgram() {
+  if (interpreter && interpreter.running && !interpreter.paused) {
+    interpreter.pause();
+    stopAutoRun();
+    log('⏸ Пауза', 'info');
+    updateButtons();
+  }
+}
+
+function updateButtons() {
+  const running = interpreter ? (interpreter.running && !interpreter.paused && !interpreter.finished) : false;
+  const executing = interpreter && !interpreter.finished;
+  const paused = interpreter ? interpreter.paused : false;
+
+  btnRun.textContent = paused ? '▶ Продолжить' : '▶ Запустить';
+  btnRun.disabled = (running);
+  btnStep.disabled = (running);
+  btnPause.disabled = !(executing && !interpreter.finished && !interpreter.paused);
+  btnStop.disabled = !executing;
+}
+
+btnRun.addEventListener('click', runProgram);
+btnStep.addEventListener('click', stepProgram);
+btnPause.addEventListener('click', pauseProgram);
+btnStop.addEventListener('click', stopProgram);
+
+// =====================================================
+// 9. INIT
+// =====================================================
+function init() {
+  resizeCanvas();
+  field.robot = { row: Math.floor(field.rows / 2), col: Math.floor(field.cols / 2) };
+  field.defaultRobot = { ...field.robot };
+  updateRobotInputs();
+  drawField();
+  highlightCode();
+  updateButtons();
+}
+
+init();
+</script>
+</body>
+</html>
