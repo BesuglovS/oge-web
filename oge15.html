@@ -82,7 +82,7 @@ body {
 
 /* Code editor */
 .editor-wrapper {
-  position: relative;
+  display: flex;
   border: 2px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
@@ -93,8 +93,39 @@ body {
   line-height: 1.6;
 }
 
-.editor-wrapper textarea,
-.editor-wrapper .editor-highlight {
+.line-numbers {
+  flex-shrink: 0;
+  width: 44px;
+  padding: 12px 0;
+  background: #1e1e2e;
+  color: #8585a0;
+  text-align: right;
+  overflow: hidden;
+  user-select: none;
+  border-right: 1px solid #333;
+}
+
+.line-numbers div {
+  padding: 0 8px 0 4px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre;
+}
+
+.line-numbers .active-line {
+  background: rgba(80, 250, 123, 0.15);
+  color: #50fa7b;
+}
+
+.editor-content {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.editor-content textarea,
+.editor-content .editor-highlight {
   position: absolute;
   top: 0;
   left: 0;
@@ -112,7 +143,7 @@ body {
   resize: none;
 }
 
-.editor-wrapper textarea {
+.editor-content textarea {
   z-index: 2;
   color: transparent;
   background: transparent;
@@ -120,7 +151,7 @@ body {
   outline: none;
 }
 
-.editor-wrapper .editor-highlight {
+.editor-content .editor-highlight {
   z-index: 1;
   color: #f8f8f2;
   pointer-events: none;
@@ -133,6 +164,23 @@ body {
 .editor-highlight .comment { color: #6272a4; font-style: italic; }
 .editor-highlight .paren { color: #f1fa8c; }
 .editor-highlight .err { color: #ff5555; text-decoration: underline; text-decoration-color: #ff5555; }
+.editor-highlight .active-line-bg {
+  background: rgba(80, 250, 123, 0.08);
+}
+
+@keyframes linePulse {
+  0%, 100% { border-left-color: #50fa7b; }
+  50% { border-left-color: #8be9fd; }
+}
+.editor-highlight .line-marker {
+  background: rgba(80, 250, 123, 0.12);
+  border-left: 3px solid #50fa7b;
+  animation: linePulse 1s ease-in-out infinite;
+}
+.editor-highlight .hl-active-line {
+  background: rgba(255, 235, 59, 0.2);
+  display: block;
+}
 
 /* Controls */
 .control-bar {
@@ -284,13 +332,16 @@ body {
     <div class="panel">
       <h2>📝 Программа на Кумир</h2>
       <div class="editor-wrapper" id="editorWrapper">
-        <div class="editor-highlight" id="editorHighlight"></div>
-        <textarea id="codeEditor" spellcheck="false">| Пример: движение вправо с закрашиванием
+        <div class="line-numbers" id="lineNumbers"></div>
+        <div class="editor-content">
+          <div class="editor-highlight" id="editorHighlight"></div>
+          <textarea id="codeEditor" spellcheck="false">| Пример: движение вправо с закрашиванием
 нц пока справа свободно
   закрасить
   вправо
 кц
 закрасить</textarea>
+        </div>
       </div>
     </div>
 
@@ -999,6 +1050,7 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
 function lex(code) {
   const tokens = [];
   let i = 0;
+  let line = 1;
   const len = code.length;
 
   while (i < len) {
@@ -1009,6 +1061,7 @@ function lex(code) {
       if (ch === '\r' && i + 1 < len && code[i + 1] === '\n') i++;
       tokens.push({ type: 'NEWLINE', value: '\n' });
       i++;
+      line++;
       continue;
     }
 
@@ -1023,13 +1076,13 @@ function lex(code) {
         comment += code[i];
         i++;
       }
-      tokens.push({ type: 'COMMENT', value: comment });
+      tokens.push({ type: 'COMMENT', value: comment, line });
       continue;
     }
 
     // Parentheses
-    if (ch === '(') { tokens.push({ type: 'LPAREN', value: '(' }); i++; continue; }
-    if (ch === ')') { tokens.push({ type: 'RPAREN', value: ')' }); i++; continue; }
+    if (ch === '(') { tokens.push({ type: 'LPAREN', value: '(', line }); i++; continue; }
+    if (ch === ')') { tokens.push({ type: 'RPAREN', value: ')', line }); i++; continue; }
 
     // Multi-character tokens (keywords, commands, conditions)
     if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
@@ -1041,19 +1094,19 @@ function lex(code) {
 
       // Commands
       if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
-        tokens.push({ type: 'COMMAND', value: word });
+        tokens.push({ type: 'COMMAND', value: word, line });
       }
       // Keywords
-      else if (word === 'нц') tokens.push({ type: 'NC', value: word });
-      else if (word === 'кц') tokens.push({ type: 'KC', value: word });
-      else if (word === 'пока') tokens.push({ type: 'POKA', value: word });
-      else if (word === 'если') tokens.push({ type: 'ESLI', value: word });
-      else if (word === 'то') tokens.push({ type: 'TO', value: word });
-      else if (word === 'иначе') tokens.push({ type: 'INACHE', value: word });
-      else if (word === 'все') tokens.push({ type: 'VSE', value: word });
-      else if (word === 'и') tokens.push({ type: 'AND', value: word });
-      else if (word === 'или') tokens.push({ type: 'OR', value: word });
-      else if (word === 'не') tokens.push({ type: 'NOT', value: word });
+      else if (word === 'нц') tokens.push({ type: 'NC', value: word, line });
+      else if (word === 'кц') tokens.push({ type: 'KC', value: word, line });
+      else if (word === 'пока') tokens.push({ type: 'POKA', value: word, line });
+      else if (word === 'если') tokens.push({ type: 'ESLI', value: word, line });
+      else if (word === 'то') tokens.push({ type: 'TO', value: word, line });
+      else if (word === 'иначе') tokens.push({ type: 'INACHE', value: word, line });
+      else if (word === 'все') tokens.push({ type: 'VSE', value: word, line });
+      else if (word === 'и') tokens.push({ type: 'AND', value: word, line });
+      else if (word === 'или') tokens.push({ type: 'OR', value: word, line });
+      else if (word === 'не') tokens.push({ type: 'NOT', value: word, line });
       // Conditions (check for "свободно" after direction word)
       else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
         // Skip whitespace
@@ -1064,15 +1117,15 @@ function lex(code) {
           i++;
         }
         if (nextWord === 'свободно') {
-          tokens.push({ type: 'CONDITION', value: word });
+          tokens.push({ type: 'CONDITION', value: word, line });
         } else {
           // Unknown token - create error token
-          tokens.push({ type: 'ERROR', value: word + ' ' + nextWord });
+          tokens.push({ type: 'ERROR', value: word + ' ' + nextWord, line });
         }
       }
       else {
         // Unknown word - could be user text, treat as error
-        tokens.push({ type: 'UNKNOWN', value: word });
+        tokens.push({ type: 'UNKNOWN', value: word, line });
       }
       continue;
     }
@@ -1132,7 +1185,8 @@ class Parser {
     const t = this.peek();
     switch (t.type) {
       case 'COMMAND':
-        return { type: 'command', value: this.next().value };
+        const cmdToken = this.next();
+        return { type: 'command', value: cmdToken.value, line: cmdToken.line };
       case 'ESLI':
         return this.parseIf();
       case 'NC':
@@ -1145,6 +1199,7 @@ class Parser {
 
   // if ::= ESLI condition TO body (INACHE body)? VSE
   parseIf() {
+    const ifToken = this.peek();
     this.expect('ESLI');
     const cond = this.parseCondition();
     this.expect('TO');
@@ -1166,11 +1221,12 @@ class Parser {
       }
     }
     this.expect('VSE');
-    return { type: 'if', condition: cond, thenBody, elseBody };
+    return { type: 'if', condition: cond, thenBody, elseBody, line: ifToken.line };
   }
 
   // while ::= NC POKA condition body KC
   parseWhile() {
+    const ncToken = this.peek();
     this.expect('NC');
     this.expect('POKA');
     const cond = this.parseCondition();
@@ -1182,7 +1238,7 @@ class Parser {
       this.skipNewlines();
     }
     this.expect('KC');
-    return { type: 'while', condition: cond, body };
+    return { type: 'while', condition: cond, body, line: ncToken.line };
   }
 
   // condition ::= disjunction
@@ -1227,7 +1283,8 @@ class Parser {
       return cond;
     }
     if (this.peek().type === 'CONDITION') {
-      return { type: 'check', value: this.next().value };
+      const condToken = this.next();
+      return { type: 'check', value: condToken.value, line: condToken.line };
     }
     throw new ParseError('Ожидалось условие', this.peek());
   }
@@ -1249,6 +1306,7 @@ class Interpreter {
     this.currentCommand = null;
     this.stepCount = 0;
     this.maxSteps = 100000;
+    this.nextLine = 0;
   }
 
   start() {
@@ -1258,7 +1316,17 @@ class Interpreter {
     this.error = null;
     this.paused = false;
     this.stepCount = 0;
+    this.nextLine = 0;
+    this.peekBuffer = undefined;
     this.gen = this.executeProgram(this.ast);
+    // Pre-consume first __next marker to set initial nextLine for highlighting
+    let r = this.gen.next();
+    if (r.value && r.value.__next) {
+      this.nextLine = r.value.line;
+    } else if (!r.done) {
+      // Not a __next marker, buffer it for next step()
+      this.peekBuffer = r.value;
+    }
   }
 
   stop() {
@@ -1277,18 +1345,47 @@ class Interpreter {
     return this.step();
   }
 
-  // Returns { done: true/false, command: '...', error: '...' }
+  // Advance the generator past __next markers to find the next line to highlight
+  // After this call, this.nextLine holds the next command's line (or 0 if done)
+  advanceToNextLine() {
+    let peek = this.gen.next();
+    if (peek.value && peek.value.__next) {
+      this.nextLine = peek.value.line;
+    } else if (!peek.done) {
+      // It's a command, not a marker - buffer it for next step()
+      // The buffered command's line IS the next line to execute
+      this.peekBuffer = peek.value;
+      this.nextLine = peek.value.line || 0;
+    } else {
+      // Generator finished
+      this.nextLine = 0;
+    }
+  }
+
+  // Returns { done: true/false, command: '...', error: '...', nextLine: 0 }
   step() {
     if (!this.gen || this.finished) return { done: true };
     if (this.error) return { done: true, error: this.error };
 
     try {
-      const result = this.gen.next();
-      if (result.done) {
-        this.finished = true;
-        this.running = false;
-        return { done: true };
+      let result;
+
+      // Check peekBuffer from previous step first
+      if (this.peekBuffer) {
+        result = { value: this.peekBuffer, done: false };
+        this.peekBuffer = undefined;
+      } else {
+        // Consume __next markers until we get the actual command
+        do {
+          result = this.gen.next();
+          if (result.done) {
+            this.finished = true;
+            this.running = false;
+            return { done: true };
+          }
+        } while (result.value && result.value.__next);
       }
+
       this.stepCount++;
       if (this.stepCount > this.maxSteps) {
         this.error = 'Превышено максимальное количество шагов (возможно, бесконечный цикл)';
@@ -1296,7 +1393,12 @@ class Interpreter {
         this.finished = true;
         return { done: true, error: this.error };
       }
-      return result.value;
+
+      // Peek ahead to consume the NEXT __next marker and update nextLine
+      this.advanceToNextLine();
+
+      // Return the command with nextLine pointing to the NEXT command's line
+      return { ...result.value, nextLine: this.nextLine };
     } catch (err) {
       this.error = err.message;
       this.alive = false;
@@ -1313,13 +1415,22 @@ class Interpreter {
     }
   }
 
+  // Yield a marker that sets the next line to highlight, transparent to step()
+  *nextLineMarker(line) {
+    this.nextLine = line;
+    yield { __next: true, line };
+  }
+
   *executeStatement(stmt) {
     switch (stmt.type) {
       case 'command': {
         const cmd = stmt.value;
         this.currentCommand = cmd;
+        const line = stmt.line || 0;
 
-        // Capture position BEFORE executing the command
+        // Before executing, indicate next line to highlight
+        yield* this.nextLineMarker(line);
+
         const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
 
         if (cmd === 'закрасить') {
@@ -1331,15 +1442,19 @@ class Interpreter {
           if (result.error) {
             this.alive = false;
             this.error = result.error;
-            yield { command: cmd, type: 'command', error: result.error, beforePos };
+            yield { command: cmd, type: 'command', error: result.error, beforePos, line };
             return;
           }
         }
 
-        yield { command: cmd, type: 'command', beforePos };
+        yield { command: cmd, type: 'command', beforePos, line };
         break;
       }
       case 'if': {
+        const line = stmt.line || 0;
+        // Before checking condition, indicate next line
+        yield* this.nextLineMarker(line);
+        yield { command: 'если (проверка условия)', type: 'if-check', line, beforePos: { row: this.field.robot.row, col: this.field.robot.col } };
         const condValue = yield* this.evaluateCondition(stmt.condition);
         this.currentCommand = null;
         if (condValue) {
@@ -1356,7 +1471,11 @@ class Interpreter {
         break;
       }
       case 'while': {
+        const line = stmt.line || 0;
         while (true) {
+          // Before checking condition, indicate next line
+          yield* this.nextLineMarker(line);
+          yield { command: 'нц пока (проверка условия)', type: 'while-check', line, beforePos: { row: this.field.robot.row, col: this.field.robot.col } };
           const condValue = yield* this.evaluateCondition(stmt.condition);
           this.currentCommand = null;
           if (!condValue) break;
@@ -1378,7 +1497,9 @@ class Interpreter {
         const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
         const free = this.field.isFree(this.field.robot.row, this.field.robot.col, dir);
         this.currentCommand = cond.value + ' свободно';
-        yield { command: this.currentCommand, type: 'check', result: free, beforePos };
+        // Before condition check, indicate next line
+        yield* this.nextLineMarker(cond.line || 0);
+        yield { command: this.currentCommand, type: 'check', result: free, beforePos, line: cond.line || 0 };
         return free;
       }
       case 'not': {
@@ -1411,19 +1532,25 @@ const highlight = document.getElementById('editorHighlight');
 
 function highlightCode() {
   const code = textarea.value;
-  let html = '';
+  let htmlLines = [];
+  let lineHtml = '';
   let i = 0;
   const len = code.length;
+
+  function flushLine() {
+    htmlLines.push(lineHtml);
+    lineHtml = '';
+  }
 
   while (i < len) {
     const ch = code[i];
 
     // Newline
-    if (ch === '\n') { html += '\n'; i++; continue; }
-    if (ch === '\r') { html += '\n'; i++; if (i < len && code[i] === '\n') i++; continue; }
+    if (ch === '\n') { flushLine(); i++; continue; }
+    if (ch === '\r') { flushLine(); i++; if (i < len && code[i] === '\n') i++; continue; }
 
     // Whitespace
-    if (ch === ' ' || ch === '\t') { html += ch; i++; continue; }
+    if (ch === ' ' || ch === '\t') { lineHtml += ch; i++; continue; }
 
     // Comment
     if (ch === '|') {
@@ -1433,12 +1560,12 @@ function highlightCode() {
         text += code[i];
         i++;
       }
-      html += '<span class="comment">' + escHtml(text) + '</span>';
+      lineHtml += '<span class="comment">' + escHtml(text) + '</span>';
       continue;
     }
 
     // Parentheses
-    if (ch === '(' || ch === ')') { html += '<span class="paren">' + ch + '</span>'; i++; continue; }
+    if (ch === '(' || ch === ')') { lineHtml += '<span class="paren">' + ch + '</span>'; i++; continue; }
 
     // Words
     if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
@@ -1449,9 +1576,9 @@ function highlightCode() {
       }
 
       if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
-        html += '<span class="cmd">' + word + '</span>';
+        lineHtml += '<span class="cmd">' + word + '</span>';
       } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все'].includes(word)) {
-        html += '<span class="kw">' + word + '</span>';
+        lineHtml += '<span class="kw">' + word + '</span>';
       } else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
         // Look ahead for свободно
         let j = i;
@@ -1463,27 +1590,45 @@ function highlightCode() {
         }
         if (nextWord === 'свободно') {
           // Consume whitespace and next word
-          while (i < len && (code[i] === ' ' || code[i] === '\t')) { html += code[i]; i++; }
+          while (i < len && (code[i] === ' ' || code[i] === '\t')) { lineHtml += code[i]; i++; }
           let nw = '';
           while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) { nw += code[i]; i++; }
-          html += '<span class="cond">' + word + ' ' + nw + '</span>';
+          lineHtml += '<span class="cond">' + word + ' ' + nw + '</span>';
         } else {
-          html += '<span class="err">' + word + '</span>';
+          lineHtml += '<span class="err">' + word + '</span>';
         }
       } else if (['и', 'или', 'не'].includes(word)) {
-        html += '<span class="logic">' + word + '</span>';
+        lineHtml += '<span class="logic">' + word + '</span>';
       } else {
-        html += word;
+        lineHtml += word;
       }
       continue;
     }
 
     // Other characters
-    html += escHtml(ch);
+    lineHtml += escHtml(ch);
     i++;
   }
 
-  highlight.innerHTML = html;
+  // Flush remaining content
+  if (code.length === 0 || code[code.length - 1] !== '\n') {
+    flushLine();
+  }
+
+  // Build final HTML with active line highlight
+  let resultHtml = '';
+  for (let li = 0; li < htmlLines.length; li++) {
+    const lineNum = li + 1;
+    const content = htmlLines[li];
+    const isLast = (li === htmlLines.length - 1);
+    if (lineNum === currentHighlightLine) {
+      resultHtml += '<span class="hl-active-line">' + content + (isLast ? '' : '\n') + '</span>';
+    } else {
+      resultHtml += content + (isLast ? '' : '\n');
+    }
+  }
+
+  highlight.innerHTML = resultHtml;
 }
 
 function escHtml(s) {
@@ -1496,7 +1641,10 @@ textarea.addEventListener('scroll', () => {
   highlight.scrollLeft = textarea.scrollLeft;
 });
 
-textarea.addEventListener('input', highlightCode);
+textarea.addEventListener('input', () => {
+  highlightCode();
+  updateLineNumbers();
+});
 
 // Tab support
 textarea.addEventListener('keydown', (e) => {
@@ -1576,12 +1724,16 @@ function runProgram() {
   field.robot = { ...field.defaultRobot };
   drawField();
 
-  interpreter = new Interpreter(ast, field);
-  interpreter.start();
-  clearLog();
-  log('Запуск программы...', 'info');
+    interpreter = new Interpreter(ast, field);
+    interpreter.start();
+    clearLog();
+    log('Запуск программы...', 'info');
+    // Highlight the first line to be executed
+    if (interpreter.nextLine) {
+      setCurrentLine(interpreter.nextLine);
+    }
 
-  startAutoRun();
+    startAutoRun();
   updateButtons();
 }
 
@@ -1589,7 +1741,7 @@ function startAutoRun() {
   stopAutoRun();
   runInterval = setInterval(() => {
     if (!interpreter || interpreter.finished || interpreter.paused) {
-      if (interpreter && interpreter.finished) {
+  if (interpreter && interpreter.finished) {
         stopAutoRun();
         updateButtons();
         if (interpreter.error) {
@@ -1604,17 +1756,18 @@ function startAutoRun() {
     const result = interpreter.step();
     drawField();
     if (result.command) {
+      const lineInfo = result.line ? `[${result.line}] ` : '';
       const before = result.beforePos
         ? `(${result.beforePos.row + 1}, ${result.beforePos.col + 1}) `
         : '';
       if (result.error) {
-        log('💥 ' + before + result.command + ' — ' + result.error, 'err');
+        log('💥 ' + lineInfo + before + result.command + ' — ' + result.error, 'err');
       } else if (result.type === 'check') {
-        log('❓ ' + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
+        log('❓ ' + lineInfo + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
       } else if (['вверх', 'вниз', 'вправо', 'влево'].includes(result.command) && interpreter && interpreter.alive) {
-        log('⚡ ' + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
+        log('⚡ ' + lineInfo + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
       } else {
-        log('⚡ ' + before + result.command, 'ok');
+        log('⚡ ' + lineInfo + before + result.command, 'ok');
       }
     }
     if (result.done || interpreter.finished) {
@@ -1626,6 +1779,9 @@ function startAutoRun() {
         log('✓ Программа завершена. Шагов: ' + interpreter.stepCount, 'ok');
       }
       drawField();
+      setCurrentLine(0);
+    } else if (result.nextLine) {
+      setCurrentLine(result.nextLine);
     }
     document.getElementById('fieldRows').value = field.rows;
     document.getElementById('fieldCols').value = field.cols;
@@ -1662,25 +1818,33 @@ function stepProgram() {
     drawField();
     interpreter = new Interpreter(ast, field);
     interpreter.start();
+    // In step mode, pause immediately so isRunning() returns false
+    interpreter.paused = true;
     clearLog();
     log('Пошаговое выполнение...', 'info');
+    // Highlight the first line to be executed
+    if (interpreter.nextLine) {
+      setCurrentLine(interpreter.nextLine);
+    }
+    return;
   }
 
   const result = interpreter.step();
   drawField();
 
   if (result.command) {
+    const lineInfo = result.line ? `[${result.line}] ` : '';
     const before = result.beforePos
       ? `(${result.beforePos.row + 1}, ${result.beforePos.col + 1}) `
       : '';
     if (result.error) {
-      log('💥 ' + before + result.command + ' — ' + result.error, 'err');
+      log('💥 ' + lineInfo + before + result.command + ' — ' + result.error, 'err');
     } else if (result.type === 'check') {
-      log('❓ ' + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
+      log('❓ ' + lineInfo + before + result.command + ' → ' + (result.result ? 'да' : 'нет'), 'info');
     } else if (['вверх', 'вниз', 'вправо', 'влево'].includes(result.command) && interpreter && interpreter.alive) {
-      log('⚡ ' + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
+      log('⚡ ' + lineInfo + before + result.command + ' → (' + (interpreter.field.robot.row + 1) + ', ' + (interpreter.field.robot.col + 1) + ')', 'ok');
     } else {
-      log('⚡ ' + before + result.command, 'ok');
+      log('⚡ ' + lineInfo + before + result.command, 'ok');
     }
   }
 
@@ -1691,6 +1855,9 @@ function stepProgram() {
       log('✓ Программа завершена. Шагов: ' + interpreter.stepCount, 'ok');
     }
     updateButtons();
+    setCurrentLine(0);
+  } else if (result.nextLine) {
+    setCurrentLine(result.nextLine);
   }
 
   updateRobotInputs();
@@ -1735,7 +1902,34 @@ btnPause.addEventListener('click', pauseProgram);
 btnStop.addEventListener('click', stopProgram);
 
 // =====================================================
-// 9. INIT
+// 9. LINE NUMBERS & CURRENT LINE HIGHLIGHTING
+// =====================================================
+const lineNumbersEl = document.getElementById('lineNumbers');
+let currentHighlightLine = 0;
+
+function updateLineNumbers() {
+  const code = textarea.value;
+  const lines = code.split('\n');
+  let html = '';
+  for (let i = 0; i < lines.length; i++) {
+    const lineNum = i + 1;
+    if (lineNum === currentHighlightLine) {
+      html += `<div class="active-line">${lineNum}</div>`;
+    } else {
+      html += `<div>${lineNum}</div>`;
+    }
+  }
+  lineNumbersEl.innerHTML = html;
+}
+
+function setCurrentLine(line) {
+  currentHighlightLine = line;
+  updateLineNumbers();
+  highlightCode();
+}
+
+// =====================================================
+// 10. INIT
 // =====================================================
 function init() {
   resizeCanvas();
@@ -1744,6 +1938,7 @@ function init() {
   updateRobotInputs();
   drawField();
   highlightCode();
+  updateLineNumbers();
   updateButtons();
 }
 
