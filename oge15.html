@@ -80,6 +80,131 @@ body {
   margin-bottom: 10px;
 }
 
+/* Task panel */
+.task-card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  margin-bottom: 12px;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.task-type {
+  background: linear-gradient(145deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.task-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.task-nav select {
+  padding: 5px 10px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.btn-sm.load-task {
+  background: #4caf50;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-sm.load-task:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+.task-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  background: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  margin-bottom: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.task-text strong {
+  color: #222;
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.stat-item span {
+  font-weight: 700;
+}
+
+/* Quick nav */
+.quick-nav {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.quick-nav-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.quick-nav-btn:hover {
+  transform: scale(1.1);
+}
+
+.quick-nav-btn.top {
+  background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
 /* Code editor */
 .editor-wrapper {
   display: flex;
@@ -316,6 +441,53 @@ body {
   .editor-wrapper { min-height: 200px; }
 }
 </style>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+  (function (m, e, t, r, i, k, a) {
+    m[i] =
+      m[i] ||
+      function () {
+        (m[i].a = m[i].a || []).push(arguments);
+      };
+    m[i].l = 1 * new Date();
+    for (var j = 0; j < document.scripts.length; j++) {
+      if (document.scripts[j].src === r) {
+        return;
+      }
+    }
+    ((k = e.createElement(t)),
+      (a = e.getElementsByTagName(t)[0]),
+      (k.async = 1),
+      (k.src = r),
+      a.parentNode.insertBefore(k, a));
+  })(
+    window,
+    document,
+    "script",
+    "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+    "ym",
+  );
+
+  ym(107219928, "init", {
+    ssr: true,
+    webvisor: true,
+    clickmap: true,
+    ecommerce: "dataLayer",
+    referrer: document.referrer,
+    url: location.href,
+    accurateTrackBounce: true,
+    trackLinks: true,
+  });
+</script>
+<noscript
+  ><div>
+    <img
+      src="https://mc.yandex.ru/watch/107219928"
+      style="position: absolute; left: -9999px"
+      alt=""
+    /></div
+></noscript>
+<!-- /Yandex.Metrika counter -->
 </head>
 <body>
 
@@ -323,6 +495,46 @@ body {
   <a href="oge.html" class="back-link">← На главную</a>
   <a href="oge15-t.html" class="back-link">📚 Теория</a>
   <h1>🤖 Тренажёр — Исполнитель Робот (Задание 15)</h1>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item">Задача №<span id="taskNumber">1</span></div>
+</div>
+
+<!-- Task Card -->
+<div class="task-card" id="taskCard">
+  <div class="task-header">
+    <span class="task-type" id="taskType">Задача 15-01</span>
+    <div class="task-nav">
+      <select id="taskSelect" onchange="onTaskSelect()">
+        <option value="1">Задание 15-01</option>
+        <option value="2">Задание 15-02</option>
+        <option value="3">Задание 15-03</option>
+        <option value="4">Задание 15-04</option>
+        <option value="5">Задание 15-05</option>
+        <option value="6">Задание 15-06</option>
+        <option value="7">Задание 15-07</option>
+        <option value="8">Задание 15-08</option>
+        <option value="9">Задание 15-09</option>
+        <option value="10">Задание 15-10</option>
+        <option value="11">Задание 15-11</option>
+        <option value="12">Задание 15-12</option>
+        <option value="13">Задание 15-13</option>
+        <option value="14">Задание 15-14</option>
+        <option value="15">Задание 15-15</option>
+        <option value="16">Задание 15-16</option>
+        <option value="17">Задание 15-17</option>
+        <option value="18">Задание 15-18</option>
+        <option value="19">Задание 15-19</option>
+        <option value="20">Задание 15-20</option>
+        <option value="0">🎲 Произвольное задание</option>
+      </select>
+      <button class="btn-sm load-task" onclick="loadCurrentTask()">📂 Загрузить обстановку</button>
+      <input type="file" id="customTaskInput" accept=".json" style="display:none">
+      <button class="btn-sm load-task" id="btnCustomLoad" onclick="loadCustomTask()" style="display:none">📁 Выбрать файл...</button>
+    </div>
+  </div>
+  <div class="task-text" id="taskText">Выберите задание из списка и нажмите «Загрузить обстановку».</div>
 </div>
 
 <div class="main-layout">
@@ -361,7 +573,7 @@ body {
 
     <div class="panel">
       <h2>📋 Лог выполнения</h2>
-      <div class="log-area" id="logArea">▶ Готов к работе. Нажмите «Запустить» или «Шаг».</div>
+      <div class="log-area" id="logArea">▶ Готов к работе. Нажмите «Загрузить обстановку» для выбранного задания.</div>
     </div>
   </div>
 
@@ -391,7 +603,214 @@ body {
 
 </div>
 
+<!-- Быстрая навигация -->
+<div class="quick-nav">
+  <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+    ↑
+  </button>
+</div>
+
 <script>
+// =====================================================
+// 0. ALL 20 TASKS with descriptions from oge-15-2026.txt
+// =====================================================
+const tasks = [
+  {
+    id: 1,
+    title: 'Задание 15-01',
+    text: 'На бесконечном поле есть две вертикальные стены и одна горизонтальная. Левый конец горизонтальной стены соединён с нижним концом первой вертикальной стены, а правый её конец соединён со второй вертикальной стеной в одной из её точек, не являющейся ни одним из концов второй стены. Длины стен неизвестны. Робот находится в клетке, расположенной непосредственно левее второй вертикальной стены у её нижнего конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее первой вертикальной стены, и клетки, расположенные непосредственно правее второй вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 2,
+    title: 'Задание 15-02',
+    text: 'На бесконечном поле есть две вертикальные стены и одна горизонтальная. Левый конец горизонтальной стены соединён с нижним концом первой вертикальной стены, а правый её конец соединён со второй вертикальной стеной в одной из её точек, не являющейся ни одним из концов второй стены. Длины стен неизвестны. Робот находится в клетке, расположенной непосредственно левее второй вертикальной стены у её нижнего конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее и непосредственно левее первой вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 3,
+    title: 'Задание 15-03',
+    text: 'На бесконечном поле есть две горизонтальные стены и одна вертикальная. Левый конец первой горизонтальной стены соединён с верхним концом вертикальной стены, а нижний конец вертикальной стены соединён с левым концом второй горизонтальной стены. Длины стен неизвестны. Робот находится в одной из клеток, расположенной непосредственно правее вертикальной стены.<br><br>Напишите для Робота алгоритм, закрашивающий клетки, расположенные непосредственно над второй горизонтальной стеной через одну так, чтобы закрашенные и незакрашенные клетки в горизонтальном ряду чередовались и чтобы клетка, имеющая по своим границам две стены, была закрашена, а также одну клетку у левого конца второй горизонтальной стены ниже её. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 4,
+    title: 'Задание 15-04',
+    text: 'На бесконечном поле есть две горизонтальные стены и одна вертикальная. Левый конец первой горизонтальной стены соединён с верхним концом вертикальной стены, а нижний конец вертикальной стены соединён с левым концом второй горизонтальной стены. Длины стен неизвестны. Робот находится в одной из клеток, расположенной непосредственно правее вертикальной стены.<br><br>Напишите для Робота алгоритм, закрашивающий клетки, расположенные непосредственно под первой горизонтальной стеной через одну так, чтобы закрашенные и незакрашенные клетки в горизонтальном ряду чередовались и чтобы клетка, имеющая по своим границам две стены, была закрашена, а также клетку у левого конца первой горизонтальной стены выше неё. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 5,
+    title: 'Задание 15-05',
+    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные над первой горизонтальной стеной, но не над разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 6,
+    title: 'Задание 15-06',
+    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные под первой горизонтальной стеной, но не под разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 7,
+    title: 'Задание 15-07',
+    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на одну клетку выше первой горизонтальной стены, но не над разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 8,
+    title: 'Задание 15-08',
+    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на одну клетку ниже первой горизонтальной стены, но не под разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 9,
+    title: 'Задание 15-09',
+    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Стены расположены строго одна под другой и не касаются друг друга. Длины всех стен неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 10,
+    title: 'Задание 15-10',
+    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Стены расположены строго одна под другой и не касаются друг друга. Длины всех стен неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно под каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 11,
+    title: 'Задание 15-11',
+    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Вторая стена расположена правее первой строго на том же уровне (не выше, не ниже) и не касается первой. Длины всех стен неизвестны. Робот находится в клетке, расположенной над левой стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно под каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 12,
+    title: 'Задание 15-12',
+    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Вторая стена расположена правее первой строго на том же уровне (не выше, не ниже) и не касается первой. Длины всех стен неизвестны. Робот находится в клетке, расположенной над левой стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 13,
+    title: 'Задание 15-13',
+    text: 'На бесконечном поле есть одна горизонтальная и две вертикальных стены. Верхний конец левой вертикальной стены соединён с левым концом горизонтальной стены, верхний конец правой вертикальной стены соединён с правым концом горизонтальной стены. Длины всех стен неизвестны. Робот находится в клетке, расположенной под горизонтальной стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно над горизонтальной стеной. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 14,
+    title: 'Задание 15-14',
+    text: 'На бесконечном поле есть одна горизонтальная и две вертикальных стены. Верхний конец левой вертикальной стены соединён с левым концом горизонтальной стены, верхний конец правой вертикальной стены соединён с правым концом горизонтальной стены. Длины всех стен неизвестны. Робот находится в клетке, расположенной под горизонтальной стеной.<br><br>Напишите для Робота алгоритм, закрашивающий самую правую и самую левую клетки, расположенные непосредственно над горизонтальной стеной. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 15,
+    title: 'Задание 15-15',
+    text: 'На бесконечном поле есть горизонтальная и вертикальная стены. Правый конец горизонтальной стены соединён с верхним концом вертикальной стены. Длины стен неизвестны. В каждой стене есть ровно один проход, точное место прохода и его ширина неизвестны. Робот находится в клетке, расположенной непосредственно под горизонтальной стеной у её левого конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на расстоянии одной клетки под горизонтальной стеной и на расстоянии одной клетки левее вертикальной стены. Клетки под проходом в горизонтальной стене и левее прохода в вертикальной стене, отстоящие от них на одну клетку, должны быть закрашены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 16,
+    title: 'Задание 15-16',
+    text: 'На бесконечном поле есть горизонтальная и вертикальная стены. Правый конец горизонтальной стены соединён с верхним концом вертикальной стены. Длины стен неизвестны. В каждой стене есть ровно один проход, точное место прохода и его ширина неизвестны. Робот находится в клетке, расположенной непосредственно под горизонтальной стеной у её левого конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно ниже горизонтальной стены и примыкающие к проходу под ней, а также все клетки, расположенные непосредственно левее вертикальной стены и примыкающие к проходу в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
+  },
+  {
+    id: 17,
+    title: 'Задание 15-17',
+    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим верхним концом к левому краю нижней горизонтальной стены. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно левее верхней вертикальной стены и правее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 18,
+    title: 'Задание 15-18',
+    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим верхним концом к левому краю нижней горизонтальной стены. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее верхней вертикальной стены и левее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 19,
+    title: 'Задание 15-19',
+    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим нижним концом к левому краю нижней горизонтальной стены и до верхней горизонтальной стены не доходит. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее верхней вертикальной стены и левее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным. Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  },
+  {
+    id: 20,
+    title: 'Задание 15-20',
+    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим нижним концом к левому краю нижней горизонтальной стены и до верхней горизонтальной стены не доходит. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно левее верхней вертикальной стены и правее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
+  }
+];
+
+let currentTaskId = 1;
+
+function onTaskSelect() {
+  const select = document.getElementById('taskSelect');
+  currentTaskId = parseInt(select.value);
+
+  const customBtn = document.getElementById('btnCustomLoad');
+  if (currentTaskId === 0) {
+    // Show custom file picker
+    customBtn.style.display = 'inline-block';
+    document.getElementById('taskType').textContent = '🎲 Произвольное задание';
+    document.getElementById('taskNumber').textContent = '—';
+    document.getElementById('taskText').innerHTML = 'Загрузите свой файл с обстановкой для Робота. Файл должен быть в формате JSON с полями: <code>rows</code>, <code>cols</code>, <code>walls</code>, <code>painted</code> (опционально), <code>robot</code> (строки/столбцы с 1).';
+    return;
+  }
+
+  customBtn.style.display = 'none';
+  const task = tasks.find(t => t.id === currentTaskId);
+  if (task) {
+    document.getElementById('taskType').textContent = task.title;
+    document.getElementById('taskNumber').textContent = String(task.id).padStart(2, '0');
+    document.getElementById('taskText').innerHTML = task.text;
+  }
+}
+
+function loadCustomTask() {
+  document.getElementById('customTaskInput').click();
+}
+
+function loadCurrentTask() {
+  // Handle custom task
+  if (currentTaskId === 0) {
+    loadCustomTask();
+    return;
+  }
+
+  const taskId = String(currentTaskId).padStart(2, '0');
+  const url = `files/oge15/oge-15-2026-${taskId}.json`;
+
+  // Clear log
+  if (typeof clearLog === 'function') clearLog();
+  log('📂 Загружаю обстановку ' + tasks.find(t => t.id === currentTaskId).title + '...', 'info');
+
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error('Файл не найден: ' + url);
+      return res.json();
+    })
+    .then(data => {
+      // Stop any running program
+      if (typeof stopProgram === 'function') stopProgram();
+
+      field.fromJSON(data);
+      field.defaultRobot = { ...field.robot };
+      drawField();
+      updateRobotInputs();
+      document.getElementById('fieldRows').value = field.rows;
+      document.getElementById('fieldCols').value = field.cols;
+      log('✓ Обстановка загружена: ' + data.rows + '×' + data.cols + ', робот в (' + (data.robot.row) + ', ' + (data.robot.col) + ')', 'ok');
+
+      // Reset code editor to template?
+      // Don't reset - let user keep their code
+    })
+    .catch(err => {
+      log('❌ Ошибка загрузки: ' + err.message, 'err');
+    });
+}
+
+// Handle custom task file input
+document.getElementById('customTaskInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (typeof stopProgram === 'function') stopProgram();
+      field.fromJSON(data);
+      field.defaultRobot = { ...field.robot };
+      drawField();
+      updateRobotInputs();
+      document.getElementById('fieldRows').value = field.rows;
+      document.getElementById('fieldCols').value = field.cols;
+      if (typeof clearLog === 'function') clearLog();
+      log('✓ Произвольная обстановка загружена: ' + file.name, 'ok');
+      log('  Поле: ' + data.rows + '×' + data.cols + ', робот в (' + (data.robot.row) + ', ' + (data.robot.col) + ')', 'info');
+    } catch (err) {
+      log('❌ Ошибка загрузки файла: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
 // =====================================================
 // 1. FIELD STATE
 // =====================================================
@@ -475,21 +894,51 @@ const field = {
   },
 
   toJSON() {
+    // Convert from internal 0-based to 1-based for saving
+    const walls1 = [];
+    for (const key of this.walls) {
+      const [type, pos] = key.split(':');
+      const [r, c] = pos.split(',').map(Number);
+      walls1.push(`${type}:${r + 1},${c + 1}`);
+    }
+    const painted1 = [];
+    for (const key of this.painted) {
+      const [r, c] = key.split(',').map(Number);
+      painted1.push(`${r + 1},${c + 1}`);
+    }
     return {
       rows: this.rows,
       cols: this.cols,
-      walls: [...this.walls],
-      painted: [...this.painted],
-      robot: { ...this.robot }
+      walls: walls1,
+      painted: painted1,
+      robot: { row: this.robot.row + 1, col: this.robot.col + 1 }
     };
   },
 
   fromJSON(data) {
     this.rows = data.rows;
     this.cols = data.cols;
-    this.walls = new Set(data.walls || []);
-    this.painted = new Set(data.painted || []);
-    this.robot = data.robot || { row: Math.floor(this.rows/2), col: Math.floor(this.cols/2) };
+    // Convert from 1-based (file format) to 0-based (internal)
+    this.walls = new Set();
+    if (data.walls) {
+      for (const key of data.walls) {
+        const [type, pos] = key.split(':');
+        const [r, c] = pos.split(',').map(Number);
+        this.walls.add(`${type}:${r - 1},${c - 1}`);
+      }
+    }
+    this.painted = new Set();
+    if (data.painted) {
+      for (const key of data.painted) {
+        const [r, c] = key.split(',').map(Number);
+        this.painted.add(`${r - 1},${c - 1}`);
+      }
+    }
+    if (data.robot) {
+      this.robot = { row: data.robot.row - 1, col: data.robot.col - 1 };
+    } else {
+      this.robot = { row: Math.floor(this.rows / 2), col: Math.floor(this.cols / 2) };
+    }
     this.defaultRobot = { ...this.robot };
   }
 };
@@ -768,261 +1217,149 @@ function drawField() {
     ctx.strokeStyle = '#455a64';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
+    // Left leg
     ctx.beginPath();
-    ctx.moveTo(cx - 5, by + bh);
-    ctx.lineTo(cx - 5, by + bh + 5);
+    ctx.moveTo(bx + 5, by + bh - 2);
+    ctx.lineTo(bx + 3, by + bh + 8);
     ctx.stroke();
+    // Right leg
     ctx.beginPath();
-    ctx.moveTo(cx + 5, by + bh);
-    ctx.lineTo(cx + 5, by + bh + 5);
+    ctx.moveTo(bx + bw - 5, by + bh - 2);
+    ctx.lineTo(bx + bw - 3, by + bh + 8);
     ctx.stroke();
+
   }
 }
 
-// Mouse events for field editing and robot dragging
-let mouseDown = false;
-let mouseIsOnRobot = false;
-let dragStartCell = null;
+// Mouse/touch handlers
+let isDragging = false;
+
+function getCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    mx: (clientX - rect.left) * scaleX,
+    my: (clientY - rect.top) * scaleY
+  };
+}
 
 canvas.addEventListener('mousedown', (e) => {
-  if (isRunning()) return;
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-
-  // Check if click is on robot
-  const { x: rx, y: ry } = cellToCanvas(field.robot.row, field.robot.col);
-  const rcx = rx + CELL / 2;
-  const rcy = ry + CELL / 2;
-  const dist = Math.sqrt((mx - rcx) ** 2 + (my - rcy) ** 2);
-
-  if (dist <= ROBOT_RADIUS + 4) {
-    mouseDown = true;
-    mouseIsOnRobot = true;
-    dragging = true;
-    dragTarget = { ...field.robot };
-    return;
-  }
-
-  // Check if click is on an edge (wall toggle)
-  const edge = canvasToEdge(mx, my);
-  if (edge) {
-    mouseDown = true;
-    mouseIsOnRobot = false;
-    field.toggleWall(edge.row, edge.col, edge.dir);
-    drawField();
-    return;
-  }
-
-  // Check if click is on a cell (paint toggle)
-  const cell = canvasToCell(mx, my);
-  if (cell) {
-    mouseDown = true;
-    mouseIsOnRobot = false;
-    field.togglePainted(cell.row, cell.col);
-    drawField();
-  }
+  const { mx, my } = getCanvasCoords(e);
+  handleMouseDown(mx, my);
 });
-
 canvas.addEventListener('mousemove', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-
-  if (dragging && mouseIsOnRobot) {
-    const cell = canvasToCell(mx, my);
-    if (cell && (cell.row !== field.robot.row || cell.col !== field.robot.col)) {
-      dragTarget = cell;
-    } else {
-      dragTarget = null;
-    }
-    drawField();
-    return;
-  }
-
-  // Hover effect for walls
-  if (!mouseDown && !dragging) {
-    const edge = canvasToEdge(mx, my);
-    const cell = canvasToCell(mx, my);
-    canvas.style.cursor = edge ? 'pointer' : (cell ? 'pointer' : 'default');
-  }
+  const { mx, my } = getCanvasCoords(e);
+  handleMouseMove(mx, my);
 });
+canvas.addEventListener('mouseup', () => handleMouseUp());
+canvas.addEventListener('mouseleave', () => { if (isDragging) { isDragging = false; dragging = false; drawField(); } });
 
-canvas.addEventListener('mouseup', (e) => {
-  if (dragging && mouseIsOnRobot && dragTarget) {
-    field.robot = { ...dragTarget };
-    field.defaultRobot = { ...dragTarget };
-  }
-  mouseDown = false;
-  mouseIsOnRobot = false;
-  dragging = false;
-  dragTarget = null;
-  updateRobotInputs();
-  drawField();
-});
-
-canvas.addEventListener('mouseleave', () => {
-  if (mouseIsOnRobot && dragging) {
-    mouseDown = false;
-    mouseIsOnRobot = false;
-    dragging = false;
-    dragTarget = null;
-    drawField();
-  }
-});
-
-// Touch support
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
-  const touch = e.touches[0];
-  const rect = canvas.getBoundingClientRect();
-  const mx = touch.clientX - rect.left;
-  const my = touch.clientY - rect.top;
+  const { mx, my } = getCanvasCoords(e);
+  handleMouseDown(mx, my);
+}, { passive: false });
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const { mx, my } = getCanvasCoords(e);
+  handleMouseMove(mx, my);
+}, { passive: false });
+canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleMouseUp(); }, { passive: false });
 
-  const { x: rx, y: ry } = cellToCanvas(field.robot.row, field.robot.col);
-  const rcx = rx + CELL / 2;
-  const rcy = ry + CELL / 2;
-  if (Math.sqrt((mx - rcx) ** 2 + (my - rcy) ** 2) <= ROBOT_RADIUS + 6) {
+function handleMouseDown(mx, my) {
+  const cell = canvasToCell(mx, my);
+  const edge = canvasToEdge(mx, my);
+
+  if (cell && Math.abs(cell.row - field.robot.row) <= 0.5 && Math.abs(cell.col - field.robot.col) <= 0.5) {
+    // Start dragging robot
+    isDragging = true;
     dragging = true;
-    mouseIsOnRobot = true;
-    dragTarget = { ...field.robot };
+    dragTarget = { row: cell.row, col: cell.col };
+    drawField();
     return;
   }
 
-  const edge = canvasToEdge(mx, my);
   if (edge) {
     field.toggleWall(edge.row, edge.col, edge.dir);
     drawField();
     return;
   }
-  const cell = canvasToCell(mx, my);
+
   if (cell) {
     field.togglePainted(cell.row, cell.col);
     drawField();
   }
-}, { passive: false });
+}
 
-canvas.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-  if (!dragging || !mouseIsOnRobot) return;
-  const touch = e.touches[0];
-  const rect = canvas.getBoundingClientRect();
-  const mx = touch.clientX - rect.left;
-  const my = touch.clientY - rect.top;
-  const cell = canvasToCell(mx, my);
-  if (cell && (cell.row !== field.robot.row || cell.col !== field.robot.col)) {
-    dragTarget = cell;
-  } else {
-    dragTarget = null;
+function handleMouseMove(mx, my) {
+  if (isDragging && dragging) {
+    const cell = canvasToCell(mx, my);
+    if (cell) {
+      dragTarget = cell;
+      drawField();
+    }
+    return;
   }
-  drawField();
-}, { passive: false });
 
-canvas.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  if (dragging && mouseIsOnRobot && dragTarget) {
-    field.robot = { ...dragTarget };
-    field.defaultRobot = { ...dragTarget };
+  // Hover effect for edges
+  const edge = canvasToEdge(mx, my);
+  canvas.style.cursor = edge ? 'pointer' : (canvasToCell(mx, my) ? 'default' : 'default');
+}
+
+function handleMouseUp() {
+  if (isDragging && dragging && dragTarget) {
+    field.robot = { row: dragTarget.row, col: dragTarget.col };
+    field.defaultRobot = { ...field.robot };
+    updateRobotInputs();
   }
+  isDragging = false;
   dragging = false;
-  mouseIsOnRobot = false;
   dragTarget = null;
-  updateRobotInputs();
   drawField();
-}, { passive: false });
+}
+
+function updateRobotInputs() {
+  // Not used anymore but keep for compatibility
+}
 
 // =====================================================
 // 3. FIELD CONTROLS
 // =====================================================
-function updateRobotInputs() {
-  document.getElementById('robotRow').value = field.robot.row + 1;
-  document.getElementById('robotCol').value = field.robot.col + 1;
-}
-
 document.getElementById('btnResize').addEventListener('click', () => {
-  const r = parseInt(document.getElementById('fieldRows').value) || 10;
-  const c = parseInt(document.getElementById('fieldCols').value) || 10;
-  if (r < 2 || r > 30 || c < 2 || c > 30) { alert('Размеры от 2 до 30'); return; }
-  field.resize(r, c);
-  drawField();
-  updateRobotInputs();
-});
-
-document.getElementById('btnClearWalls').addEventListener('click', () => {
-  if (isRunning()) return;
-  field.clearWalls();
-  drawField();
-  log('Стены удалены', 'info');
-});
-
-document.getElementById('btnClearPaint').addEventListener('click', () => {
-  if (isRunning()) return;
-  field.clearPaint();
-  drawField();
-  log('Закраска очищена', 'info');
-});
-
-document.getElementById('btnResetRobot').addEventListener('click', () => {
-  if (isRunning()) return;
-  field.robot = { ...field.defaultRobot };
-  drawField();
-  updateRobotInputs();
-  log('Робот возвращён в начальное положение', 'info');
-});
-
-// Robot position inputs
-const robotRowInput = document.createElement('input');
-robotRowInput.type = 'number';
-robotRowInput.id = 'robotRow';
-robotRowInput.value = '5';
-robotRowInput.min = 1;
-robotRowInput.style.width = '45px';
-
-const robotColInput = document.createElement('input');
-robotColInput.type = 'number';
-robotColInput.id = 'robotCol';
-robotColInput.value = '5';
-robotColInput.min = 1;
-robotColInput.style.width = '45px';
-
-// Insert robot position controls
-const robotGroup = document.createElement('span');
-robotGroup.innerHTML = '<label>Робот: строка <input type="number" id="robotRow" value="5" min="1" max="10" style="width:45px"></label> ' +
-  '<label>столбец <input type="number" id="robotCol" value="5" min="1" max="10" style="width:45px"></label> ' +
-  '<button class="btn-sm primary" id="btnSetRobot">Установить</button>';
-document.querySelector('.field-controls').insertBefore(robotGroup, document.querySelector('.field-controls').children[3]);
-
-document.getElementById('btnSetRobot').addEventListener('click', () => {
-  if (isRunning()) return;
-  const r = (parseInt(document.getElementById('robotRow').value) || 1) - 1;
-  const c = (parseInt(document.getElementById('robotCol').value) || 1) - 1;
-  if (r < 0 || r >= field.rows || c < 0 || c >= field.cols) {
-    alert('Позиция вне поля');
-    return;
+  const rows = parseInt(document.getElementById('fieldRows').value);
+  const cols = parseInt(document.getElementById('fieldCols').value);
+  if (rows >= 2 && rows <= 30 && cols >= 2 && cols <= 30) {
+    field.resize(rows, cols);
+    if (field.robot.row >= rows) field.robot.row = rows - 1;
+    if (field.robot.col >= cols) field.robot.col = cols - 1;
+    drawField();
   }
-  field.robot = { row: r, col: c };
-  field.defaultRobot = { row: r, col: c };
-  drawField();
-  log(`Робот установлен в (${r + 1}, ${c + 1})`, 'info');
 });
-
-// Save / Load
+document.getElementById('btnClearWalls').addEventListener('click', () => { field.clearWalls(); drawField(); });
+document.getElementById('btnClearPaint').addEventListener('click', () => { field.clearPaint(); drawField(); });
+document.getElementById('btnResetRobot').addEventListener('click', () => {
+  if (field.defaultRobot) {
+    field.robot = { ...field.defaultRobot };
+    updateRobotInputs();
+    drawField();
+  }
+});
 document.getElementById('btnSave').addEventListener('click', () => {
-  const data = field.toJSON();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const json = JSON.stringify(field.toJSON(), null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'robot-field.json';
   a.click();
   URL.revokeObjectURL(url);
-  log('Обстановка сохранена', 'info');
 });
-
 document.getElementById('btnLoad').addEventListener('click', () => {
   document.getElementById('fileInput').click();
 });
-
 document.getElementById('fileInput').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -1031,13 +1368,12 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
     try {
       const data = JSON.parse(ev.target.result);
       field.fromJSON(data);
+      drawField();
       document.getElementById('fieldRows').value = field.rows;
       document.getElementById('fieldCols').value = field.cols;
-      updateRobotInputs();
-      drawField();
-      log('Обстановка загружена', 'info');
+      if (typeof log === 'function') log('✓ Файл загружен: ' + file.name, 'ok');
     } catch (err) {
-      log('Ошибка загрузки файла: ' + err.message, 'err');
+      if (typeof log === 'function') log('❌ Ошибка загрузки файла: ' + err.message, 'err');
     }
   };
   reader.readAsText(file);
@@ -1045,88 +1381,38 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
 });
 
 // =====================================================
-// 4. KUMIR LEXER
+// 4. LEXER & PARSER (Кумир)
 // =====================================================
 function lex(code) {
   const tokens = [];
   let i = 0;
-  let line = 1;
   const len = code.length;
 
   while (i < len) {
     const ch = code[i];
 
-    // Newline
-    if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && i + 1 < len && code[i + 1] === '\n') i++;
-      tokens.push({ type: 'NEWLINE', value: '\n' });
-      i++;
-      line++;
-      continue;
-    }
-
     // Whitespace
     if (ch === ' ' || ch === '\t') { i++; continue; }
 
-    // Comment
-    if (ch === '|') {
-      let comment = '';
+    // Newlines
+    if (ch === '\n' || ch === '\r') {
+      tokens.push({ type: 'newline', value: ch, line: tokens.filter(t => t.type === 'newline').length + 1 });
       i++;
-      while (i < len && code[i] !== '\n' && code[i] !== '\r') {
-        comment += code[i];
-        i++;
-      }
-      tokens.push({ type: 'COMMENT', value: comment, line });
+      if (ch === '\r' && i < len && code[i] === '\n') i++;
       continue;
     }
 
-    // Parentheses
-    if (ch === '(') { tokens.push({ type: 'LPAREN', value: '(', line }); i++; continue; }
-    if (ch === ')') { tokens.push({ type: 'RPAREN', value: ')', line }); i++; continue; }
+    // Comment
+    if (ch === '|') {
+      while (i < len && code[i] !== '\n' && code[i] !== '\r') i++;
+      continue;
+    }
 
-    // Multi-character tokens (keywords, commands, conditions)
+    // Word
     if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
       let word = '';
-      while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) {
-        word += code[i];
-        i++;
-      }
-
-      // Commands
-      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
-        tokens.push({ type: 'COMMAND', value: word, line });
-      }
-      // Keywords
-      else if (word === 'нц') tokens.push({ type: 'NC', value: word, line });
-      else if (word === 'кц') tokens.push({ type: 'KC', value: word, line });
-      else if (word === 'пока') tokens.push({ type: 'POKA', value: word, line });
-      else if (word === 'если') tokens.push({ type: 'ESLI', value: word, line });
-      else if (word === 'то') tokens.push({ type: 'TO', value: word, line });
-      else if (word === 'иначе') tokens.push({ type: 'INACHE', value: word, line });
-      else if (word === 'все') tokens.push({ type: 'VSE', value: word, line });
-      else if (word === 'и') tokens.push({ type: 'AND', value: word, line });
-      else if (word === 'или') tokens.push({ type: 'OR', value: word, line });
-      else if (word === 'не') tokens.push({ type: 'NOT', value: word, line });
-      // Conditions (check for "свободно" after direction word)
-      else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
-        // Skip whitespace
-        while (i < len && (code[i] === ' ' || code[i] === '\t')) i++;
-        let nextWord = '';
-        while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) {
-          nextWord += code[i];
-          i++;
-        }
-        if (nextWord === 'свободно') {
-          tokens.push({ type: 'CONDITION', value: word, line });
-        } else {
-          // Unknown token - create error token
-          tokens.push({ type: 'ERROR', value: word + ' ' + nextWord, line });
-        }
-      }
-      else {
-        // Unknown word - could be user text, treat as error
-        tokens.push({ type: 'UNKNOWN', value: word, line });
-      }
+      while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) { word += code[i]; i++; }
+      tokens.push({ type: 'word', value: word });
       continue;
     }
 
@@ -1134,238 +1420,216 @@ function lex(code) {
     i++;
   }
 
-  tokens.push({ type: 'EOF', value: '' });
   return tokens;
-}
-
-// =====================================================
-// 5. KUMIR PARSER
-// =====================================================
-class ParseError extends Error {
-  constructor(msg, token) {
-    super(msg + ' (на "' + (token ? token.value : '?') + '")');
-    this.token = token;
-  }
 }
 
 class Parser {
   constructor(tokens) {
     this.tokens = tokens;
     this.pos = 0;
+    this.line = 1;
   }
 
-  peek() { return this.tokens[this.pos] || { type: 'EOF', value: '' }; }
-  next() { const t = this.peek(); this.pos++; return t; }
-
-  expect(type) {
-    const t = this.peek();
-    if (t.type !== type) throw new ParseError(`Ожидалось ${type}, получено ${t.type}`, t);
-    return this.next();
-  }
-
-  skipNewlines() {
-    while (this.peek().type === 'NEWLINE' || this.peek().type === 'COMMENT') {
-      this.next();
+  peek() {
+    while (this.pos < this.tokens.length && this.tokens[this.pos].type === 'newline') {
+      this.line++;
+      this.pos++;
     }
+    return this.tokens[this.pos] || null;
   }
 
-  // program ::= (statement)*
+  consume() {
+    const tok = this.peek();
+    if (tok) this.pos++;
+    return tok;
+  }
+
   parseProgram() {
     const stmts = [];
-    this.skipNewlines();
-    while (this.peek().type !== 'EOF') {
-      stmts.push(this.parseStatement());
-      this.skipNewlines();
+    while (this.pos < this.tokens.length) {
+      const stmt = this.parseStatement();
+      if (stmt) stmts.push(stmt);
+      else break;
     }
     return stmts;
   }
 
   parseStatement() {
-    this.skipNewlines();
-    const t = this.peek();
-    switch (t.type) {
-      case 'COMMAND':
-        const cmdToken = this.next();
-        return { type: 'command', value: cmdToken.value, line: cmdToken.line };
-      case 'ESLI':
-        return this.parseIf();
-      case 'NC':
-        return this.parseWhile();
-      default:
-        if (t.type === 'EOF') return null;
-        throw new ParseError('Неизвестная конструкция', t);
-    }
-  }
+    const tok = this.peek();
+    if (!tok) return null;
 
-  // if ::= ESLI condition TO body (INACHE body)? VSE
-  parseIf() {
-    const ifToken = this.peek();
-    this.expect('ESLI');
-    const cond = this.parseCondition();
-    this.expect('TO');
-    this.skipNewlines();
-    const thenBody = [];
-    while (this.peek().type !== 'INACHE' && this.peek().type !== 'VSE' && this.peek().type !== 'EOF') {
-      const stmt = this.parseStatement();
-      if (stmt) thenBody.push(stmt);
-      this.skipNewlines();
-    }
-    let elseBody = [];
-    if (this.peek().type === 'INACHE') {
-      this.next();
-      this.skipNewlines();
-      while (this.peek().type !== 'VSE' && this.peek().type !== 'EOF') {
-        const stmt = this.parseStatement();
-        if (stmt) elseBody.push(stmt);
-        this.skipNewlines();
+    if (tok.type === 'word') {
+      if (tok.value === 'нц') return this.parseWhile();
+      if (tok.value === 'если') return this.parseIf();
+      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(tok.value)) {
+        this.consume();
+        return { type: 'command', value: tok.value, line: this.line };
       }
+      // Skip unrecognized words
+      this.consume();
+      return null;
     }
-    this.expect('VSE');
-    return { type: 'if', condition: cond, thenBody, elseBody, line: ifToken.line };
+
+    this.consume();
+    return null;
   }
 
-  // while ::= NC POKA condition body KC
   parseWhile() {
-    const ncToken = this.peek();
-    this.expect('NC');
-    this.expect('POKA');
-    const cond = this.parseCondition();
-    this.skipNewlines();
+    const line = this.line;
+    this.consume(); // нц
+    const word = this.consume(); // пока
+    if (!word || word.value !== 'пока') throw new Error('Ожидается "пока" после "нц"');
+    const condition = this.parseCondition();
+    if (!condition) throw new Error('Ожидается условие после "пока"');
     const body = [];
-    while (this.peek().type !== 'KC' && this.peek().type !== 'EOF') {
+    while (this.pos < this.tokens.length) {
+      const next = this.peek();
+      if (next && next.type === 'word' && next.value === 'кц') {
+        this.consume(); // кц
+        break;
+      }
       const stmt = this.parseStatement();
       if (stmt) body.push(stmt);
-      this.skipNewlines();
     }
-    this.expect('KC');
-    return { type: 'while', condition: cond, body, line: ncToken.line };
+    return { type: 'while', condition, body, line };
   }
 
-  // condition ::= disjunction
+  parseIf() {
+    const line = this.line;
+    this.consume(); // если
+    const condition = this.parseCondition();
+    if (!condition) throw new Error('Ожидается условие после "если"');
+    const word = this.consume(); // то
+    if (!word || word.value !== 'то') throw new Error('Ожидается "то" после условия');
+    const thenBody = [];
+    let elseBody = null;
+    while (this.pos < this.tokens.length) {
+      const next = this.peek();
+      if (next && next.type === 'word') {
+        if (next.value === 'иначе') {
+          this.consume();
+          elseBody = [];
+          continue;
+        }
+        if (next.value === 'все') {
+          this.consume();
+          break;
+        }
+      }
+      const stmt = this.parseStatement();
+      if (stmt) {
+        if (elseBody !== null) elseBody.push(stmt);
+        else thenBody.push(stmt);
+      }
+    }
+    return { type: 'if', condition, thenBody, elseBody, line };
+  }
+
   parseCondition() {
-    return this.parseDisjunction();
-  }
+    const negated = this.parseFactor();
+    if (!negated) return null;
 
-  parseDisjunction() {
-    let left = this.parseConjunction();
-    while (this.peek().type === 'OR') {
-      this.next();
-      const right = this.parseConjunction();
-      left = { type: 'or', left, right };
+    // Check for 'и' or 'или'
+    const next = this.peek();
+    if (next && next.type === 'word' && (next.value === 'и' || next.value === 'или')) {
+      this.consume();
+      const right = this.parseCondition();
+      if (right) {
+        return { type: next.value === 'и' ? 'and' : 'or', left: negated, right };
+      }
     }
-    return left;
+    return negated;
   }
 
-  parseConjunction() {
-    let left = this.parseNegation();
-    while (this.peek().type === 'AND') {
-      this.next();
-      const right = this.parseNegation();
-      left = { type: 'and', left, right };
-    }
-    return left;
-  }
-
-  parseNegation() {
-    if (this.peek().type === 'NOT') {
-      this.next();
-      const operand = this.parseNegation();
-      return { type: 'not', operand };
+  parseFactor() {
+    const next = this.peek();
+    if (!next) return null;
+    if (next.type === 'word' && next.value === 'не') {
+      this.consume();
+      const cond = this.parsePrimary();
+      return cond ? { type: 'not', operand: cond } : null;
     }
     return this.parsePrimary();
   }
 
   parsePrimary() {
-    if (this.peek().type === 'LPAREN') {
-      this.next();
-      const cond = this.parseCondition();
-      this.expect('RPAREN');
-      return cond;
-    }
-    if (this.peek().type === 'CONDITION') {
-      const condToken = this.next();
-      return { type: 'check', value: condToken.value, line: condToken.line };
-    }
-    throw new ParseError('Ожидалось условие', this.peek());
+    const next = this.peek();
+    if (!next || next.type !== 'word') return null;
+    const dirs = ['сверху', 'снизу', 'слева', 'справа'];
+      if (dirs.includes(next.value)) {
+        const dir = next.value;
+        this.consume();
+        const word = this.consume();
+        if (!word || (word.value !== 'свободно' && word.value !== 'стена')) throw new Error('Ожидается "свободно" или "стена" после "' + dir + '"');
+        return { type: word.value === 'свободно' ? 'check' : 'wall', value: dir, line: this.line };
+      }
+    return null;
   }
 }
 
 // =====================================================
-// 6. KUMIR INTERPRETER
+// 5. INTERPRETER
 // =====================================================
 class Interpreter {
   constructor(ast, field) {
-    this.ast = ast;
-    this.field = field;
     this.gen = null;
     this.running = false;
+    this.paused = false;
     this.finished = false;
     this.alive = true;
     this.error = null;
-    this.paused = false;
-    this.currentCommand = null;
     this.stepCount = 0;
-    this.maxSteps = 100000;
+    this.maxSteps = 50000;
+    this.currentCommand = null;
     this.nextLine = 0;
+    this.peekBuffer = undefined;
+    this.ast = ast;
+    this.field = field;
   }
 
   start() {
+    if (this.running) return;
     this.running = true;
     this.finished = false;
     this.alive = true;
     this.error = null;
-    this.paused = false;
     this.stepCount = 0;
-    this.nextLine = 0;
+    this.currentCommand = null;
     this.peekBuffer = undefined;
     this.gen = this.executeProgram(this.ast);
-    // Pre-consume first __next marker to set initial nextLine for highlighting
-    let r = this.gen.next();
-    if (r.value && r.value.__next) {
-      this.nextLine = r.value.line;
-    } else if (!r.done) {
-      // Not a __next marker, buffer it for next step()
-      this.peekBuffer = r.value;
+    // Set nextLine from first statement
+    if (this.ast.length > 0) {
+      this.nextLine = this.ast[0].line || 1;
     }
   }
 
-  stop() {
-    this.running = false;
-    this.finished = true;
-    this.gen = null;
-    this.currentCommand = null;
-  }
+  pause() { this.paused = true; }
+  resume() { this.paused = false; }
+  stop() { this.finished = true; this.running = false; }
 
-  pause() {
-    this.paused = true;
-  }
-
-  resume() {
-    this.paused = false;
-    return this.step();
-  }
-
-  // Advance the generator past __next markers to find the next line to highlight
-  // After this call, this.nextLine holds the next command's line (or 0 if done)
   advanceToNextLine() {
-    let peek = this.gen.next();
-    if (peek.value && peek.value.__next) {
-      this.nextLine = peek.value.line;
-    } else if (!peek.done) {
-      // It's a command, not a marker - buffer it for next step()
-      // The buffered command's line IS the next line to execute
-      this.peekBuffer = peek.value;
-      this.nextLine = peek.value.line || 0;
+    // Peek ahead to find the next __next marker
+    const savedPos = this.gen.next();
+    if (savedPos.done) {
+      this.finished = true;
+      this.running = false;
+      this.nextLine = 0;
+      return;
+    }
+    if (savedPos.value && savedPos.value.__next) {
+      this.nextLine = savedPos.value.line;
+      this.peekBuffer = undefined;
     } else {
-      // Generator finished
+      // Store the value for next step
+      this.peekBuffer = savedPos.value;
       this.nextLine = 0;
     }
   }
 
-  // Returns { done: true/false, command: '...', error: '...', nextLine: 0 }
   step() {
-    if (!this.gen || this.finished) return { done: true };
-    if (this.error) return { done: true, error: this.error };
+    if (this.paused) return { done: true, paused: true };
+    if (this.finished) return { done: true };
+    if (!this.gen) return { done: true, error: 'Программа не запущена' };
 
     try {
       let result;
@@ -1497,10 +1761,19 @@ class Interpreter {
         const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
         const free = this.field.isFree(this.field.robot.row, this.field.robot.col, dir);
         this.currentCommand = cond.value + ' свободно';
-        // Before condition check, indicate next line
         yield* this.nextLineMarker(cond.line || 0);
         yield { command: this.currentCommand, type: 'check', result: free, beforePos, line: cond.line || 0 };
         return free;
+      }
+      case 'wall': {
+        const dirMap = { 'сверху': 'up', 'снизу': 'down', 'слева': 'left', 'справа': 'right' };
+        const dir = dirMap[cond.value];
+        const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
+        const hasWall = !this.field.isFree(this.field.robot.row, this.field.robot.col, dir);
+        this.currentCommand = cond.value + ' стена';
+        yield* this.nextLineMarker(cond.line || 0);
+        yield { command: this.currentCommand, type: 'check', result: hasWall, beforePos, line: cond.line || 0 };
+        return hasWall;
       }
       case 'not': {
         const val = yield* this.evaluateCondition(cond.operand);
@@ -1588,7 +1861,7 @@ function highlightCode() {
           nextWord += code[j];
           j++;
         }
-        if (nextWord === 'свободно') {
+        if (nextWord === 'свободно' || nextWord === 'стена') {
           // Consume whitespace and next word
           while (i < len && (code[i] === ' ' || code[i] === '\t')) { lineHtml += code[i]; i++; }
           let nw = '';
@@ -1940,6 +2213,16 @@ function init() {
   highlightCode();
   updateLineNumbers();
   updateButtons();
+
+  // Show first task by default
+  const task = tasks[0];
+  document.getElementById('taskType').textContent = task.title;
+  document.getElementById('taskNumber').textContent = '01';
+  document.getElementById('taskText').innerHTML = task.text;
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 init();
