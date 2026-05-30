@@ -216,6 +216,7 @@ body {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.6;
+  position: relative;
 }
 
 .line-numbers {
@@ -249,8 +250,29 @@ body {
   min-width: 0;
 }
 
-.editor-content textarea,
 .editor-content .editor-highlight {
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  margin: 0;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  resize: none;
+  color: #f8f8f2;
+  pointer-events: none;
+}
+
+.editor-content textarea {
+  z-index: 3;
   position: absolute;
   top: 0;
   left: 0;
@@ -266,20 +288,12 @@ body {
   word-wrap: break-word;
   overflow: auto;
   resize: none;
-}
-
-.editor-content textarea {
-  z-index: 2;
-  color: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2d2d44;
+  color: rgba(30, 30, 46, 0.01);
   background: transparent;
   caret-color: white;
   outline: none;
-}
-
-.editor-content .editor-highlight {
-  z-index: 1;
-  color: #f8f8f2;
-  pointer-events: none;
 }
 
 .editor-highlight .kw { color: #ff79c6; font-weight: bold; }
@@ -342,6 +356,18 @@ body {
   margin-left: auto;
 }
 .speed-control input[type="range"] { width: 100px; }
+
+/* Autocomplete */
+.ac-item {
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.ac-item:hover, .ac-item.ac-selected {
+  background: rgba(80, 250, 123, 0.2);
+  color: #50fa7b;
+}
 
 /* Log */
 .log-area {
@@ -547,12 +573,11 @@ body {
         <div class="line-numbers" id="lineNumbers"></div>
         <div class="editor-content">
           <div class="editor-highlight" id="editorHighlight"></div>
-          <textarea id="codeEditor" spellcheck="false">| Пример: движение вправо с закрашиванием
-нц пока справа свободно
-  закрасить
-  вправо
-кц
-закрасить</textarea>
+          <textarea id="codeEditor" spellcheck="false">использовать Робот
+алг
+нач
+
+кон</textarea>
         </div>
       </div>
     </div>
@@ -565,9 +590,13 @@ body {
         <button class="btn-stop"  id="btnStop"   title="Стоп">⏹ Стоп</button>
         <div class="speed-control">
           <span>🐢</span>
-          <input type="range" id="speedSlider" min="0" max="10" value="5">
+          <input type="range" id="speedSlider" min="0" max="20" value="10">
           <span>🐇</span>
         </div>
+        <span style="margin:0 4px;color:#ddd">|</span>
+        <button class="btn-run" id="btnSaveKum" title="Сохранить программу в файл .kum">💾 Сохранить .kum</button>
+        <button class="btn-step" id="btnLoadKum" title="Загрузить программу из файла .kum">📂 Загрузить .kum</button>
+        <input type="file" id="kumFileInput" accept=".kum" style="display:none">
       </div>
     </div>
 
@@ -612,110 +641,32 @@ body {
 
 <script>
 // =====================================================
-// 0. ALL 20 TASKS with descriptions from oge-15-2026.txt
+// 0. ALL 20 TASKS — loaded from external JSON file
 // =====================================================
-const tasks = [
-  {
-    id: 1,
-    title: 'Задание 15-01',
-    text: 'На бесконечном поле есть две вертикальные стены и одна горизонтальная. Левый конец горизонтальной стены соединён с нижним концом первой вертикальной стены, а правый её конец соединён со второй вертикальной стеной в одной из её точек, не являющейся ни одним из концов второй стены. Длины стен неизвестны. Робот находится в клетке, расположенной непосредственно левее второй вертикальной стены у её нижнего конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее первой вертикальной стены, и клетки, расположенные непосредственно правее второй вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 2,
-    title: 'Задание 15-02',
-    text: 'На бесконечном поле есть две вертикальные стены и одна горизонтальная. Левый конец горизонтальной стены соединён с нижним концом первой вертикальной стены, а правый её конец соединён со второй вертикальной стеной в одной из её точек, не являющейся ни одним из концов второй стены. Длины стен неизвестны. Робот находится в клетке, расположенной непосредственно левее второй вертикальной стены у её нижнего конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее и непосредственно левее первой вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 3,
-    title: 'Задание 15-03',
-    text: 'На бесконечном поле есть две горизонтальные стены и одна вертикальная. Левый конец первой горизонтальной стены соединён с верхним концом вертикальной стены, а нижний конец вертикальной стены соединён с левым концом второй горизонтальной стены. Длины стен неизвестны. Робот находится в одной из клеток, расположенной непосредственно правее вертикальной стены.<br><br>Напишите для Робота алгоритм, закрашивающий клетки, расположенные непосредственно над второй горизонтальной стеной через одну так, чтобы закрашенные и незакрашенные клетки в горизонтальном ряду чередовались и чтобы клетка, имеющая по своим границам две стены, была закрашена, а также одну клетку у левого конца второй горизонтальной стены ниже её. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 4,
-    title: 'Задание 15-04',
-    text: 'На бесконечном поле есть две горизонтальные стены и одна вертикальная. Левый конец первой горизонтальной стены соединён с верхним концом вертикальной стены, а нижний конец вертикальной стены соединён с левым концом второй горизонтальной стены. Длины стен неизвестны. Робот находится в одной из клеток, расположенной непосредственно правее вертикальной стены.<br><br>Напишите для Робота алгоритм, закрашивающий клетки, расположенные непосредственно под первой горизонтальной стеной через одну так, чтобы закрашенные и незакрашенные клетки в горизонтальном ряду чередовались и чтобы клетка, имеющая по своим границам две стены, была закрашена, а также клетку у левого конца первой горизонтальной стены выше неё. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 5,
-    title: 'Задание 15-05',
-    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные над первой горизонтальной стеной, но не над разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 6,
-    title: 'Задание 15-06',
-    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные под первой горизонтальной стеной, но не под разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 7,
-    title: 'Задание 15-07',
-    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на одну клетку выше первой горизонтальной стены, но не над разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 8,
-    title: 'Задание 15-08',
-    text: 'На бесконечном поле расположена горизонтальная стена, в которой имеется разрыв. Строго над разрывом на несколько клеток выше него расположена вторая горизонтальная стена, длина которой совпадает с длиной разрыва. Точное расположение разрыва в первой стене и его длина неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на одну клетку ниже первой горизонтальной стены, но не под разрывом в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 9,
-    title: 'Задание 15-09',
-    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Стены расположены строго одна под другой и не касаются друг друга. Длины всех стен неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 10,
-    title: 'Задание 15-10',
-    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Стены расположены строго одна под другой и не касаются друг друга. Длины всех стен неизвестны. Робот находится в клетке, расположенной над верхней стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно под каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 11,
-    title: 'Задание 15-11',
-    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Вторая стена расположена правее первой строго на том же уровне (не выше, не ниже) и не касается первой. Длины всех стен неизвестны. Робот находится в клетке, расположенной над левой стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно под каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 12,
-    title: 'Задание 15-12',
-    text: 'На бесконечном поле есть две одинаковых стены, каждая из которых представляет собой прямоугольник. Вторая стена расположена правее первой строго на том же уровне (не выше, не ниже) и не касается первой. Длины всех стен неизвестны. Робот находится в клетке, расположенной над левой стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее каждой из стен. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 13,
-    title: 'Задание 15-13',
-    text: 'На бесконечном поле есть одна горизонтальная и две вертикальных стены. Верхний конец левой вертикальной стены соединён с левым концом горизонтальной стены, верхний конец правой вертикальной стены соединён с правым концом горизонтальной стены. Длины всех стен неизвестны. Робот находится в клетке, расположенной под горизонтальной стеной.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно над горизонтальной стеной. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 14,
-    title: 'Задание 15-14',
-    text: 'На бесконечном поле есть одна горизонтальная и две вертикальных стены. Верхний конец левой вертикальной стены соединён с левым концом горизонтальной стены, верхний конец правой вертикальной стены соединён с правым концом горизонтальной стены. Длины всех стен неизвестны. Робот находится в клетке, расположенной под горизонтальной стеной.<br><br>Напишите для Робота алгоритм, закрашивающий самую правую и самую левую клетки, расположенные непосредственно над горизонтальной стеной. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 15,
-    title: 'Задание 15-15',
-    text: 'На бесконечном поле есть горизонтальная и вертикальная стены. Правый конец горизонтальной стены соединён с верхним концом вертикальной стены. Длины стен неизвестны. В каждой стене есть ровно один проход, точное место прохода и его ширина неизвестны. Робот находится в клетке, расположенной непосредственно под горизонтальной стеной у её левого конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные на расстоянии одной клетки под горизонтальной стеной и на расстоянии одной клетки левее вертикальной стены. Клетки под проходом в горизонтальной стене и левее прохода в вертикальной стене, отстоящие от них на одну клетку, должны быть закрашены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 16,
-    title: 'Задание 15-16',
-    text: 'На бесконечном поле есть горизонтальная и вертикальная стены. Правый конец горизонтальной стены соединён с верхним концом вертикальной стены. Длины стен неизвестны. В каждой стене есть ровно один проход, точное место прохода и его ширина неизвестны. Робот находится в клетке, расположенной непосредственно под горизонтальной стеной у её левого конца.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно ниже горизонтальной стены и примыкающие к проходу под ней, а также все клетки, расположенные непосредственно левее вертикальной стены и примыкающие к проходу в ней. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен и любого расположения и размера проходов внутри стен.'
-  },
-  {
-    id: 17,
-    title: 'Задание 15-17',
-    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим верхним концом к левому краю нижней горизонтальной стены. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно левее верхней вертикальной стены и правее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 18,
-    title: 'Задание 15-18',
-    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим верхним концом к левому краю нижней горизонтальной стены. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее верхней вертикальной стены и левее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 19,
-    title: 'Задание 15-19',
-    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим нижним концом к левому краю нижней горизонтальной стены и до верхней горизонтальной стены не доходит. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно правее верхней вертикальной стены и левее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным. Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  },
-  {
-    id: 20,
-    title: 'Задание 15-20',
-    text: 'На бесконечном поле есть две горизонтальные стены равной длины и две вертикальные стены. Горизонтальные стены расположены строго одна над другой. Длины стен и расстояния между ними неизвестны. Одна вертикальная стена примыкает своим нижним концом к правому краю верхней горизонтальной стены, другая вертикальная стена примыкает своим нижним концом к левому краю нижней горизонтальной стены и до верхней горизонтальной стены не доходит. Робот находится в одной из клеток между горизонтальных стен.<br><br>Напишите для Робота алгоритм, закрашивающий все клетки, расположенные непосредственно левее верхней вертикальной стены и правее нижней вертикальной стены. Робот должен закрасить только клетки, удовлетворяющие данному условию.<br><br>При исполнении алгоритма Робот не должен разрушиться, выполнение алгоритма должно завершиться. Конечное расположение Робота может быть произвольным.<br><br>Алгоритм должен решать задачу для любого допустимого расположения стен.'
-  }
-];
+let tasks = [];
+
+// Load tasks from external JSON file
+(function loadTasks() {
+  fetch('files/oge15/tasks.json')
+    .then(res => {
+      if (!res.ok) throw new Error('Не удалось загрузить tasks.json');
+      return res.json();
+    })
+    .then(data => {
+      tasks = data;
+      // Show first task by default after tasks are loaded
+      const task = tasks[0];
+      if (task) {
+        document.getElementById('taskType').textContent = task.title;
+        document.getElementById('taskNumber').textContent = '01';
+        document.getElementById('taskText').innerHTML = task.text;
+      }
+    })
+    .catch(err => {
+      console.error('Ошибка загрузки заданий:', err);
+      tasks = [];
+    });
+})();
 
 let currentTaskId = 1;
 
@@ -1381,6 +1332,157 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
 });
 
 // =====================================================
+// AUTO-INDENTATION
+// =====================================================
+let isAutoIndenting = false;
+
+function computeIndentedCode(code) {
+  const lines = code.split('\n');
+  let level = 0;
+  const result = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
+    const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+
+    // Handle dedent BEFORE this line
+    if (['кон', 'кц', 'все', 'иначе'].includes(firstWord)) {
+      level = Math.max(0, level - 1);
+    }
+
+    // Special case: кон always at indent level 0
+    if (firstWord === 'кон') {
+      level = 0;
+    }
+
+    // Apply indentation
+    // Preserve original content AFTER leading whitespace (including trailing spaces,
+    // inline comments, operator words like "пока", and any other content).
+    // This way typing "нц пока" works correctly: the space between words is preserved.
+    let indented;
+    if (trimmed === '') {
+      indented = '  '.repeat(level);
+    } else {
+      // Find where the content starts (after leading whitespace) in the original line
+      const contentStart = lines[i].search(/\S/);
+      const originalContent = contentStart >= 0 ? lines[i].substring(contentStart) : trimmed;
+      indented = '  '.repeat(level) + originalContent;
+    }
+    result.push(indented);
+
+    // Handle indent AFTER this line (for subsequent lines)
+    if (!['кон', 'кц', 'все'].includes(firstWord)) {
+      if (['нач', 'нц', 'если', 'иначе'].includes(firstWord)) {
+        level++;
+      }
+    }
+  }
+
+  return result.join('\n');
+}
+
+function autoIndent() {
+  if (isAutoIndenting) return;
+  isAutoIndenting = true;
+
+  const textarea = document.getElementById('codeEditor');
+  const code = textarea.value;
+  const selStart = textarea.selectionStart;
+  const selEnd = textarea.selectionEnd;
+
+  // Get current line and column info
+  const beforeLines = code.substring(0, selStart).split('\n');
+  const currentLineIdx = beforeLines.length - 1;
+  const colInLine = beforeLines[currentLineIdx].length;
+
+  const indented = computeIndentedCode(code);
+
+  if (indented !== code) {
+    textarea.value = indented;
+
+    // Restore cursor position — clamp to line length
+    const lines = indented.split('\n');
+    const safeLine = Math.min(currentLineIdx, lines.length - 1);
+    const line = lines[safeLine] || '';
+
+    // Calculate how much this line's indent changed, so we can
+    // adjust cursor accordingly (keeps cursor in the right place
+    // relative to content, not relative to indent)
+    const codeLines = code.split('\n');
+    const oldLine = currentLineIdx >= 0 && currentLineIdx < codeLines.length ? codeLines[currentLineIdx] : '';
+    const oldIndent = oldLine.length - oldLine.trimStart().length;
+    const newIndent = line.length - line.trimStart().length;
+    const indentDelta = newIndent - oldIndent;
+    const adjustedCol = Math.max(newIndent, Math.min(colInLine + indentDelta, line.length));
+
+    let newPos = 0;
+    for (let i = 0; i < safeLine; i++) {
+      newPos += lines[i].length + 1; // +1 for \n
+    }
+    newPos += adjustedCol;
+
+    if (selStart === selEnd) {
+      textarea.selectionStart = textarea.selectionEnd = newPos;
+    } else {
+      // For selections, adjust end similarly
+      const beforeLinesEnd = code.substring(0, selEnd).split('\n');
+      const endLineIdx = beforeLinesEnd.length - 1;
+      const endColInLine = beforeLinesEnd[endLineIdx].length;
+      const safeEndLine = Math.min(endLineIdx, lines.length - 1);
+      const endLine = lines[safeEndLine] || '';
+      let endPos = 0;
+      for (let i = 0; i < safeEndLine; i++) {
+        endPos += lines[i].length + 1;
+      }
+      endPos += Math.min(endColInLine, endLine.length);
+      textarea.selectionStart = Math.min(newPos, endPos);
+      textarea.selectionEnd = Math.max(newPos, endPos);
+    }
+
+    highlightCode();
+    updateLineNumbers();
+  }
+
+  isAutoIndenting = false;
+}
+
+// =====================================================
+// 3.5. KUM FILE SAVE/LOAD
+// =====================================================
+document.getElementById('btnSaveKum').addEventListener('click', () => {
+  const code = document.getElementById('codeEditor').value;
+  const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'program.kum';
+  a.click();
+  URL.revokeObjectURL(url);
+  log('✓ Программа сохранена в файл program.kum', 'ok');
+});
+
+document.getElementById('btnLoadKum').addEventListener('click', () => {
+  document.getElementById('kumFileInput').click();
+});
+
+document.getElementById('kumFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('codeEditor').value = ev.target.result;
+    highlightCode();
+    updateLineNumbers();
+    // Auto-indent the loaded program to enforce proper indentation
+    autoIndent();
+    log('✓ Программа загружена из файла: ' + file.name, 'ok');
+  };
+  reader.readAsText(file, 'utf-8');
+  e.target.value = '';
+});
+
+// =====================================================
 // 4. LEXER & PARSER (Кумир)
 // =====================================================
 function lex(code) {
@@ -1444,12 +1546,11 @@ class Parser {
     return tok;
   }
 
-  parseProgram() {
+parseProgram() {
     const stmts = [];
     while (this.pos < this.tokens.length) {
       const stmt = this.parseStatement();
       if (stmt) stmts.push(stmt);
-      else break;
     }
     return stmts;
   }
@@ -1850,7 +1951,9 @@ function highlightCode() {
 
       if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
         lineHtml += '<span class="cmd">' + word + '</span>';
-      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все'].includes(word)) {
+      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все', 'использовать', 'алг', 'нач', 'кон'].includes(word)) {
+        lineHtml += '<span class="kw">' + word + '</span>';
+      } else if (word === 'Робот') {
         lineHtml += '<span class="kw">' + word + '</span>';
       } else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
         // Look ahead for свободно
@@ -1862,8 +1965,8 @@ function highlightCode() {
           j++;
         }
         if (nextWord === 'свободно' || nextWord === 'стена') {
-          // Consume whitespace and next word
-          while (i < len && (code[i] === ' ' || code[i] === '\t')) { lineHtml += code[i]; i++; }
+          // Skip whitespace (do NOT add to lineHtml — space goes inside the cond span)
+          while (i < len && (code[i] === ' ' || code[i] === '\t')) { i++; }
           let nw = '';
           while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) { nw += code[i]; i++; }
           lineHtml += '<span class="cond">' + word + ' ' + nw + '</span>';
@@ -1908,6 +2011,118 @@ function escHtml(s) {
   return s.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
 }
 
+// Get indentation needed for a new line after the given line index
+function getIndentForNewLine(code, lineIdx) {
+  const lines = code.split('\n');
+  if (lineIdx < 0 || lineIdx >= lines.length) return 0;
+  // Count current indent of the previous line
+  const prevLine = lines[lineIdx];
+  let indent = 0;
+  for (const ch of prevLine) {
+    if (ch === ' ' || ch === '\t') indent++;
+    else break;
+  }
+  // Check if previous line's first word increases indent
+  const trimmed = prevLine.trim();
+  const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
+  const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+  if (['нач', 'нц', 'если', 'иначе'].includes(firstWord)) {
+    indent += 2;
+  }
+  return indent;
+}
+
+// Auto-snap cursor forward past leading whitespace (indentation)
+function snapCursorFromIndent() {
+  const pos = textarea.selectionStart;
+  const code = textarea.value;
+  // Find start of current line
+  let lineStart = pos;
+  while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+  // Get leading whitespace length of this line (if any)
+  let indentEnd = lineStart;
+  while (indentEnd < code.length && (code[indentEnd] === ' ' || code[indentEnd] === '\t')) indentEnd++;
+  // If cursor is within leading whitespace (or at the very start of line with indent), snap it forward
+  if (indentEnd > lineStart && pos <= indentEnd) {
+    textarea.selectionStart = textarea.selectionEnd = indentEnd;
+    return;
+  }
+}
+
+  // Handle mousedown on textarea to ensure cursor lands past indentation
+  textarea.addEventListener('mousedown', function(e) {
+    // Only handle left-click (button === 0)
+    if (e.button !== 0) return;
+
+    const self = this;
+    setTimeout(function() {
+      const pos = self.selectionStart;
+      const code = self.value;
+      if (pos !== self.selectionEnd) return; // selection, not simple click
+
+      // Find start of current line
+      let lineStart = pos;
+      while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+
+      // Find existing leading whitespace on this line (if any)
+      let indentEnd = lineStart;
+      while (indentEnd < code.length && (code[indentEnd] === ' ' || code[indentEnd] === '\t')) indentEnd++;
+      const existingIndent = indentEnd - lineStart;
+
+      // If cursor is within existing whitespace, snap past it
+      if (existingIndent > 0 && pos >= lineStart && pos <= indentEnd) {
+        self.selectionStart = self.selectionEnd = indentEnd;
+        return;
+      }
+
+      // If cursor is at the very start of a truly empty line (no chars at all),
+      // compute proper indent and insert it
+      if (pos === lineStart && indentEnd === lineStart) {
+        let lineEnd = lineStart;
+        while (lineEnd < code.length && code[lineEnd] !== '\n') lineEnd++;
+        const lineContent = code.substring(lineStart, lineEnd);
+        if (lineContent.trim() !== '') return;
+
+        // Find line index
+        let lineIdx = 0, tempPos = 0;
+        while (tempPos < lineStart) {
+          if (code[tempPos] === '\n') lineIdx++;
+          tempPos++;
+        }
+
+        // Compute expected indent from previous non-empty line
+        const lines = code.split('\n');
+        if (lineIdx >= 0 && lineIdx < lines.length && lines[lineIdx].trim() === '') {
+          for (let i = lineIdx - 1; i >= 0; i--) {
+            if (lines[i].trim() !== '') {
+              const expectedIndent = getIndentForNewLine(code, i);
+              if (expectedIndent > 0) {
+                const indentStr = '  '.repeat(expectedIndent / 2);
+                self.value = code.substring(0, lineStart) + indentStr + code.substring(lineStart);
+                self.selectionStart = self.selectionEnd = lineStart + indentStr.length;
+                highlightCode();
+                updateLineNumbers();
+              }
+              break;
+            }
+          }
+        }
+      }
+    }, 0);
+  });
+
+// Snap cursor after mouse click (fires after browser finalizes cursor position)
+textarea.addEventListener('mouseup', () => {
+  snapCursorFromIndent();
+});
+
+// Snap cursor after any selection change (keyboard, programmatic)
+document.addEventListener('selectionchange', () => {
+  if (document.activeElement === textarea) {
+    setTimeout(snapCursorFromIndent, 0);
+  }
+});
+
 // Sync scroll
 textarea.addEventListener('scroll', () => {
   highlight.scrollTop = textarea.scrollTop;
@@ -1915,12 +2130,282 @@ textarea.addEventListener('scroll', () => {
 });
 
 textarea.addEventListener('input', () => {
+  // Always hide autocomplete on input to prevent stale state
+  // from corrupting text during normal typing
+  if (autocompleteVisible) {
+    hideAutocomplete();
+  }
   highlightCode();
   updateLineNumbers();
+
+  const code = textarea.value;
+  const pos = textarea.selectionStart;
+
+  // Detect what was just typed: if Enter (newline after cursor),
+  // auto-indent so the new line gets proper block body indent.
+  const prevNewline = code.lastIndexOf('\n', pos - 1);
+  const likelyEnter = prevNewline >= 0 && prevNewline === pos - 1;
+
+  if (likelyEnter) {
+    // User pressed Enter — auto-indent so the new blank line gets proper
+    // indent (e.g. inside a loop, it gets +2 spaces for the loop body).
+    autoIndent();
+    return;
+  }
+
+  // Check if current line's first word is a dedent keyword (кц, все, иначе, кон).
+  // If so, auto-indent to fix the indent level. This handles the case where
+  // the user types a closing keyword on an indented line inside a loop/if block.
+  const beforeLines = code.substring(0, pos).split('\n');
+  const currentLineIdx = beforeLines.length - 1;
+  const lines = code.split('\n');
+  if (currentLineIdx >= 0 && currentLineIdx < lines.length) {
+    const line = lines[currentLineIdx];
+    const trimmed = line.trim();
+    const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
+    const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+    if (['кц', 'все', 'иначе', 'кон'].includes(firstWord)) {
+      autoIndent();
+    }
+  }
 });
 
-// Tab support
+// Autocomplete
+const AUTOCOMPLETE_KEYWORDS = [
+  'вверх', 'вниз', 'влево', 'вправо', 'закрасить',
+  'нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все',
+  'и', 'или', 'не',
+  'сверху свободно', 'снизу свободно', 'слева свободно', 'справа свободно',
+  'сверху стена', 'снизу стена', 'слева стена', 'справа стена',
+];
+
+let autocompleteVisible = false;
+let autocompleteSelectedIndex = -1;
+let autocompletePrefix = '';
+
+function getAutocompleteSuggestions(prefix) {
+  if (!prefix) return [];
+  const lower = prefix.toLowerCase();
+  const matches = AUTOCOMPLETE_KEYWORDS.filter(kw => kw.toLowerCase().startsWith(lower));
+  // Sort: exact match first, then by length, then alphabetically
+  matches.sort((a, b) => {
+    const aExact = a.toLowerCase() === lower ? -1 : 1;
+    const bExact = b.toLowerCase() === lower ? -1 : 1;
+    if (aExact !== bExact) return aExact - bExact;
+    if (a.length !== b.length) return a.length - b.length;
+    return a.localeCompare(b);
+  });
+  return matches.slice(0, 10);
+}
+
+function getWordAtCursor(textarea) {
+  const pos = textarea.selectionStart;
+  const text = textarea.value;
+  // Find start of word before cursor
+  let start = pos;
+  while (start > 0 && /[\u0400-\u04FFа-яa-z]/.test(text[start - 1])) start--;
+  // Find end of word after cursor
+  let end = pos;
+  while (end < text.length && /[\u0400-\u04FFа-яa-z]/.test(text[end])) end++;
+  return { start, end, word: text.substring(start, end) };
+}
+
+function showAutocomplete() {
+  const { start, end, word } = getWordAtCursor(textarea);
+  if (!word) {
+    hideAutocomplete();
+    return;
+  }
+
+  const suggestions = getAutocompleteSuggestions(word);
+  if (suggestions.length === 0) {
+    hideAutocomplete();
+    return;
+  }
+
+  autocompletePrefix = word;
+  autocompleteSelectedIndex = 0;
+  autocompleteVisible = true;
+
+  // Position the dropdown near cursor
+  // Get cursor coordinates in textarea
+  const textBeforeCursor = textarea.value.substring(0, textarea.selectionStart);
+  const lines = textBeforeCursor.split('\n');
+  const currentLineIndex = lines.length - 1;
+  const currentLinePos = lines[currentLineIndex].length;
+
+  // Rough line height estimation (font 14px, line-height 1.6 = 22.4px)
+  const lineHeight = 22;
+  const charWidth = 8.4; // approximate monospace char width
+  const textPadding = 12; // textarea padding
+
+  const editorWrapper = document.getElementById('editorWrapper');
+  const lineNumbersEl = document.getElementById('lineNumbers');
+  const lineNumbersW = lineNumbersEl.offsetWidth;
+
+  const top = textPadding + currentLineIndex * lineHeight + 2;
+  const left = lineNumbersW + textPadding + currentLinePos * charWidth;
+
+  acList.innerHTML = suggestions.map((s, i) =>
+    `<div class="ac-item${i === 0 ? ' ac-selected' : ''}" data-index="${i}">${escHtml(s)}</div>`
+  ).join('');
+  acContainer.style.display = 'block';
+  acContainer.style.top = Math.min(top, editorWrapper.clientHeight - 200) + 'px';
+  acContainer.style.left = Math.min(left, editorWrapper.clientWidth - 200) + 'px';
+
+  // Store the word boundaries for insertion
+  acContainer.dataset.wordStart = start;
+  acContainer.dataset.wordEnd = end;
+}
+
+function hideAutocomplete() {
+  autocompleteVisible = false;
+  autocompleteSelectedIndex = -1;
+  autocompletePrefix = '';
+  acContainer.style.display = 'none';
+}
+
+function applyAutocomplete(textarea, suggestion) {
+  const start = parseInt(acContainer.dataset.wordStart);
+  const end = parseInt(acContainer.dataset.wordEnd);
+  const text = textarea.value;
+  // Validate boundaries: must be within text range and start must not exceed end
+  if (isNaN(start) || isNaN(end) || start < 0 || end > text.length || start > end) {
+    hideAutocomplete();
+    return;
+  }
+  textarea.value = text.substring(0, start) + suggestion + text.substring(end);
+  textarea.selectionStart = textarea.selectionEnd = start + suggestion.length;
+  hideAutocomplete();
+  highlightCode();
+  updateLineNumbers();
+}
+
+// Create autocomplete container
+const acContainer = document.createElement('div');
+acContainer.id = 'autocompleteContainer';
+acContainer.style.cssText = `
+  display: none;
+  position: absolute;
+  background: #2d2d44;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  z-index: 1000;
+  max-height: 240px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  min-width: 160px;
+  padding: 4px;
+`;
+const acList = document.createElement('div');
+acList.style.cssText = 'color: #f8f8f2;';
+acContainer.appendChild(acList);
+document.getElementById('editorWrapper').appendChild(acContainer);
+
+// Delegate click on items
+acList.addEventListener('mousedown', (e) => {
+  const item = e.target.closest('.ac-item');
+  if (!item) return;
+  e.preventDefault();
+  const suggestion = item.textContent;
+  applyAutocomplete(textarea, suggestion);
+});
+
+// Hover effect
+acList.addEventListener('mouseover', (e) => {
+  const item = e.target.closest('.ac-item');
+  if (!item) return;
+  acList.querySelectorAll('.ac-item').forEach(el => el.classList.remove('ac-selected'));
+  item.classList.add('ac-selected');
+  autocompleteSelectedIndex = parseInt(item.dataset.index);
+});
+
+// Tab support + autocomplete
 textarea.addEventListener('keydown', (e) => {
+  // Autocomplete navigation
+  if (autocompleteVisible) {
+    const items = acList.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      autocompleteSelectedIndex = Math.min(autocompleteSelectedIndex + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('ac-selected', i === autocompleteSelectedIndex));
+      // Scroll into view
+      items[autocompleteSelectedIndex]?.scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      autocompleteSelectedIndex = Math.max(autocompleteSelectedIndex - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('ac-selected', i === autocompleteSelectedIndex));
+      items[autocompleteSelectedIndex]?.scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      if (items[autocompleteSelectedIndex]) {
+        applyAutocomplete(textarea, items[autocompleteSelectedIndex].textContent);
+      }
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideAutocomplete();
+      return;
+    }
+    // If typing a character that can't continue the word, hide
+    if (e.key.length === 1 && !/[\u0400-\u04FFа-яa-z]/.test(e.key)) {
+      hideAutocomplete();
+    }
+  }
+
+  // Handle Enter key: auto-indent new line
+  if (e.key === 'Enter') {
+    const start = textarea.selectionStart;
+    const code = textarea.value;
+    // Find current line start
+    let lineStart = start;
+    while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+    // Count indent of current line
+    let indent = 0;
+    for (let k = lineStart; k < start && (code[k] === ' ' || code[k] === '\t'); k++) indent++;
+    // Check if current line increases indent
+    const trimmed = code.substring(lineStart).trim();
+    const firstWord = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
+    const fw = firstWord ? firstWord[0] : '';
+    if (['нач', 'нц', 'если', 'иначе'].includes(fw)) {
+      indent += 2;
+    }
+    const indentStr = '  '.repeat(indent / 2);
+    e.preventDefault();
+    textarea.value = code.substring(0, start) + '\n' + indentStr + code.substring(textarea.selectionEnd);
+    const newPos = start + 1 + indentStr.length;
+    textarea.selectionStart = textarea.selectionEnd = newPos;
+    highlightCode();
+    updateLineNumbers();
+    return;
+  }
+
+  // Handle Backspace: prevent deleting indent spaces
+  if (e.key === 'Backspace') {
+    const start = textarea.selectionStart;
+    if (start > 0 && start === textarea.selectionEnd) {
+      const code = textarea.value;
+      // Find line start
+      let lineStart = start;
+      while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+      // Find indent end
+      let indentEnd = lineStart;
+      while (indentEnd < code.length && (code[indentEnd] === ' ' || code[indentEnd] === '\t')) indentEnd++;
+      // If cursor is right after indent end, prevent backspace from deleting indent
+      if (start <= indentEnd && start > lineStart) {
+        e.preventDefault();
+        return;
+      }
+    }
+  }
+
   if (e.key === 'Tab') {
     e.preventDefault();
     const start = textarea.selectionStart;
@@ -1931,7 +2416,20 @@ textarea.addEventListener('keydown', (e) => {
   }
   if (e.key === 'F5') { e.preventDefault(); runProgram(); }
   if (e.key === 'F10') { e.preventDefault(); stepProgram(); }
+  // Ctrl+Space
+  if (e.key === ' ' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    showAutocomplete();
+  }
 });
+
+// Close autocomplete on click outside
+document.addEventListener('mousedown', (e) => {
+  if (autocompleteVisible && !acContainer.contains(e.target) && e.target !== textarea) {
+    hideAutocomplete();
+  }
+});
+
 
 // =====================================================
 // 8. EXECUTION CONTROLS
@@ -1965,8 +2463,9 @@ function isExecuting() {
 
 function getSpeed() {
   const v = parseInt(speedSlider.value);
-  // Map 0-10 to delay 800ms - 50ms
-  return Math.max(50, 800 - v * 75);
+  // Map 0-20 to delay 1200ms - 10ms
+  // 0 = very slow (1200ms), 20 = very fast (10ms)
+  return Math.max(10, 1200 - v * 59.5);
 }
 
 function runProgram() {
@@ -2213,12 +2712,8 @@ function init() {
   highlightCode();
   updateLineNumbers();
   updateButtons();
-
-  // Show first task by default
-  const task = tasks[0];
-  document.getElementById('taskType').textContent = task.title;
-  document.getElementById('taskNumber').textContent = '01';
-  document.getElementById('taskText').innerHTML = task.text;
+  // Auto-indent the initial template code (использовать Робот / алг / нач ... кон)
+  autoIndent();
 }
 
 function scrollToTop() {
