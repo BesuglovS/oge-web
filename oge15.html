@@ -584,10 +584,10 @@ body {
 
     <div class="panel">
       <div class="control-bar">
-        <button class="btn-run"    id="btnRun"    title="Запустить (F5)">▶ Запустить</button>
-        <button class="btn-step"  id="btnStep"   title="Шаг (F10)">⏭ Шаг</button>
-        <button class="btn-pause" id="btnPause"  title="Пауза">⏸ Пауза</button>
-        <button class="btn-stop"  id="btnStop"   title="Стоп">⏹ Стоп</button>
+        <button class="btn-run"    id="btnRun"    title="Запустить (F9)">▶ Запустить</button>
+        <button class="btn-step"  id="btnStep"   title="Шаг (F8)">⏭ Шаг</button>
+        <button class="btn-pause" id="btnPause"  title="Пауза (Shift+F5)">⏸ Пауза</button>
+        <button class="btn-stop"  id="btnStop"   title="Стоп (Shift+F8)">⏹ Стоп</button>
         <div class="speed-control">
           <span>🐢</span>
           <input type="range" id="speedSlider" min="0" max="20" value="10">
@@ -597,6 +597,8 @@ body {
         <button class="btn-run" id="btnSaveKum" title="Сохранить программу в файл .kum">💾 Сохранить .kum</button>
         <button class="btn-step" id="btnLoadKum" title="Загрузить программу из файла .kum">📂 Загрузить .kum</button>
         <input type="file" id="kumFileInput" accept=".kum" style="display:none">
+        <span style="margin:0 4px;color:#ddd">|</span>
+        <button class="btn-stop" id="btnResetProgram" title="Сбросить программу до базового шаблона">🔄 Сбросить программу</button>
       </div>
     </div>
 
@@ -2387,18 +2389,61 @@ textarea.addEventListener('keydown', (e) => {
     return;
   }
 
-  // Handle Backspace: prevent deleting indent spaces
+  // Handle Backspace: prevent deleting indent spaces + delete empty lines
   if (e.key === 'Backspace') {
     const start = textarea.selectionStart;
-    if (start > 0 && start === textarea.selectionEnd) {
-      const code = textarea.value;
-      // Find line start
-      let lineStart = start;
-      while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+    const end = textarea.selectionEnd;
+        const code = textarea.value;
+
+        // Only handle collapsed cursor (no selection)
+        if (start === end) {
+          // Find current line start
+          let lineStart = start;
+          while (lineStart > 0 && code[lineStart - 1] !== '\n') lineStart--;
+
+          // Find current line end (\n or end of string)
+          let lineEnd = lineStart;
+          while (lineEnd < code.length && code[lineEnd] !== '\n') lineEnd++;
+
+          // Check if current line is empty (only whitespace/indent)
+          const lineContent = code.substring(lineStart, lineEnd);
+          if (lineContent.trim() === '' && start >= lineStart && start <= lineEnd) {
+            // Cursor is on an empty line — delete the whole line
+            const lines = code.split('\n');
+            // Determine line index of the empty line
+            let emptyLineIdx = 0;
+            let pos = 0;
+            for (let i = 0; i < lines.length; i++) {
+              const lineLen = lines[i].length;
+              if (pos === lineStart) { emptyLineIdx = i; break; }
+              pos += lineLen + 1; // +1 for \n
+            }
+            if (lineStart > 0 && emptyLineIdx > 0) {
+              // Remove the empty line, keep everything else
+              lines.splice(emptyLineIdx, 1);
+              textarea.value = lines.join('\n');
+              // Calculate end position of previous line in the new text
+              let cursorPos = 0;
+              for (let i = 0; i < emptyLineIdx - 1; i++) {
+                cursorPos += lines[i].length + 1;
+              }
+              cursorPos += lines[emptyLineIdx - 1].length;
+              textarea.selectionStart = textarea.selectionEnd = cursorPos;
+            } else {
+              // First line: just clear its whitespace content
+              textarea.value = code.substring(0, lineStart) + code.substring(lineEnd + (lineEnd < code.length ? 1 : 0));
+              textarea.selectionStart = textarea.selectionEnd = 0;
+            }
+            e.preventDefault();
+            highlightCode();
+            updateLineNumbers();
+            return;
+          }
+
+      // Existing behavior: prevent deleting indent spaces
       // Find indent end
       let indentEnd = lineStart;
       while (indentEnd < code.length && (code[indentEnd] === ' ' || code[indentEnd] === '\t')) indentEnd++;
-      // If cursor is right after indent end, prevent backspace from deleting indent
       if (start <= indentEnd && start > lineStart) {
         e.preventDefault();
         return;
@@ -2414,13 +2459,23 @@ textarea.addEventListener('keydown', (e) => {
     textarea.selectionStart = textarea.selectionEnd = start + 2;
     highlightCode();
   }
-  if (e.key === 'F5') { e.preventDefault(); runProgram(); }
-  if (e.key === 'F10') { e.preventDefault(); stepProgram(); }
+  if (e.key === 'F9') { e.preventDefault(); runProgram(); }
+  if (e.key === 'F8') { e.preventDefault(); stepProgram(); }
+  if (e.key === 'F5' && e.shiftKey) { e.preventDefault(); pauseProgram(); }
+  if (e.key === 'F8' && e.shiftKey) { e.preventDefault(); stopProgram(); }
   // Ctrl+Space
   if (e.key === ' ' && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
     showAutocomplete();
   }
+});
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'F9') { e.preventDefault(); runProgram(); }
+  if (e.key === 'F8' && !e.shiftKey) { e.preventDefault(); stepProgram(); }
+  if (e.key === 'F5' && e.shiftKey) { e.preventDefault(); pauseProgram(); }
+  if (e.key === 'F8' && e.shiftKey) { e.preventDefault(); stopProgram(); }
 });
 
 // Close autocomplete on click outside
@@ -2672,6 +2727,24 @@ btnRun.addEventListener('click', runProgram);
 btnStep.addEventListener('click', stepProgram);
 btnPause.addEventListener('click', pauseProgram);
 btnStop.addEventListener('click', stopProgram);
+
+// Reset program to base template
+document.getElementById('btnResetProgram').addEventListener('click', () => {
+  // Stop any running program
+  stopProgram();
+  // Reset code editor to base template
+  const textarea = document.getElementById('codeEditor');
+  textarea.value = `использовать Робот
+алг
+нач
+
+кон`;
+  highlightCode();
+  updateLineNumbers();
+  autoIndent();
+  clearLog();
+  log('🔄 Программа сброшена до базового шаблона', 'info');
+});
 
 // =====================================================
 // 9. LINE NUMBERS & CURRENT LINE HIGHLIGHTING
