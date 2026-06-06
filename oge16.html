@@ -100,6 +100,12 @@
         border-radius: 4px;
         font-weight: 600;
       }
+      .task-text .highlight-digit {
+        background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
       .task-text .code {
         background: #f5f5f5;
         padding: 2px 8px;
@@ -213,6 +219,18 @@
       }
       .btn-select {
         background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+        color: white;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+      }
+      .btn-prev {
+        background: linear-gradient(145deg, #4facfe, #00f2fe);
+        color: white;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+      }
+      .btn-next-task {
+        background: linear-gradient(145deg, #a18cd1, #fbc2eb);
         color: white;
         padding: 10px 18px;
         font-size: 0.9rem;
@@ -509,6 +527,7 @@
           base: 5,
           baseText: "5-ричной",
           conditionText: "оканчивается на цифру 3",
+          conditionHighlight: "3",
           testData: { input: "5\n15\n13\n18\n17\n19", expected: "31" },
           hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=5, d=3.',
           solutionCode:
@@ -533,6 +552,7 @@
           base: 9,
           baseText: "9-ричной",
           conditionText: "оканчивается на цифру 5",
+          conditionHighlight: "5",
           testData: { input: "5\n15\n14\n9\n5\n19", expected: "19" },
           hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=9, d=5.',
           solutionCode:
@@ -557,6 +577,7 @@
           base: 11,
           baseText: "11-ричной",
           conditionText: "оканчивается на цифру 4",
+          conditionHighlight: "4",
           testData: { input: "5\n15\n13\n26\n41\n19", expected: "41" },
           hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=11, d=4.',
           solutionCode:
@@ -581,6 +602,7 @@
           base: 12,
           baseText: "12-ричной",
           conditionText: "оканчивается на цифру 7",
+          conditionHighlight: "7",
           testData: { input: "5\n15\n31\n50\n61\n19", expected: "50" },
           hint: 'Число в p-ричной системе оканчивается на цифру d, если <span class="code">x % p == d</span>. Подставьте p=12, d=7.',
           solutionCode:
@@ -605,6 +627,7 @@
           base: 7,
           baseText: "7-ричной",
           conditionText: "оканчивается на 21",
+          conditionHighlight: "21",
           testData: { input: "4\n15\n79\n64\n121", expected: "79" },
           hint: 'Две последние цифры ab в p-ричной системе: <span class="code">x % (p*p) == a*p + b</span>. 2*7+1=15, p*p=49.',
           solutionCode:
@@ -629,6 +652,7 @@
           base: 8,
           baseText: "8-ричной",
           conditionText: "оканчивается на 32",
+          conditionHighlight: "32",
           testData: { input: "4\n90\n116\n26\n32", expected: "116" },
           hint: '3*8+2=26, 8*8=64. Условие: <span class="code">x % 64 == 26</span>',
           solutionCode:
@@ -653,6 +677,7 @@
           base: 5,
           baseText: "5-ричной",
           conditionText: "оканчивается на 11",
+          conditionHighlight: "11",
           testData: { input: "4\n131\n31\n27\n162", expected: "162" },
           hint: '1*5+1=6, 5*5=25. Условие: <span class="code">x % 25 == 6</span>',
           solutionCode:
@@ -677,6 +702,7 @@
           base: 3,
           baseText: "3-ичной",
           conditionText: "оканчивается на 121",
+          conditionHighlight: "121",
           testData: { input: "4\n16\n31\n70\n86", expected: "86" },
           hint: '1*9+2*3+1=16, 3*3*3=27. Условие: <span class="code">x % 27 == 16</span>',
           solutionCode:
@@ -699,9 +725,8 @@
           type: "penult",
           typeLabel: "Предпоследняя цифра",
           base: 8,
-          baseText: "8",
-          conditionText:
-            "предпоследняя цифра в записи которых в системе счисления с основанием 8 равна 3",
+          baseText: "8-ричной",
+          conditionText: "предпоследняя цифра в записи которых в системе счисления с основанием <span class=\"highlight\">8</span> равна <span class=\"highlight-digit\">3</span>",
           testData: { input: "4\n24\n32\n88\n112", expected: "112" },
           hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=8: <span class="code">(x // 8) % 8 == 3</span>',
           solutionCode:
@@ -724,9 +749,8 @@
           type: "penult",
           typeLabel: "Предпоследняя цифра",
           base: 7,
-          baseText: "7",
-          conditionText:
-            "предпоследняя цифра в записи которых в системе счисления с основанием 7 равна 2",
+          baseText: "7-ричной",
+          conditionText: "предпоследняя цифра в записи которых в системе счисления с основанием <span class=\"highlight\">7</span> равна <span class=\"highlight-digit\">2</span>",
           testData: { input: "4\n16\n67\n200\n117", expected: "200" },
           hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=7: <span class="code">(x // 7) % 7 == 2</span>',
           solutionCode:
@@ -749,9 +773,8 @@
           type: "penult",
           typeLabel: "Предпоследняя цифра",
           base: 4,
-          baseText: "4",
-          conditionText:
-            "предпоследняя цифра в записи которых в системе счисления с основанием 4 равна 3",
+          baseText: "4-ричной",
+          conditionText: "предпоследняя цифра в записи которых в системе счисления с основанием <span class=\"highlight\">4</span> равна <span class=\"highlight-digit\">3</span>",
           testData: { input: "4\n12\n67\n30\n42", expected: "42" },
           hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=4: <span class="code">(x // 4) % 4 == 3</span>',
           solutionCode:
@@ -774,9 +797,8 @@
           type: "penult",
           typeLabel: "Предпоследняя цифра",
           base: 3,
-          baseText: "3",
-          conditionText:
-            "предпоследняя цифра в записи которых в системе счисления с основанием 3 равна 1",
+          baseText: "3-ричной",
+          conditionText: "предпоследняя цифра в записи которых в системе счисления с основанием <span class=\"highlight\">3</span> равна <span class=\"highlight-digit\">1</span>",
           testData: { input: "4\n5\n101\n13\n85", expected: "103" },
           hint: 'Предпоследняя цифра: <span class="code">(x // p) % p</span>. Для p=3: <span class="code">(x // 3) % 3 == 1</span>',
           solutionCode:
@@ -799,8 +821,7 @@
           type: "count-digits",
           typeLabel: "Подсчёт цифр",
           number: 326,
-          conditionText:
-            "количества цифр в записи натурального числа, числовое значение которых кратно 3",
+          conditionText: "количества цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">кратно 3</span>",
           testData: { input: "326", expected: "2" },
           hint: 'Разберите число на цифры через <span class="code">while temp > 0: digit = temp % 10; temp //= 10</span>. Считайте цифры, кратные 3.',
           solutionCode:
@@ -823,8 +844,7 @@
           type: "count-digits",
           typeLabel: "Подсчёт цифр",
           number: 28461,
-          conditionText:
-            "количества цифр в записи натурального числа, числовое значение которых кратно 4",
+          conditionText: "количества цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">кратно 4</span>",
           testData: { input: "28461", expected: "2" },
           hint: 'Цифры числа: 2,8,4,6,1. Кратны 4: 8 и 4. Используйте <span class="code">digit % 4 == 0</span>',
           solutionCode:
@@ -847,8 +867,7 @@
           type: "sum-digits",
           typeLabel: "Сумма цифр",
           number: 28461,
-          conditionText:
-            "суммы цифр в записи натурального числа, числовое значение которых не кратно 4",
+          conditionText: "суммы цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">не кратно 4</span>",
           testData: { input: "28461", expected: "9" },
           hint: "Цифры числа: 2,8,4,6,1. Не кратны 4: 2,6,1. Сумма = 2+6+1 = 9",
           solutionCode:
@@ -871,8 +890,7 @@
           type: "sum-digits",
           typeLabel: "Сумма цифр",
           number: 28463,
-          conditionText:
-            "суммы цифр в записи натурального числа, числовое значение которых не кратно 3",
+          conditionText: "суммы цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">не кратно 3</span>",
           testData: { input: "28463", expected: "14" },
           hint: "Цифры числа: 2,8,4,6,3. Не кратны 3: 2,8,4. Сумма = 2+8+4 = 14",
           solutionCode:
@@ -895,8 +913,7 @@
           type: "sum-digits",
           typeLabel: "Сумма цифр",
           number: 84069,
-          conditionText:
-            "суммы цифр в записи натурального числа, числовое значение которых больше 7",
+          conditionText: "суммы цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">больше 7</span>",
           testData: { input: "84069", expected: "17" },
           hint: "Цифры числа: 8,4,0,6,9. Больше 7: 8,9. Сумма = 8+9 = 17",
           solutionCode:
@@ -919,8 +936,7 @@
           type: "sum-digits",
           typeLabel: "Сумма цифр",
           number: 84059,
-          conditionText:
-            "суммы цифр в записи натурального числа, числовое значение которых не больше 6",
+          conditionText: "суммы цифр в записи натурального числа, числовое значение которых <span class=\"highlight-digit\">не больше 6</span>",
           testData: { input: "84059", expected: "9" },
           hint: "Цифры числа: 8,4,0,5,9. Не больше 6: 4,0,5. Сумма = 4+0+5 = 9",
           solutionCode:
@@ -943,7 +959,7 @@
           type: "minmax",
           typeLabel: "Минимальная цифра",
           number: 84159,
-          conditionText: "минимальную цифру в записи натурального числа",
+          conditionText: "<span class=\"highlight-digit\">минимальную</span> цифру в записи натурального числа",
           testData: { input: "84159", expected: "1" },
           hint: 'Инициализируйте <span class="code">min_digit = 9</span> и сравнивайте каждую цифру.',
           solutionCode:
@@ -966,7 +982,7 @@
           type: "minmax",
           typeLabel: "Максимальная цифра",
           number: 84951,
-          conditionText: "максимальную цифру в записи натурального числа",
+          conditionText: "<span class=\"highlight-digit\">максимальную</span> цифру в записи натурального числа",
           testData: { input: "84951", expected: "9" },
           hint: 'Инициализируйте <span class="code">max_digit = 0</span> и сравнивайте каждую цифру.',
           solutionCode:
@@ -990,7 +1006,8 @@
           typeLabel: 'Количество (конец на 2 в 5-ричной)',
           base: 5,
           baseText: '5-ричной',
-          conditionText: 'оканчиваются на цифру 2',
+          conditionText: 'оканчивается на цифру 2',
+          conditionHighlight: '2',
           testData: { input: '5\n7\n12\n17\n2\n22', expected: '5' },
           hint: 'Проверяем: if x % 5 == 2. Считаем количество совпадений.',
           solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 5 == 2:\n        count += 1\nprint(count)',
@@ -1007,13 +1024,14 @@
             { input: '4\n2\n7\n12\n17', expected: '4' }
           ]
         },
-{
+        {
           id: '16-22',
           type: 'end-digit',
           typeLabel: 'Количество (конец на 0 в 3-ричной)',
           base: 3,
           baseText: '3-ричной',
-          conditionText: 'оканчиваются на цифру 0',
+          conditionText: 'оканчивается на цифру 0',
+          conditionHighlight: '0',
           testData: { input: '5\n3\n6\n9\n12\n15', expected: '5' },
           hint: 'Проверяем: if x % 3 == 0. Считаем количество.',
           solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 3 == 0:\n        count += 1\nprint(count)',
@@ -1030,13 +1048,14 @@
             { input: '4\n3\n6\n9\n12', expected: '4' }
           ]
         },
-{
+        {
           id: '16-23',
           type: 'end-digit',
           typeLabel: 'Сумма (конец на 5 в 6-ричной)',
           base: 6,
           baseText: '6-ричной',
-          conditionText: 'оканчиваются на цифру 5',
+          conditionText: 'оканчивается на цифру 5',
+          conditionHighlight: '5',
           testData: { input: '4\n5\n11\n17\n23', expected: '56' },
           hint: 'Проверяем: if x % 6 == 5. Суммируем совпадения.',
           solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 5:\n        s += x\nprint(s)',
@@ -1053,13 +1072,14 @@
             { input: '4\n5\n11\n17\n23', expected: '56' }
           ]
         },
-{
+        {
           id: '16-24',
           type: 'end-digit',
           typeLabel: 'Сумма (конец на 0 или 4 в 5-ричной)',
           base: 5,
           baseText: '5-ричной',
-          conditionText: 'оканчиваются на 0 или 4',
+          conditionText: 'оканчивается на 0 или 4',
+          conditionHighlight: '0 или 4',
           testData: { input: '4\n4\n9\n14\n19', expected: '46' },
           hint: 'Проверяем: if x % 5 == 0 or x % 5 == 4.',
           solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 5 == 0 or x % 5 == 4:\n        s += x\nprint(s)',
@@ -1076,13 +1096,14 @@
             { input: '4\n4\n14\n19\n24', expected: '61' }
           ]
         },
-{
+        {
           id: '16-25',
           type: 'end-digit',
           typeLabel: 'Среднее (конец на 4 в 6-ричной)',
           base: 6,
           baseText: '6-ричной',
-          conditionText: 'оканчиваются на цифру 4',
+          conditionText: 'оканчивается на цифру 4',
+          conditionHighlight: '4',
           testData: { input: '3\n4\n10\n16', expected: '10.0' },
           hint: 'Вычисляем среднее арифметическое как sum / count.',
           solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 4:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
@@ -1099,16 +1120,17 @@
             { input: '4\n4\n10\n16\n22', expected: '13.0' }
           ]
         },
-{
+        {
           id: '16-26',
           type: 'end-digit',
           typeLabel: 'Среднее (конец на 0 или 3 в 7-ричной)',
           base: 7,
           baseText: '7-ричной',
-          conditionText: 'оканчиваются на 0 или 3',
+          conditionText: 'оканчивается на 0 или 3',
+          conditionHighlight: '0 или 3',
           testData: { input: '3\n7\n10\n14', expected: '10.333333333333334' },
           hint: 'Проверяем два условия: if x % 7 == 0 or x % 7 == 3.',
-solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
           tests: [
             { input: '3\n7\n10\n14', expected: '10.333333333333334' },
             { input: '1\n7', expected: '7.0' },
@@ -1120,13 +1142,14 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '3\n7\n14\n1000', expected: '10.5' }
           ]
         },
-{
+        {
           id: '16-27',
           type: 'end-two',
           typeLabel: 'Сумма (конец на 43 в 6-ричной)',
           base: 6,
           baseText: '6-ричной',
           conditionText: 'оканчивается на 43',
+          conditionHighlight: '43',
           testData: { input: '3\n27\n105\n183', expected: '27' },
           hint: '43 в 6-ричной = 4*6+3=27, p²=36. Условие x % 36 == 27.',
           solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 36 == 27:\n        total += x\nprint(total)',
@@ -1141,13 +1164,14 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '3\n27\n111\n195', expected: '27' }
           ]
         },
-{
+        {
           id: '16-28',
           type: 'end-two',
           typeLabel: 'Сумма (конец на 54 в 9-ричной)',
           base: 9,
           baseText: '9-ричной',
           conditionText: 'оканчивается на 54',
+          conditionHighlight: '54',
           testData: { input: '3\n49\n130\n211', expected: '390' },
           hint: '54 в 9-ричной = 5*9+4=49, p²=81. Условие x % 81 == 49.',
           solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if x % 81 == 49:\n        total += x\nprint(total)',
@@ -1162,13 +1186,13 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '3\n49\n211\n292', expected: '552' }
           ]
         },
-{
+        {
           id: '16-29',
           type: 'penult',
           typeLabel: 'Сумма (предпосл. цифра = 5 в 6-ричной)',
           base: 6,
-          baseText: '6',
-          conditionText: 'предпоследняя цифра в записи которых в 6-ричной системе равна 5',
+          baseText: '6-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">6-ричной</span> системе равна <span class=\"highlight-digit\">5</span>",
           testData: { input: '4\n30\n186\n114\n66', expected: '96' },
           hint: 'Предпоследняя цифра: (x // 6) % 6 == 5.',
           solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 6) % 6 == 5:\n        total += x\nprint(total)',
@@ -1183,13 +1207,13 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '3\n30\n198\n240', expected: '30' }
           ]
         },
-{
+        {
           id: '16-30',
           type: 'penult',
           typeLabel: 'Сумма (предпосл. цифра = 2 в 5-ричной)',
           base: 5,
-          baseText: '5',
-          conditionText: 'предпоследняя цифра в записи которых в 5-ричной системе равна 2',
+          baseText: '5-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">5-ричной</span> системе равна <span class=\"highlight-digit\">2</span>",
           testData: { input: '4\n10\n35\n60\n85', expected: '190' },
           hint: 'Предпоследняя цифра: (x // 5) % 5 == 2.',
           solutionCode:'n = int(input())\ntotal = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 5) % 5 == 2:\n        total += x\nprint(total)',
@@ -1204,13 +1228,14 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '3\n10\n60\n85', expected: '155' }
           ]
         },
-{
+        {
           id: '16-31',
           type: 'end-digit',
           typeLabel: 'Кол-во (до 0, конец на 3 в 4-ричной)',
           base: 4,
           baseText: '4-ричной',
-          conditionText: 'оканчиваются на цифру 3 (ввод до 0)',
+          conditionText: 'оканчивается на цифру 3 (ввод до 0)',
+          conditionHighlight: '3',
           testData: { input: '7\n11\n3\n15\n0', expected: '4' },
           hint: 'Ввод до 0: while x != 0: обрабатываем и читаем следующее.',
           solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 4 == 3:\n        count += 1\n    x = int(input())\nprint(count)',
@@ -1227,13 +1252,14 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '7\n3\n7\n15\n0', expected: '4' }
           ]
         },
-{
+        {
           id: '16-32',
           type: 'end-digit',
           typeLabel: 'Сумма (до 0, конец на 1 в 8-ричной)',
           base: 8,
           baseText: '8-ричной',
-          conditionText: 'оканчиваются на цифру 1 (ввод до 0)',
+          conditionText: 'оканчивается на цифру 1 (ввод до 0)',
+          conditionHighlight: '1',
           testData: { input: '1\n9\n17\n0', expected: '27' },
           hint: 'Ввод до 0 с суммированием.',
           solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 8 == 1:\n        total += x\n    x = int(input())\nprint(total)',
@@ -1250,16 +1276,17 @@ solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(in
             { input: '9\n1\n17\n0', expected: '27' }
           ]
         },
-{
+        {
           id: '16-33',
           type: 'end-digit',
           typeLabel: 'Среднее (до 0, конец на 2 в 9-ричной)',
           base: 9,
           baseText: '9-ричной',
-          conditionText: 'оканчиваются на цифру 2 (ввод до 0)',
+          conditionText: 'оканчивается на цифру 2 (ввод до 0)',
+          conditionHighlight: '2',
           testData: { input: '2\n11\n20\n0', expected: '11.0' },
           hint: 'Среднее арифметическое: сумма / количество.',
-solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
           tests: [
             { input: '2\n11\n20\n0', expected: '11.0' },
             { input: '2\n0', expected: '2.0' },
@@ -1273,13 +1300,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '2\n11\n0', expected: '6.5' }
           ]
         },
-{
+        {
           id: '16-34',
           type: 'end-two',
           typeLabel: 'Сумма (до 0, конец на 21 в 4-ричной)',
           base: 4,
           baseText: '4-ричной',
           conditionText: 'оканчивается на 21 (ввод до 0)',
+          conditionHighlight: '21',
           testData: { input: '9\n25\n41\n0', expected: '75' },
           hint: '21 в 4-ричной = 2*4+1=9, p²=16. Условие x % 16 == 9, ввод до 0.',
           solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 16 == 9:\n        total += x\n    x = int(input())\nprint(total)',
@@ -1296,13 +1324,13 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '9\n57\n0', expected: '66' }
           ]
         },
-{
+        {
           id: '16-35',
           type: 'penult',
           typeLabel: 'Сумма (до 0, предпосл. цифра = 4 в 7-ричной)',
           base: 7,
-          baseText: '7',
-          conditionText: 'предпоследняя цифра = 4 в 7-ричной (ввод до 0)',
+          baseText: '7-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">7-ричной</span> системе равна <span class=\"highlight-digit\">4</span> (ввод до 0)",
           testData: { input: '28\n77\n126\n0', expected: '231' },
           hint: '(x // 7) % 7 == 4, ввод до 0.',
           solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if (x // 7) % 7 == 4:\n        total += x\n    x = int(input())\nprint(total)',
@@ -1319,13 +1347,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '28\n175\n0', expected: '203' }
           ]
         },
-{
+        {
           id: '16-36',
           type: 'end-digit',
           typeLabel: 'Кол-во (до 0, конец на 1 в 5-ричной)',
           base: 5,
           baseText: '5-ричной',
-          conditionText: 'оканчиваются на 1 (ввод до 0)',
+          conditionText: 'оканчивается на 1 (ввод до 0)',
+          conditionHighlight: '1',
           testData: { input: '1\n6\n11\n0', expected: '3' },
           hint: 'if x % 5 == 1, ввод до 0.',
           solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 5 == 1:\n        count += 1\n    x = int(input())\nprint(count)',
@@ -1342,13 +1371,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '6\n11\n0', expected: '2' }
           ]
         },
-{
+        {
           id: '16-37',
           type: 'end-two',
           typeLabel: 'Сумма (до 0, конец на 32 в 5-ричной)',
           base: 5,
           baseText: '5-ричной',
           conditionText: 'оканчивается на 32 (ввод до 0)',
+          conditionHighlight: '32',
           testData: { input: '17\n42\n67\n0', expected: '126' },
           hint: '32 в 5-ричной = 3*5+2=17, p²=25.',
           solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if x % 25 == 17:\n        total += x\n    x = int(input())\nprint(total)',
@@ -1365,13 +1395,13 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '17\n92\n0', expected: '109' }
           ]
         },
-{
+        {
           id: '16-38',
           type: 'penult',
           typeLabel: 'Сумма (до 0, предпосл. = 3 в 5-ричной)',
           base: 5,
-          baseText: '5',
-          conditionText: 'предпоследняя цифра = 3 в 5-ричной (ввод до 0)',
+          baseText: '5-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">5-ричной</span> системе равна <span class=\"highlight-digit\">3</span> (ввод до 0)",
           testData: { input: '15\n40\n65\n0', expected: '120' },
           hint: '(x // 5) % 5 == 3, ввод до 0.',
           solutionCode:'x = int(input())\ntotal = 0\nwhile x != 0:\n    if (x // 5) % 5 == 3:\n        total += x\n    x = int(input())\nprint(total)',
@@ -1388,12 +1418,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '15\n90\n0', expected: '105' }
           ]
         },
-{
+        {
           id: '16-39',
           type: 'count-digits',
           typeLabel: 'Подсчёт цифр >= 5',
           number: 84951,
-          conditionText: 'количества цифр >= 5 в записи натурального числа',
+          conditionText: "количества цифр <span class=\"highlight-digit\">>= 5</span> в записи натурального числа",
           testData: { input: '84951', expected: '3' },
           hint: 'Используем условие if digit >= 5.',
           solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit >= 5:\n        count += 1\n    temp //= 10\nprint(count)',
@@ -1410,12 +1440,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '9876543210', expected: '5' }
           ]
         },
-{
+        {
           id: '16-40',
           type: 'sum-digits',
           typeLabel: 'Сумма цифр <= 3',
           number: 12306,
-          conditionText: 'суммы цифр <= 3 в записи натурального числа',
+          conditionText: "суммы цифр <span class=\"highlight-digit\"><= 3</span> в записи натурального числа",
           testData: { input: '12306', expected: '6' },
           hint: 'if digit <= 3, суммируем.',
           solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit <= 3:\n        total += digit\n    temp //= 10\nprint(total)',
@@ -1432,12 +1462,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3333333333', expected: '30' }
           ]
         },
-{
+        {
           id: '16-41',
           type: 'count-digits',
           typeLabel: 'Подсчёт простых цифр',
           number: 2357,
-          conditionText: 'количества простых цифр (2,3,5,7) в записи натурального числа',
+          conditionText: "количества <span class=\"highlight-digit\">простых цифр (2,3,5,7)</span> в записи натурального числа",
           testData: { input: '2357', expected: '4' },
           hint: 'Простые цифры: 2,3,5,7.',
           solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit in (2,3,5,7):\n        count += 1\n    temp //= 10\nprint(count)',
@@ -1454,12 +1484,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '7777777777', expected: '10' }
           ]
         },
-{
+        {
           id: '16-42',
           type: 'count-digits',
           typeLabel: 'Подсчёт чётных цифр',
           number: 28461,
-          conditionText: 'количества чётных цифр в записи натурального числа',
+          conditionText: "количества <span class=\"highlight-digit\">чётных цифр</span> в записи натурального числа",
           testData: { input: '28461', expected: '4' },
           hint: 'Чётные цифры: digit % 2 == 0.',
           solutionCode:'x = int(input())\ncount = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0:\n        count += 1\n    temp //= 10\nprint(count)',
@@ -1476,12 +1506,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '8888888888', expected: '10' }
           ]
         },
-{
+        {
           id: '16-43',
           type: 'sum-digits',
           typeLabel: 'Сумма нечётных цифр',
           number: 28461,
-          conditionText: 'суммы нечётных цифр в записи натурального числа',
+          conditionText: "суммы <span class=\"highlight-digit\">нечётных цифр</span> в записи натурального числа",
           testData: { input: '28461', expected: '1' },
           hint: 'Нечётные цифры: digit % 2 != 0.',
           solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 != 0:\n        total += digit\n    temp //= 10\nprint(total)',
@@ -1498,12 +1528,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '1111111111', expected: '10' }
           ]
         },
-{
+        {
           id: '16-44',
           type: 'minmax',
           typeLabel: 'Минимальная чётная цифра',
           number: 28461,
-          conditionText: 'минимальную чётную цифру в записи натурального числа',
+          conditionText: "<span class=\"highlight-digit\">минимальную чётную</span> цифру в записи натурального числа",
           testData: { input: '28461', expected: '2' },
           hint: 'Находим минимальную чётную цифру.',
           solutionCode:'x = int(input())\nmin_digit = 9\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit < min_digit:\n        min_digit = digit\n    temp //= 10\nif min_digit == 9:\n    print("Нет")\nelse:\n    print(min_digit)',
@@ -1513,19 +1543,19 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '1', expected: 'Нет' },
             { input: '13579', expected: 'Нет' },
             { input: '2222222222', expected: '2' },
-            { input: '100', expected: 'Нет' },
-            { input: '12', expected: '2' },
+            { input: '100', expected: '0' },
+            { input: '12', expected: '2'},
             { input: '123456789', expected: '2' },
             { input: '40', expected: 'Нет' },
             { input: '8888888888', expected: '8' }
           ]
         },
-{
+        {
           id: '16-45',
           type: 'minmax',
           typeLabel: 'Максимальная нечётная цифра',
           number: 28461,
-          conditionText: 'максимальную нечётную цифру в записи натурального числа',
+          conditionText: "<span class=\"highlight-digit\">максимальную нечётную</span> цифру в записи натурального числа",
           testData: { input: '28461', expected: '1' },
           hint: 'Находим максимальную нечётную цифру.',
           solutionCode:'x = int(input())\nmax_digit = 0\nfound = False\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 != 0 and digit > max_digit:\n        max_digit = digit\n        found = True\n    temp //= 10\nif found:\n    print(max_digit)\nelse:\n    print("Нет")',
@@ -1542,13 +1572,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '7777777777', expected: '7' }
           ]
         },
-{
+        {
           id: '16-46',
           type: 'end-digit',
           typeLabel: 'Минимум (до 0, конец на 3 в 7-ричной)',
           base: 7,
           baseText: '7-ричной',
-          conditionText: 'оканчиваются на 3 (ввод до 0) найти минимум',
+          conditionText: 'оканчивается на цифру 3 (ввод до 0). Найти минимальное число',
+          conditionHighlight: '3',
           testData: { input: '3\n10\n17\n0', expected: '3' },
           hint: 'Находим минимальное среди чисел, оканчивающихся на 3 в 7-ричной. Ввод до 0.',
           solutionCode:'min_val = 10**9\ncount = 0\nx = int(input())\nwhile x != 0:\n    if x % 7 == 3:\n        if x < min_val:\n            min_val = x\n        count += 1\n    x = int(input())\nif count > 0:\n    print(min_val)\nelse:\n    print("Нет")',
@@ -1565,13 +1596,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '10\n3\n0', expected: '3' }
           ]
         },
-{
+        {
           id: '16-47',
           type: 'end-digit',
           typeLabel: 'Максимум (до 0, конец на 6 в 9-ричной)',
           base: 9,
           baseText: '9-ричной',
-          conditionText: 'оканчиваются на 6 (ввод до 0) найти максимум',
+          conditionText: 'оканчивается на 6 (ввод до 0) найти максимум',
+          conditionHighlight: '6',
           testData: { input: '6\n15\n24\n0', expected: '24' },
           hint: 'Находим максимальное среди чисел, оканчивающихся на 6 в 9-ричной. Ввод до 0.',
           solutionCode:'max_val = 0\ncount = 0\nx = int(input())\nwhile x != 0:\n    if x % 9 == 6:\n        if x > max_val:\n            max_val = x\n        count += 1\n    x = int(input())\nif count > 0:\n    print(max_val)\nelse:\n    print("Нет")',
@@ -1594,7 +1626,8 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
           typeLabel: 'Количество (конец на 3 в 7-ричной)',
           base: 7,
           baseText: '7-ричной',
-          conditionText: 'оканчиваются на цифру 3',
+          conditionText: 'оканчивается на цифру 3',
+          conditionHighlight: '3',
           testData: { input: '5\n3\n10\n17\n24\n31', expected: '5' },
           hint: 'x % 7 == 3, считаем количество совпадений.',
           solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 3:\n        count += 1\nprint(count)',
@@ -1611,13 +1644,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '4\n3\n10\n24\n31', expected: '4' }
           ]
         },
-{
+        {
           id: '16-49',
           type: 'end-digit',
           typeLabel: 'Сумма (конец на 8 в 11-ричной)',
           base: 11,
           baseText: '11-ричной',
-          conditionText: 'оканчиваются на цифру 8',
+          conditionText: 'оканчивается на цифру 8',
+          conditionHighlight: '8',
           testData: { input: '4\n8\n19\n30\n41', expected: '98' },
           hint: 'x % 11 == 8, суммируем.',
           solutionCode:'n = int(input())\ns = 0\nfor i in range(n):\n    x = int(input())\n    if x % 11 == 8:\n        s += x\nprint(s)',
@@ -1632,13 +1666,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n8\n30\n41', expected: '79' }
           ]
         },
-{
+        {
           id: '16-50',
           type: 'end-digit',
           typeLabel: 'Среднее (конец на 0 в 13-ричной)',
           base: 13,
           baseText: '13-ричной',
-          conditionText: 'оканчиваются на 0',
+          conditionText: 'оканчивается на 0',
+          conditionHighlight: '0',
           testData: { input: '4\n13\n26\n39\n52', expected: '32.5' },
           hint: 'x % 13 == 0 (оканчивается на 0 в 13-ричной).',
           solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 13 == 0:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
@@ -1653,13 +1688,13 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n13\n39\n52', expected: '34.666666666666664' }
           ]
         },
-{
+        {
           id: '16-51',
           type: 'penult',
           typeLabel: 'Количество (предпосл. = 2 в 4-ричной)',
           base: 4,
-          baseText: '4',
-          conditionText: 'предпоследняя цифра = 2 в 4-ричной системе',
+          baseText: '4-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">4-ричной</span> системе равна <span class=\"highlight-digit\">2</span>",
           testData: { input: '4\n8\n24\n40\n56', expected: '4' },
           hint: '(x // 4) % 4 == 2, считаем.',
           solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 4) % 4 == 2:\n        count += 1\nprint(count)',
@@ -1674,13 +1709,13 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n8\n40\n56', expected: '3' }
           ]
         },
-{
+        {
           id: '16-52',
           type: 'penult',
           typeLabel: 'Среднее (предпосл. = 1 в 3-ричной)',
           base: 3,
-          baseText: '3',
-          conditionText: 'предпоследняя цифра = 1 в 3-ричной системе',
+          baseText: '3-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">3-ричной</span> системе равна <span class=\"highlight-digit\">1</span>",
           testData: { input: '4\n3\n12\n21\n30', expected: '16.5' },
           hint: '(x // 3) % 3 == 1, среднее.',
           solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 3) % 3 == 1:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
@@ -1695,13 +1730,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n3\n21\n30', expected: '18.0' }
           ]
         },
-{
+        {
           id: '16-53',
           type: 'end-two',
           typeLabel: 'Количество (конец на 10 в 4-ричной)',
           base: 4,
           baseText: '4-ричной',
           conditionText: 'оканчивается на 10',
+          conditionHighlight: '10',
           testData: { input: '4\n4\n20\n36\n52', expected: '4' },
           hint: '10 в 4-ричной = 4, p²=16. x % 16 == 4, считаем.',
           solutionCode:'n = int(input())\ncount = 0\nfor i in range(n):\n    x = int(input())\n    if x % 16 == 4:\n        count += 1\nprint(count)',
@@ -1716,13 +1752,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n4\n36\n52', expected: '3' }
           ]
         },
-{
+        {
           id: '16-54',
           type: 'end-two',
           typeLabel: 'Среднее (конец на 23 в 5-ричной)',
           base: 5,
           baseText: '5-ричной',
           conditionText: 'оканчивается на 23',
+          conditionHighlight: '23',
           testData: { input: '3\n13\n38\n63', expected: '38.0' },
           hint: '23 в 5-ричной = 2*5+3=13, p²=25.',
           solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 25 == 13:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
@@ -1737,13 +1774,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '3\n13\n63\n88', expected: '54.666666666666664' }
           ]
         },
-{
+        {
           id: '16-55',
           type: 'end-two',
           typeLabel: 'Среднее (до 0, конец на 12 в 3-ричной)',
           base: 3,
           baseText: '3-ричной',
           conditionText: 'оканчивается на 12 (ввод до 0) найти среднее',
+          conditionHighlight: '12',
           testData: { input: '5\n8\n11\n0', expected: '5.0' },
           hint: '12 в 3-ричной = 1*3+2=5, p²=9. Ввод до 0, среднее.',
           solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 5:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
@@ -1760,13 +1798,13 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '5\n8\n11\n0', expected: '5.0' }
           ]
         },
-{
+        {
           id: '16-56',
           type: 'penult',
           typeLabel: 'Кол-во (до 0, предпосл. = 2 в 6-ричной)',
           base: 6,
-          baseText: '6',
-          conditionText: 'предпоследняя цифра = 2 в 6-ричной (ввод до 0)',
+          baseText: '6-ричной',
+          conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">6-ричной</span> системе равна <span class=\"highlight-digit\">2</span> (ввод до 0)",
           testData: { input: '12\n48\n84\n0', expected: '3' },
           hint: '(x // 6) % 6 == 2, считаем, ввод до 0.',
           solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if (x // 6) % 6 == 2:\n        count += 1\n    x = int(input())\nprint(count)',
@@ -1783,13 +1821,14 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '12\n120\n0', expected: '2' }
           ]
         },
-{
+        {
           id: '16-57',
           type: 'end-two',
           typeLabel: 'Кол-во (до 0, конец на 20 в 3-ричной)',
           base: 3,
           baseText: '3-ричной',
           conditionText: 'оканчивается на 20 (ввод до 0)',
+          conditionHighlight: '20',
           testData: { input: '6\n15\n24\n0', expected: '3' },
           hint: '20 в 3-ричной = 2*3+0=6, p²=9. Ввод до 0.',
           solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 9 == 6:\n        count += 1\n    x = int(input())\nprint(count)',
@@ -1806,12 +1845,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '6\n33\n0', expected: '2' }
           ]
         },
-{
+        {
           id: '16-58',
           type: 'sum-digits',
           typeLabel: 'Сумма цифр, кратных 5',
           number: 85059,
-          conditionText: 'суммы цифр, кратных 5, в записи натурального числа',
+          conditionText: "суммы цифр, <span class=\"highlight-digit\">кратных 5</span>, в записи натурального числа",
           testData: { input: '85059', expected: '10' },
           hint: 'if digit % 5 == 0, суммируем.',
           solutionCode:'x = int(input())\ntotal = 0\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 5 == 0:\n        total += digit\n    temp //= 10\nprint(total)',
@@ -1827,12 +1866,12 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             { input: '555000', expected: '15' }
           ]
         },
-{
+        {
           id: '16-59',
           type: 'minmax',
           typeLabel: 'Максимальная чётная цифра',
           number: 84951,
-          conditionText: 'максимальную чётную цифру в записи натурального числа',
+          conditionText: "<span class=\"highlight-digit\">максимальную чётную</span> цифру в записи натурального числа",
           testData: { input: '84951', expected: '8' },
           hint: 'Находим максимальную чётную цифру.',
           solutionCode:'x = int(input())\nmax_digit = 0\nfound = False\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit > max_digit:\n        max_digit = digit\n        found = True\n    temp //= 10\nif found:\n    print(max_digit)\nelse:\n    print("Нет")',
@@ -1855,7 +1894,8 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
           typeLabel: 'Кол-во (до 0, конец на 5 в 8-ричной)',
           base: 8,
           baseText: '8-ричной',
-          conditionText: 'оканчиваются на 5 (ввод до 0)',
+          conditionText: 'оканчивается на 5 (ввод до 0)',
+          conditionHighlight: '5',
           testData: { input: '5\n13\n21\n29\n0', expected: '4' },
           hint: 'x % 8 == 5, считаем, ввод до 0.',
           solutionCode:'x = int(input())\ncount = 0\nwhile x != 0:\n    if x % 8 == 5:\n        count += 1\n    x = int(input())\nprint(count)',
@@ -1904,6 +1944,26 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
         document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
+      function getHighlightedText(t) {
+        if (t.type === 'end-digit' || t.type === 'end-two') {
+          // End-digit/end-two: baseText already has class="highlight" from the template,
+          // wrap conditionHighlight in highlight-digit
+          if (t.conditionHighlight) {
+            return t.conditionText.replace(
+              t.conditionHighlight,
+              '<span class="highlight-digit">' + t.conditionHighlight + '</span>'
+            );
+          }
+          return t.conditionText;
+        }
+        if (t.type === 'penult') {
+          // Penult: conditionText already has embedded highlight spans
+          return t.conditionText;
+        }
+        // count-digits, sum-digits, minmax: conditionText already has embedded highlight-digit spans
+        return t.conditionText;
+      }
+
       function renderTask(t) {
         var c = document.getElementById("taskCard");
         var h =
@@ -1913,41 +1973,42 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
           t.typeLabel +
           '</span><span class="task-type" style="background:linear-gradient(145deg,#6c757d,#adb5bd);">Задание ' +
           t.id +
-          '</span></div><div class="task-text"><p>Напишите программу подсчёта';
+          '</span></div><div class="task-text"><p>Напишите программу';
         var isInputUntilZero = t.conditionText.indexOf('(ввод до 0)') !== -1;
         if (t.type == "end-digit" || t.type == "end-two") {
           if (isInputUntilZero) {
             // Определяем действие по typeLabel
             var actionWord = '';
             var outputDesc = 'одно число';
-            var resultWord = 'результат';
             if (t.typeLabel.indexOf('Кол') !== -1) {
-              actionWord = 'подсчёта количества';
-              outputDesc = 'только количество';
-              resultWord = 'количество';
+              actionWord = 'подсчёта количества элементов';
+              outputDesc = 'количество элементов';
             } else if (t.typeLabel.indexOf('Среднее') !== -1) {
-              actionWord = 'нахождения среднего арифметического';
-              outputDesc = 'только среднее арифметическое';
-              resultWord = 'среднее арифметическое';
+              actionWord = 'нахождения среднего арифметического элементов';
+              outputDesc = 'среднее арифметическое';
             } else if (t.typeLabel.indexOf('Минимум') !== -1) {
-              actionWord = 'нахождения минимального';
-              outputDesc = 'только минимальное число';
-              resultWord = 'минимальное число';
+              actionWord = 'нахождения минимального элемента';
+              outputDesc = 'минимальное число';
             } else if (t.typeLabel.indexOf('Максимум') !== -1) {
-              actionWord = 'нахождения максимального';
-              outputDesc = 'только максимальное число';
-              resultWord = 'максимальное число';
+              actionWord = 'нахождения максимального элемента';
+              outputDesc = 'максимальное число';
             } else {
-              actionWord = 'подсчёта суммы';
-              outputDesc = 'только сумму';
-              resultWord = 'сумму';
+              actionWord = 'подсчёта суммы элементов';
+              outputDesc = 'сумму элементов';
             }
+            var condText = t.conditionText
+              .replace(/ \(ввод до 0\)( найти минимум| найти максимум| найти среднее)?/g, '')
+              .replace(/^ /, '');
+            var hlCond = t.conditionHighlight ?
+              condText.replace(t.conditionHighlight, '<span class="highlight-digit">' + t.conditionHighlight + '</span>') :
+              condText;
             h +=
-              ' ' + actionWord + ' элементов последовательности натуральных чисел, запись которых в <span class="highlight">' +
+              ' ' + actionWord + ' последовательности натуральных чисел, запись которых в <span class="highlight">' +
               t.baseText +
               "</span> системе счисления " +
-               t.conditionText.replace(/ \(ввод до 0\)( найти минимум| найти максимум| найти среднее)?/g, '').replace(/^ /, '') +
-              '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать только ' + outputDesc + ' элементов, записанное в десятичной системе счисления.' +
+               hlCond +
+              '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать только ' + outputDesc +
+              (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1955,27 +2016,30 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
               t.testData.expected +
               "</td></tr></table>";
           } else {
-            var actionWordEnd = 'суммы';
-            var outputDescEnd = 'только сумму';
+            var actionWordEnd = 'подсчёта суммы элементов';
+            var outputDescEnd = 'сумму элементов';
             if (t.typeLabel.indexOf('Кол') !== -1) {
-              actionWordEnd = 'количества';
-              outputDescEnd = 'только количество';
+              actionWordEnd = 'подсчёта количества элементов';
+              outputDescEnd = 'количество элементов';
             } else if (t.typeLabel.indexOf('Среднее') !== -1) {
-              actionWordEnd = 'нахождения среднего арифметического';
-              outputDescEnd = 'только среднее арифметическое';
+              actionWordEnd = 'нахождения среднего арифметического элементов';
+              outputDescEnd = 'среднее арифметическое';
             } else if (t.typeLabel.indexOf('Минимум') !== -1) {
-              actionWordEnd = 'нахождения минимального';
-              outputDescEnd = 'только минимальное число';
+              actionWordEnd = 'нахождения минимального элемента';
+              outputDescEnd = 'минимальное число';
             } else if (t.typeLabel.indexOf('Максимум') !== -1) {
-              actionWordEnd = 'нахождения максимального';
-              outputDescEnd = 'только максимальное число';
+              actionWordEnd = 'нахождения максимального элемента';
+              outputDescEnd = 'максимальное число';
             }
+            var hlCondEnd = t.conditionHighlight ?
+              t.conditionText.replace(t.conditionHighlight, '<span class="highlight-digit">' + t.conditionHighlight + '</span>') :
+              t.conditionText;
             h +=
-              ' ' + actionWordEnd + ' элементов последовательности натуральных чисел, запись которых в <span class="highlight">' +
+              ' ' + actionWordEnd + ' последовательности натуральных чисел, запись которых в <span class="highlight">' +
               t.baseText +
               "</span> системе счисления " +
-              t.conditionText +
-              '. В ответе запишите только ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму')))) + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — искомое ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество элементов' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму элементов')))) + ', записанное в десятичной системе счисления.' +
+              hlCondEnd +
+              '. В ответе запишите только ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму')))) + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'искомое' : 'искомую')))) + ' ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество элементов' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму элементов')))) + (t.typeLabel.indexOf('Кол') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Среднее') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Минимум') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Максимум') !== -1 ? ', записанное' : ', записанную')))) + ' в десятичной системе счисления.' +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1988,26 +2052,26 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             // Определяем действие по typeLabel
             var actionWord = '';
             var outputDesc = 'одно число';
-            if (t.typeLabel.indexOf('Кол') !== -1) {
-              actionWord = 'подсчёта количества';
-              outputDesc = 'только количество';
+          if (t.typeLabel.indexOf('Кол') !== -1) {
+              actionWord = 'подсчёта количества элементов';
+              outputDesc = 'количество';
             } else if (t.typeLabel.indexOf('Среднее') !== -1) {
               actionWord = 'нахождения среднего арифметического';
-              outputDesc = 'только среднее арифметическое';
+              outputDesc = 'среднее арифметическое';
             } else if (t.typeLabel.indexOf('Минимум') !== -1) {
-              actionWord = 'нахождения минимального';
-              outputDesc = 'только минимальное число';
+              actionWord = 'нахождения минимального элемента';
+              outputDesc = 'минимальное число';
             } else if (t.typeLabel.indexOf('Максимум') !== -1) {
-              actionWord = 'нахождения максимального';
-              outputDesc = 'только максимальное число';
+              actionWord = 'нахождения максимального элемента';
+              outputDesc = 'максимальное число';
             } else {
-              actionWord = 'подсчёта суммы';
-              outputDesc = 'только сумму';
+              actionWord = 'подсчёта суммы элементов';
+              outputDesc = 'сумму элементов';
             }
-            h +=
-              ' ' + actionWord + ' элементов последовательности натуральных чисел, ' +
+          h +=
+            ' ' + actionWord + ' последовательности натуральных чисел, ' +
                t.conditionText.replace(/ \(ввод до 0\)( найти минимум| найти максимум| найти среднее)?/g, '').replace(/^ /, '') +
-              '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать ' + outputDesc + ' элементов, записанное в десятичной системе счисления.' +
+              '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать ' + outputDesc + (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -2015,10 +2079,42 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
               t.testData.expected +
               "</td></tr></table>";
           } else {
+            var actionWordPenult = 'подсчёта суммы элементов';
+            var outputDescPenult = 'сумму';
+            var itsPenult = 'искомую сумму';
+            var outputFullPenult = 'сумму элементов';
+            var itsFullPenult = 'искомую сумму элементов';
+            if (t.typeLabel.indexOf('Кол') !== -1) {
+              actionWordPenult = 'подсчёта количества элементов';
+              outputDescPenult = 'количество';
+              itsPenult = 'искомое количество';
+              outputFullPenult = 'количество элементов';
+              itsFullPenult = 'искомое количество элементов';
+            } else if (t.typeLabel.indexOf('Среднее') !== -1) {
+              actionWordPenult = 'нахождения среднего арифметического элементов';
+              outputDescPenult = 'среднее арифметическое';
+              itsPenult = 'искомое среднее арифметическое';
+              outputFullPenult = 'среднее арифметическое';
+              itsFullPenult = 'искомое среднее арифметическое';
+            } else if (t.typeLabel.indexOf('Минимум') !== -1) {
+              actionWordPenult = 'нахождения минимального элемента';
+              outputDescPenult = 'минимальное число';
+              itsPenult = 'искомое минимальное число';
+              outputFullPenult = 'минимальное число';
+              itsFullPenult = 'искомое минимальное число';
+            } else if (t.typeLabel.indexOf('Максимум') !== -1) {
+              actionWordPenult = 'нахождения максимального элемента';
+              outputDescPenult = 'максимальное число';
+              itsPenult = 'искомое максимальное число';
+              outputFullPenult = 'максимальное число';
+              itsFullPenult = 'искомое максимальное число';
+            }
             h +=
-              " суммы элементов последовательности натуральных чисел, " +
+              " " + actionWordPenult + " последовательности натуральных чисел, " +
               t.conditionText +
-              '. В ответе запишите только сумму.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — искомую сумму элементов, записанную в десятичной системе счисления.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+              '. В ответе запишите только ' + outputDescPenult + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + itsPenult + ', записанное в десятичной системе счисления.' +
+              (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
+              '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
               "</td><td>" +
               t.testData.expected +
@@ -2026,7 +2122,7 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
           }
         } else if (t.type == "count-digits") {
           h +=
-            " " +
+            " подсчёта " +
             t.conditionText +
             '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только одно число — искомое количество цифр.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
             t.number +
@@ -2035,7 +2131,7 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             "</td></tr></table>";
         } else if (t.type == "sum-digits") {
           h +=
-            " " +
+            " подсчёта " +
             t.conditionText +
             '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только одно число — искомую сумму цифр.</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
             t.number +
@@ -2044,9 +2140,11 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
             "</td></tr></table>";
         } else if (t.type == "minmax") {
           h +=
-            " " +
+            ', которая находит ' +
             t.conditionText +
-            '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только искомую цифру. Если в числе нет подходящих цифр, программа должна вывести "Нет".</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
+            '. На вход программе подаётся натуральное число.</p><p>Программа должна напечатать только искомую цифру.' +
+            (t.conditionText.indexOf('чётн') !== -1 || t.conditionText.indexOf('нечётн') !== -1 ? ' Если в числе нет подходящих цифр, программа должна вывести "Нет".' : '') +
+            '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
             t.number +
             "</td><td>" +
             t.testData.expected +
@@ -2059,7 +2157,7 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
@@ -2227,8 +2325,28 @@ solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\
         os.innerHTML = h;
       }
 
+      function prevTask() {
+        cur = (cur - 1 + tasks.length) % tasks.length;
+        task = tasks[cur];
+        renderTask(task);
+        hideHints();
+        var os = document.getElementById("outputSection");
+        if (os) os.className = "output-section";
+        var numInput = document.getElementById("taskNumInput");
+        if (numInput) numInput.value = cur + 1;
+        document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
       function nextTask() {
-        genTask();
+        cur = (cur + 1) % tasks.length;
+        task = tasks[cur];
+        renderTask(task);
+        hideHints();
+        var os = document.getElementById("outputSection");
+        if (os) os.className = "output-section";
+        var numInput = document.getElementById("taskNumInput");
+        if (numInput) numInput.value = cur + 1;
+        document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
       function showHint() {
