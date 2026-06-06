@@ -346,6 +346,7 @@ body {
 .btn-step { background: #2196f3; color: white; }
 .btn-pause { background: #ff9800; color: white; }
 .btn-stop { background: #f44336; color: white; }
+.btn-check { background: #9c27b0; color: white; }
 
 .speed-control {
   display: flex;
@@ -561,6 +562,9 @@ body {
     </div>
   </div>
   <div class="task-text" id="taskText">Выберите задание из списка и нажмите «Загрузить обстановку».</div>
+  <div style="font-size:0.85rem;color:#555;padding:8px 15px;background:#f0f4ff;border-radius:8px;margin-top:8px;border-left:4px solid #64b5f6;">
+    💡 <strong>Подсказка:</strong> клетки с синей меткой <span style="display:inline-block;width:14px;height:14px;background:rgba(100,181,246,0.35);border:1px solid #64b5f6;vertical-align:middle;border-radius:2px;position:relative;margin:0 2px;"><span style="position:absolute;width:5px;height:5px;background:#2196f3;border-radius:50%;top:3px;left:2px;"></span><span style="position:absolute;width:5px;height:5px;background:#2196f3;border-radius:50%;bottom:2px;right:2px;"></span></span> на поле — это <strong>эталон</strong>: именно их нужно закрасить. Итоговое положение Робота не учитывается при проверке.
+  </div>
 </div>
 
 <div class="main-layout">
@@ -588,6 +592,7 @@ body {
         <button class="btn-step"  id="btnStep"   title="Шаг (F8)">⏭ Шаг</button>
         <button class="btn-pause" id="btnPause"  title="Пауза (Shift+F5)">⏸ Пауза</button>
         <button class="btn-stop"  id="btnStop"   title="Стоп (Shift+F8)">⏹ Стоп</button>
+        <button class="btn-check" id="btnCheck"  title="Проверить закрашенные клетки">✓ Проверить</button>
         <div class="speed-control">
           <span>🐢</span>
           <input type="range" id="speedSlider" min="0" max="20" value="10">
@@ -713,6 +718,11 @@ function loadCurrentTask() {
   if (typeof clearLog === 'function') clearLog();
   log('📂 Загружаю обстановку ' + tasks.find(t => t.id === currentTaskId).title + '...', 'info');
 
+  // Clear target painted cells
+  field.targetPainted.clear();
+
+  const eUrl = `files/oge15/oge-15-2026-e-${taskId}.json`;
+
   fetch(url)
     .then(res => {
       if (!res.ok) throw new Error('Файл не найден: ' + url);
@@ -724,14 +734,37 @@ function loadCurrentTask() {
 
       field.fromJSON(data);
       field.defaultRobot = { ...field.robot };
-      drawField();
-      updateRobotInputs();
-      document.getElementById('fieldRows').value = field.rows;
-      document.getElementById('fieldCols').value = field.cols;
-      log('✓ Обстановка загружена: ' + data.rows + '×' + data.cols + ', робот в (' + (data.robot.row) + ', ' + (data.robot.col) + ')', 'ok');
 
-      // Reset code editor to template?
-      // Don't reset - let user keep their code
+      // Load target (expected) painted cells
+      return fetch(eUrl)
+        .then(eRes => {
+          if (!eRes.ok) throw new Error('Файл эталона не найден: ' + eUrl);
+          return eRes.json();
+        })
+        .then(eData => {
+          field.targetPainted.clear();
+          if (eData.painted) {
+            for (const key of eData.painted) {
+              const [r, c] = key.split(',').map(Number);
+              field.targetPainted.add(`${r - 1},${c - 1}`);
+            }
+          }
+        })
+        .catch(eErr => {
+          // If e-file doesn't exist, targetPainted stays empty
+          console.warn('Эталон не загружен:', eErr.message);
+          log('⚠ Эталонная обстановка не найдена — проверка недоступна', 'info');
+        })
+        .then(() => {
+          drawField();
+          updateRobotInputs();
+          document.getElementById('fieldRows').value = field.rows;
+          document.getElementById('fieldCols').value = field.cols;
+          log('✓ Обстановка загружена: ' + data.rows + '×' + data.cols + ', робот в (' + (data.robot.row) + ', ' + (data.robot.col) + ')', 'ok');
+          if (field.targetPainted.size > 0) {
+            log('🎯 Эталонные клетки для проверки: ' + field.targetPainted.size + ' шт.', 'info');
+          }
+        });
     })
     .catch(err => {
       log('❌ Ошибка загрузки: ' + err.message, 'err');
@@ -772,6 +805,7 @@ const field = {
   cols: 10,
   walls: new Set(),   // "h:r,c" or "v:r,c"
   painted: new Set(), // "r,c"
+  targetPainted: new Set(), // "r,c" - эталонные закрашенные клетки из oge-15-2026-e-XX.json
   robot: { row: 4, col: 4 },
   defaultRobot: { row: 4, col: 4 },
 
@@ -996,7 +1030,25 @@ function drawField() {
     ctx.fillText(String(c + 1), x, MARGIN + PADDING - 5);
   }
 
-  // Draw painted cells
+  // Draw target painted cells (light blue semi-transparent)
+  for (const key of field.targetPainted) {
+    const [r, c] = key.split(',').map(Number);
+    const { x, y } = cellToCanvas(r, c);
+    ctx.fillStyle = 'rgba(100, 181, 246, 0.35)';
+    ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+    // Draw a small dot pattern to indicate target
+    const cx = x + CELL / 2;
+    const cy = y + CELL / 2;
+    ctx.fillStyle = 'rgba(33, 150, 243, 0.6)';
+    ctx.beginPath();
+    ctx.arc(cx - 4, cy - 4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx + 4, cy + 4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Draw painted cells (user) - on top of target cells
   for (const key of field.painted) {
     const [r, c] = key.split(',').map(Number);
     const { x, y } = cellToCanvas(r, c);
@@ -2702,6 +2754,68 @@ function stopProgram() {
   log('⏹ Выполнение остановлено', 'info');
 }
 
+// =====================================================
+// CHECK PROGRAM — compare painted cells with target
+// =====================================================
+function checkProgram() {
+  // Stop any running program
+  stopProgram();
+
+  if (field.targetPainted.size === 0) {
+    log('⚠ Нет эталонных клеток для проверки. Загрузите обстановку с эталоном.', 'err');
+    return;
+  }
+
+  const userPainted = new Set(field.painted);
+  const targetPainted = new Set(field.targetPainted);
+
+  // Calculate matches, missing, extra
+  const correct = new Set();
+  const missing = new Set();
+  const extra = new Set();
+
+  for (const key of targetPainted) {
+    if (userPainted.has(key)) {
+      correct.add(key);
+    } else {
+      missing.add(key);
+    }
+  }
+
+  for (const key of userPainted) {
+    if (!targetPainted.has(key)) {
+      extra.add(key);
+    }
+  }
+
+  // Log results
+  log('═══════════════════════════════', 'info');
+  log('📋 РЕЗУЛЬТАТ ПРОВЕРКИ', 'info');
+  log('───', 'info');
+  log('✅ Верно закрашено: ' + correct.size + ' из ' + targetPainted.size + ' клеток', correct.size === targetPainted.size ? 'ok' : 'info');
+
+  if (missing.size > 0) {
+    const missingList = Array.from(missing)
+      .map(k => { const [r, c] = k.split(',').map(n => parseInt(n) + 1); return `(${r},${c})`; })
+      .join(', ');
+    log('❌ Не хватает (' + missing.size + '): ' + missingList, 'err');
+  }
+
+  if (extra.size > 0) {
+    const extraList = Array.from(extra)
+      .map(k => { const [r, c] = k.split(',').map(n => parseInt(n) + 1); return `(${r},${c})`; })
+      .join(', ');
+    log('⚠ Лишние (' + extra.size + '): ' + extraList, 'info');
+  }
+
+  if (missing.size === 0 && extra.size === 0) {
+    log('🎉 Все клетки закрашены верно!', 'ok');
+  } else {
+    log('💡 Итог: ' + correct.size + ' / ' + targetPainted.size + ' клеток совпадают', 'info');
+  }
+  log('═══════════════════════════════', 'info');
+}
+
 function pauseProgram() {
   if (interpreter && interpreter.running && !interpreter.paused) {
     interpreter.pause();
@@ -2727,6 +2841,9 @@ btnRun.addEventListener('click', runProgram);
 btnStep.addEventListener('click', stepProgram);
 btnPause.addEventListener('click', pauseProgram);
 btnStop.addEventListener('click', stopProgram);
+
+// Check button
+document.getElementById('btnCheck').addEventListener('click', checkProgram);
 
 // Reset program to base template
 document.getElementById('btnResetProgram').addEventListener('click', () => {
