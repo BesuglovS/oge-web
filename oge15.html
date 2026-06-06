@@ -872,10 +872,11 @@ const field = {
     else if (dir === 'left') nc--;
     else if (dir === 'right') nc++;
 
+    const dirRu = { up: 'сверху', down: 'снизу', left: 'слева', right: 'справа' };
     if (nr < 0 || nr >= this.rows || nc < 0 || nc >= this.cols)
       return { error: 'Робот вышел за границы поля' };
     if (this.hasWall(row, col, dir))
-      return { error: 'Робот разрушился! Стена в направлении ' + dir };
+      return { error: 'Робот разрушился! Стена ' + (dirRu[dir] || dir) };
     this.robot = { row: nr, col: nc };
     return { ok: true };
   },
@@ -2708,7 +2709,11 @@ function stepProgram() {
     return;
   }
 
+  // Allow step execution even when paused (manual step mode)
+  interpreter.paused = false;
   const result = interpreter.step();
+  // Re-pause for the next manual step
+  interpreter.paused = true;
   drawField();
 
   if (result.command) {
