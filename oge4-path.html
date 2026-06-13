@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Задание 4 ОГЭ — Поиск кратчайшего пути в графе</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .card h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card p {
+        color: #555;
+        line-height: 1.7;
+        margin-bottom: 10px;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin-bottom: 20px;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 150px;
+      }
+
+      .control-group label {
+        font-weight: 600;
+        color: #444;
+        font-size: 0.9rem;
+      }
+
+      .control-group input {
+        padding: 10px 14px;
+        font-size: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        width: 100%;
+      }
+
+      .control-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .control-group input.error {
+        border-color: #f44336;
+        background: #ffebee;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-success {
+        background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+      }
+
+      .btn-warning {
+        background: linear-gradient(145deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      }
+
+      .matrix-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        overflow-x: auto;
+      }
+
+      .matrix-table {
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      .matrix-table th,
+      .matrix-table td {
+        padding: 0;
+        text-align: center;
+        border: 1px solid #ddd;
+        min-width: 50px;
+        height: 42px;
+      }
+
+      .matrix-table th {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        white-space: nowrap;
+        padding: 8px 10px;
+      }
+
+      .matrix-table td {
+        background: #f9f9f9;
+      }
+
+      .matrix-table td input {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin: 0;
+        padding: 0 4px;
+        text-align: center;
+        font-size: 0.9rem;
+        font-family: inherit;
+        line-height: 42px;
+        background: transparent;
+        box-sizing: border-box;
+        outline: none;
+      }
+
+      .matrix-table td input:focus {
+        background: #fffde7;
+        box-shadow: inset 0 0 0 2px #667eea;
+      }
+
+      .matrix-table td.diagonal {
+        background: #e8e8e8;
+      }
+
+      .matrix-table td.diagonal input {
+        color: #999;
+        cursor: default;
+        user-select: none;
+      }
+
+      .matrix-table td.mirror {
+        background: #f0f0f0;
+      }
+
+      .matrix-table td.mirror .mirror-value {
+        display: block;
+        width: 100%;
+        padding: 0 4px;
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 42px;
+        color: #999;
+        user-select: none;
+      }
+
+      .matrix-table td.mirror.has-value {
+        background: #e8f5e9;
+      }
+
+      .matrix-table td.mirror.has-value .mirror-value {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+
+      .matrix-table td.editable.has-value {
+        background: #e8f5e9;
+      }
+
+      .matrix-table td.editable.has-value input {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+
+      .query-row {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px dashed #ddd;
+      }
+
+      .query-row select {
+        padding: 10px 14px;
+        font-size: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        transition: border-color 0.3s;
+        cursor: pointer;
+      }
+
+      .query-row select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+      }
+
+      .result-box {
+        margin-top: 20px;
+        padding: 20px 25px;
+        border-radius: 15px;
+        display: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        animation: resultPop 0.4s ease-out;
+      }
+
+      @keyframes resultPop {
+        0% { transform: scale(0.8); opacity: 0; }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      .result-box.show {
+        display: block;
+      }
+
+      .result-box.success {
+        background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 100%);
+        border: 2px solid #4caf50;
+      }
+
+      .result-box.error {
+        background: linear-gradient(145deg, #ffebee 0%, #ffcdd2 100%);
+        border: 2px solid #f44336;
+      }
+
+      .result-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2e7d32;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .result-box.error .result-title {
+        color: #c62828;
+      }
+
+      .result-path {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        font-family: "Courier New", monospace;
+        margin: 10px 0;
+        padding: 10px 15px;
+        background: white;
+        border-radius: 10px;
+        display: inline-block;
+      }
+
+      .result-length {
+        font-size: 1.1rem;
+        color: #555;
+        margin-top: 8px;
+      }
+
+      .result-length strong {
+        color: #2e7d32;
+        font-size: 1.3rem;
+      }
+
+      .label-editor {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 8px;
+      }
+
+      .label-editor input {
+        width: 46px;
+        padding: 6px 4px;
+        font-size: 0.9rem;
+        text-align: center;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+      }
+
+      .label-editor input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 6px rgba(102, 126, 234, 0.3);
+      }
+
+      .label-hint {
+        font-size: 0.82rem;
+        color: #888;
+        margin-top: 4px;
+      }
+
+      .quick-nav {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 100;
+      }
+
+      .quick-nav-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .quick-nav-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .quick-nav-btn.top {
+        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .algorithm-info {
+        background: #e3f2fd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-top: 20px;
+        border-left: 4px solid #2196f3;
+        font-size: 0.9rem;
+        color: #1565c0;
+        line-height: 1.6;
+      }
+
+      .algorithm-info strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        .card {
+          padding: 18px 12px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+          min-width: 36px;
+        }
+
+        .matrix-table th {
+          padding: 5px 4px;
+          font-size: 0.8rem;
+        }
+
+        .controls-row {
+          flex-direction: column;
+          gap: 12px;
+        }
+      }
+    </style>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        ((k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a));
+      })(
+        window,
+        document,
+        "script",
+        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
+        "ym",
+      );
+
+      ym(107219928, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/107219928"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+    <!-- /Yandex.Metrika counter -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge4-t.html" class="back-link">📚 К теории</a>
+        <a href="oge4.html" class="back-link">🎮 К заданию</a>
+      </div>
+
+      <h1>🔍 Задание 4 — Поиск кратчайшего пути в графе</h1>
+
+      <div class="card">
+        <h2>⚙️ Настройка матрицы смежности</h2>
+        <div class="controls-row">
+          <div class="control-group">
+            <label for="matrixSize">Количество вершин (2–10)</label>
+            <input
+              type="number"
+              id="matrixSize"
+              min="2"
+              max="10"
+              value="5"
+            />
+          </div>
+          <button class="btn btn-primary" onclick="buildMatrix()">
+            📐 Построить матрицу
+          </button>
+          <button class="btn btn-warning" onclick="clearMatrix()">
+            🗑️ Очистить матрицу
+          </button>
+        </div>
+
+        <div id="labelsEditor" style="margin-top: 10px">
+          <div class="control-group">
+            <label>Обозначения вершин (можно изменить)</label>
+            <div class="label-editor" id="labelInputs"></div>
+            <span class="label-hint"
+              >По умолчанию буквы английского алфавита A, B, C, …</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="matrixCard" style="display: none">
+        <h2>📊 Матрица расстояний</h2>
+        <p style="font-size: 0.9rem; color: #666">
+          Введите расстояния между вершинами. Пустая ячейка означает отсутствие
+          прямой дороги. Матрица симметрична — заполняйте только верхнюю
+          половину (над диагональю).
+        </p>
+        <div class="matrix-container">
+          <table class="matrix-table" id="matrixTable"></table>
+        </div>
+
+        <div class="query-row">
+          <div class="control-group">
+            <label for="pathMode">Режим поиска</label>
+            <select id="pathMode" onchange="onModeChange()">
+              <option value="simple">Просто путь</option>
+              <option value="through">Путь через вершину</option>
+              <option value="avoid">Путь минуя вершину</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="fromVertex">Из вершины</label>
+            <select id="fromVertex"></select>
+          </div>
+          <div class="control-group" id="viaGroup" style="display: none">
+            <label for="viaVertex">Через / минуя вершину</label>
+            <select id="viaVertex"></select>
+          </div>
+          <div class="control-group">
+            <label for="toVertex">В вершину</label>
+            <select id="toVertex"></select>
+          </div>
+          <button class="btn btn-success" onclick="findShortestPath()">
+            🚀 Найти кратчайший путь
+          </button>
+        </div>
+
+        <div class="result-box" id="resultBox">
+          <div class="result-title" id="resultTitle"></div>
+          <div class="result-path" id="resultPath"></div>
+          <div class="result-length" id="resultLength"></div>
+        </div>
+
+        <div class="algorithm-info" id="algoInfo">
+          <strong>⚡ Алгоритм Дейкстры</strong>
+          Для поиска кратчайшего пути используется алгоритм Дейкстры —
+          классический алгоритм на графах, который находит кратчайшие пути от
+          одной вершины до всех остальных. Сложность алгоритма: O(N²), где N —
+          количество вершин.
+        </div>
+      </div>
+    </div>
+
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button
+        class="quick-nav-btn"
+        style="background: linear-gradient(145deg, #11998e 0%, #38ef7d 100%); color: white"
+        onclick="location.href = 'oge4.html'"
+        title="К заданию"
+      >
+        🎮
+      </button>
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+        ↑
+      </button>
+    </div>
+
+    <script>
+      const DEFAULT_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+      let vertexCount = 5;
+      let labels = [];
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function buildMatrix() {
+        const sizeInput = document.getElementById("matrixSize");
+        const size = parseInt(sizeInput.value, 10);
+
+        if (isNaN(size) || size < 2 || size > 10) {
+          sizeInput.classList.add("error");
+          alert("Пожалуйста, введите число от 2 до 10.");
+          sizeInput.focus();
+          return;
+        }
+        sizeInput.classList.remove("error");
+        vertexCount = size;
+
+        labels = [];
+        for (let i = 0; i < vertexCount; i++) {
+          labels.push(DEFAULT_LABELS[i] || String.fromCharCode(65 + i));
+        }
+
+        renderLabelEditor();
+        renderMatrix();
+        renderVertexSelects();
+
+        document.getElementById("matrixCard").style.display = "block";
+        document.getElementById("resultBox").classList.remove("show");
+      }
+
+      function renderLabelEditor() {
+        const container = document.getElementById("labelInputs");
+        let html = "";
+        for (let i = 0; i < vertexCount; i++) {
+          html +=
+            `<input type="text" maxlength="2" value="${escapeHtml(labels[i])}" ` +
+            `onchange="updateLabel(${i}, this.value)" title="Вершина ${i + 1}" />`;
+        }
+        container.innerHTML = html;
+      }
+
+      function updateLabel(index, value) {
+        const trimmed = value.trim().toUpperCase();
+        if (trimmed.length > 0 && trimmed.length <= 2) {
+          const others = labels.filter((_, i) => i !== index);
+          if (others.includes(trimmed)) {
+            alert("Обозначения должны быть уникальными!");
+            renderLabelEditor();
+            return;
+          }
+          labels[index] = trimmed;
+        } else if (trimmed.length === 0) {
+          labels[index] = DEFAULT_LABELS[index] || String.fromCharCode(65 + index);
+        }
+        renderLabelEditor();
+        renderMatrix();
+        renderVertexSelects();
+      }
+
+      function renderMatrix() {
+        const table = document.getElementById("matrixTable");
+        let html = "<tr><th></th>";
+
+        for (let i = 0; i < vertexCount; i++) {
+          html += `<th>${escapeHtml(labels[i])}</th>`;
+        }
+        html += "</tr>";
+
+        let tabCounter = 1;
+        const data = getMatrixData();
+
+        for (let i = 0; i < vertexCount; i++) {
+          html += `<tr><th>${escapeHtml(labels[i])}</th>`;
+          for (let j = 0; j < vertexCount; j++) {
+            if (i === j) {
+              html += `<td class="diagonal"><span class="mirror-value">—</span></td>`;
+            } else if (j > i) {
+              const cellId = `cell_${i}_${j}`;
+              const val = data[i][j] !== null && data[i][j] !== undefined ? data[i][j] : "";
+              html +=
+                `<td id="${cellId}" class="editable"><input type="text" inputmode="numeric" ` +
+                `tabindex="${tabCounter}" placeholder="—" value="${val}" ` +
+                `onchange="onCellChange(${i}, ${j}, this.value)" ` +
+                `onfocus="this.select()" /></td>`;
+              tabCounter++;
+            } else {
+              const cellId = `cell_${i}_${j}`;
+              const val = data[i][j] !== null && data[i][j] !== undefined ? data[i][j] : "—";
+              html += `<td id="${cellId}" class="mirror"><span class="mirror-value">${val}</span></td>`;
+            }
+          }
+          html += "</tr>";
+        }
+
+        table.innerHTML = html;
+        restoreMatrixUI();
+      }
+
+      let matrixData = null;
+
+      function getMatrixData() {
+        if (!matrixData || matrixData.length !== vertexCount) {
+          matrixData = [];
+          for (let i = 0; i < vertexCount; i++) {
+            matrixData[i] = new Array(vertexCount).fill(null);
+          }
+        }
+        return matrixData;
+      }
+
+      function restoreMatrixUI() {
+        const data = getMatrixData();
+        for (let i = 0; i < vertexCount; i++) {
+          for (let j = 0; j < vertexCount; j++) {
+            if (i >= j) continue;
+            if (data[i][j] !== null && data[i][j] !== undefined && data[i][j] > 0) {
+              const cellEdit = document.getElementById(`cell_${i}_${j}`);
+              if (cellEdit) cellEdit.classList.add("has-value");
+              const cellMirror = document.getElementById(`cell_${j}_${i}`);
+              if (cellMirror) {
+                const span = cellMirror.querySelector(".mirror-value");
+                if (span) span.textContent = data[i][j];
+                cellMirror.classList.add("has-value");
+              }
+            }
+          }
+        }
+      }
+
+      function onCellChange(i, j, value) {
+        const data = getMatrixData();
+        const num = value.trim() === "" ? null : parseInt(value, 10);
+
+        if (num !== null && (isNaN(num) || num <= 0)) {
+          const cell = document.getElementById(`cell_${i}_${j}`);
+          if (cell) {
+            const input = cell.querySelector("input");
+            if (input) input.value = data[i][j] || "";
+          }
+          return;
+        }
+
+        data[i][j] = num;
+        data[j][i] = num;
+
+        updateCellUI(i, j, num);
+        updateCellUI(j, i, num);
+      }
+
+      function updateCellUI(i, j, num) {
+        const cell = document.getElementById(`cell_${i}_${j}`);
+        if (!cell) return;
+
+        if (j > i) {
+          // Editable cell (upper triangle)
+          const input = cell.querySelector("input");
+          if (input) {
+            input.value = num !== null ? num : "";
+          }
+        } else {
+          // Mirror cell (lower triangle)
+          const span = cell.querySelector(".mirror-value");
+          if (span) {
+            span.textContent = num !== null ? num : "—";
+          }
+        }
+
+        if (num !== null && num > 0) {
+          cell.classList.add("has-value");
+        } else {
+          cell.classList.remove("has-value");
+        }
+      }
+
+      function clearMatrix() {
+        matrixData = [];
+        for (let i = 0; i < vertexCount; i++) {
+          matrixData[i] = new Array(vertexCount).fill(null);
+        }
+        renderMatrix();
+        document.getElementById("resultBox").classList.remove("show");
+      }
+
+      function renderVertexSelects() {
+        const fromSelect = document.getElementById("fromVertex");
+        const toSelect = document.getElementById("toVertex");
+
+        fromSelect.innerHTML = "";
+        toSelect.innerHTML = "";
+
+        for (let i = 0; i < vertexCount; i++) {
+          const label = escapeHtml(labels[i]);
+          fromSelect.innerHTML +=
+            `<option value="${i}">${label}</option>`;
+          toSelect.innerHTML +=
+            `<option value="${i}">${label}</option>`;
+        }
+
+        fromSelect.value = "0";
+        toSelect.value = String(vertexCount - 1);
+
+        renderViaSelect();
+      }
+
+      function renderViaSelect() {
+        const viaSelect = document.getElementById("viaVertex");
+        viaSelect.innerHTML = "";
+        for (let i = 0; i < vertexCount; i++) {
+          const label = escapeHtml(labels[i]);
+          viaSelect.innerHTML +=
+            `<option value="${i}">${label}</option>`;
+        }
+        viaSelect.value = "0";
+      }
+
+      function onModeChange() {
+        const mode = document.getElementById("pathMode").value;
+        const viaGroup = document.getElementById("viaGroup");
+        if (mode === "simple") {
+          viaGroup.style.display = "none";
+        } else {
+          viaGroup.style.display = "flex";
+          const viaLabel = document.getElementById("viaGroup").querySelector("label");
+          viaLabel.textContent = mode === "through" ? "Через вершину" : "Минуя вершину";
+        }
+        document.getElementById("resultBox").classList.remove("show");
+      }
+
+      function buildAdjacencyList(data, excludeIdx) {
+        const adj = [];
+        for (let i = 0; i < vertexCount; i++) {
+          adj[i] = [];
+          if (i === excludeIdx) continue;
+          for (let j = 0; j < vertexCount; j++) {
+            if (j === excludeIdx) continue;
+            if (i !== j && data[i][j] !== null && data[i][j] > 0) {
+              adj[i].push({ to: j, weight: data[i][j] });
+            }
+          }
+        }
+        return adj;
+      }
+
+      function dijkstra(adj, startIdx, targetIdx) {
+        const INF = Infinity;
+        const dist = new Array(vertexCount).fill(INF);
+        const prev = new Array(vertexCount).fill(null);
+        const visited = new Array(vertexCount).fill(false);
+
+        dist[startIdx] = 0;
+
+        for (let iter = 0; iter < vertexCount; iter++) {
+          let u = -1;
+          let minDist = INF;
+          for (let i = 0; i < vertexCount; i++) {
+            if (!visited[i] && dist[i] < minDist) {
+              minDist = dist[i];
+              u = i;
+            }
+          }
+
+          if (u === -1) break;
+          if (u === targetIdx) break;
+
+          visited[u] = true;
+
+          for (const edge of adj[u]) {
+            const v = edge.to;
+            const w = edge.weight;
+            if (!visited[v] && dist[u] + w < dist[v]) {
+              dist[v] = dist[u] + w;
+              prev[v] = u;
+            }
+          }
+        }
+
+        return { dist, prev };
+      }
+
+      function reconstructPath(prev, targetIdx) {
+        const pathIndices = [];
+        let current = targetIdx;
+        while (current !== null) {
+          pathIndices.unshift(current);
+          current = prev[current];
+        }
+        return pathIndices;
+      }
+
+      function findShortestPath() {
+        const mode = document.getElementById("pathMode").value;
+        const fromIdx = parseInt(document.getElementById("fromVertex").value, 10);
+        const toIdx = parseInt(document.getElementById("toVertex").value, 10);
+
+        if (fromIdx === toIdx) {
+          showResult(
+            "success",
+            "⚠️ Начальная и конечная вершины совпадают",
+            labels[fromIdx] + " → " + labels[toIdx],
+            "Длина пути: <strong>0</strong>"
+          );
+          return;
+        }
+
+        const data = getMatrixData();
+
+        if (mode === "simple") {
+          // Simple path
+          const adj = buildAdjacencyList(data, null);
+          const { dist, prev } = dijkstra(adj, fromIdx, toIdx);
+
+          if (dist[toIdx] === Infinity) {
+            showResult(
+              "error",
+              "❌ Путь не найден",
+              labels[fromIdx] + " → " + labels[toIdx],
+              "Между этими вершинами нет соединяющего пути."
+            );
+            return;
+          }
+
+          const pathIndices = reconstructPath(prev, toIdx);
+          const pathStr = pathIndices.map((idx) => labels[idx]).join(" → ");
+          const lengthStr = "Длина кратчайшего пути: <strong>" + dist[toIdx] + "</strong>";
+
+          showResult("success", "✅ Кратчайший путь найден!", pathStr, lengthStr);
+
+        } else if (mode === "through") {
+          const viaIdx = parseInt(document.getElementById("viaVertex").value, 10);
+
+          if (viaIdx === fromIdx || viaIdx === toIdx) {
+            showResult(
+              "error",
+              "❌ Ошибка",
+              "",
+              "Вершина «через» не должна совпадать с начальной или конечной."
+            );
+            return;
+          }
+
+          const adj = buildAdjacencyList(data, null);
+          const { dist: dist1, prev: prev1 } = dijkstra(adj, fromIdx, viaIdx);
+          const { dist: dist2, prev: prev2 } = dijkstra(adj, viaIdx, toIdx);
+
+          if (dist1[viaIdx] === Infinity || dist2[toIdx] === Infinity) {
+            showResult(
+              "error",
+              "❌ Путь не найден",
+              labels[fromIdx] + " → … → " + labels[toIdx],
+              "Нет пути, проходящего через вершину «" + labels[viaIdx] + "»."
+            );
+            return;
+          }
+
+          const path1 = reconstructPath(prev1, viaIdx);
+          const path2 = reconstructPath(prev2, toIdx);
+          path2.shift(); // remove duplicate via vertex
+          const fullPath = path1.concat(path2);
+          const totalDist = dist1[viaIdx] + dist2[toIdx];
+
+          const pathStr = fullPath.map((idx) => labels[idx]).join(" → ");
+          const lengthStr = "Длина кратчайшего пути (через «" + labels[viaIdx] + "»): <strong>" + totalDist + "</strong>";
+
+          showResult("success", "✅ Кратчайший путь через вершину найден!", pathStr, lengthStr);
+
+        } else if (mode === "avoid") {
+          const avoidIdx = parseInt(document.getElementById("viaVertex").value, 10);
+
+          if (avoidIdx === fromIdx || avoidIdx === toIdx) {
+            showResult(
+              "error",
+              "❌ Ошибка",
+              "",
+              "Вершина «минуя» не должна совпадать с начальной или конечной."
+            );
+            return;
+          }
+
+          const adj = buildAdjacencyList(data, avoidIdx);
+          const { dist, prev } = dijkstra(adj, fromIdx, toIdx);
+
+          if (dist[toIdx] === Infinity) {
+            showResult(
+              "error",
+              "❌ Путь не найден",
+              labels[fromIdx] + " → … → " + labels[toIdx],
+              "Нет пути, не проходящего через вершину «" + labels[avoidIdx] + "»."
+            );
+            return;
+          }
+
+          const pathIndices = reconstructPath(prev, toIdx);
+          const pathStr = pathIndices.map((idx) => labels[idx]).join(" → ");
+          const lengthStr = "Длина кратчайшего пути (минуя «" + labels[avoidIdx] + "»): <strong>" + dist[toIdx] + "</strong>";
+
+          showResult("success", "✅ Кратчайший путь в обход вершины найден!", pathStr, lengthStr);
+        }
+      }
+
+      function showResult(type, title, path, length) {
+        const box = document.getElementById("resultBox");
+        box.classList.remove("show", "success", "error");
+
+        if (type === "error") {
+          box.classList.add("error");
+        } else {
+          box.classList.add("success");
+        }
+
+        document.getElementById("resultTitle").textContent = title;
+        document.getElementById("resultPath").textContent = path;
+        document.getElementById("resultLength").innerHTML = length;
+
+        box.classList.add("show");
+        box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      (function init() {
+        buildMatrix();
+      })();
+    </script>
+  </body>
+</html>

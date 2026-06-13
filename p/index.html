@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Построение маршрута</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 24px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h1 small {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        .form-row .input-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #2b6cb0;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            padding-bottom: 2px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            margin: 10px 4px;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn-primary {
+            background: #2b6cb0;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #1a4f8a;
+        }
+        .btn-primary:disabled {
+            background: #8bb4d8;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        .btn-success {
+            background: #38a169;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #2f855a;
+        }
+        #map {
+            height: 550px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            margin-top: 12px;
+        }
+        .status {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.info {
+            display: block;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            border: 1px solid #bee3f8;
+        }
+        .status.error {
+            display: block;
+            background: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        .status.success {
+            display: block;
+            background: #f0fff4;
+            color: #276749;
+            border: 1px solid #9ae6b4;
+        }
+        .info-panel {
+            margin-top: 12px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+        .info-panel .stat {
+            background: #f7fafc;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .info-panel .stat strong {
+            color: #2d3748;
+        }
+        .swap-btn {
+            background: none;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 18px;
+            transition: background 0.2s;
+            align-self: end;
+            margin-bottom: 2px;
+            line-height: 1;
+        }
+        .swap-btn:hover {
+            background: #f0f2f5;
+        }
+        .leaflet-container {
+            font-family: inherit;
+        }
+
+        /* Контекстное меню */
+        .context-menu {
+            display: none;
+            position: fixed;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            z-index: 10000;
+            min-width: 200px;
+            overflow: hidden;
+            padding: 4px 0;
+        }
+        .context-menu .menu-title {
+            padding: 6px 14px;
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .context-menu .menu-item {
+            padding: 8px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            color: #1a1a1a;
+        }
+        .context-menu .menu-item:hover {
+            background: #ebf8ff;
+        }
+        .context-menu .menu-item:active {
+            background: #bee3f8;
+        }
+        .context-menu .menu-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 4px 0;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            #map { height: 400px; }
+            .btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🗺️ Построение маршрута <small>OpenStreetMap + OSRM</small></h1>
+
+    <div class="form-row">
+        <div class="input-group">
+            <label for="from">📍 Откуда</label>
+            <input type="text" id="from" placeholder="Например: Молодогвардейская, 196, Самара" value="196, Молодогвардейская улица, Ленинский район, Самара, городской округ Самара, Самарская область, Приволжский федеральный округ, 443001, Россия">
+        </div>
+        <button class="swap-btn" id="swapBtn" title="Поменять местами">⇄</button>
+        <div class="input-group">
+            <label for="to">🏁 Куда</label>
+            <input type="text" id="to" placeholder="Например: Самара, набережная Волги" value="Самара, набережная Волги">
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-primary" id="buildBtn">🚀 Построить маршрут</button>
+        <button class="btn btn-secondary" id="clearBtn">✕ Очистить</button>
+        <button class="btn btn-success" id="screenshotBtn" disabled>📸 Сохранить как PNG</button>
+        <button class="btn btn-secondary" id="stopsToggleBtn" disabled style="display:none;">🚏 Остановки: вкл</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div id="map"></div>
+
+    <div class="info-panel" id="infoPanel" style="display:none;">
+        <span class="stat">📏 <strong id="distText">—</strong></span>
+        <span class="stat">⏱ <strong id="durText">—</strong></span>
+        <span class="stat">📍 От: <strong id="fromText">—</strong></span>
+        <span class="stat">🏁 До: <strong id="toText">—</strong></span>
+    </div>
+
+    <div style="margin-top: 10px; font-size: 12px; color: #888;">
+        💡 <strong>Подсказка:</strong> Щёлкните правой кнопкой мыши по карте, чтобы выбрать точку отправления или назначения.
+    </div>
+</div>
+
+<!-- Контекстное меню -->
+<div class="context-menu" id="contextMenu">
+    <div class="menu-title">Точка на карте</div>
+    <button class="menu-item" data-action="from">📍 Откуда</button>
+    <button class="menu-item" data-action="to">🏁 Куда</button>
+    <div class="menu-divider"></div>
+    <button class="menu-item" data-action="reverse">⇄ Поменять местами</button>
+</div>
+
+<script>
+const mapEl = document.getElementById('map');
+const fromInput = document.getElementById('from');
+const toInput = document.getElementById('to');
+const buildBtn = document.getElementById('buildBtn');
+const clearBtn = document.getElementById('clearBtn');
+const screenshotBtn = document.getElementById('screenshotBtn');
+const swapBtn = document.getElementById('swapBtn');
+const stopsToggleBtn = document.getElementById('stopsToggleBtn');
+const statusEl = document.getElementById('status');
+const distText = document.getElementById('distText');
+const durText = document.getElementById('durText');
+const fromText = document.getElementById('fromText');
+const toText = document.getElementById('toText');
+const infoPanel = document.getElementById('infoPanel');
+const contextMenu = document.getElementById('contextMenu');
+
+let map;
+let routeLayer = null;
+let markers = [];
+let currentRoute = null;
+let currentFromCoords = null;
+let currentToCoords = null;
+let contextLatLng = null;
+let stopMarkers = [];
+let stopsVisible = true;
+let stopsLayer = null;
+let poiLayer = null;
+
+// Координаты Самары
+const SAMARA_CENTER = [53.1959, 50.1002];
+
+// Инициализация карты
+function initMap() {
+    map = L.map('map', {
+        zoomControl: true,
+        attributionControl: false,
+    }).setView(SAMARA_CENTER, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+}
+
+// Геокодирование через Nominatim
+async function geocode(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+    const resp = await fetch(url, {
+        headers: { 'Accept-Language': 'ru' }
+    });
+    if (!resp.ok) throw new Error(`Ошибка геокодирования: ${resp.status}`);
+    const data = await resp.json();
+    if (!data.length) throw new Error(`Адрес не найден: "${address}"`);
+    return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display: data[0].display_name };
+}
+
+// Обратное геокодирование (координаты → адрес)
+async function reverseGeocode(lat, lon) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ru`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Ошибка обратного геокодирования: ${resp.status}`);
+    const data = await resp.json();
+    return { lat, lon, display: data.display_name || `${lat.toFixed(5)}, ${lon.toFixed(5)}` };
+}
+
+// Построение маршрута через OSRM
+async function getRoute(fromLat, fromLon, toLat, toLon) {
+    const url = `https://router.project-osrm.org/route/v1/driving/${fromLon},${fromLat};${toLon},${toLat}?overview=full&geometries=geojson&steps=true&alternatives=false`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`Ошибка маршрута: ${resp.status}`);
+    const data = await resp.json();
+    if (!data.routes || !data.routes.length) throw new Error('Маршрут не найден');
+    return data.routes[0];
+}
+
+// Форматирование расстояния
+function formatDistance(meters) {
+    if (meters < 1000) return `${Math.round(meters)} м`;
+    return `${(meters / 1000).toFixed(1)} км`;
+}
+
+// Форматирование времени
+function formatDuration(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) return `${h} ч ${m} мин`;
+    return `${m} мин`;
+}
+
+// Отображение статуса
+function showStatus(msg, type = 'info') {
+    statusEl.textContent = msg;
+    statusEl.className = `status ${type}`;
+}
+
+function hideStatus() {
+    statusEl.className = 'status';
+    statusEl.textContent = '';
+}
+
+// Очистка остановок
+function clearStops() {
+    if (stopsLayer) {
+        map.removeLayer(stopsLayer);
+        stopsLayer = null;
+    }
+    if (poiLayer) {
+        map.removeLayer(poiLayer);
+        poiLayer = null;
+    }
+    stopMarkers = [];
+    stopsVisible = true;
+    stopsToggleBtn.disabled = true;
+    stopsToggleBtn.style.display = 'none';
+}
+
+// Очистка карты
+function clearRoute() {
+    if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    currentRoute = null;
+    currentFromCoords = null;
+    currentToCoords = null;
+    infoPanel.style.display = 'none';
+    screenshotBtn.disabled = true;
+    clearStops();
+    hideStatus();
+}
+
+// Добавить одиночный маркер на карту
+function addMarker(lat, lon, label, color, popupText) {
+    const icon = L.divIcon({
+        html: `<div style="background:${color};color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.3);">${label}</div>`,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    });
+    const marker = L.marker([lat, lon], { icon }).addTo(map);
+    if (popupText) marker.bindPopup(popupText);
+    return marker;
+}
+
+// Главная функция построения маршрута
+async function buildRoute() {
+    const from = fromInput.value.trim();
+    const to = toInput.value.trim();
+
+    if (!from || !to) {
+        showStatus('Пожалуйста, заполните оба поля.', 'error');
+        return;
+    }
+    if (from.toLowerCase() === to.toLowerCase()) {
+        showStatus('Адреса "Откуда" и "Куда" совпадают.', 'error');
+        return;
+    }
+
+    buildBtn.disabled = true;
+    buildBtn.textContent = '⏳ Поиск...';
+    clearRoute();
+
+    try {
+        showStatus('🔍 Геокодирование адресов...', 'info');
+
+        const [fromResult, toResult] = await Promise.all([
+            geocode(from),
+            geocode(to)
+        ]);
+
+        currentFromCoords = fromResult;
+        currentToCoords = toResult;
+
+        showStatus('🧭 Построение маршрута...', 'info');
+
+        const route = await getRoute(fromResult.lat, fromResult.lon, toResult.lat, toResult.lon);
+        currentRoute = route;
+
+        // Отрисовка маршрута
+        const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+        routeLayer = L.polyline(coords, {
+            color: '#2b6cb0',
+            weight: 5,
+            opacity: 0.85,
+            lineJoin: 'round'
+        }).addTo(map);
+
+        // Маркеры
+        const fromMarker = addMarker(
+            fromResult.lat, fromResult.lon, 'A', '#38a169',
+            `<b>Откуда:</b><br>${fromResult.display}`
+        );
+        const toMarker = addMarker(
+            toResult.lat, toResult.lon, 'B', '#e53e3e',
+            `<b>Куда:</b><br>${toResult.display}`
+        );
+        markers = [fromMarker, toMarker];
+
+        // Зум — максимальный, чтобы весь маршрут был виден
+        const bounds = routeLayer.getBounds();
+        map.fitBounds(bounds, { padding: [50, 50] });
+
+        // Инфо
+        distText.textContent = formatDistance(route.distance);
+        durText.textContent = formatDuration(route.duration);
+        fromText.textContent = fromResult.display.split(',')[0];
+        toText.textContent = toResult.display.split(',')[0];
+        infoPanel.style.display = 'flex';
+        screenshotBtn.disabled = false;
+
+        showStatus(`✅ Маршрут построен: ${formatDistance(route.distance)}, ${formatDuration(route.duration)}`, 'success');
+
+    // Поиск объектов вдоль маршрута
+    try {
+        showStatus('🔍 Поиск остановок, аптек, Ozon и Wildberries возле маршрута...', 'info');
+        const stops = await fetchStopsAlongRoute(coords);
+        displayStops(stops);
+    } catch (stopErr) {
+        // Не фатально, просто показываем предупреждение
+        console.warn('Ошибка поиска остановок:', stopErr);
+    }
+
+    } catch (err) {
+        showStatus(`❌ ${err.message}`, 'error');
+        clearRoute();
+    } finally {
+        buildBtn.disabled = false;
+        buildBtn.textContent = '🚀 Построить маршрут';
+    }
+}
+
+// Вычисление расстояния (в метрах) от точки (lat, lon) до отрезка [(lat1,lon1), (lat2,lon2)]
+// Используется формула гаверсинуса и проекция точки на прямую в сферических координатах
+function distanceToSegment(lat, lon, lat1, lon1, lat2, lon2) {
+    const R = 6371000; // радиус Земли в метрах
+
+    // Преобразуем градусы в радианы
+    const toRad = a => a * Math.PI / 180;
+    const φ = toRad(lat), λ = toRad(lon);
+    const φ1 = toRad(lat1), λ1 = toRad(lon1);
+    const φ2 = toRad(lat2), λ2 = toRad(lon2);
+
+    // Расстояние по гаверсинусу между двумя точками
+    function haversine(φa, λa, φb, λb) {
+        const dφ = φb - φa;
+        const dλ = λb - λa;
+        const a = Math.sin(dφ/2)**2 + Math.cos(φa) * Math.cos(φb) * Math.sin(dλ/2)**2;
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // Длина отрезка
+    const segLen = haversine(φ1, λ1, φ2, λ2);
+    if (segLen < 0.01) {
+        // Отрезок практически точка — возвращаем расстояние до первого конца
+        return haversine(φ, λ, φ1, λ1);
+    }
+
+    // Проекция точки P на прямую, проходящую через A (φ1,λ1) и B (φ2,λ2)
+    // Используем приближение локально-плоской Земли (работает для расстояний < ~50 км)
+    const cosAvg = Math.cos((φ1 + φ2) / 2);
+    const dx = (λ2 - λ1) * cosAvg;
+    const dy = φ2 - φ1;
+    const t = ((λ - λ1) * cosAvg * dx + (φ - φ1) * dy) / (dx * dx + dy * dy);
+
+    if (t <= 0) {
+        // Проекция за точку A
+        return haversine(φ, λ, φ1, λ1);
+    } else if (t >= 1) {
+        // Проекция за точку B
+        return haversine(φ, λ, φ2, λ2);
+    } else {
+        // Проекция на отрезок — находим координаты точки проекции
+        const projLat = φ1 + t * dy;
+        const projLon = λ1 + t * dx / cosAvg;
+        return haversine(φ, λ, projLat, projLon);
+    }
+}
+
+// Минимальное расстояние (в метрах) от точки (lat, lon) до ломаной линии (массив [lat, lon])
+function distanceToPolyline(lat, lon, polyline) {
+    let minDist = Infinity;
+    for (let i = 0; i < polyline.length - 1; i++) {
+        const [lat1, lon1] = polyline[i];
+        const [lat2, lon2] = polyline[i + 1];
+        const d = distanceToSegment(lat, lon, lat1, lon1, lat2, lon2);
+        if (d < minDist) minDist = d;
+        if (minDist <= 50) break; // досрочный выход, если уже ≤ 50 м
+    }
+    return minDist;
+}
+
+// Поиск остановок общественного транспорта вдоль маршрута через Overpass API
+async function fetchStopsAlongRoute(coords) {
+    // Используем bounding box маршрута вместо around с кучей точек
+    let minLat = Infinity, minLon = Infinity, maxLat = -Infinity, maxLon = -Infinity;
+    for (const [lat, lon] of coords) {
+        if (lat < minLat) minLat = lat;
+        if (lon < minLon) minLon = lon;
+        if (lat > maxLat) maxLat = lat;
+        if (lon > maxLon) maxLon = lon;
+    }
+    // Добавляем отступ ~100 метров (чуть больше 50 м, чтобы не потерять те, что на границе)
+    minLat -= 0.001;
+    minLon -= 0.001;
+    maxLat += 0.001;
+    maxLon += 0.001;
+
+    const query = `
+        [out:json][timeout:15];
+        (
+          node["highway"="bus_stop"](${minLat},${minLon},${maxLat},${maxLon});
+          node["railway"="tram_stop"](${minLat},${minLon},${maxLat},${maxLon});
+          node["railway"="station"](${minLat},${minLon},${maxLat},${maxLon});
+          node["amenity"="bus_station"](${minLat},${minLon},${maxLat},${maxLon});
+          node["public_transport"="stop_position"](${minLat},${minLon},${maxLat},${maxLon});
+          node["amenity"="pharmacy"](${minLat},${minLon},${maxLat},${maxLon});
+          node["shop"="outpost"](${minLat},${minLon},${maxLat},${maxLon});
+          node["amenity"="parcel_locker"](${minLat},${minLon},${maxLat},${maxLon});
+          node["highway"="crossing"]["tunnel"="yes"](${minLat},${minLon},${maxLat},${maxLon});
+          node["railway"="subway_entrance"](${minLat},${minLon},${maxLat},${maxLon});
+        );
+        out body center;
+    `;
+
+    // Overpass API: используем локальный PHP-прокси
+    const resp = await fetch('overpass-proxy.php?q=' + encodeURIComponent(query));
+    if (!resp.ok) throw new Error(`Ошибка Overpass: ${resp.status}`);
+    const data = await resp.json();
+
+    // Дедупликация: группируем объекты ближе ~20 м друг к другу
+    // И фильтруем: оставляем только те, что на расстоянии не более 50 м от маршрута
+    const seen = new Set();
+    const stops = [];
+    for (const el of data.elements) {
+        const key = `${Math.round(el.lat * 1000)},${Math.round(el.lon * 1000)}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        // Фильтр по расстоянию до траектории маршрута
+        const dist = distanceToPolyline(el.lat, el.lon, coords);
+        if (dist > 50) continue;
+
+        let name = el.tags.name || el.tags.ref || '';
+        let type = '🚏';
+        let poiColor = '#ffc107'; // жёлтый — остановки
+
+        let isStop = false;
+
+        if (el.tags.amenity === 'pharmacy') {
+            type = '💊';
+            poiColor = '#e53e3e';
+            name = name || 'Аптека';
+        } else if (el.tags.shop === 'outpost' || el.tags.amenity === 'parcel_locker') {
+            // Фильтруем пункты выдачи: только Ozon и Wildberries
+            const lowerName = (el.tags.name || '').toLowerCase();
+            const lowerBrand = (el.tags.brand || '').toLowerCase();
+            const lowerOperator = (el.tags.operator || '').toLowerCase();
+            const fullText = `${lowerName} ${lowerBrand} ${lowerOperator}`;
+            if (/ozon|озон/.test(fullText)) {
+                type = '📦';
+                poiColor = '#3182ce';
+                name = name || 'Ozon';
+            } else if (/wildberries|вайлдберриз|\bwb\b/.test(fullText)) {
+                type = '📦';
+                poiColor = '#805ad5';
+                name = name || 'Wildberries';
+            } else {
+                // Другие пункты выдачи — пропускаем
+                continue;
+            }
+        } else if (el.tags.highway === 'crossing' && el.tags.tunnel === 'yes') {
+            // Подземный пешеходный переход
+            type = '🚇';
+            poiColor = '#2d3748';
+            name = name || 'Подземный переход';
+        } else if (el.tags.railway === 'subway_entrance') {
+            // Вход в метро
+            type = '🚇';
+            poiColor = '#2d3748';
+            name = name || 'Вход в метро';
+        } else {
+            // Остановки общественного транспорта
+            isStop = true;
+            if (el.tags.railway === 'tram_stop') type = '🚊';
+            else if (el.tags.railway === 'station') type = '🚉';
+            else if (el.tags.amenity === 'bus_station') type = '🏛️';
+        }
+
+        stops.push({ lat: el.lat, lon: el.lon, name, type, color: poiColor, tags: el.tags, isStop });
+    }
+
+    return stops;
+}
+
+// Отобразить остановки на карте
+function displayStops(stops) {
+    clearStops();
+
+    if (!stops.length) {
+        showStatus('ℹ️ Объекты вдоль маршрута не найдены.', 'info');
+        stopsToggleBtn.disabled = true;
+        stopsToggleBtn.style.display = 'none';
+        return;
+    }
+
+    stopMarkers = stops;
+
+    // Разделяем на транспортные остановки и прочие POI
+    const transportStops = stops.filter(s => s.isStop);
+    const otherPois = stops.filter(s => !s.isStop);
+
+    // Слой для прочих POI (аптеки, Ozon, Wildberries, переходы, метро) — всегда видим
+    if (otherPois.length > 0) {
+        poiLayer = L.featureGroup().addTo(map);
+        for (const s of otherPois) {
+            const label = s.name ? `${s.type} ${s.name}` : s.type;
+            const icon = L.divIcon({
+                html: `<div style="background:${s.color || '#ffc107'};color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,0.3);border:2px solid #fff;">${s.type}</div>`,
+                className: '',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            const marker = L.marker([s.lat, s.lon], { icon }).addTo(poiLayer);
+            if (s.name) {
+                marker.bindPopup(`<b>${s.type} ${s.name}</b>`);
+            }
+        }
+    }
+
+    // Слой для транспортных остановок — управляется кнопкой
+    if (transportStops.length > 0) {
+        stopsLayer = L.featureGroup().addTo(map);
+        for (const s of transportStops) {
+            const label = s.name ? `${s.type} ${s.name}` : `${s.type} Остановка`;
+            const icon = L.divIcon({
+                html: `<div style="background:${s.color || '#ffc107'};color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 1px 4px rgba(0,0,0,0.3);border:2px solid #fff;">${s.type}</div>`,
+                className: '',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            const marker = L.marker([s.lat, s.lon], { icon }).addTo(stopsLayer);
+            if (s.name) {
+                marker.bindPopup(`<b>${s.type} ${s.name}</b>`);
+            }
+        }
+
+        stopsToggleBtn.disabled = false;
+        stopsToggleBtn.style.display = 'inline-block';
+        stopsToggleBtn.textContent = `🚏 Остановки (${transportStops.length}): вкл`;
+        stopsVisible = true;
+    } else {
+        stopsToggleBtn.disabled = true;
+        stopsToggleBtn.style.display = 'none';
+    }
+
+    // Расширяем границы карты, чтобы вместить маршрут и все объекты
+    if (routeLayer) {
+        const routeBounds = routeLayer.getBounds();
+        let combinedBounds = routeBounds;
+        if (stopsLayer) combinedBounds = combinedBounds.extend(stopsLayer.getBounds());
+        if (poiLayer) combinedBounds = combinedBounds.extend(poiLayer.getBounds());
+        map.fitBounds(combinedBounds, { padding: [50, 50] });
+    }
+
+    const totalCount = stops.length;
+    showStatus(`✅ Найдено ${totalCount} объектов на маршруте.`, 'success');
+}
+
+// ============================================================
+// Сохранение скриншота — рисуем на Canvas вручную
+// ============================================================
+async function captureMap() {
+    if (!currentRoute) return;
+
+    showStatus('📸 Формирование изображения...', 'info');
+    screenshotBtn.disabled = true;
+
+    try {
+        const mapContainer = document.getElementById('map');
+        const w = mapContainer.clientWidth;
+        const h = mapContainer.clientHeight;
+        const scale = 2; // Retina-качество
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+
+        // 1. Фон
+        ctx.fillStyle = '#f9f9f9';
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Получаем bounding box видимой области карты
+        const bounds = map.getBounds();
+        const zoom = map.getZoom();
+        const pixelOrigin = map.getPixelOrigin();
+
+        // 3. Определяем, какие тайлы нужны
+        const tileSize = 256;
+        const nw = bounds.getNorthWest();
+        const se = bounds.getSouthEast();
+        const nwTile = latLngToTile(nw.lat, nw.lng, zoom);
+        const seTile = latLngToTile(se.lat, se.lng, zoom);
+
+        const minX = Math.floor(nwTile.x);
+        const maxX = Math.ceil(seTile.x);
+        const minY = Math.floor(nwTile.y);
+        const maxY = Math.ceil(seTile.y);
+
+        // 4. Загружаем все тайлы параллельно
+        const tilePromises = [];
+        for (let x = minX; x <= maxX; x++) {
+            for (let y = minY; y <= maxY; y++) {
+                tilePromises.push(loadTile(x, y, zoom));
+            }
+        }
+
+        const tileResults = await Promise.all(tilePromises);
+
+        // 5. Рисуем тайлы
+        for (const result of tileResults) {
+            if (!result) continue;
+            const { img, x: tileX, y: tileY } = result;
+            const px = tileX * tileSize - pixelOrigin.x;
+            const py = tileY * tileSize - pixelOrigin.y;
+            ctx.drawImage(img, px, py, tileSize, tileSize);
+        }
+
+        // 6. Рисуем маршрут (polyline)
+        if (currentRoute && currentRoute.geometry) {
+            const coords = currentRoute.geometry.coordinates;
+            ctx.beginPath();
+            ctx.strokeStyle = '#2b6cb0';
+            ctx.lineWidth = 5;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            for (let i = 0; i < coords.length; i++) {
+                const [lon, lat] = coords[i];
+                const point = map.latLngToContainerPoint([lat, lon]);
+                if (i === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // 7. Рисуем маркеры A и B
+        if (currentFromCoords) {
+            drawMarker(ctx, map, currentFromCoords.lat, currentFromCoords.lon, '#38a169', 'A');
+        }
+        if (currentToCoords) {
+            drawMarker(ctx, map, currentToCoords.lat, currentToCoords.lon, '#e53e3e', 'B');
+        }
+
+        // 8. Рисуем прочие POI (аптеки, Ozon, Wildberries, переходы, метро) — всегда видимы
+        if (poiLayer) {
+            for (const s of stopMarkers) {
+                if (s.isStop) continue;
+                const point = map.latLngToContainerPoint([s.lat, s.lon]);
+                const color = s.color || '#ffc107';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Иконка (текст)
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(s.type, point.x, point.y);
+            }
+        }
+
+        // 9. Рисуем транспортные остановки (если видимы)
+        if (stopsLayer && stopsVisible) {
+            for (const s of stopMarkers) {
+                if (!s.isStop) continue;
+                const point = map.latLngToContainerPoint([s.lat, s.lon]);
+                const color = s.color || '#ffc107';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 14, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Иконка (текст)
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(s.type, point.x, point.y);
+            }
+        }
+
+
+        // 10. Сохраняем
+        const link = document.createElement('a');
+        link.download = 'route-map.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showStatus('✅ Изображение сохранено!', 'success');
+    } catch (e) {
+        showStatus('Ошибка: ' + e.message, 'error');
+        console.error(e);
+    } finally {
+        screenshotBtn.disabled = false;
+    }
+}
+
+// Вспомогательные функции для скриншота
+
+function latLngToTile(lat, lng, zoom) {
+    const n = Math.pow(2, zoom);
+    const x = (lng + 180) / 360 * n;
+    const latRad = lat * Math.PI / 180;
+    const y = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+    return { x, y };
+}
+
+function loadTile(x, y, zoom) {
+    return new Promise((resolve) => {
+        const servers = ['a', 'b', 'c'];
+        const s = servers[(x + y) % servers.length];
+        const url = `https://${s}.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve({ img, x, y });
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
+}
+
+function drawMarker(ctx, map, lat, lon, color, label) {
+    const point = map.latLngToContainerPoint([lat, lon]);
+    const r = 16;
+    // Тень
+    ctx.beginPath();
+    ctx.arc(point.x + 2, point.y + 3, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.fill();
+    // Круг
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Текст
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, point.x, point.y);
+}
+
+// === Контекстное меню ===
+
+// Показать контекстное меню
+function showContextMenu(e, latlng) {
+    e.preventDefault();
+    contextLatLng = latlng;
+    contextMenu.style.display = 'block';
+    contextMenu.style.left = `${e.clientX}px`;
+    contextMenu.style.top = `${e.clientY}px`;
+}
+
+// Скрыть контекстное меню
+function hideContextMenu() {
+    contextMenu.style.display = 'none';
+    contextLatLng = null;
+}
+
+// Действия контекстного меню
+contextMenu.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', async () => {
+        const action = item.dataset.action;
+        // Сохраняем координаты ДО вызова hideContextMenu (он обнуляет contextLatLng)
+        const latLng = contextLatLng;
+        if (!latLng) return;
+        hideContextMenu();
+
+        const { lat, lng } = latLng;
+
+        if (action === 'from' || action === 'to') {
+            try {
+                showStatus(`🔍 Получение адреса для точки ${action === 'from' ? 'отправления' : 'назначения'}...`, 'info');
+                const result = await reverseGeocode(lat, lng);
+
+                if (action === 'from') {
+                    fromInput.value = result.display;
+                } else {
+                    toInput.value = result.display;
+                }
+                showStatus(`✅ Адрес установлен: ${result.display.split(',')[0]}`, 'success');
+
+                // Если оба поля заполнены — автоматически построить маршрут
+                if (fromInput.value.trim() && toInput.value.trim()) {
+                    setTimeout(() => buildRoute(), 300);
+                }
+            } catch (err) {
+                showStatus(`❌ ${err.message}`, 'error');
+            }
+        } else if (action === 'reverse') {
+            const temp = fromInput.value;
+            fromInput.value = toInput.value;
+            toInput.value = temp;
+            if (fromInput.value.trim() && toInput.value.trim()) {
+                setTimeout(() => buildRoute(), 300);
+            }
+        }
+    });
+});
+
+// Клик вне меню — закрыть
+document.addEventListener('click', (e) => {
+    if (!contextMenu.contains(e.target)) {
+        hideContextMenu();
+    }
+});
+
+// Вешаем событие на карту после её инициализации
+function setupContextMenu() {
+    map.on('contextmenu', (e) => {
+        // Предотвращаем стандартное контекстное меню браузера
+        L.DomEvent.preventDefault(e);
+        showContextMenu(e.originalEvent, e.latlng);
+    });
+}
+
+// === События ===
+buildBtn.addEventListener('click', buildRoute);
+
+clearBtn.addEventListener('click', () => {
+    clearRoute();
+    map.setView(SAMARA_CENTER, 13);
+});
+
+swapBtn.addEventListener('click', () => {
+    const temp = fromInput.value;
+    fromInput.value = toInput.value;
+    toInput.value = temp;
+});
+
+screenshotBtn.addEventListener('click', captureMap);
+
+// Переключение отображения остановок
+stopsToggleBtn.addEventListener('click', () => {
+    if (!stopsLayer) return;
+    const transportCount = stopMarkers.filter(s => s.isStop).length;
+    if (stopsVisible) {
+        map.removeLayer(stopsLayer);
+        stopsToggleBtn.textContent = `🚏 Остановки (${transportCount}): выкл`;
+        stopsVisible = false;
+    } else {
+        stopsLayer.addTo(map);
+        stopsToggleBtn.textContent = `🚏 Остановки (${transportCount}): вкл`;
+        stopsVisible = true;
+    }
+});
+
+// Enter в полях ввода
+fromInput.addEventListener('keydown', e => { if (e.key === 'Enter') buildRoute(); });
+toInput.addEventListener('keydown', e => { if (e.key === 'Enter') buildRoute(); });
+
+// Инициализация при загрузке
+initMap();
+setupContextMenu();
+
+// Авто-построение при загрузке
+setTimeout(() => buildRoute(), 600);
+</script>
+</body>
+</html>
