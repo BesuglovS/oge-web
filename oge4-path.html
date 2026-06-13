@@ -318,15 +318,45 @@
       }
 
       .result-path {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #333;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0;
+        margin: 15px 0;
         font-family: "Courier New", monospace;
-        margin: 10px 0;
-        padding: 10px 15px;
+      }
+
+      .segment-vertex {
+        padding: 6px 10px;
         background: white;
-        border-radius: 10px;
-        display: inline-block;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #333;
+        border: 2px solid #667eea;
+        min-width: 40px;
+        text-align: center;
+        z-index: 1;
+      }
+
+      .segment-edge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 2px;
+      }
+
+      .segment-weight {
+        font-size: 0.75rem;
+        color: #e65100;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .segment-arrow {
+        font-size: 1.1rem;
+        color: #999;
+        line-height: 1;
       }
 
       .result-length {
@@ -536,7 +566,7 @@
         <p style="font-size: 0.9rem; color: #666">
           Введите расстояния между вершинами. Пустая ячейка означает отсутствие
           прямой дороги. Матрица симметрична — заполняйте только верхнюю
-          половину (над диагональю).
+          половину (над диагональю). Кнопкой Tab можно переходить к следующей ячейке таблицы.
         </p>
         <div class="matrix-container">
           <table class="matrix-table" id="matrixTable"></table>
@@ -759,13 +789,11 @@
         if (!cell) return;
 
         if (j > i) {
-          // Editable cell (upper triangle)
           const input = cell.querySelector("input");
           if (input) {
             input.value = num !== null ? num : "";
           }
         } else {
-          // Mirror cell (lower triangle)
           const span = cell.querySelector(".mirror-value");
           if (span) {
             span.textContent = num !== null ? num : "—";
@@ -894,6 +922,24 @@
         return pathIndices;
       }
 
+      function formatPathWithSegments(pathIndices) {
+        if (pathIndices.length === 0) return "";
+        const data = getMatrixData();
+        let html = `<span class="segment-vertex">${escapeHtml(labels[pathIndices[0]])}</span>`;
+        for (let k = 1; k < pathIndices.length; k++) {
+          const a = pathIndices[k - 1];
+          const b = pathIndices[k];
+          const w = data[a][b] !== null && data[a][b] !== undefined ? data[a][b] : "?";
+          html +=
+            `<div class="segment-edge">` +
+            `<span class="segment-weight">${w}</span>` +
+            `<span class="segment-arrow">→</span>` +
+            `</div>` +
+            `<span class="segment-vertex">${escapeHtml(labels[b])}</span>`;
+        }
+        return html;
+      }
+
       function findShortestPath() {
         const mode = document.getElementById("pathMode").value;
         const fromIdx = parseInt(document.getElementById("fromVertex").value, 10);
@@ -903,7 +949,7 @@
           showResult(
             "success",
             "⚠️ Начальная и конечная вершины совпадают",
-            labels[fromIdx] + " → " + labels[toIdx],
+            `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span>`,
             "Длина пути: <strong>0</strong>"
           );
           return;
@@ -912,7 +958,6 @@
         const data = getMatrixData();
 
         if (mode === "simple") {
-          // Simple path
           const adj = buildAdjacencyList(data, null);
           const { dist, prev } = dijkstra(adj, fromIdx, toIdx);
 
@@ -920,17 +965,17 @@
             showResult(
               "error",
               "❌ Путь не найден",
-              labels[fromIdx] + " → " + labels[toIdx],
+              `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span><div class="segment-edge"><span class="segment-arrow">⋯</span></div><span class="segment-vertex">${escapeHtml(labels[toIdx])}</span>`,
               "Между этими вершинами нет соединяющего пути."
             );
             return;
           }
 
           const pathIndices = reconstructPath(prev, toIdx);
-          const pathStr = pathIndices.map((idx) => labels[idx]).join(" → ");
+          const pathHtml = formatPathWithSegments(pathIndices);
           const lengthStr = "Длина кратчайшего пути: <strong>" + dist[toIdx] + "</strong>";
 
-          showResult("success", "✅ Кратчайший путь найден!", pathStr, lengthStr);
+          showResult("success", "✅ Кратчайший путь найден!", pathHtml, lengthStr);
 
         } else if (mode === "through") {
           const viaIdx = parseInt(document.getElementById("viaVertex").value, 10);
@@ -953,7 +998,7 @@
             showResult(
               "error",
               "❌ Путь не найден",
-              labels[fromIdx] + " → … → " + labels[toIdx],
+              `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span><div class="segment-edge"><span class="segment-arrow">⋯</span></div><span class="segment-vertex">${escapeHtml(labels[toIdx])}</span>`,
               "Нет пути, проходящего через вершину «" + labels[viaIdx] + "»."
             );
             return;
@@ -961,14 +1006,14 @@
 
           const path1 = reconstructPath(prev1, viaIdx);
           const path2 = reconstructPath(prev2, toIdx);
-          path2.shift(); // remove duplicate via vertex
+          path2.shift();
           const fullPath = path1.concat(path2);
           const totalDist = dist1[viaIdx] + dist2[toIdx];
 
-          const pathStr = fullPath.map((idx) => labels[idx]).join(" → ");
+          const pathHtml = formatPathWithSegments(fullPath);
           const lengthStr = "Длина кратчайшего пути (через «" + labels[viaIdx] + "»): <strong>" + totalDist + "</strong>";
 
-          showResult("success", "✅ Кратчайший путь через вершину найден!", pathStr, lengthStr);
+          showResult("success", "✅ Кратчайший путь через вершину найден!", pathHtml, lengthStr);
 
         } else if (mode === "avoid") {
           const avoidIdx = parseInt(document.getElementById("viaVertex").value, 10);
@@ -990,21 +1035,21 @@
             showResult(
               "error",
               "❌ Путь не найден",
-              labels[fromIdx] + " → … → " + labels[toIdx],
+              `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span><div class="segment-edge"><span class="segment-arrow">⋯</span></div><span class="segment-vertex">${escapeHtml(labels[toIdx])}</span>`,
               "Нет пути, не проходящего через вершину «" + labels[avoidIdx] + "»."
             );
             return;
           }
 
           const pathIndices = reconstructPath(prev, toIdx);
-          const pathStr = pathIndices.map((idx) => labels[idx]).join(" → ");
+          const pathHtml = formatPathWithSegments(pathIndices);
           const lengthStr = "Длина кратчайшего пути (минуя «" + labels[avoidIdx] + "»): <strong>" + dist[toIdx] + "</strong>";
 
-          showResult("success", "✅ Кратчайший путь в обход вершины найден!", pathStr, lengthStr);
+          showResult("success", "✅ Кратчайший путь в обход вершины найден!", pathHtml, lengthStr);
         }
       }
 
-      function showResult(type, title, path, length) {
+      function showResult(type, title, pathHtml, length) {
         const box = document.getElementById("resultBox");
         box.classList.remove("show", "success", "error");
 
@@ -1015,7 +1060,7 @@
         }
 
         document.getElementById("resultTitle").textContent = title;
-        document.getElementById("resultPath").textContent = path;
+        document.getElementById("resultPath").innerHTML = pathHtml;
         document.getElementById("resultLength").innerHTML = length;
 
         box.classList.add("show");
