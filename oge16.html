@@ -1881,7 +1881,7 @@
             { input: '1', expected: 'Нет' },
             { input: '13579', expected: 'Нет' },
             { input: '2222222222', expected: '2' },
-            { input: '100', expected: 'Нет' },
+            { input: '100', expected: '0' },
             { input: '12', expected: '2' },
             { input: '123456789', expected: '8' },
             { input: '40', expected: '4' },
@@ -2157,7 +2157,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
@@ -2327,6 +2327,22 @@
 
       function prevTask() {
         cur = (cur - 1 + tasks.length) % tasks.length;
+        task = tasks[cur];
+        renderTask(task);
+        hideHints();
+        var os = document.getElementById("outputSection");
+        if (os) os.className = "output-section";
+        var numInput = document.getElementById("taskNumInput");
+        if (numInput) numInput.value = cur + 1;
+        document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function randomTask() {
+        var newIdx;
+        do {
+          newIdx = Math.floor(Math.random() * tasks.length);
+        } while (newIdx === cur && tasks.length > 1);
+        cur = newIdx;
         task = tasks[cur];
         renderTask(task);
         hideHints();
