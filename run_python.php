@@ -32,40 +32,66 @@ if (strlen($code) > 20480) {
     exit;
 }
 
-// Блокировка опасных модулей и функций
-$dangerousPatterns = [
+// Белый список: разрешённые модули и функции
+$allowedModules = ['math', 'random', 'datetime', 'decimal', 'fractions', 'string', 're', 'collections', 'itertools', 'functools', 'operator', 'json', 'csv'];
+
+// Паттерны, которые ЗАПРЕЩЕНЫ ( Dangerous constructs )
+$forbiddenPatterns = [
+    '/\b__import__\b/',
+    '/\b__builtins__\b/',
+    '/\b__import_attr__\b/',
+    '/\bexec\s*\(/',
+    '/\beval\s*\(/',
+    '/\bcompile\s*\(/',
     '/\bos\b/',
     '/\bsubprocess\b/',
     '/\bshutil\b/',
-    '/\bsys\b(?!\.stdin|\s*\.\s*stdout|\s*\.\s*stderr|\s*\.\s*argv)/',
+    '/\bsys\b/',
     '/\bsocket\b/',
     '/\bctypes\b/',
-    '/\bcompile\b/',
-    '/\bexec\b/',
-    '/\beval\b/',
-    '/\b__import__\b/',
     '/\bopen\s*\(/',
-    '/\bopenpty\b/',
     '/\bPopen\b/',
     '/\bfork\b/',
     '/\bexecve\b/',
     '/\bexecvp\b/',
-    '/\bremove\b/',
-    '/\brmdir\b/',
-    '/\bunlink\b/',
-    '/\bchmod\b/',
-    '/\bchown\b/',
     '/\bkill\b/',
-    '/\bexit\b(?!\s*\()/',
+    '/\bexit\s*\(/',
+    '/\bquit\s*\(/',
+    '/\binput\s*\(/',
+    '/\braw_input\s*\(/',
 ];
 
-foreach ($dangerousPatterns as $pattern) {
+foreach ($forbiddenPatterns as $pattern) {
     if (preg_match($pattern, $code)) {
         header('Content-Type: application/json');
         echo json_encode([
-            'error' => 'Код содержит запрещённые операции. Используйте только базовый Python (input, print, циклы, условия).'
+            'error' => 'Код содержит запрещённые операции. Используйте только print, переменные, условия, циклы и разрешённые модули (math, random, datetime).'
         ]);
         exit;
+    }
+}
+
+// Проверяем импорты — разрешены только whitelisted модули
+if (preg_match_all('/\bimport\s+([a-zA-Z_][a-zA-Z0-9_]*)/', $code, $matches)) {
+    foreach ($matches[1] as $module) {
+        if (!in_array($module, $allowedModules, true)) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error' => "Модуль '$module' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
+            ]);
+            exit;
+        }
+    }
+}
+if (preg_match_all('/\bfrom\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+import/', $code, $matches)) {
+    foreach ($matches[1] as $module) {
+        if (!in_array($module, $allowedModules, true)) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error' => "Модуль '$module' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
+            ]);
+            exit;
+        }
     }
 }
 

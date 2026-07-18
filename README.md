@@ -172,3 +172,7 @@ Copyright (c) 2026 Bezuglov Sergey
 
 - GitHub: [@BesuglovS](https://github.com/BesuglovS)
 - Repository: [https://github.com/BesuglovS/oge-web](https://github.com/BesuglovS/oge-web)
+
+---
+
+Подробнее об архитектуре см. в [ARCHITECTURE.md](ARCHITECTURE.md).
