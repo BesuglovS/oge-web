@@ -57,8 +57,6 @@ $forbiddenPatterns = [
     '/\bkill\b/',
     '/\bexit\s*\(/',
     '/\bquit\s*\(/',
-    '/\binput\s*\(/',
-    '/\braw_input\s*\(/',
 ];
 
 foreach ($forbiddenPatterns as $pattern) {
