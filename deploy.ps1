@@ -32,7 +32,7 @@ $sshPort    = [Environment]::GetEnvironmentVariable('DEPLOY_SSH_PORT')
 if (-not $sshPort) { $sshPort = '22' }
 $sshUser    = [Environment]::GetEnvironmentVariable('DEPLOY_SSH_USER')
 $remotePath = [Environment]::GetEnvironmentVariable('DEPLOY_REMOTE_PATH')
-$remotePath = $remotePath.TrimEnd('/')
+if ($remotePath) { $remotePath = $remotePath.TrimEnd('/') }
 
 if (-not $sshHost -or -not $sshUser -or -not $remotePath) {
   Write-Host "ERROR: Set DEPLOY_SSH_HOST, DEPLOY_SSH_USER and DEPLOY_REMOTE_PATH in .env" -ForegroundColor Red
