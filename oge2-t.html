@@ -1,10 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     <title>Теория - Задание 2 ОГЭ - Расшифровка сообщения</title>
-    <style>
+<style>
+
       * {
         box-sizing: border-box;
         margin: 0;
@@ -364,57 +367,87 @@
           font-size: 1.1rem;
         }
       }
-    </style>
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-      (function (m, e, t, r, i, k, a) {
-        m[i] =
-          m[i] ||
-          function () {
-            (m[i].a = m[i].a || []).push(arguments);
-          };
-        m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) {
-          if (document.scripts[j].src === r) {
-            return;
-          }
-        }
-        ((k = e.createElement(t)),
-          (a = e.getElementsByTagName(t)[0]),
-          (k.async = 1),
-          (k.src = r),
-          a.parentNode.insertBefore(k, a));
-      })(
-        window,
-        document,
-        "script",
-        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
-        "ym",
-      );
+      /* === Task Navigation (prev/next) === */
+      .task-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        gap: 15px;
+      }
 
-      ym(107219928, "init", {
-        ssr: true,
-        webvisor: true,
-        clickmap: true,
-        ecommerce: "dataLayer",
-        referrer: document.referrer,
-        url: location.href,
-        accurateTrackBounce: true,
-        trackLinks: true,
-      });
-    </script>
-    <noscript
-      ><div>
-        <img
-          src="https://mc.yandex.ru/watch/107219928"
-          style="position: absolute; left: -9999px"
-          alt=""
-        /></div
-    ></noscript>
-    <!-- /Yandex.Metrika counter -->
+      .task-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .task-nav a:hover {
+        background: rgba(255, 255, 255, 0.35);
+      }
+
+      .task-nav .nav-placeholder {
+        flex: 1;
+      }
+
+      /* === Skip Link (accessibility) === */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #667eea;
+        color: white;
+        padding: 8px 16px;
+        z-index: 200;
+        transition: top 0.3s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* === Progress Bar Container === */
+      .progress-bar-container {
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .task-nav {
+          flex-direction: column;
+        }
+        .task-nav a {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+
+    </style>
+    <meta name="theme-color" content="#764ba2" />
+    <meta name="description" content="Теоретический материал по заданию 2 ОГЭ: коды Фано, условия уникальности кодирования, принципы декодирования." />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge2-t.html" />
+    <meta property="og:title" content="Теория — Задание 2 ОГЭ — Расшифровка сообщения" />
+    <meta property="og:description" content="Теоретический материал по заданию 2 ОГЭ: коды Фано, условия уникальности кодирования, принципы декодирования." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge2-t.html" />
+<!-- Yandex.Metrika -->
+    <script src="js/metrika.js"></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika -->
   </head>
   <body>
-    <div class="container">
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge2.html" class="back-link">🎮 К заданию</a>
@@ -422,7 +455,7 @@
 
       <h1>📚 Теория: Задание 2 ОГЭ — Расшифровка сообщения</h1>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🔐 Что такое кодирование?</h2>
         <p>
           <strong>Кодирование</strong> — это представление информации в виде
@@ -459,7 +492,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📊 Равномерное и неравномерное кодирование</h2>
 
         <h3>📏 Равномерное кодирование</h3>
@@ -516,7 +549,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🎯 Условие Фано</h2>
 
         <div class="fano-box direct">
@@ -636,7 +669,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🌳 Дерево кодов (для проверки условия Фано)</h2>
         <p>
           Условие Фано можно проверить с помощью двоичного дерева. Если все
@@ -672,7 +705,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📝 Алгоритм расшифровки</h2>
 
         <h3>При прямом условии Фано (слева направо)</h3>
@@ -695,7 +728,7 @@
         </ol>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
@@ -860,7 +893,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⚠️ Частые ошибки</h2>
         <ul>
           <li>
@@ -882,7 +915,7 @@
         </ul>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🎯 План решения задачи</h2>
         <ol>
           <li>📝 Внимательно прочитайте условие и таблицу кодов</li>
@@ -899,7 +932,7 @@
         </ol>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
           <h4>Как быстро определить условие Фано</h4>
@@ -934,8 +967,14 @@
           </ul>
         </div>
       </div>
-    </div>
+    
 
+      <!-- Prev/Next Navigation -->
+    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+      <a href="oge1-t.html" aria-label="Предыдущее задание">&larr; Назад</a>
+      <a href="oge3-t.html" aria-label="Следующее задание">Далее &rarr;</a>
+    </div>
+    </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
       <button
@@ -945,14 +984,21 @@
       >
         🎮
       </button>
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
+    
+    
     </div>
-
-    <script>
+  <script>
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
   </body>

@@ -1,10 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     <title>Задание 3 ОГЭ - Истинность составного высказывания</title>
-    <style>
+<style>
+
       * {
         box-sizing: border-box;
         margin: 0;
@@ -353,57 +356,87 @@
           font-size: 0.9rem;
         }
       }
-    </style>
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-      (function (m, e, t, r, i, k, a) {
-        m[i] =
-          m[i] ||
-          function () {
-            (m[i].a = m[i].a || []).push(arguments);
-          };
-        m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) {
-          if (document.scripts[j].src === r) {
-            return;
-          }
-        }
-        ((k = e.createElement(t)),
-          (a = e.getElementsByTagName(t)[0]),
-          (k.async = 1),
-          (k.src = r),
-          a.parentNode.insertBefore(k, a));
-      })(
-        window,
-        document,
-        "script",
-        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
-        "ym",
-      );
+      /* === Task Navigation (prev/next) === */
+      .task-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        gap: 15px;
+      }
 
-      ym(107219928, "init", {
-        ssr: true,
-        webvisor: true,
-        clickmap: true,
-        ecommerce: "dataLayer",
-        referrer: document.referrer,
-        url: location.href,
-        accurateTrackBounce: true,
-        trackLinks: true,
-      });
-    </script>
-    <noscript
-      ><div>
-        <img
-          src="https://mc.yandex.ru/watch/107219928"
-          style="position: absolute; left: -9999px"
-          alt=""
-        /></div
-    ></noscript>
-    <!-- /Yandex.Metrika counter -->
+      .task-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .task-nav a:hover {
+        background: rgba(255, 255, 255, 0.35);
+      }
+
+      .task-nav .nav-placeholder {
+        flex: 1;
+      }
+
+      /* === Skip Link (accessibility) === */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #667eea;
+        color: white;
+        padding: 8px 16px;
+        z-index: 200;
+        transition: top 0.3s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* === Progress Bar Container === */
+      .progress-bar-container {
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .task-nav {
+          flex-direction: column;
+        }
+        .task-nav a {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+
+    </style>
+    <meta name="theme-color" content="#764ba2" />
+    <meta name="description" content="Определите истинность составного высказывания. Задачи на логические операции И, ИЛИ, НЕ и поиск числа по условию." />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge3.html" />
+    <meta property="og:title" content="Задание 3 ОГЭ - Истинность составного высказывания" />
+    <meta property="og:description" content="Определите истинность составного высказывания. Задачи на логические операции И, ИЛИ, НЕ и поиск числа по условию." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge3.html" />
+<!-- Yandex.Metrika -->
+    <script src="js/metrika.js"></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika -->
   </head>
   <body>
-    <div class="container">
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge3-t.html" class="back-link">📚 Теория</a>
@@ -411,7 +444,9 @@
 
       <h1>🎮 Задание 3 ОГЭ — Истинность составного высказывания</h1>
 
-      <div class="task-card" id="taskCard">
+            <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
+
+      <div class="task-card" id="taskCard" data-main="true">
         <!-- Задача будет сгенерирована здесь -->
       </div>
 
@@ -424,8 +459,14 @@
         <h4>📝 Решение</h4>
         <div id="solutionSteps"></div>
       </div>
-    </div>
+    
 
+      <!-- Prev/Next Navigation -->
+    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+      <a href="oge2.html" aria-label="Предыдущее задание">&larr; Назад</a>
+      <a href="oge4.html" aria-label="Следующее задание">Далее &rarr;</a>
+    </div>
+    </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
       <button
@@ -435,12 +476,13 @@
       >
         📚
       </button>
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
+    
+    
     </div>
-
-    <script>
+  <script>
       // Типы условий
       const conditionTypes = {
         multipleOf: {
@@ -878,6 +920,7 @@
 
       // Генерация задачи
       function generateTask() {
+    if (typeof trackTaskStart === 'function') { trackTaskStart('oge3'); }
         const template =
           taskTemplates[Math.floor(Math.random() * taskTemplates.length)];
         currentTask = template.generate();
@@ -906,10 +949,10 @@
             <label class="answer-label">Ваш ответ:</label>
             <input type="number" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
             <div class="buttons">
-              <button class="btn btn-check" onclick="checkAnswer()">✓ Проверить</button>
-              <button class="btn btn-next" onclick="nextTask()">🔄 Новая задача</button>
-              <button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button>
-              <button class="btn btn-solution" onclick="showSolution()">📝 Решение</button>
+              <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
+              <button class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
+              <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
+              <button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
             </div>
             <div class="result" id="result"></div>
           </div>
@@ -964,7 +1007,9 @@
         if (userAnswer === correctAnswer) {
           input.classList.remove("incorrect");
           input.classList.add("correct");
-          result.className = "result correct";
+          result.className = "result correct"
+        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge3', 1, 1); }
+        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge3', 1); };
           result.innerHTML = `
             <span class="result-icon">🎉</span>
             ПРАВИЛЬНО! Отличная работа!
@@ -992,6 +1037,7 @@
       }
 
       function showHint() {
+    if (typeof trackHint === 'function') { trackHint('oge3'); }
         const hintBox = document.getElementById("hintBox");
         const hintText = document.getElementById("hintText");
         hintText.innerHTML = currentTask.hint;
@@ -1048,6 +1094,13 @@
 
       // Инициализация
       generateTask();
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
+      }
+    </script>
+      <script src="js/progress.js"></script>
   </body>
 </html>

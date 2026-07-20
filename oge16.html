@@ -1,10 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     <title>Задание 16 ОГЭ - Программирование</title>
-    <style>
+<style>
+
       * {
         box-sizing: border-box;
         margin: 0;
@@ -487,16 +490,96 @@
           padding: 5px 8px;
         }
       }
+      /* === Task Navigation (prev/next) === */
+      .task-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        gap: 15px;
+      }
+
+      .task-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .task-nav a:hover {
+        background: rgba(255, 255, 255, 0.35);
+      }
+
+      .task-nav .nav-placeholder {
+        flex: 1;
+      }
+
+      /* === Skip Link (accessibility) === */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #667eea;
+        color: white;
+        padding: 8px 16px;
+        z-index: 200;
+        transition: top 0.3s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* === Progress Bar Container === */
+      .progress-bar-container {
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .task-nav {
+          flex-direction: column;
+        }
+        .task-nav a {
+          width: 100%;
+          justify-content: center;
+        }
+        .task-nav .nav-placeholder {
+          display: none;
+        }
+      }
+
+
     </style>
+    <meta name="theme-color" content="#764ba2" />
+    <meta name="description" content="Напишите программу на Python для подсчёта суммы элементов по заданному условию. Задачи на анализ цифр числа." />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge16.html" />
+    <meta property="og:title" content="Задание 16 ОГЭ - Программирование на Python" />
+    <meta property="og:description" content="Напишите программу на Python для подсчёта суммы элементов по заданному условию. Задачи на анализ цифр числа." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge16.html" />
+<!-- Yandex.Metrika -->
+    <script src="js/metrika.js"></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika -->
   </head>
   <body>
-    <div class="container">
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main">
       <h1>📝 Задание 16 ОГЭ: Программирование на Python</h1>
       <div class="nav-links">
         <a href="oge.html" class="back-link">← Назад к списку заданий</a>
         <a href="oge16-t.html" class="back-link" target="_blank">📖 Теория</a>
       </div>
-      <div class="task-card" id="taskCard"></div>
+      <div class="task-card" id="taskCard" data-main="true"></div>
       <div class="hint-box" id="hintBox">
         <div class="hint-title">💡 Подсказка</div>
         <div id="hintText"></div>
@@ -506,7 +589,8 @@
         <div id="solutionSteps"></div>
       </div>
     </div>
-    <div class="quick-nav">
+    </div>
+<div class="quick-nav">
       <button
         class="quick-nav-btn practice"
         onclick="location.href = 'oge16-t.html'"
@@ -514,9 +598,16 @@
       >
         📖
       </button>
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
+    
+
+      <!-- Prev/Next Navigation -->
+    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+      <a href="oge15.html" aria-label="Предыдущее задание">&larr; Назад</a>
+      <span class="nav-placeholder"></span>
+    </div>
     </div>
     <script>
       var tasks = [
@@ -1546,7 +1637,7 @@
             { input: '100', expected: '0' },
             { input: '12', expected: '2'},
             { input: '123456789', expected: '2' },
-            { input: '40', expected: 'Нет' },
+            { input: '40', expected: '0' },
             { input: '8888888888', expected: '8' }
           ]
         },
@@ -1918,6 +2009,7 @@
       var task = null;
 
       function genTask() {
+    if (typeof trackTaskStart === 'function') { trackTaskStart('oge16'); }
         cur = Math.floor(Math.random() * tasks.length);
         task = tasks[cur];
         renderTask(task);
@@ -2157,7 +2249,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
@@ -2366,6 +2458,7 @@
       }
 
       function showHint() {
+    if (typeof trackHint === 'function') { trackHint('oge16'); }
         document.getElementById("hintBox").style.display = "block";
         document.getElementById("hintText").innerHTML = task.hint;
       }
@@ -2401,6 +2494,15 @@
       }
 
       genTask();
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer');
+    // Track visit for progress
+    if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge16', 1, 1); } }
     </script>
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
+      }
+    </script>
+      <script src="js/progress.js"></script>
   </body>
 </html>

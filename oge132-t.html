@@ -1,12 +1,13 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Теория: Текстовые редакторы и Задание 13.2 ОГЭ — Изучение офисных приложений
-    </title>
-    <style>
+    
+    <title>Теория: Текстовые редакторы и Задание 13.2 ОГЭ — Изучение офисных приложений</title>
+<style>
+
       * {
         box-sizing: border-box;
         margin: 0;
@@ -478,57 +479,87 @@
           width: 100%;
         }
       }
-    </style>
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-      (function (m, e, t, r, i, k, a) {
-        m[i] =
-          m[i] ||
-          function () {
-            (m[i].a = m[i].a || []).push(arguments);
-          };
-        m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) {
-          if (document.scripts[j].src === r) {
-            return;
-          }
-        }
-        ((k = e.createElement(t)),
-          (a = e.getElementsByTagName(t)[0]),
-          (k.async = 1),
-          (k.src = r),
-          a.parentNode.insertBefore(k, a));
-      })(
-        window,
-        document,
-        "script",
-        "https://mc.yandex.ru/metrika/tag.js?id=107219928",
-        "ym",
-      );
+      /* === Task Navigation (prev/next) === */
+      .task-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        gap: 15px;
+      }
 
-      ym(107219928, "init", {
-        ssr: true,
-        webvisor: true,
-        clickmap: true,
-        ecommerce: "dataLayer",
-        referrer: document.referrer,
-        url: location.href,
-        accurateTrackBounce: true,
-        trackLinks: true,
-      });
-    </script>
-    <noscript
-      ><div>
-        <img
-          src="https://mc.yandex.ru/watch/107219928"
-          style="position: absolute; left: -9999px"
-          alt=""
-        /></div
-    ></noscript>
-    <!-- /Yandex.Metrika counter -->
+      .task-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        transition: background 0.3s;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .task-nav a:hover {
+        background: rgba(255, 255, 255, 0.35);
+      }
+
+      .task-nav .nav-placeholder {
+        flex: 1;
+      }
+
+      /* === Skip Link (accessibility) === */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #667eea;
+        color: white;
+        padding: 8px 16px;
+        z-index: 200;
+        transition: top 0.3s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* === Progress Bar Container === */
+      .progress-bar-container {
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .task-nav {
+          flex-direction: column;
+        }
+        .task-nav a {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+
+    </style>
+    <meta name="theme-color" content="#764ba2" />
+    <meta name="description" content="Теоретический материал по заданию 13.2 ОГЭ: создание текстового документа в Word и Writer, форматирование текста и таблиц." />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge132-t.html" />
+    <meta property="og:title" content="Теория: Текстовые редакторы и Задание 13.2 ОГЭ — Изучение офисных приложений" />
+    <meta property="og:description" content="Теоретический материал по заданию 13.2 ОГЭ: создание текстового документа в Word и Writer, форматирование текста и таблиц." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge132-t.html" />
+<!-- Yandex.Metrika -->
+    <script src="js/metrika.js"></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika -->
   </head>
   <body>
-    <div class="container">
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
@@ -537,7 +568,7 @@
       <h1>📚 Полная теория: Текстовые редакторы и Задание 13.2 ОГЭ</h1>
 
       <!-- ===== Раздел 1: Основы текстовых редакторов (из index.html) ===== -->
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>💡 Что такое текстовый редактор?</h2>
         <p>
           <strong>Текстовый редактор</strong> (текстовый процессор) — это
@@ -555,7 +586,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📋 Основные возможности текстовых редакторов</h2>
 
         <div class="feature-grid">
@@ -609,7 +640,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📖 Основные понятия</h2>
 
         <h3>📄 Документ</h3>
@@ -648,7 +679,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>✏️ Пример работы с текстовым редактором</h2>
 
         <div class="example-box">
@@ -678,7 +709,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>💡 Полезные советы (общие)</h2>
 
         <div class="tip-box">
@@ -715,7 +746,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⚠️ Частые ошибки (общие)</h2>
         <ul>
           <li>
@@ -742,7 +773,7 @@
       </div>
 
       <!-- ===== Раздел 2: Теория задания 13.2 (из oge132-t.html) ===== -->
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🎯 Что такое задание 13.2?</h2>
         <p>
           <strong>Задание 13.2</strong> — практическое задание ОГЭ по
@@ -769,7 +800,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📝 Пример задания</h2>
         <div class="example-box">
           <h4>Пример: «Варенье из ежевики»</h4>
@@ -819,7 +850,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📐 Структура документа</h2>
         <p>
           В задании 13.2 документ состоит из
@@ -891,7 +922,7 @@
         </ul>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📏 Требования к оформлению</h2>
 
         <h3>🔤 Параметры текста</h3>
@@ -986,7 +1017,7 @@
         </ul>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📋 Критерии оценивания</h2>
 
         <div class="table-wrapper">
@@ -1074,7 +1105,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📌 Порядок выполнения задания</h2>
         <ol>
           <li>
@@ -1134,7 +1165,7 @@
         </ol>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⚙️ Настройки текстового редактора</h2>
 
         <h3>Microsoft Word</h3>
@@ -1294,7 +1325,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📖 Разница между Microsoft Word и LibreOffice Writer</h2>
         <div class="table-wrapper">
           <table>
@@ -1346,7 +1377,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⚠️ Типичные ошибки (задание 13.2)</h2>
 
         <div class="error-box">
@@ -1442,7 +1473,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>💡 Полезные советы (задание 13.2)</h2>
 
         <div class="tip-box">
@@ -1504,7 +1535,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📋 Примеры из практики оценивания</h2>
 
         <div class="example-box">
@@ -1577,7 +1608,7 @@
       </div>
 
       <!-- ===== Раздел 3: Важные аспекты при сдаче ОГЭ (из oge13-important.html) ===== -->
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⏱️ Как распределить время на экзамене</h2>
         <p>
           На выполнение задания 13.2 у вас есть примерно
@@ -1619,7 +1650,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>✅ Чек-лист проверки перед сдачей</h2>
         <p>Перед сохранением файла последовательно проверьте каждый пункт:</p>
 
@@ -1697,7 +1728,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🔤 Ключевые правила шрифта</h2>
         <p>
           Шрифт — один из самых важных контролируемых элементов задания 13.2.
@@ -1754,7 +1785,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📐 Как правильно настроить абзац и интервалы</h2>
 
         <h3>🔧 Абзацный отступ 1 см</h3>
@@ -1820,7 +1851,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📊 Работа с таблицей — ключевые моменты</h2>
 
         <h3>📐 Ширина таблицы</h3>
@@ -1872,7 +1903,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🔍 Как правильно использовать невидимые символы</h2>
         <p>
           Включение режима отображения невидимых символов — один из важнейших
@@ -1912,7 +1943,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📊 Как эксперт проверяет работу</h2>
         <p>Эксперт проверяет задание 13.2 по трём блокам:</p>
 
@@ -1956,7 +1987,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🎯 5 секретов успешного выполнения задания 13.2</h2>
 
         <div class="secret-card">
@@ -2007,7 +2038,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>❓ Часто задаваемые вопросы</h2>
 
         <h3>Каким шрифтом нужно набирать текст?</h3>
@@ -2047,7 +2078,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📋 Краткая памятка на экзамен</h2>
         <div class="warning-box">
           <h4>📝 Запомните главное</h4>
@@ -2082,7 +2113,7 @@
 
       <!-- ===== Раздел 4: Пример задания 13.2 (из oge132.html) ===== -->
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>💡 Что такое задание 13.2?</h2>
         <p>
           <strong>Задание 13.2</strong> — практическое задание ОГЭ по
@@ -2104,7 +2135,7 @@
         </p>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📋 Пример задания 13.2</h2>
         <p>
           Создайте в текстовом редакторе документ и напишите в нём следующий
@@ -2203,7 +2234,7 @@
         </table>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🔍 Два основных объекта задания</h2>
 
         <div class="element-grid">
@@ -2232,7 +2263,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📏 Критерии оценивания</h2>
         <p>
           <strong>Правильным решением</strong> является текст, соответствующий
@@ -2371,7 +2402,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🛠️ Пошаговый порядок выполнения</h2>
         <ol>
           <li>
@@ -2430,7 +2461,7 @@
         </ol>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>⚠️ Типичные ошибки и как их избежать</h2>
 
         <div class="error-box">
@@ -2499,7 +2530,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>📊 Разбор примеров оценивания</h2>
 
         <h3>Пример 1 — 2 балла</h3>
@@ -2556,7 +2587,7 @@
         </div>
       </div>
 
-      <div class="theory-section">
+      <div class="theory-section" id="main-content">
         <h2>🔑 Ключевые правила для успешного выполнения</h2>
         <ul>
           <li>
@@ -2588,18 +2619,31 @@
             не .doc).
           </li>
         </ul>
-      </div>
+      
 
+      <!-- Prev/Next Navigation -->
+    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+      <a href="oge131-t.html" aria-label="Предыдущее задание">&larr; Назад</a>
+      <a href="oge14-t.html" aria-label="Следующее задание">Далее &rarr;</a>
+    </div>
+    </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх">
+      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
+    
+    
     </div>
-
-    <script>
+  <script>
       function scrollToTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
   </body>
