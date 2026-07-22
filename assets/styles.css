@@ -39,7 +39,6 @@ body {
 
 body.body-center {
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
@@ -357,6 +356,7 @@ h3 {
 .buttons {
   display: flex;
   gap: 15px;
+  justify-content: center;
   margin-top: 20px;
   flex-wrap: wrap;
 }
@@ -1496,11 +1496,11 @@ textarea:focus-visible {
 
 .field-info { font-size: 0.85rem; color: #666; margin-top: 5px; text-align: center;}
 
-@media (max-width: 900px) { .main-layout { flex-direction: column;}
-
-.left-col, .right-col { flex: 1 1 auto; min-width: 0; width: 100%;}
-
-.editor-wrapper { min-height: 200px;}
+@media (max-width: 900px) {
+  .main-layout { flex-direction: column; }
+  .left-col, .right-col { flex: 1 1 auto; min-width: 0; width: 100%; }
+  .editor-wrapper { min-height: 200px; }
+}
 
 /* --- oge16-t.html --- */
 
@@ -1618,7 +1618,7 @@ textarea:focus-visible {
 
 .test-summary.some-fail { background: #ffebee; border: 2px solid #f44336; color: #c62828;}
 
-.progress-bar-container { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin: 10px 0; overflow: hidden;}
+.progress-bar-container { display: none; }
 
 .test-results { font-size: 0.8rem;}
 
@@ -1663,6 +1663,9 @@ textarea:focus-visible {
 .tree-node.leaf { background: #e8f5e9; color: #2e7d32; border: 2px solid #4caf50;}
 
 /* --- oge2.html --- */
+
+.oge2 .answer-section { text-align: center; }
+.oge2 .answer-input { width: 300px; text-align: center; text-transform: uppercase; }
 
 .instructions { background: rgba(255, 255, 255, 0.95); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 0.95rem; color: #333;}
 
@@ -2458,7 +2461,9 @@ textarea:focus-visible {
 
 .workspace { display: grid; grid-template-columns: 1fr 350px; gap: 20px; margin-top: 20px;}
 
-@media (max-width: 900px) { .workspace { grid-template-columns: 1fr;}
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: 1fr; }
+}
 
 .diagram-section { background: #1a1a2e; border-radius: 12px; padding: 15px; text-align: center;}
 
@@ -2597,3 +2602,35 @@ textarea:focus-visible {
 .solution-table .highlight-cell { background: #fff9c4; font-weight: bold;}
 
 .graph-container { padding: 10px;}
+
+/* ============================================================
+   Body variant: dark theme (oge7, oge8)
+   ============================================================ */
+
+body.body-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* ============================================================
+   Body variant: teal (oge2)
+   ============================================================ */
+
+body.body-teal {
+  background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+}
+
+/* ============================================================
+   Body variant: red-purple (oge131-t)
+   ============================================================ */
+
+body.body-red-purple {
+  background: linear-gradient(135deg, #c0392b 0%, #8e44ad 100%);
+}
+
+/* ============================================================
+   Body variant: blue-indigo (oge132-t)
+   ============================================================ */
+
+body.body-blue-indigo {
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+}
