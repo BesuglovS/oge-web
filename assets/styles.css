@@ -819,15 +819,22 @@ textarea:focus-visible {
   top: 0;
 }
 
-/* === Task Selector (oge15) === */
+/* === Task Selector (oge15, oge16) === */
 .task-selector {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: 20px;
 }
 
-.task-selector select {
+.task-selector label {
+  font-weight: 500;
+  color: #333;
+}
+
+.task-selector select,
+.task-selector input[type="number"] {
   padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 2px solid var(--color-primary);
@@ -835,9 +842,11 @@ textarea:focus-visible {
   background: white;
   color: #333;
   cursor: pointer;
+  width: 80px;
 }
 
-.task-selector select:focus-visible {
+.task-selector select:focus-visible,
+.task-selector input[type="number"]:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }

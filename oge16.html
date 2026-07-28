@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -1697,7 +1697,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
