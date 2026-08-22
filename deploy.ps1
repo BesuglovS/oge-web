@@ -70,7 +70,8 @@ $excludeArgs = @(
   '--exclude=Desktop.ini',
   '--exclude=*.log',
   '--exclude=.env',
-  '--exclude=deploy.ps1'
+  '--exclude=deploy.ps1',
+  '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 
 $tarCmd   = "tar czf - $excludeArgs -C `"$srcPath`" ."
@@ -88,6 +89,24 @@ if ($DryRun) {
     Write-Host "Deploy failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
     exit 1
   }
+  Write-Host "  Done." -ForegroundColor Green
+}
+
+# ─── 3. Deploy nginx config ───
+$nginxSite = 'oge.nayanovaacademy.ru'
+$nginxLocal = Join-Path $PSScriptRoot $nginxSite
+$nginxRemote = '/etc/nginx/sites-available/' + $nginxSite
+
+if ($DryRun) {
+  Write-Host "  [DryRun] Deploy nginx config: $nginxSite" -ForegroundColor Yellow
+} elseif (Test-Path $nginxLocal) {
+  Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
+  $scpCmd = "scp $portArg $identityArg `"$nginxLocal`" ${remote}:/tmp/nginx-$nginxSite"
+  $sshNginxCmd = "ssh $portArg $identityArg $remote `"cp /tmp/nginx-$nginxSite $nginxRemote && nginx -t && systemctl reload nginx && rm -f /tmp/nginx-$nginxSite`""
+  cmd /c $scpCmd
+  if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config scp failed" -ForegroundColor Red; exit 1 }
+  cmd /c $sshNginxCmd
+  if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config install/reload failed" -ForegroundColor Red; exit 1 }
   Write-Host "  Done." -ForegroundColor Green
 }
 
