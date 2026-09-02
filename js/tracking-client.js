@@ -25,6 +25,22 @@
   var lastHref = '';
   var lastBeatAt = 0;
 
+  // Учёт подписок и обёрток history — чтобы stop() полностью убирал за собой.
+  var boundListeners = [];
+  var originalHistoryMethods = {};
+
+  function addListener(target, type, fn) {
+    target.addEventListener(type, fn);
+    boundListeners.push({ target: target, type: type, fn: fn });
+  }
+
+  function removeAllListeners() {
+    while (boundListeners.length) {
+      var entry = boundListeners.pop();
+      entry.target.removeEventListener(entry.type, entry.fn);
+    }
+  }
+
   // Уникальный ключ вкладки — чтобы несколько вкладок не конфликтовали
   // за одну открытую строку page_views на сервере.
   function tabKey() {
@@ -65,7 +81,10 @@
   function checkAuth() {
     if (authed !== null) return Promise.resolve(authed);
     return global.fetch(config.apiBase + '/api/check.php', { credentials: 'include' })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('check.php HTTP ' + r.status);
+        return r.json();
+      })
       .then(function (d) {
         authed = !!(d && d.authenticated);
         return authed;
@@ -114,11 +133,6 @@
     }).catch(function () { /* сеть недоступна — пропускаем тик */ });
   }
 
-  function heartbeat() {
-    if (!enabled) return;
-    send(currentUrl(), currentTitle(), currentReferrer(), elapsedSeconds());
-  }
-
   // Обычный периодический тик: фиксирует время на текущей странице.
   function tick() {
     if (!enabled) return;
@@ -153,9 +167,22 @@
     }
   }
 
+  function restoreHistoryMethods() {
+    if (originalHistoryMethods.pushState && global.history) {
+      global.history.pushState = originalHistoryMethods.pushState;
+      originalHistoryMethods.pushState = null;
+    }
+    if (originalHistoryMethods.replaceState && global.history) {
+      global.history.replaceState = originalHistoryMethods.replaceState;
+      originalHistoryMethods.replaceState = null;
+    }
+  }
+
   function stop() {
     enabled = false;
     if (timer) { clearInterval(timer); timer = null; }
+    removeAllListeners();
+    restoreHistoryMethods();
   }
 
   function start() {
@@ -170,15 +197,15 @@
     timer = setInterval(tick, config.interval * 1000);
 
     if (typeof global.document !== 'undefined') {
-      global.document.addEventListener('visibilitychange', function () {
+      addListener(global.document, 'visibilitychange', function () {
         if (global.document.visibilityState === 'hidden') beacon();
       });
     }
-    global.addEventListener('pagehide', beacon);
-    global.addEventListener('beforeunload', beacon);
+    addListener(global, 'pagehide', beacon);
+    addListener(global, 'beforeunload', beacon);
 
-    var originalPush = global.history && global.history.pushState;
-    var originalReplace = global.history && global.history.replaceState;
+    originalHistoryMethods.pushState = global.history && global.history.pushState;
+    originalHistoryMethods.replaceState = global.history && global.history.replaceState;
 
     function wrapHistory(original, args) {
       var oldUrl = currentUrl();
@@ -189,13 +216,13 @@
       }
     }
 
-    if (originalPush) {
-      global.history.pushState = function () { wrapHistory(originalPush, arguments); };
+    if (originalHistoryMethods.pushState) {
+      global.history.pushState = function () { wrapHistory(originalHistoryMethods.pushState, arguments); };
     }
-    if (originalReplace) {
-      global.history.replaceState = function () { wrapHistory(originalReplace, arguments); };
+    if (originalHistoryMethods.replaceState) {
+      global.history.replaceState = function () { wrapHistory(originalHistoryMethods.replaceState, arguments); };
     }
-    global.addEventListener('popstate', function () {
+    addListener(global, 'popstate', function () {
       if (currentUrl() !== lastHref) {
         pageSwitched(lastHref);
         lastHref = currentUrl();

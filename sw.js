@@ -1,11 +1,14 @@
 /* Service Worker — oge-web PWA */
-var CACHE_NAME = 'oge-web-v1';
+var CACHE_NAME = 'oge-web-v2';
 var ASSETS = [
   '/',
   '/oge.html',
   '/assets/styles.css',
   '/js/metrika.js',
   '/js/progress.js',
+  '/js/progress-client.js',
+  '/js/progress-sync.js',
+  '/js/tracking-client.js',
   '/manifest.json',
   '/oge1.html', '/oge1-t.html',
   '/oge2.html', '/oge2-t.html',
@@ -50,26 +53,36 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  /* Network-first for HTML, cache-first for assets */
-  if (event.request.destination === 'document') {
+  var request = event.request;
+
+  /* Кросс-доменные запросы (auth.nayanovaacademy.ru: check.php, progress.php)
+     не перехватываем и НЕ кэшируем — состояние авторизации всегда живое. */
+  if (request.url.indexOf(self.location.origin) !== 0) {
+    return;
+  }
+
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  /* Network-first для HTML, cache-first для остальных ассетов */
+  if (request.destination === 'document') {
     event.respondWith(
-      fetch(event.request).then(function(response) {
+      fetch(request).then(function(response) {
         var clone = response.clone();
-        if (event.request.method === 'GET') {
-          caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
-        }
+        caches.open(CACHE_NAME).then(function(cache) { cache.put(request, clone); });
         return response;
       }).catch(function() {
-        return caches.match(event.request);
+        return caches.match(request);
       })
     );
   } else {
     event.respondWith(
-      caches.match(event.request).then(function(cached) {
-        return cached || fetch(event.request).then(function(response) {
+      caches.match(request).then(function(cached) {
+        return cached || fetch(request).then(function(response) {
           var clone = response.clone();
-          if (event.request.method === 'GET') {
-            caches.open(CACHE_NAME).then(function(cache) { cache.put(event.request, clone); });
+          if (response.ok) {
+            caches.open(CACHE_NAME).then(function(cache) { cache.put(request, clone); });
           }
           return response;
         });

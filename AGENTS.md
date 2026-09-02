@@ -6,7 +6,7 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v1'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v2'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `data/oge7.json`, `oge7.txt`, `js/metrika.js`, `js/progress.js`, `manifest.json`, `/`).
    При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v1` → `v2`), иначе пользователи вечно видят старый кэш.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
