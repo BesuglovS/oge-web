@@ -21,9 +21,6 @@ oge-web/
 ├── run_python.php        # Запуск Python
 ├── files/                # Файлы для задач
 ├── git/                  # Git интеграция
-├── p/                    # Proxifier для задач
-│   ├── index.html
-│   └── overpass-proxy.php
 ├── .htaccess             # Конфиг Apache
 ├── LICENSE               # MIT
 ├── README.md             # Документация

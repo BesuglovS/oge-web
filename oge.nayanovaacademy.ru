@@ -1,5 +1,11 @@
 # ==========================================
-# 1. Редирект HTTP → HTTPS
+# 1. Rate limiting для Python-песочницы (уровень http)
+# ==========================================
+limit_req_zone $binary_remote_addr zone=sandbox_oge:10m rate=5r/s;
+limit_req_status 429;
+
+# ==========================================
+# 2. Редирект HTTP → HTTPS
 # ==========================================
 server {
     listen 80;
@@ -49,9 +55,22 @@ server {
         try_files $uri $uri/ $uri.php =404;
     }
 
-    # 2. Обработка PHP-файлов через FastCGI
-    location ~ \.php$ {
+    # 2. Python-песочница (задание 16): точный match выше regex `\.php$`,
+    # обязательно с ограничением частоты (2a) и иммутабельным security-набором.
+    location = /run_python.php {
+        limit_req zone=sandbox_oge burst=5 nodelay;
+
         include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Cache-Control "no-store" always;
+    }
+
+    # 2b. Обработка PHP-файлов через FastCGI
+    location ~ \.php$ {        include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;

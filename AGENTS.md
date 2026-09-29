@@ -26,9 +26,9 @@
    Не печатать значения, не менять без необходимости. Восстановить `.gitignore` при возможности.
 7. **Два zip в `files/`** (`Задание11-12.zip` и его mojibake-двойник) — байт-идентичны (одинаковый MD5),
    артефакт кодировки git. Не удалять/переименовывать бездумно; HTML ссылается только на `Задание11-12.zip`.
-8. **`p/` (Leaflet-маршруты) и `git/` (self-hosted git-UI) не исключены из деплоя** — часть сайта,
-   хотя со страниц заданий не линкуются. `overpass-proxy.php` отключает проверку SSL — потенциально
-   открытый прокси; учитывать при харденинге.
+8. **`git/` (self-hosted git-UI) не исключён из деплоя** — часть сайта,
+   хотя со страниц заданий не линкуется. Каталог `p/` (Leaflet-маршруты)
+   УДАЛЁН (сентябрь 2026); `deploy.ps1` исключает его из tar и стирает на сервере.
 9. **Вся страницы с UTF-8 BOM** — сохранять кодировку. PowerShell-консоль показывает mojibake (codepage) — работать UTF-8-инструментами.
 10. **`_orig_oge2.css`** — пустой легаси-файл (3 байта), можно оставить.
 11. **Нет `.htaccess`, `sitemap.xml`, `robots.txt`, `.gitignore`** (доки упоминают `.htaccess` — его нет).
@@ -37,7 +37,7 @@
 ## 🔧 Команды
 
 ```bash
-python -m http.server 8000   # локальный dev-сервер (для полной функциональности нужен PHP: run_python.php, git/, p/)
+python -m http.server 8000   # локальный dev-сервер (нужен PHP: run_python.php, git/)
 php -S 127.0.0.1:8080        # локально с PHP (задание 16)
 .\deploy.ps1 -DryRun         # сухой прогон
 .\deploy.ps1                 # деплой
@@ -59,7 +59,6 @@ js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
 files/Задание11-12.zip            # скачиваемый архив для заданий 11/12 (34 МБ)
 files/oge15/                     # tasks.json + оge-15-2026-NN.json (поля) + e-NN.json (ожидаемые клетки) + .kum (решения)
-p/                                 # маршрутное приложение (Leaflet+OSRM+Overpass proxy)
 git/index.php                      # web-UI self-hosted git-репозиториев
 manifest.json, sw.js, offline.html, 404.html, LICENSE
 deploy.ps1, oge.nayanovaacademy.ru (nginx, untracked)
@@ -81,19 +80,25 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, untracked)
 
 ## 🚀 Деплой (`deploy.ps1`)
 
-1. `.env` → SSH-переменные; `icacls` ключа.
-2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, nginx-конфига, IDE/лог-файлов) → SSH.
-3. Удалённо: удаляет всё **кроме `p/` и `git/`** в целевой директории → распаковка.
-4. Деплой nginx-конфига + `nginx -t && systemctl reload nginx`.
+1. `.env` → SSH-переменные (`DEPLOY_SSH_USER=deploy`, ключ `../ssh-deploy.key`); `icacls` ключа.
+2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, nginx-конфига, `p`, IDE/лог-файлов) → SSH от deploy-пользователя.
+3. Удалённо: удаляет всё **кроме `git/`** в целевой директории (и стирает старую `p/`, если осталась) → распаковка.
+4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
+   (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
 
-Требования сервера: nginx + PHP 8.1-FPM, `/usr/bin/python3`, `timeout`, root
-`/var/www/oge.nayanovaacademy.ru/public/`. Nginx: `try_files $uri $uri/ $uri.php =404`, static `immutable 30d`,
-`no-cache` для `/sw.js` и `/js/tracking-client.js`, dotfiles deny.
+Требования сервера: nginx + PHP 8.1-FPM, root `/var/www/oge.nayanovaacademy.ru/public/`.
+Nginx: `try_files $uri $uri/ $uri.php =404`, static `immutable 30d`,
+`no-cache` для `/sw.js` и `/js/tracking-client.js`, dotfiles deny,
+`limit_req zone=sandbox_oge 5r/s` на `run_python.php`.
 
 ## 🔒 Безопасность
 
-- `run_python.php`: не ослаблять regex/белый список; изменения — security-sensitive, тестировать тщательно.
-- `overpass-proxy.php` с `verify_peer=false` — потенциальный открытый прокси; при харденинге ограничивать.
+- `run_python.php` — 4-слойная защита (модель python-web): rate-limit (nginx limit_req + файловый
+  по IP в /tmp), pre-фильтры (regex + белый список импортов), wrapper с усечёнными builtins
+  (sentinel-канал вывода, stdin через base64), изоляция процесса через root-хелпер
+  `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
+  Не ослаблять ни один слой.
+- Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — намеренно задеплоен, не удалять без понимания.
-- `.env` и `G:\WebSites\na\ssh-private.key` — никогда не печатать/коммитить.
-- Деплой сохраняет только `p/` и `git/`; всё остальное на сервере удаляется.
+- `.env` и `C:\websites\na\ssh-deploy.key` — никогда не печатать/коммитить.
+- Деплой сохраняет только `git/`; всё остальное на сервере удаляется (включая рудименты `p/`).

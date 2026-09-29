@@ -71,11 +71,12 @@ $excludeArgs = @(
   '--exclude=*.log',
   '--exclude=.env',
   '--exclude=deploy.ps1',
+  '--exclude=p',
   '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 
 $tarCmd   = "tar czf - $excludeArgs -C `"$srcPath`" ."
-$sshCmd   = "ssh $portArg $identityArg $remote `"find ${remotePath} -mindepth 1 -maxdepth 1 ! -name 'p' ! -name 'git' -exec rm -rf {} + 2>/dev/null; tar -xzf - -C $remotePath`""
+$sshCmd   = "ssh $portArg $identityArg $remote `"find ${remotePath} -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf ${remotePath}/p 2>/dev/null; tar -xzf - -C $remotePath`""
 
 Write-Host "`n==> Deploying to ${remote}:${remotePath} ..." -ForegroundColor Cyan
 
@@ -102,7 +103,7 @@ if ($DryRun) {
 } elseif (Test-Path $nginxLocal) {
   Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
   $scpCmd = "scp $portArg $identityArg `"$nginxLocal`" ${remote}:/tmp/nginx-$nginxSite"
-  $sshNginxCmd = "ssh $portArg $identityArg $remote `"cp /tmp/nginx-$nginxSite $nginxRemote && nginx -t && systemctl reload nginx && rm -f /tmp/nginx-$nginxSite`""
+  $sshNginxCmd = "ssh $portArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
   cmd /c $scpCmd
   if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config scp failed" -ForegroundColor Red; exit 1 }
   cmd /c $sshNginxCmd
