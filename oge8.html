@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Множества и круги Эйлера</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Решите задачи на поисковые запросы с использованием кругов Эйлера. Операции И, ИЛИ, НЕ над множествами." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge8.html" />
     <meta property="og:title" content="Задание 8 ОГЭ - Множества и круги Эйлера" />
@@ -18,14 +19,17 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body class="body-dark">
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <a href="oge.html" class="back-link">← На главную ОГЭ</a>
       <a href="oge8-t.html" class="back-link">📚 Теория</a>
 
       <h1>🎯 Задание 8 ОГЭ — Множества и круги Эйлера</h1>
+
+      <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
 
       <div class="task-card">
         <div class="task-text" id="taskText">Загрузка задания...</div>
@@ -659,7 +663,7 @@
               <div class="hint-text" id="hintText"></div>
             </div>
 
-            <div class="feedback" id="feedback">
+            <div class="feedback" id="feedback" role="status" aria-live="polite">
               <div id="feedbackText"></div>
             </div>
 
@@ -687,6 +691,11 @@
       <a href="oge7.html" aria-label="Предыдущее задание">&larr; Назад</a>
       <a href="oge9.html" aria-label="Следующее задание">Далее &rarr;</a>
     </div>
+    </div>
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button class="quick-nav-btn theory" onclick="location.href = 'oge8-t.html'" title="Теория">📚</button>
+      <button class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
       // Отладка - проверяем загрузку скрипта
@@ -1508,6 +1517,5 @@
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
-      <script src="js/progress.js"></script>
   </body>
 </html>

@@ -4,6 +4,9 @@ $REPOS_DIR = '/home/git/repos';
 $SERVER_HOST = '79.143.31.184'; // Замените на домен, если есть
 $CREATE_CMD = 'create-repo <имя-репозитория>';
 
+// Служебная страница: не индексировать поисковиками.
+header('X-Robots-Tag: noindex, nofollow');
+
 // Проверяем существование директории
 if (!is_dir($REPOS_DIR)) {
     http_response_code(500);

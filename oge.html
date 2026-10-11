@@ -8,20 +8,23 @@
     <title>ОГЭ - Задания по информатике</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Интерактивные задания для подготовки к ОГЭ по информатике. 16 заданий с автоматической проверкой, подсказками и решениями." />
-    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge.html" />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/" />
     <meta property="og:title" content="ОГЭ - Задания по информатике" />
     <meta property="og:description" content="Интерактивные задания для подготовки к ОГЭ по информатике. 16 заданий с автоматической проверкой, подсказками и решениями." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge.html" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/" />
     
     <!-- Yandex.Metrika -->
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
 </head>
   <body class="body-center">
-    <div class="container" role="main">
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main" id="main-content">
       <a href="https://vpr.nayanovaacademy.ru/" class="back-link">← К ВПР</a>
 
       <h1>🎓 ОГЭ - Информатика</h1>
@@ -29,6 +32,8 @@
         Интерактивные задания для подготовки к основному государственному
         экзамену
       </p>
+
+      <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
 
       <div class="tasks-grid">
         <div class="task-card">
@@ -200,7 +205,6 @@
               оформления, сохранение в формате .odp.
             </p>
           </a>
-          <a href="oge131-t.html" class="theory-link">📚 Теория</a>
         </div>
 
         <div class="task-card">
@@ -214,7 +218,6 @@
               выравнивание, сохраните в формате .odt.
             </p>
           </a>
-          <a href="oge132-t.html" class="theory-link">📚 Теория</a>
         </div>
 
         <div class="task-card">
@@ -228,7 +231,6 @@
               на расчёт суммы, среднего значения и подсчёт записей по условию.
             </p>
           </a>
-          <a href="oge14-t.html" class="theory-link">📚 Теория</a>
         </div>
 
         <div class="task-card">
@@ -284,6 +286,7 @@
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
     <script src="js/progress-client.js"></script>
     <script src="js/progress-sync.js"></script>

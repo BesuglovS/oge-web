@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Тренажёр — Задание 15 ОГЭ (Исполнитель Робот)</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Составьте алгоритм для исполнителя Робот. Задачи на закрашивание клеток, движение вдоль стен и обработку проходов." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge15.html" />
     <meta property="og:title" content="Тренажёр — Задание 15 ОГЭ — Исполнитель Робот" />
@@ -18,11 +19,12 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
 
-<div class="header" role="main">
+<div class="header" role="main" id="main-content">
   <a href="oge.html" class="back-link">← На главную</a>
   <a href="oge15-t.html" class="back-link">📚 Теория</a>
   <h1>🤖 Тренажёр — Исполнитель Робот (Задание 15)</h1>
@@ -152,6 +154,13 @@
     </div>
 <!-- Быстрая навигация -->
 <div class="quick-nav">
+  <button
+    class="quick-nav-btn theory"
+    onclick="location.href = 'oge15-t.html'"
+    title="Теория"
+  >
+    📚
+  </button>
   <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
     ↑
   </button>
@@ -319,6 +328,8 @@ const field = {
   targetPainted: new Set(), // "r,c" - эталонные закрашенные клетки из oge-15-2026-e-XX.json
   robot: { row: 4, col: 4 },
   defaultRobot: { row: 4, col: 4 },
+  defaultPainted: new Set(), // исходные закрашенные клетки задачи (для сброса между запусками)
+  paintedByProgram: false,   // были ли клетки закрашены выполнением программы (а не кликами)
 
   reset() {
     this.walls.clear();
@@ -373,6 +384,7 @@ const field = {
     const key = `${row},${col}`;
     if (this.painted.has(key)) this.painted.delete(key);
     else this.painted.add(key);
+    this.paintedByProgram = false;
   },
 
   moveRobot(dir) {
@@ -433,6 +445,8 @@ const field = {
         this.painted.add(`${r - 1},${c - 1}`);
       }
     }
+    this.defaultPainted = new Set(this.painted);
+    this.paintedByProgram = false;
     if (data.robot) {
       this.robot = { row: data.robot.row - 1, col: data.robot.col - 1 };
     } else {
@@ -1076,6 +1090,13 @@ function lex(code) {
       continue;
     }
 
+    // Parentheses (для группировки условий)
+    if (ch === '(' || ch === ')') {
+      tokens.push({ type: 'paren', value: ch });
+      i++;
+      continue;
+    }
+
     // Word
     if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
       let word = '';
@@ -1096,6 +1117,7 @@ class Parser {
     this.tokens = tokens;
     this.pos = 0;
     this.line = 1;
+    this.unknown = [];
   }
 
   peek() {
@@ -1132,7 +1154,11 @@ parseProgram() {
         this.consume();
         return { type: 'command', value: tok.value, line: this.line };
       }
-      // Skip unrecognized words
+      // Skip unrecognized words (но запоминаем для диагностики)
+      const structural = ['использовать', 'робот', 'алг', 'нач', 'кон', 'то', 'иначе', 'все', 'кц', 'нц', 'если', 'пока'];
+      if (!structural.includes(tok.value.toLowerCase())) {
+        this.unknown.push(tok.value);
+      }
       this.consume();
       return null;
     }
@@ -1193,19 +1219,36 @@ parseProgram() {
   }
 
   parseCondition() {
-    const negated = this.parseFactor();
-    if (!negated) return null;
+    return this.parseOr();
+  }
 
-    // Check for 'и' or 'или'
-    const next = this.peek();
-    if (next && next.type === 'word' && (next.value === 'и' || next.value === 'или')) {
+  // Обработчик условий с правильным приоритетом: «или» ниже, чем «и».
+  parseOr() {
+    let left = this.parseAnd();
+    if (!left) return null;
+    let next = this.peek();
+    while (next && next.type === 'word' && next.value === 'или') {
       this.consume();
-      const right = this.parseCondition();
-      if (right) {
-        return { type: next.value === 'и' ? 'and' : 'or', left: negated, right };
-      }
+      const right = this.parseAnd();
+      if (!right) break;
+      left = { type: 'or', left, right };
+      next = this.peek();
     }
-    return negated;
+    return left;
+  }
+
+  parseAnd() {
+    let left = this.parseFactor();
+    if (!left) return null;
+    let next = this.peek();
+    while (next && next.type === 'word' && next.value === 'и') {
+      this.consume();
+      const right = this.parseFactor();
+      if (!right) break;
+      left = { type: 'and', left, right };
+      next = this.peek();
+    }
+    return left;
   }
 
   parseFactor() {
@@ -1221,7 +1264,15 @@ parseProgram() {
 
   parsePrimary() {
     const next = this.peek();
-    if (!next || next.type !== 'word') return null;
+    if (!next) return null;
+    if (next.type === 'paren' && next.value === '(') {
+      this.consume();
+      const cond = this.parseOr();
+      const close = this.peek();
+      if (close && close.type === 'paren' && close.value === ')') this.consume();
+      return cond;
+    }
+    if (next.type !== 'word') return null;
     const dirs = ['сверху', 'снизу', 'слева', 'справа'];
       if (dirs.includes(next.value)) {
         const dir = next.value;
@@ -1230,6 +1281,17 @@ parseProgram() {
         if (!word || (word.value !== 'свободно' && word.value !== 'стена')) throw new Error('Ожидается "свободно" или "стена" после "' + dir + '"');
         return { type: word.value === 'свободно' ? 'check' : 'wall', value: dir, line: this.line };
       }
+    if (next.value === 'клетка') {
+      this.consume();
+      const w = this.consume();
+      if (w && w.value === 'не') {
+        const w2 = this.consume();
+        if (!w2 || w2.value !== 'закрашена') throw new Error('Ожидается "закрашена" после "клетка не"');
+        return { type: 'not', operand: { type: 'painted', line: this.line } };
+      }
+      if (!w || w.value !== 'закрашена') throw new Error('Ожидается "закрашена" или "не закрашена" после "клетка"');
+      return { type: 'painted', line: this.line };
+    }
     return null;
   }
 }
@@ -1366,6 +1428,7 @@ class Interpreter {
 
         if (cmd === 'закрасить') {
           this.field.painted.add(`${this.field.robot.row},${this.field.robot.col}`);
+          this.field.paintedByProgram = true;
         } else {
           const dirMap = { 'вверх': 'up', 'вниз': 'down', 'влево': 'left', 'вправо': 'right' };
           const dir = dirMap[cmd];
@@ -1441,6 +1504,14 @@ class Interpreter {
         yield* this.nextLineMarker(cond.line || 0);
         yield { command: this.currentCommand, type: 'check', result: hasWall, beforePos, line: cond.line || 0 };
         return hasWall;
+      }
+      case 'painted': {
+        const beforePos = { row: this.field.robot.row, col: this.field.robot.col };
+        const isPainted = this.field.painted.has(this.field.robot.row + ',' + this.field.robot.col);
+        this.currentCommand = 'клетка закрашена';
+        yield* this.nextLineMarker(cond.line || 0);
+        yield { command: this.currentCommand, type: 'check', result: isPainted, beforePos, line: cond.line || 0 };
+        return isPainted;
       }
       case 'not': {
         const val = yield* this.evaluateCondition(cond.operand);
@@ -2109,10 +2180,15 @@ function runProgram() {
     return;
   }
 
-  // Reset field painted cells for fresh run
-  // Keep the current configuration, but reset robot position
+  // Сброс к исходному состоянию задачи перед новым запуском:
+  // возвращаем робота и закрашенные клетки к эталону из файла обстановки.
   field.robot = { ...field.defaultRobot };
+  field.painted = new Set(field.defaultPainted);
+  field.paintedByProgram = false;
   drawField();
+  if (parser.unknown && parser.unknown.length) {
+    log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'info');
+  }
 
     interpreter = new Interpreter(ast, field);
     interpreter.start();
@@ -2205,6 +2281,11 @@ function stepProgram() {
       return;
     }
     field.robot = { ...field.defaultRobot };
+    field.painted = new Set(field.defaultPainted);
+    field.paintedByProgram = false;
+    if (parser.unknown && parser.unknown.length) {
+      log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'info');
+    }
     drawField();
     interpreter = new Interpreter(ast, field);
     interpreter.start();
@@ -2324,7 +2405,13 @@ function checkProgram() {
   }
 
   if (missing.size === 0 && extra.size === 0) {
-    log('🎉 Все клетки закрашены верно!', 'ok');
+    if (field.paintedByProgram) {
+      log('🎉 Все клетки закрашены верно!', 'ok');
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge15', 1, 1); }
+      if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge15', 1); }
+    } else {
+      log('ℹ️ Клетки совпали с эталоном, но выставлены вручную (кликами), а не программой. Напишите и запустите программу — только тогда решение засчитывается.', 'info');
+    }
   } else {
     log('💡 Итог: ' + correct.size + ' / ' + targetPainted.size + ' клеток совпадают', 'info');
   }
@@ -2427,15 +2514,12 @@ function scrollToTop() {
 }
 
 init();
-  if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer');
-    // Track visit for progress
-    if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge15', 1, 1); } }
+  if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
-      <script src="js/progress.js"></script>
   </body>
 </html>

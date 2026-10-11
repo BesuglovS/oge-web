@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Теория - Задание 4 ОГЭ - Анализ простейшей модели объектов</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 4 ОГЭ: графы, кратчайший путь, алгоритм Дейкстры, моделирование дорожной сети." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge4-t.html" />
     <meta property="og:title" content="Теория — Задание 4 ОГЭ — Анализ простейшей модели объектов" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge4.html" class="back-link">🎮 К заданию</a>
@@ -30,7 +32,7 @@
 
       <h1>📚 Теория: Задание 4 ОГЭ — Анализ простейшей модели объектов</h1>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🗺️ Что такое граф?</h2>
         <p>
           <strong>Граф</strong> — это математическая модель, состоящая из
@@ -174,7 +176,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📊 Матрица расстояний</h2>
         <p>
           Информация о графе может быть представлена в виде
@@ -245,7 +247,7 @@
         <p>Жёлтым выделены дороги из пункта A: до B (2 км) и до C (3 км).</p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🔍 Типы задач задания 4 ОГЭ</h2>
 
         <div class="task-types">
@@ -264,7 +266,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📝 Алгоритм решения</h2>
 
         <h3>Метод перебора путей</h3>
@@ -326,7 +328,8 @@
         <div class="tip-box">
           <h4>Пример дерева путей</h4>
           <p>
-            Для поиска пути из A в E строим дерево всех возможных маршрутов:
+            Рассмотрим отдельный небольшой граф (не совпадающий с матрицей выше)
+            и для поиска пути из A в E построим дерево всех возможных маршрутов:
           </p>
           <div style="margin: 20px 0; overflow-x: auto">
             <svg
@@ -950,7 +953,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
@@ -1231,7 +1234,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⚠️ Частые ошибки</h2>
         <ul>
           <li>
@@ -1257,7 +1260,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
           <h4>Как правильно перебирать пути</h4>
@@ -1298,7 +1301,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 План решения задачи</h2>
         <ol>
           <li>📝 Внимательно прочитайте условие задачи</li>

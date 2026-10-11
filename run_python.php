@@ -32,7 +32,12 @@ header('Cache-Control: no-store');
 // ─── 2. Rate-limit по IP (файловый, flock) ───
 oge_rate_limit();
 
-function oge_rate_limit(int $limit = 10, int $window = 60): void {
+// Клиент задания 16 запускает по одному тесту на запрос (обычно 8–10 тестов
+// за прогон), поэтому лимит выставлен с запасом на несколько прогонов в
+// минуту (изначальные 10/мин блокировали уже второй прогон). Основной
+// анти-абьюз-барьер — nginx limit_req (5 r/s) в конфиге
+// `oge.nayanovaacademy.ru`; файловый слой остаётся вторичным.
+function oge_rate_limit(int $limit = 120, int $window = 60): void {
     // Каталог rate-limit — вне webroot: webroot принадлежит deploy
     // (www-data не имеет права записи, это часть изоляции).
     $dir = sys_get_temp_dir() . '/oge-sandbox-ratelimit';
@@ -103,6 +108,23 @@ $forbiddenPatterns = [
     '/\b__import__\b/',
     '/\b__builtins__\b/',
     '/\b__import_attr__\b/',
+    '/\bbreakpoint\b/',
+    '/\bhelp\s*\(/',
+    '/__class__/',
+    '/__bases__/',
+    '/__subclasses__/',
+    '/__mro__/',
+    '/__globals__/',
+    '/__code__/',
+    '/__closure__/',
+    '/__dict__/',
+    '/__getattribute__/',
+    '/__setattr__/',
+    '/__reduce__/',
+    '/__reduce_ex__/',
+    '/\bf_globals\b/',
+    '/\bf_locals\b/',
+    '/\bgi_frame\b/',
     '/\bexec\s*\(/',
     '/\beval\s*\(/',
     '/\bcompile\s*\(/',
@@ -123,34 +145,47 @@ $forbiddenPatterns = [
 ];
 
 foreach ($forbiddenPatterns as $pattern) {
-    if (preg_match($pattern, $code)) {
+    if (preg_match($pattern, $code, $matches)) {
         header('Content-Type: application/json');
         echo json_encode([
-            'error' => 'Код содержит запрещённые операции. Используйте только print, переменные, условия, циклы и разрешённые модули (math, random, datetime).'
+            'error' => 'Код содержит запрещённую операцию "' . trim($matches[0]) . '". Используйте только print, переменные, условия, циклы и разрешённые модули (math, random, datetime).'
         ]);
         exit;
     }
 }
 
-if (preg_match_all('/\bimport\s+([a-zA-Z_][a-zA-Z0-9_]*)/', $code, $matches)) {
-    foreach ($matches[1] as $module) {
-        if (!in_array($module, $allowedModules, true)) {
+// Разбор import-выражений построчно, чтобы `from math import sqrt`
+// не воспринимался как `import sqrt` (прежний баг: whitelist отвергал имена).
+// Поддерживаются `import a, b as c`, `from x import ...`, `from x.y import ...`.
+$codeLines = preg_split('/\R/', $code);
+foreach ($codeLines as $line) {
+    $line = trim($line);
+    if ($line === '' || $line[0] === '#') {
+        continue;
+    }
+    if (preg_match('/^from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import\b/', $line, $m)) {
+        $root = explode('.', $m[1])[0];
+        if (!in_array($root, $allowedModules, true)) {
             header('Content-Type: application/json');
             echo json_encode([
-                'error' => "Модуль '$module' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
+                'error' => "Модуль '$root' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
             ]);
             exit;
         }
-    }
-}
-if (preg_match_all('/\bfrom\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+import/', $code, $matches)) {
-    foreach ($matches[1] as $module) {
-        if (!in_array($module, $allowedModules, true)) {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'error' => "Модуль '$module' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
-            ]);
-            exit;
+    } elseif (preg_match('/^import\s+(.+)$/', $line, $m)) {
+        foreach (explode(',', $m[1]) as $part) {
+            $name = trim(preg_split('/\s+as\s+/i', trim($part))[0]);
+            $root = explode('.', $name)[0];
+            if ($root === '') {
+                continue;
+            }
+            if (!in_array($root, $allowedModules, true)) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'error' => "Модуль '$root' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
+                ]);
+                exit;
+            }
         }
     }
 }
@@ -182,10 +217,9 @@ _oge_original_stderr = _oge_sys.stderr
 _oge_sys.stderr = _oge_io.StringIO()
 
 _oge_blocked = frozenset({
-    'open', 'exec', 'eval', 'compile',
-    'getattr', 'setattr', 'delattr', 'hasattr',
+    'open', 'exec', 'eval', 'compile', 'breakpoint',
+    'getattr', 'setattr', 'delattr',
     'globals', 'locals', 'vars', 'dir',
-    'type', 'isinstance', 'issubclass', 'callable',
     'help', 'memoryview', 'exit', 'quit',
 })
 _oge_allowed = frozenset({
@@ -243,7 +277,6 @@ file_put_contents($tmpFile, $wrapper);
 const OGE_MEMORY_LIMIT_MB = 128;
 const OGE_TIMEOUT_SEC = 5;
 
-$memBytes = OGE_MEMORY_LIMIT_MB * 1024 * 1024;
 list($rawStdout, $rawStderr, $exitCode) = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
 @unlink($tmpFile);
 
@@ -314,8 +347,11 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
         2 => ['pipe', 'w'],
     ];
 
+    // Windows-фолбэк для локальной разработки: launcher `py` под proc_open
+    // с массивом аргументов передаёт `-3` напрямую в python.exe и падает,
+    // поэтому используем `python`.
     $argvBase = DIRECTORY_SEPARATOR === '\\'
-        ? ['py', '-3']
+        ? ['python']
         : ['/usr/bin/python3'];
 
     if (DIRECTORY_SEPARATOR !== '\\' && is_file($helper) && is_executable($helper)) {
@@ -376,6 +412,9 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
         $write = null; $except = null;
         $sel = @stream_select($read, $write, $except, max(0, ceil($timeout - $elapsed)), 100000);
         if ($sel === false) {
+            // Ошибка select — дочитываем буферы и завершаем.
+            $stdout .= stream_get_contents($pipes[1]);
+            $stderr .= stream_get_contents($pipes[2]);
             break;
         }
         if ($sel > 0) {

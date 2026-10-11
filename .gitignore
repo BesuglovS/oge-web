@@ -1,0 +1,13 @@
+# ОС / IDE
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Локальные артефакты анализа
+analysis-*.md

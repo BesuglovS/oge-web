@@ -24,6 +24,7 @@
   var firstBeat = true;
   var lastHref = '';
   var lastBeatAt = 0;
+  var beaconSent = false;
 
   // Учёт подписок и обёрток history — чтобы stop() полностью убирал за собой.
   var boundListeners = [];
@@ -148,8 +149,11 @@
   }
 
   // Финальный тик при уходе со страницы (в т.ч. закрытие вкладки).
+  // Флаг beaconSent не даёт отправить несколько финальных тиков подряд
+  // (события visibilitychange + pagehide + beforeunload идут вместе).
   function beacon() {
-    if (!enabled) return;
+    if (!enabled || beaconSent) return;
+    beaconSent = true;
     var data = JSON.stringify({
       url: currentUrl(),
       title: currentTitle(),
@@ -190,6 +194,7 @@
     enabled = true;
     lastHref = currentUrl();
     lastBeatAt = Date.now();
+    beaconSent = false;
 
     send(currentUrl(), currentTitle(), currentReferrer(), 0); // открытие страницы
     firstBeat = false;
@@ -198,7 +203,14 @@
 
     if (typeof global.document !== 'undefined') {
       addListener(global.document, 'visibilitychange', function () {
-        if (global.document.visibilityState === 'hidden') beacon();
+        if (global.document.visibilityState === 'hidden') {
+          beacon();
+        } else {
+          // Вернулись на страницу — разрешаем следующий финальный тик
+          // и не учитываем время, проведённое в фоне.
+          beaconSent = false;
+          lastBeatAt = Date.now();
+        }
       });
     }
     addListener(global, 'pagehide', beacon);

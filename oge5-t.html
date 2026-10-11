@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Теория - Задание 5 ОГЭ - Анализ алгоритмов для исполнителя</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 5 ОГЭ: исполнители, команды, алгоритмы, поиск параметра." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge5-t.html" />
     <meta property="og:title" content="Теория — Задание 5 ОГЭ — Анализ алгоритмов для исполнителя" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge5.html" class="back-link">🎮 К заданию</a>
@@ -29,7 +31,7 @@
 
       <h1>📚 Теория: Задание 5 ОГЭ — Анализ алгоритмов для исполнителя</h1>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🤖 Что такое исполнитель алгоритмов?</h2>
         <p>
           <strong>Исполнитель</strong> — это некоторый объект (человек,
@@ -46,7 +48,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📋 Типы команд исполнителей</h2>
 
         <h3>➕ Арифметические команды</h3>
@@ -113,7 +115,7 @@
         </table>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📝 Типы задач задания 5 ОГЭ</h2>
 
         <div class="task-types">
@@ -136,7 +138,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🧮 Стратегии решения</h2>
 
         <h3>Для задач типа 1 (составление алгоритма)</h3>
@@ -183,7 +185,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
@@ -196,78 +198,37 @@
             более 5 команд.
           </p>
           <div class="example-solution">
-            <strong>Решение (метод обратного хода):</strong><br /><br />
-            Начинаем с 2225 и идём к 3:<br /><br />
+            <strong>Решение (обратный ход):</strong><br /><br />
+            Команда 2 заменяет последнюю цифру числа на её квадрат: если
+            квадрат двузначный, его цифры <em>дописываются</em> вместо
+            последней цифры.<br /><br />
+            Идём от 2225 к 3 обратным ходом:
             <div class="algorithm-box">
               <div class="algorithm-step">
-                <span class="step-number">5</span> 2225 → последняя цифра 5,
-                квадрат 5²=25, но 2225≠...25, значит была команда 1
+                <span class="step-number">5</span> 2225 — последняя цифра 5,
+                5²=25, поэтому была команда 2 из числа 225.
               </div>
               <div class="algorithm-step">
-                <span class="step-number">4</span> 2224 → последняя цифра 4,
-                квадрат 4²=16, но 2224≠...16, значит была команда 1
+                <span class="step-number">4</span> 225 — последняя цифра 5,
+                5²=25, поэтому была команда 2 из числа 25.
               </div>
               <div class="algorithm-step">
-                <span class="step-number">3</span> 2223 → последняя цифра 3,
-                квадрат 3²=9, но 2223≠...9, значит была команда 1
+                <span class="step-number">3</span> 25 — последняя цифра 5,
+                5²=25, поэтому была команда 2 из числа 5.
               </div>
               <div class="algorithm-step">
-                <span class="step-number">2</span> 2222 → последняя цифра 2,
-                квадрат 2²=4, но 2222≠...4, значит была команда 1
+                <span class="step-number">2</span> 5 — команда 1 из числа 4
+                (5 − 1 = 4).
               </div>
               <div class="algorithm-step">
-                <span class="step-number">1</span> 2221 → последняя цифра 1,
-                квадрат 1²=1, но 2221≠...1, значит была команда 1
+                <span class="step-number">1</span> 4 — команда 1 из числа 3
+                (4 − 1 = 3).
               </div>
             </div>
             <br />
-            Это не работает. Попробуем другой подход — прямой ход:<br /><br />
-            <div class="algorithm-box">
-              <div class="algorithm-step">
-                <span class="step-number">1</span> 3 → команда 2: последняя
-                цифра 3, 3²=9 → получаем 29
-              </div>
-              <div class="algorithm-step">
-                <span class="step-number">2</span> 29 → команда 2: последняя
-                цифра 9, 9²=81 → получаем 281
-              </div>
-              <div class="algorithm-step">
-                <span class="step-number">3</span> 281 → команда 2: последняя
-                цифра 1, 1²=1 → получаем 281 (не меняется)
-              </div>
-            </div>
-            <br />
-            Попробуем: 3 → 4 → 16 → ... (команда 1, потом 2)<br />
-            3 + 1 = 4, последняя цифра 4, 4² = 16 → получаем 16<br />
-            16 + 1 = 17, последняя цифра 7, 7² = 49 → получаем 149<br />
-            Не подходит.<br /><br />
-            <strong>Правильное решение:</strong><br />
-            3 → 4 (команда 1)<br />
-            4 → 5 (команда 1)<br />
-            5 → 25 (команда 2: 5²=25)<br />
-            25 → 225 (команда 2: 5²=25, но это не так...)<br /><br />
-            На самом деле команда 2 заменяет только последнюю цифру:<br />
-            3 → 29 (команда 2: 3²=9, заменяем 3 на 9 в конце)<br />
-            29 → 281 (команда 2: 9²=81, заменяем 9 на 81 в конце)<br />
-            281 → 281 (команда 2: 1²=1, не меняется)<br /><br />
-            Нужно достичь 2225. Последняя цифра 5, значит перед этим была 5 или
-            число, где квадрат последней цифры даёт 5. Но 5 не является
-            квадратом. Значит последняя команда — 1.<br /><br />
-            2224: последняя цифра 4 = 2² или 8². Если была команда 2, то до неё
-            число оканчивалось на 2 или 8.<br />
-            Проверим: ...2 → команда 2 → ...4 (2²=4) ✓<br /><br />
-            Идём обратно:<br />
-            2225 → 2224 (команда 1, обратная — вычесть 1)<br />
-            2224 → ...2 (команда 2, обратная — найти число, где квадрат
-            последней цифры = 4)<br />
-            Это число оканчивается на 2: ...2 → ...4 (2²=4)<br />
-            Значит до 2224 было число ...2, но 2224 = 22|24, последняя цифра 4,
-            заменяем на 2: 2222<br />
-            2222 → 2221 (команда 1)<br />
-            2221 → 2221 (команда 2: 1²=1, не меняется) — не подходит<br />
-            2221 → 2220 (команда 1)<br />
-            ...<br /><br />
-            <strong>Ответ: 11112</strong> (проверьте самостоятельно)
+            Запишем в прямом порядке:
+            3 → 4 → 5 → 25 → 225 → 2225.<br /><br />
+            <strong>Ответ: 11222</strong>
           </div>
         </div>
 
@@ -351,7 +312,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⚠️ Частые ошибки</h2>
         <ul>
           <li>
@@ -380,7 +341,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 План решения задачи</h2>
         <ol>
           <li>
@@ -398,7 +359,7 @@
         </ol>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
           <h4>🔢 Работа с командой «припиши слева b»</h4>

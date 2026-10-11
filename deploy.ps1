@@ -40,10 +40,16 @@ if (-not $sshHost -or -not $sshUser -or -not $remotePath) {
 }
 
 $identityFile = [Environment]::GetEnvironmentVariable('DEPLOY_SSH_KEY')
+# Относительный путь к ключу разрешаем от каталога скрипта, а не от CWD.
+if ($identityFile -and -not [System.IO.Path]::IsPathRooted($identityFile)) {
+  $identityFile = Join-Path $PSScriptRoot $identityFile
+}
 $identityArg  = if ($identityFile) { "-i `"$identityFile`"" } else { '' }
 
 $remote  = "${sshUser}@${sshHost}"
-$portArg = if ($sshPort -ne '22') { "-P $sshPort" } else { '' }
+# Внимание: ssh принимает порт как `-p`, а scp — как `-P` (разные ключи).
+$sshPortArg = if ($sshPort -ne '22') { "-p $sshPort" } else { '' }
+$scpPortArg = if ($sshPort -ne '22') { "-P $sshPort" } else { '' }
 
 # ─── Fix SSH key permissions (Windows OpenSSH requires restrictive ACLs) ───
 if ($identityFile -and (Test-Path $identityFile)) {
@@ -71,23 +77,40 @@ $excludeArgs = @(
   '--exclude=*.log',
   '--exclude=.env',
   '--exclude=deploy.ps1',
+  '--exclude=AGENTS.md',
+  '--exclude=ARCHITECTURE.md',
+  '--exclude=refactoring.md',
+  '--exclude=analysis-*.md',
+  '--exclude=README.md',
   '--exclude=p',
   '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 
+$remoteTarCmd = "find `"${remotePath}`" -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf `"${remotePath}/p`" 2>/dev/null; tar -xzf - --no-overwrite-dir -m -C `"${remotePath}`"; test -s `"${remotePath}/oge.html`""
 $tarCmd   = "tar czf - $excludeArgs -C `"$srcPath`" ."
-$sshCmd   = "ssh $portArg $identityArg $remote `"find ${remotePath} -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf ${remotePath}/p 2>/dev/null; tar -xzf - -C $remotePath`""
+$sshCmd   = "ssh $sshPortArg $identityArg $remote `"$remoteTarCmd`""
 
 Write-Host "`n==> Deploying to ${remote}:${remotePath} ..." -ForegroundColor Cyan
 
 if ($DryRun) {
   Write-Host "  [DryRun] $tarCmd | $sshCmd" -ForegroundColor Yellow
 } else {
-  Write-Host "  Archiving and transferring..." -ForegroundColor Gray
-  $pipe = "$tarCmd | $sshCmd"
-  cmd /c $pipe
+  # Pack first (separately), so a tar failure is detected before transfer.
+  Write-Host "  Archiving..." -ForegroundColor Gray
+  $tarFile = Join-Path $env:TEMP ("oge-deploy-" + [guid]::NewGuid().ToString('N') + ".tar.gz")
+  cmd /c "tar czf `"$tarFile`" $excludeArgs -C `"$srcPath`" ."
   if ($LASTEXITCODE -ne 0) {
-    Write-Host "Deploy failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "  tar failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Remove-Item $tarFile -ErrorAction SilentlyContinue
+    exit 1
+  }
+
+  Write-Host "  Transferring..." -ForegroundColor Gray
+  cmd /c "$sshCmd < `"$tarFile`""
+  $sshExit = $LASTEXITCODE
+  Remove-Item $tarFile -ErrorAction SilentlyContinue
+  if ($sshExit -ne 0) {
+    Write-Host "Deploy failed (ssh exit code: $sshExit)" -ForegroundColor Red
     exit 1
   }
   Write-Host "  Done." -ForegroundColor Green
@@ -102,8 +125,8 @@ if ($DryRun) {
   Write-Host "  [DryRun] Deploy nginx config: $nginxSite" -ForegroundColor Yellow
 } elseif (Test-Path $nginxLocal) {
   Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
-  $scpCmd = "scp $portArg $identityArg `"$nginxLocal`" ${remote}:/tmp/nginx-$nginxSite"
-  $sshNginxCmd = "ssh $portArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
+  $scpCmd = "scp $scpPortArg $identityArg `"$nginxLocal`" ${remote}:/tmp/nginx-$nginxSite"
+  $sshNginxCmd = "ssh $sshPortArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
   cmd /c $scpCmd
   if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config scp failed" -ForegroundColor Red; exit 1 }
   cmd /c $sshNginxCmd

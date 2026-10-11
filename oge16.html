@@ -8,6 +8,7 @@
     <title>Задание 16 ОГЭ - Программирование</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Напишите программу на Python для подсчёта суммы элементов по заданному условию. Задачи на анализ цифр числа." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge16.html" />
     <meta property="og:title" content="Задание 16 ОГЭ - Программирование на Python" />
@@ -18,14 +19,16 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <h1>📝 Задание 16 ОГЭ: Программирование на Python</h1>
+      <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
       <div class="nav-links">
         <a href="oge.html" class="back-link">← Назад к списку заданий</a>
-        <a href="oge16-t.html" class="back-link" target="_blank">📖 Теория</a>
+        <a href="oge16-t.html" class="back-link" target="_blank" rel="noopener noreferrer">📖 Теория</a>
       </div>
       <div class="task-card" id="taskCard" data-main="true"></div>
       <div class="hint-box" id="hintBox">
@@ -36,26 +39,24 @@
         <div class="solution-title">📝 Решение</div>
         <div id="solutionSteps"></div>
       </div>
+
+      <!-- Prev/Next Navigation -->
+      <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+        <a href="oge15.html" aria-label="Предыдущее задание">&larr; Назад</a>
+        <span class="nav-placeholder"></span>
+      </div>
     </div>
-    </div>
-<div class="quick-nav">
+    <div class="quick-nav">
       <button
-        class="quick-nav-btn practice"
+        class="quick-nav-btn theory"
         onclick="location.href = 'oge16-t.html'"
         title="Теория"
       >
-        📖
+        📚
       </button>
       <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
-    
-
-      <!-- Prev/Next Navigation -->
-    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
-      <a href="oge15.html" aria-label="Предыдущее задание">&larr; Назад</a>
-      <span class="nav-placeholder"></span>
-    </div>
     </div>
     <script>
       var tasks = [
@@ -1697,7 +1698,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (10 тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
@@ -1717,7 +1718,7 @@
         runBtn.innerHTML = '<span class="spinner"></span> Выполнение...';
         os.className = "output-section show loading";
         os.innerHTML =
-          '<div class="output-title">⏳ Запуск тестов (0/10)...</div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="output-content">Запускаем вашу программу на 10 тестах...</div>';
+          '<div class="output-title">⏳ Запуск тестов (0/' + task.tests.length + ')...</div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="output-content">Запускаем вашу программу на ' + task.tests.length + ' тестах...</div>';
 
         var tests = task.tests;
         var results = [];
@@ -1729,7 +1730,7 @@
           if (currentTest >= tests.length) {
             // All tests done
             runBtn.disabled = false;
-            runBtn.innerHTML = "▶ Запустить и проверить (10 тестов)";
+            runBtn.innerHTML = "▶ Запустить и проверить (" + tests.length + " тестов)";
             showTestResults(results, passed, failed);
             return;
           }
@@ -1748,7 +1749,9 @@
             loadingContent.textContent =
               "Тест " +
               testNum +
-              "/10: " +
+              "/" +
+              tests.length +
+              ": " +
               test.input.replace(/\n/g, " ") +
               " → ожидается " +
               test.expected;
@@ -1761,6 +1764,13 @@
 
           fetch("run_python.php", { method: "POST", body: fd })
             .then(function (r) {
+              if (r.status === 429) {
+                // nginx limit_req или файловый rate-limit PHP.
+                return {
+                  error:
+                    "Слишком много запросов к песочнице. Подождите минуту и попробуйте снова.",
+                };
+              }
               return r.json();
             })
             .then(function (d) {
@@ -1860,6 +1870,11 @@
             "Обратите внимание на тесты, которые не прошли.</div>";
         }
 
+        if (allPassed) {
+          if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge16', 1, 1); }
+          if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge16', 1); }
+        }
+
         os.className =
           "output-section show " + (allPassed ? "success" : "error");
         os.innerHTML = h;
@@ -1917,11 +1932,11 @@
         var sc = task.solutionCode;
         ss.innerHTML =
           '<div class="solution-step"><strong>Программа на Python:</strong><div class="code-block-display">' +
-          sc.replace(/\n/g, "<br>").replace(/  /g, "&nbsp;&nbsp;") +
+          esc(sc).replace(/\n/g, "<br>").replace(/  /g, "&nbsp;&nbsp;") +
           '</div></div><div class="solution-step" style="background:#e8f5e9;border-left-color:#4caf50;"><strong>Входные данные:</strong><div style="font-family:monospace;margin-top:4px;">' +
-          task.testData.input.replace(/\n/g, "<br>") +
+          esc(task.testData.input).replace(/\n/g, "<br>") +
           '</div></div><div class="solution-step" style="background:#e8f5e9;border-left-color:#4caf50;"><strong>Ожидаемый результат: ' +
-          task.testData.expected +
+          esc(String(task.testData.expected)) +
           '</strong></div><div class="solution-step"><strong>💡 Как это работает:</strong><br>Программа считывает данные, обрабатывает каждое число, проверяет условие и накапливает результат. В конце выводит его.</div>';
         sb.style.display = "block";
       }
@@ -1942,15 +1957,12 @@
       }
 
       genTask();
-      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer');
-    // Track visit for progress
-    if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge16', 1, 1); } }
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
-      <script src="js/progress.js"></script>
   </body>
 </html>

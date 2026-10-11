@@ -6,12 +6,13 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v2'`) предкэширует жёсткий
-   список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `data/oge7.json`, `oge7.txt`, `js/metrika.js`, `js/progress.js`, `manifest.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v1` → `v2`), иначе пользователи вечно видят старый кэш.
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v5'`) предкэширует жёсткий
+   список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v4` → `v5`), иначе пользователи вечно видят старый кэш.
+   Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
-   `open(`, ...), проверка `import` по белому списку, `timeout 5`, сравнение вывода после нормализации пробелов.
+   `open(`, `breakpoint`, `__class__`, `__subclasses__`, `__globals__`, ...), проверка `import` по белому списку, `timeout 5`, сравнение вывода после нормализации пробелов.
    **Не ослаблять проверки**; `/usr/bin/python3` захардкожен. Реальный песочницей это НЕ является — defense-in-depth.
 3. **`oge{N}.html` — интерактив, `oge{N}-t.html` — теория** (`t` = теория, НЕ teacher).
    Задания 13.1/13.2/14 имеют только теорию (`oge131-t.html`, `oge132-t.html`, `oge14-t.html`) — интерактивных нет.
@@ -22,16 +23,18 @@
 5. **Задание 15 — полный Кумир-интерпретатор на JS** (~2400 строк в `oge15.html`): лексер, парсер
    (`parseProgram/parseWhile/parseIf`), step/run/pause, поле-канвас, сравнение закрашенных клеток с
    `files/oge15/oge-15-2026-e-NN.json`. Парсер намеренно толерантен (пропускает неизвестные слова).
-6. **`.env` закоммичен** (SSH-параметры с реальными значениями, путь к ключу `../ssh-private.key`).
-   Не печатать значения, не менять без необходимости. Восстановить `.gitignore` при возможности.
+6. **`.env` отслеживается git** (по решению владельца; ранее был исключён через `git rm --cached`, теперь возвращён).
+   Содержит SSH-параметры (путь к ключу `../ssh-deploy.key`). **Значения не печатать и не логировать.**
+   `deploy.ps1` исключает `.env` из архива — на сервер он не попадает. Хранение секретов в публичном
+   репозитории — осознанный риск: при утечке сменить ключ и параметры деплоя.
 7. **Два zip в `files/`** (`Задание11-12.zip` и его mojibake-двойник) — байт-идентичны (одинаковый MD5),
    артефакт кодировки git. Не удалять/переименовывать бездумно; HTML ссылается только на `Задание11-12.zip`.
 8. **`git/` (self-hosted git-UI) не исключён из деплоя** — часть сайта,
    хотя со страниц заданий не линкуется. Каталог `p/` (Leaflet-маршруты)
    УДАЛЁН (сентябрь 2026); `deploy.ps1` исключает его из tar и стирает на сервере.
 9. **Вся страницы с UTF-8 BOM** — сохранять кодировку. PowerShell-консоль показывает mojibake (codepage) — работать UTF-8-инструментами.
-10. **`_orig_oge2.css`** — пустой легаси-файл (3 байта), можно оставить.
-11. **Нет `.htaccess`, `sitemap.xml`, `robots.txt`, `.gitignore`** (доки упоминают `.htaccess` — его нет).
+10. **`_orig_oge2.css`** — пустой легаси-файл (3 байта) удалён.
+11. **Нет `.htaccess`** (доки упоминают `.htaccess` — его нет). Есть `.gitignore`, `robots.txt`, `sitemap.xml`.
     Реальная конфигурация — nginx-файл `oge.nayanovaacademy.ru` (untracked).
 
 ## 🔧 Команды
@@ -82,7 +85,8 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, untracked)
 
 1. `.env` → SSH-переменные (`DEPLOY_SSH_USER=deploy`, ключ `../ssh-deploy.key`); `icacls` ключа.
 2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, nginx-конфига, `p`, IDE/лог-файлов) → SSH от deploy-пользователя.
-3. Удалённо: удаляет всё **кроме `git/`** в целевой директории (и стирает старую `p/`, если осталась) → распаковка.
+3. Удалённо: удаляет всё **кроме `git/`** в целевой директории (и стирает старую `p/`, если осталась) → распаковка
+   (`tar -xzf - --no-overwrite-dir -m`, чтобы непривилегированный deploy не менял метаданные существующих каталогов `.` и `git/`).
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
 
@@ -95,7 +99,7 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, static `immutable 30d`,
 
 - `run_python.php` — 4-слойная защита (модель python-web): rate-limit (nginx limit_req + файловый
   по IP в /tmp), pre-фильтры (regex + белый список импортов), wrapper с усечёнными builtins
-  (sentinel-канал вывода, stdin через base64), изоляция процесса через root-хелпер
+  (sentinel-канал вывода, stdin напрямую через pipe), изоляция процесса через root-хелпер
   `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
   Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).

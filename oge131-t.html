@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Теория - Задание 13.1 ОГЭ — Создание презентаций</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 13.1 ОГЭ: создание презентаций в PowerPoint и Impress, оформление слайдов." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge131-t.html" />
     <meta property="og:title" content="Теория — Задание 13.1 ОГЭ — Создание презентаций" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body class="body-red-purple">
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
       </div>
@@ -30,7 +32,7 @@
 
       <!-- ============= ЧАСТЬ 1: ОБЩАЯ ТЕОРИЯ О РЕДАКТОРАХ ПРЕЗЕНТАЦИЙ ============= -->
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Что такое редактор презентаций?</h2>
         <p>
           <strong>Редактор презентаций</strong> — это программа для создания и
@@ -49,7 +51,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📋 Основные возможности редакторов презентаций</h2>
 
         <div class="feature-grid">
@@ -103,7 +105,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📖 Основные понятия</h2>
 
         <h3>📄 Слайд</h3>
@@ -139,7 +141,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>✏️ Пример работы с редактором презентаций</h2>
 
         <div class="example-box">
@@ -178,7 +180,7 @@
 
       <!-- ============= ЧАСТЬ 2: ТЕОРИЯ ЗАДАНИЯ 13.1 ============= -->
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 Что такое задание 13.1?</h2>
         <p>
           <strong>Задание 13.1</strong> — практическое задание ОГЭ по
@@ -203,7 +205,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📝 Пример задания</h2>
         <div class="example-box">
           <h4>Пример: «Басенджи»</h4>
@@ -230,7 +232,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📐 Структура презентации</h2>
         <p>Презентация состоит ровно из <strong>трёх слайдов</strong>.</p>
 
@@ -314,7 +316,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📏 Требования к оформлению</h2>
 
         <h3>📐 Параметры страницы</h3>
@@ -381,7 +383,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📋 Критерии оценивания</h2>
 
         <div class="table-wrapper">
@@ -447,7 +449,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📌 Порядок выполнения задания</h2>
         <ol>
           <li>Откройте редактор презентаций (PowerPoint или Impress)</li>
@@ -484,7 +486,7 @@
         </ol>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⚠️ Типичные ошибки</h2>
 
         <div class="warning-box">
@@ -531,7 +533,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Полезные советы</h2>
 
         <div class="tip-box">
@@ -604,7 +606,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⚠️ Частые ошибки (общие)</h2>
         <ul>
           <li>
@@ -612,8 +614,8 @@
             тезисы, а не полный текст выступления
           </li>
           <li>
-            <strong>Мелкий шрифт</strong> — текст должен быть читаемым с
-            последних рядов (рекомендуется не менее 24 pt)
+            <strong>Мелкий шрифт</strong> — соблюдайте размеры из задания:
+            заголовок 40 pt, подзаголовки 24 pt, основной текст 20 pt
           </li>
           <li>
             <strong>Яркие цвета</strong> — избегайте кислотных цветов и плохой
@@ -630,7 +632,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📋 Примеры из практики оценивания</h2>
 
         <div class="example-box">
@@ -671,7 +673,7 @@
 
       <!-- ============= ЧАСТЬ 3: ВАЖНЫЕ АСПЕКТЫ ПРИ СДАЧЕ ОГЭ ============= -->
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⏱️ Как распределить время на экзамене</h2>
         <p>
           На выполнение задания 13.1 рекомендуется отводить
@@ -724,7 +726,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>✅ Чек-лист проверки перед сдачей</h2>
         <p>
           Перед тем как завершить работу, обязательно проверьте каждый пункт
@@ -795,7 +797,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🔑 Ключевые правила оформления шрифта</h2>
 
         <h3>Размеры шрифта (точные требования)</h3>
@@ -873,7 +875,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🖼️ Правила работы с изображениями</h2>
 
         <h3>Как избежать искажения изображений</h3>
@@ -918,7 +920,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 Разбор оценивания на примерах</h2>
 
         <div class="success-box">
@@ -959,7 +961,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Секреты успешного выполнения</h2>
 
         <div class="tip-box">
@@ -1008,7 +1010,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>❓ Часто задаваемые вопросы</h2>
 
         <h3>Можно ли использовать готовый дизайн презентации?</h3>
@@ -1021,9 +1023,10 @@
 
         <h3>Что будет, если в презентации больше 3 слайдов?</h3>
         <p>
-          Эксперт оценивает только первые три слайда. Нарушение структуры
-          документа (больше 3 слайдов) не фиксируется как ошибка, но лучше
-          сделать ровно 3 слайда, как требует задание.
+          Требуется <strong>ровно три слайда</strong>. Лишние слайды — это
+          нарушение структуры документа, за которое эксперт снижает балл
+          (см. список частых ошибок ниже). Сделайте ровно 3 слайда, как
+          требует задание.
         </p>
 
         <h3>Что делать, если изображений в каталоге меньше 5?</h3>
@@ -1047,7 +1050,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📝 Памятка на экзамен</h2>
         <div class="highlight-box">
           <p>

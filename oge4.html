@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Задание 4 ОГЭ - Анализ простейшей модели объектов</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Определите кратчайший путь между пунктами на графе дорог. Задачи на поиск оптимального маршрута и расстояния." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge4.html" />
     <meta property="og:title" content="Задание 4 ОГЭ - Анализ простейшей модели объектов" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge4-t.html" class="back-link">📚 Теория</a>
@@ -434,33 +436,24 @@
           );
           answer = path1.distance + path2.distance;
 
-          // Для решения находим пути
-          const pathsToVia = findAllPaths(
-            matrix,
-            vertices,
-            startVertex,
+          // Для решения находим пути (лимит повышен, чтобы истинный минимум
+          // почти всегда попадал в выборку; истинные минимумы берём из Дейкстры).
+          const pathsToVia = findAllPaths(matrix, vertices, startVertex, viaVertex, 30);
+          const pathsFromVia = findAllPaths(matrix, vertices, viaVertex, endVertex, 30);
+          solutionPaths = {
+            pathsToVia,
+            pathsFromVia,
             viaVertex,
-            5,
-          );
-          const pathsFromVia = findAllPaths(
-            matrix,
-            vertices,
-            viaVertex,
-            endVertex,
-            5,
-          );
-          solutionPaths = { pathsToVia, pathsFromVia, viaVertex };
+            bestToVia: path1.distance,
+            bestFromVia: path2.distance,
+          };
         } else {
           // Прямой путь
-          const result = findShortestPath(
-            matrix,
-            vertices,
-            startVertex,
-            endVertex,
-          );
+          const result = findShortestPath(matrix, vertices, startVertex, endVertex);
           answer = result.distance;
           solutionPaths = {
-            allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 8),
+            allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 30),
+            bestDistance: result.distance,
           };
         }
 
@@ -525,7 +518,7 @@
               <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
               <button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
             </div>
-            <div class="result" id="result"></div>
+            <div class="result" id="result" role="status" aria-live="polite"></div>
           </div>
         `;
 
@@ -637,6 +630,12 @@
         if (currentTask.viaVertex) {
           const { pathsToVia, pathsFromVia, viaVertex } =
             currentTask.solutionPaths;
+          // Истинные минимумы участков берём из алгоритма Дейкстры, чтобы
+          // «минимальный» путь всегда сходился с итоговым ответом.
+          const bestToVia =
+            currentTask.solutionPaths.bestToVia ?? pathsToVia[0].distance;
+          const bestFromVia =
+            currentTask.solutionPaths.bestFromVia ?? pathsFromVia[0].distance;
 
           stepsHTML = `
             <div class="solution-step">
@@ -645,7 +644,7 @@
           `;
 
           for (const p of pathsToVia.slice(0, 4)) {
-            const isBest = p.distance === pathsToVia[0].distance;
+            const isBest = p.distance === bestToVia;
             stepsHTML += `
               <div class="path-item ${isBest ? "best" : ""}">
                 ${p.path.join(" → ")} = ${p.distance} км ${isBest ? "✓" : ""}
@@ -653,7 +652,7 @@
             `;
           }
 
-          const bestToVia = pathsToVia[0].distance;
+          // bestToVia уже определён выше (из алгоритма Дейкстры)
 
           stepsHTML += `
             <div class="solution-step">
@@ -662,7 +661,7 @@
           `;
 
           for (const p of pathsFromVia.slice(0, 4)) {
-            const isBest = p.distance === pathsFromVia[0].distance;
+            const isBest = p.distance === bestFromVia;
             stepsHTML += `
               <div class="path-item ${isBest ? "best" : ""}">
                 ${p.path.join(" → ")} = ${p.distance} км ${isBest ? "✓" : ""}
@@ -670,7 +669,7 @@
             `;
           }
 
-          const bestFromVia = pathsFromVia[0].distance;
+          // bestFromVia уже определён выше (из алгоритма Дейкстры)
 
           stepsHTML += `
             <div class="solution-step">
@@ -683,6 +682,8 @@
           `;
         } else {
           const { allPaths } = currentTask.solutionPaths;
+          const bestDistance =
+            currentTask.solutionPaths.bestDistance ?? allPaths[0].distance;
 
           stepsHTML = `
             <div class="solution-step">
@@ -691,7 +692,7 @@
           `;
 
           for (const p of allPaths) {
-            const isBest = p.distance === allPaths[0].distance;
+            const isBest = p.distance === bestDistance;
             stepsHTML += `
               <div class="path-item ${isBest ? "best" : ""}">
                 ${p.path.join(" → ")} = ${p.distance} км ${isBest ? "← минимальный!" : ""}
@@ -732,6 +733,5 @@
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
-      <script src="js/progress.js"></script>
   </body>
 </html>

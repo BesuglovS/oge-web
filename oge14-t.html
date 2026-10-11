@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Задание 14 ОГЭ — Электронные таблицы | Теория и практика</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 14 ОГЭ: электронные таблицы, формулы, функции, построение диаграмм в Excel." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge14-t.html" />
     <meta property="og:title" content="Задание 14 ОГЭ — Электронные таблицы | Теория и практика" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a
           href="https://office.nayanovaacademy.ru/excel/"
@@ -1082,9 +1084,11 @@
           </p>
           <p>
             <strong>Решение:</strong> внимательно сверяйте написание текстовых
-            значений в условии. В Excel текстовые значения чувствительны к
-            регистру в функциях ЕСЛИ, но в СЧЁТЕСЛИ регистр обычно не
-            учитывается.
+            значений в условии. В Excel и LibreOffice Calc сравнение текста (в
+            том числе в функциях ЕСЛИ и СЧЁТЕСЛИ) по умолчанию
+            <strong>регистронезависимо</strong>: <code>"Биология"</code> и
+            <code>"биология"</code> считаются равными. Регистр учитывает только
+            функция <code>СОВПАД</code> (EXACT).
           </p>
         </div>
 

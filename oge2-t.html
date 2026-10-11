@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Теория - Задание 2 ОГЭ - Расшифровка сообщения</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 2 ОГЭ: коды Фано, условия уникальности кодирования, принципы декодирования." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge2-t.html" />
     <meta property="og:title" content="Теория — Задание 2 ОГЭ — Расшифровка сообщения" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge2.html" class="back-link">🎮 К заданию</a>
@@ -29,7 +31,7 @@
 
       <h1>📚 Теория: Задание 2 ОГЭ — Расшифровка сообщения</h1>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🔐 Что такое кодирование?</h2>
         <p>
           <strong>Кодирование</strong> — это представление информации в виде
@@ -66,7 +68,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📊 Равномерное и неравномерное кодирование</h2>
 
         <h3>📏 Равномерное кодирование</h3>
@@ -123,7 +125,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 Условие Фано</h2>
 
         <div class="fano-box direct">
@@ -192,8 +194,11 @@
             Фано нарушено!
           </p>
           <p>
-            Сообщение <code>01</code> можно расшифровать как
-            <strong>АБ</strong> или как <strong>В</strong> — неоднозначно!
+            Из-за этого сообщение, начинающееся с <code>0</code>, нельзя
+            однозначно разбить на кодовые слова: например,
+            <code>010</code> можно прочитать как <strong>В</strong> (<code>10</code>)
+            с предшествующим <code>0</code>, так и не сумев понять, где
+            заканчивается первое слово.
           </p>
         </div>
 
@@ -243,7 +248,7 @@
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🌳 Дерево кодов (для проверки условия Фано)</h2>
         <p>
           Условие Фано можно проверить с помощью двоичного дерева. Если все
@@ -279,7 +284,7 @@
         </p>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>📝 Алгоритм расшифровки</h2>
 
         <h3>При прямом условии Фано (слева направо)</h3>
@@ -302,7 +307,7 @@
         </ol>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
@@ -353,25 +358,13 @@
               <span class="decode-bits">01</span>
               <span class="decode-arrow">→</span>
               <span class="decode-letter">Б</span>
-              <span>Осталось: 11110110100</span>
+              <span>Осталось: 1110110100</span>
             </div>
             <div class="decode-step">
-              <span class="decode-bits">1111</span>
+              <span class="decode-bits">1110</span>
               <span class="decode-arrow">→</span>
-              <span class="decode-letter">Я</span>
-              <span>Осталось: 0110100</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">01</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">Б</span>
-              <span>Осталось: 10100</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">1011</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">В</span>
-              <span>Нет! Пробуем 10... нет такого кода</span>
+              <span class="decode-letter">У</span>
+              <span>Осталось: 110100</span>
             </div>
             <div class="decode-step">
               <span class="decode-bits">1101</span>
@@ -386,12 +379,12 @@
               <span>Готово!</span>
             </div>
             <br />
-            <strong>Ответ: АЗЯУБКА</strong>
+            <strong>Ответ: АЗБУКА</strong>
           </div>
         </div>
 
         <div class="example-box">
-          <h4>Пример 2: Равномерный код</h4>
+          <h4>Пример 2: Обратное условие Фано</h4>
           <p>
             <strong>Условие:</strong> Расшифруйте сообщение
             <code>01100101000110111</code>
@@ -450,24 +443,15 @@
               <span class="decode-bits">11</span>
               <span class="decode-arrow">→</span>
               <span class="decode-letter">А</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">Н</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">010</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">А</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">11</span>
+              <span>Готово!</span>
             </div>
             <br />
-            <strong>Ответ: СИНЦИАНА</strong>
+            <strong>Ответ: СИНИЦА</strong>
           </div>
         </div>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>⚠️ Частые ошибки</h2>
         <ul>
           <li>
@@ -489,7 +473,7 @@
         </ul>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>🎯 План решения задачи</h2>
         <ol>
           <li>📝 Внимательно прочитайте условие и таблицу кодов</li>
@@ -506,7 +490,7 @@
         </ol>
       </div>
 
-      <div class="theory-section" id="main-content">
+      <div class="theory-section">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
           <h4>Как быстро определить условие Фано</h4>

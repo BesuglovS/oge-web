@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
     <title>Задание 5 ОГЭ - Анализ алгоритмов для исполнителя</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#764ba2" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Составьте алгоритм для исполнителя или определите неизвестный параметр. Задачи на анализ простых алгоритмов." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge5.html" />
     <meta property="og:title" content="Задание 5 ОГЭ - Анализ алгоритмов для исполнителя" />
@@ -18,10 +19,11 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
-    <div class="container" role="main">
+    <div class="container" role="main" id="main-content">
       <div class="nav-links">
         <a href="oge.html" class="back-link">← На главную ОГЭ</a>
         <a href="oge5-t.html" class="back-link">📚 Теория</a>
@@ -397,7 +399,7 @@
               <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
               <button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
             </div>
-            <div class="result" id="result"></div>
+            <div class="result" id="result" role="status" aria-live="polite"></div>
           </div>
         `;
 
@@ -521,7 +523,15 @@
 
         const correctAnswer = currentTask.answer.toString();
 
-        if (userAnswer === correctAnswer) {
+        // Для задач на составление алгоритма проверяем не строку, а работу
+        // программы: задание допускает любой корректный алгоритм (в пределах
+        // maxCommands), поэтому эмулируем программу пользователя.
+        const isCorrect =
+          currentTask.taskType === "algorithm"
+            ? validateUserProgram(userAnswer.replace(/\s+/g, ""))
+            : userAnswer === correctAnswer;
+
+        if (isCorrect) {
           input.classList.remove("incorrect");
           input.classList.add("correct");
           result.className = "result correct"
@@ -540,11 +550,41 @@
           result.innerHTML = `
             <span class="result-icon">😔</span>
             НЕПРАВИЛЬНО!<br>
-            <small>Правильный ответ: <strong>${correctAnswer}</strong></small>
+            <small>Один из верных ответов: <strong>${correctAnswer}</strong></small>
           `;
           result.style.display = "block";
           result.scrollIntoView({ behavior: "smooth", block: "center" });
         }
+      }
+
+      // Эмулирует программу пользователя (строка из «1»/«2») для задач типа
+      // «algorithm». Возвращает true, если программа переводит startNum в endNum
+      // и укладывается в maxCommands команд.
+      function validateUserProgram(program) {
+        if (!/^[12]+$/.test(program)) return false;
+        const maxCommands = currentTask.maxCommands || 5;
+        if (program.length > maxCommands) return false;
+
+        const cmds =
+          currentTask.commands ||
+          ["прибавь 1", "возведи в квадрат последнюю цифру"];
+        let num = currentTask.startNum;
+
+        for (const ch of program) {
+          if (ch === "1") {
+            const m = cmds[0].match(/\d+/);
+            num += m ? parseInt(m[0], 10) : 1;
+          } else if (cmds[1].includes("квадрат последнюю цифру")) {
+            num = squareLastDigit(num);
+          } else if (cmds[1].includes("умножь")) {
+            const m = cmds[1].match(/\d+/);
+            num *= m ? parseInt(m[0], 10) : 2;
+          }
+          // Защита от «раздувания» числа при неверной программе.
+          if (!Number.isFinite(num) || Math.abs(num) > 1e12) return false;
+        }
+
+        return num === currentTask.endNum;
       }
 
       function nextTask() {
@@ -781,6 +821,5 @@
         navigator.serviceWorker.register('sw.js').catch(function() {});
       }
     </script>
-      <script src="js/progress.js"></script>
   </body>
 </html>

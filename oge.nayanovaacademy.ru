@@ -10,16 +10,17 @@ limit_req_status 429;
 server {
     listen 80;
     server_name oge.nayanovaacademy.ru;
-    
+
     # Перенаправляем все запросы на HTTPS
     return 301 https://$host$request_uri;
 }
 
 # ==========================================
-# 2. Основной HTTPS-сервер
+# 3. Основной HTTPS-сервер
 # ==========================================
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;
     server_name oge.nayanovaacademy.ru;
 
     # --- SSL-сертификаты (ваши пути) ---
@@ -42,6 +43,12 @@ server {
     # HSTS (обязывает браузер использовать только HTTPS)
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
 
+    # --- Заголовки безопасности ---
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
     # --- Основные параметры сайта ---
     root /var/www/oge.nayanovaacademy.ru/public;
     index oge.html index.html index.htm index.php;
@@ -58,50 +65,86 @@ server {
     # 2. Python-песочница (задание 16): точный match выше regex `\.php$`,
     # обязательно с ограничением частоты (2a) и иммутабельным security-набором.
     location = /run_python.php {
-        limit_req zone=sandbox_oge burst=5 nodelay;
+        limit_req zone=sandbox_oge burst=10 nodelay;
 
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
-        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+        # add_header в location отменяет наследование server-level заголовков,
+        # поэтому security-набор дублируется здесь.
         add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
         add_header Cache-Control "no-store" always;
     }
 
     # 2b. Обработка PHP-файлов через FastCGI
-    location ~ \.php$ {        include snippets/fastcgi-php.conf;
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
 
-    # 3. Кэширование статики
-    # Ecosystem-скрипты без content-hash - ne keshirovat, inache obnovleniya
-    # dohodyat do 30 dney (tracking-client, progress-client, progress-sync).
-    location = /js/tracking-client.js {
-        add_header Cache-Control "no-cache, must-revalidate";
+    # 3. Страница 404 (для try_files =404 и несуществующих файлов)
+    error_page 404 /404.html;
+
+    # 4. Кэширование статики
+    # HTML не кэшируем (содержимое может обновляться, а SW кэширует отдельно).
+    location ~* \.html$ {
+        add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     }
 
-    location = /js/progress-client.js {
-        add_header Cache-Control "no-cache, must-revalidate";
+    # Данные заданий (JSON/TXT/KuMir) — короткий кэш.
+    location ~* \.(json|txt|kum)$ {
+        expires 7d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     }
 
-    location = /js/progress-sync.js {
-        add_header Cache-Control "no-cache, must-revalidate";
+    # Скачиваемые архивы — длительный кэш (имена версионированы по заданию).
+    location ~* \.zip$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+        access_log off;
     }
 
-    location = /sw.js {
-        add_header Cache-Control "no-cache, must-revalidate";
+    # Ассеты без content-hash (экосистемные скрипты, точка входа, манифест,
+    # styles.css) не кэшируем — иначе обновления доходят до 30 дней.
+    # Security-заголовки продублированы: add_header не наследуется из server{},
+    # если в location объявлен собственный add_header.
+    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|sw\.js)$ {
+        add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     }
 
     location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
         expires 30d;
-        add_header Cache-Control "public, immutable";
+        add_header Cache-Control "public, immutable" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
         access_log off;
     }
 
-    # 4. Блокировка скрытых файлов
+    # 5. Блокировка скрытых файлов
     location ~ /\. {
         deny all;
         access_log off;
