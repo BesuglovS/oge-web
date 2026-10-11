@@ -58,6 +58,13 @@ php -S 127.0.0.1:8080
 
 Затем откройте <http://localhost:8000> (или `:8080`).
 
+Статические проверки (ссылки, canonical, sw-ассеты, иконки, head-теги) и PHP-линт:
+
+```bash
+node tools/check-site.mjs
+php -l run_python.php
+```
+
 ## ✨ Особенности
 
 - Адаптивный дизайн и touch-поддержка.

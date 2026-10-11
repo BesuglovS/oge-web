@@ -104,10 +104,14 @@ self.addEventListener('fetch', function(event) {
   } catch (e) { /* ignore */ }
 
   /* Network-first для HTML, cache-first для остальных ассетов */
+  var isGitUi = false;
+  try { isGitUi = new URL(request.url).pathname.indexOf('/git/') === 0; } catch (e) { /* ignore */ }
+
   if (request.destination === 'document' || request.mode === 'navigate') {
     event.respondWith(
       fetch(request).then(function(response) {
-        if (response && response.ok) {
+        // Служебный git-UI не кэшируем (не хранить внутренности сервера на устройстве).
+        if (response && response.ok && !isGitUi) {
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) { cache.put(request, clone); });
         }
