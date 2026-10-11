@@ -19,8 +19,7 @@ server {
 # 3. Основной HTTPS-сервер
 # ==========================================
 server {
-    listen 443 ssl;
-    http2 on;
+    listen 443 ssl http2;
     server_name oge.nayanovaacademy.ru;
 
     # --- SSL-сертификаты (ваши пути) ---
@@ -92,6 +91,19 @@ server {
     error_page 404 /404.html;
 
     # 4. Кэширование статики
+    # Ассеты без content-hash (экосистемные скрипты, точка входа, манифест,
+    # styles.css) не кэшируем — иначе обновления доходят до 30 дней.
+    # ВАЖНО: этот location идёт ПЕРВЫМ, иначе manifest.json перехватится
+    # правилом для `.json` ниже. Security-заголовки продублированы: add_header
+    # не наследуется из server{}, если в location объявлен собственный add_header.
+    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|sw\.js)$ {
+        add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    }
+
     # HTML не кэшируем (содержимое может обновляться, а SW кэширует отдельно).
     location ~* \.html$ {
         add_header Cache-Control "no-cache, must-revalidate" always;
@@ -120,18 +132,6 @@ server {
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
         add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
         access_log off;
-    }
-
-    # Ассеты без content-hash (экосистемные скрипты, точка входа, манифест,
-    # styles.css) не кэшируем — иначе обновления доходят до 30 дней.
-    # Security-заголовки продублированы: add_header не наследуется из server{},
-    # если в location объявлен собственный add_header.
-    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|sw\.js)$ {
-        add_header Cache-Control "no-cache, must-revalidate" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     }
 
     location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
