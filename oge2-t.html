@@ -7,7 +7,7 @@
     
     <title>Теория - Задание 2 ОГЭ - Расшифровка сообщения</title>
     <link rel="stylesheet" href="assets/styles.css" />
-<meta name="theme-color" content="#764ba2" />
+<meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 2 ОГЭ: коды Фано, условия уникальности кодирования, принципы декодирования." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge2-t.html" />
@@ -196,11 +196,11 @@
             Фано нарушено!
           </p>
           <p>
-            Из-за этого сообщение, начинающееся с <code>0</code>, нельзя
-            однозначно разбить на кодовые слова: например,
-            <code>010</code> можно прочитать как <strong>В</strong> (<code>10</code>)
-            с предшествующим <code>0</code>, так и не сумев понять, где
-            заканчивается первое слово.
+            Из-за этого сообщение нельзя однозначно разбить на кодовые слова:
+            например, <code>010</code> можно прочитать как
+            <code>0</code>+<code>10</code> = <strong>АВ</strong>, а можно как
+            <code>01</code>+<code>0</code> = <strong>БА</strong>. Оба варианта
+            возможны — значит, расшифровка неоднозначна.
           </p>
         </div>
 
@@ -389,7 +389,7 @@
           <h4>Пример 2: Обратное условие Фано</h4>
           <p>
             <strong>Условие:</strong> Расшифруйте сообщение
-            <code>01100101000110111</code>
+            <code>0010001101010111</code>
           </p>
           <table class="code-table">
             <tr>
@@ -404,51 +404,63 @@
             </tr>
             <tr>
               <td>Код</td>
-              <td>11</td>
-              <td>000</td>
+              <td>0111</td>
+              <td>0011</td>
+              <td>10</td>
               <td>001</td>
-              <td>010</td>
-              <td>011</td>
-              <td>100</td>
+              <td>00</td>
+              <td>1011</td>
               <td>101</td>
             </tr>
           </table>
+          <p>
+            Код <code>00</code> является началом кодов <code>001</code> и
+            <code>0011</code>, поэтому читать слева направо нельзя. Зато ни один
+            код не является <strong>окончанием</strong> другого — декодируем
+            справа налево.
+          </p>
 
           <div class="example-solution">
-            <strong>Решение:</strong><br /><br />
+            <strong>Решение (читаем справа налево):</strong><br /><br />
             <div class="decode-step">
-              <span class="decode-bits">011</span>
+              <span class="decode-bits">0111</span>
               <span class="decode-arrow">→</span>
-              <span class="decode-letter">С</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">001</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">И</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">010</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">Н</span>
-            </div>
-            <div class="decode-step">
-              <span class="decode-bits">001</span>
-              <span class="decode-arrow">→</span>
-              <span class="decode-letter">И</span>
+              <span class="decode-letter">А</span>
+              <span>Осталось: 001000110101</span>
             </div>
             <div class="decode-step">
               <span class="decode-bits">101</span>
               <span class="decode-arrow">→</span>
               <span class="decode-letter">Ц</span>
+              <span>Осталось: 001000110</span>
             </div>
             <div class="decode-step">
-              <span class="decode-bits">11</span>
+              <span class="decode-bits">10</span>
               <span class="decode-arrow">→</span>
-              <span class="decode-letter">А</span>
+              <span class="decode-letter">И</span>
+              <span>Осталось: 0010001</span>
+            </div>
+            <div class="decode-step">
+              <span class="decode-bits">001</span>
+              <span class="decode-arrow">→</span>
+              <span class="decode-letter">Н</span>
+              <span>Осталось: 0010</span>
+            </div>
+            <div class="decode-step">
+              <span class="decode-bits">10</span>
+              <span class="decode-arrow">→</span>
+              <span class="decode-letter">И</span>
+              <span>Осталось: 00</span>
+            </div>
+            <div class="decode-step">
+              <span class="decode-bits">00</span>
+              <span class="decode-arrow">→</span>
+              <span class="decode-letter">С</span>
               <span>Готово!</span>
             </div>
             <br />
-            <strong>Ответ: СИНИЦА</strong>
+            <strong>Буквы получены в порядке: А, Ц, И, Н, И, С.</strong><br />
+            <strong>Читаем справа налево — Ответ: СИНИЦА</strong>
           </div>
         </div>
       </div>
@@ -517,12 +529,14 @@
           <ul>
             <li>Начинайте с самых коротких кодов и проверяйте их первыми</li>
             <li>
-              Если сообщение начинается с <code>0</code>, ищите коды,
-              начинающиеся с <code>0</code>
+              <strong>Прямое условие:</strong> смотрите на начало сообщения —
+              если оно начинается с <code>0</code>, ищите код, начинающийся с
+              <code>0</code>
             </li>
             <li>
-              Если сообщение начинается с <code>1</code>, ищите коды,
-              начинающиеся с <code>1</code>
+              <strong>Обратное условие:</strong> смотрите на конец сообщения —
+              если оно заканчивается на <code>0</code>, ищите код, оканчивающийся
+              на <code>0</code>
             </li>
           </ul>
         </div>

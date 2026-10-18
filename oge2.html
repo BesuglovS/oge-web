@@ -7,7 +7,7 @@
     
     <title>Задание 2 ОГЭ - Декодирование сообщений</title>
     <link rel="stylesheet" href="assets/styles.css" />
-<meta name="theme-color" content="#764ba2" />
+<meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Расшифруйте закодированное сообщение с помощью таблицы кодов. Задачи на применение условия Фано и обратного кодирования." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge2.html" />
@@ -40,7 +40,15 @@
       <div class="task-card">
         <div class="task-text" id="taskText">Загрузка задания...</div>
 
-        <div class="fano-toggle" id="fanoToggle" onclick="toggleFano()">
+        <div
+          class="fano-toggle"
+          id="fanoToggle"
+          role="button"
+          tabindex="0"
+          aria-expanded="false"
+          onclick="toggleFano()"
+          onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleFano(); }"
+        >
           <div class="fano-toggle-header">
             <span class="fano-toggle-title">💡 Условие Фано (подсказка)</span>
             <span class="fano-toggle-icon">▼</span>
@@ -154,8 +162,9 @@
         "Ъ",
       ];
 
-      // Слова для кодирования (осмысленные слова от 4 до 7 букв)
-      // Каждый набор содержит буквы для кодирования
+      // Слова для кодирования (осмысленные слова от 4 до 7 букв).
+      // Важно: каждое слово должно состоять ТОЛЬКО из букв своего набора —
+      // иначе его буквы не попадут в таблицу кодов и слово никогда не выпадет.
       const wordSets = [
         {
           letters: ["К", "О", "Т", "А", "М", "Р"],
@@ -166,25 +175,39 @@
             "КОМАР",
             "МАРКА",
             "КАРТА",
-            "ТРОТ",
-            "ТОРТ",
+            "ТОМАТ",
+            "МОТОК",
           ],
         },
         {
-          letters: ["М", "И", "Р", "А", "П", "Г"],
-          words: ["ПИРАТ", "ГРАФ", "ПАРТА", "РИФМА", "МАРКА", "ГРАММ"],
+          letters: ["Г", "Р", "А", "Ф", "И", "Т"],
+          words: [
+            "ГРАФ",
+            "ГИТАРА",
+            "ТАРИФ",
+            "ГРАФИТ",
+            "ГРИФ",
+            "ТИГР",
+            "ИГРА",
+            "ФАРТ",
+            "ФАРА",
+          ],
         },
         {
           letters: ["Л", "Е", "Т", "О", "А", "С"],
           words: [
             "ЛЕТО",
             "ТЕЛО",
-            "ЛОСЬ",
-            "СОЛЬ",
             "САЛО",
             "СЕЛО",
-            "ТЕМА",
             "АТЛЕТ",
+            "СТОЛ",
+            "ОСЕЛ",
+            "ТЕСТО",
+            "САЛАТ",
+            "ЛОТОС",
+            "ТОСТ",
+            "АТОЛЛ",
           ],
         },
         {
@@ -194,23 +217,30 @@
             "СОТКА",
             "НАСОС",
             "КАСТА",
-            "КОНУС",
             "СТОК",
             "ТОСКА",
-            "КОНТОРА",
+            "НОСОК",
+            "ТАНК",
+            "НОТА",
+            "СТАНОК",
+            "КАНОН",
+            "СКАТ",
           ],
         },
         {
           letters: ["В", "О", "Л", "А", "К", "С"],
           words: [
             "ВОЛК",
-            "КЛОУН",
             "СЛОВО",
-            "ВАЛУН",
             "КЛАСС",
-            "ОКЛАД",
-            "СКЛАД",
-            "ВОЛНА",
+            "ВОСК",
+            "КОЛОС",
+            "СКАЛА",
+            "ВОЛОС",
+            "СЛОВА",
+            "СОВА",
+            "КВАС",
+            "САЛО",
           ],
         },
         {
@@ -221,53 +251,106 @@
             "КАСТА",
             "СТРОКА",
             "КОРА",
-            "РАКЕТА",
             "КАССА",
             "ТРАКТОР",
+            "КРОТ",
+            "СТАРТ",
+            "РОТОР",
+            "СОРТ",
+            "АТАКА",
+            "РОСТОК",
+            "ТОСТ",
           ],
         },
         {
           letters: ["П", "А", "Р", "Т", "О", "К"],
           words: [
             "ПОРТ",
-            "РОСТ",
-            "ТАНК",
+            "РАПОРТ",
             "ПАРТА",
             "КАРТА",
             "ТОПКА",
             "ТРОПА",
             "КАПОР",
-            "ПОРТРЕТ",
+            "КРОТ",
+            "ПРОКАТ",
+            "ОПОРА",
+            "ТОПОР",
+            "ПАРК",
+            "ТРАКТ",
           ],
         },
         {
           letters: ["Б", "А", "К", "Р", "Т", "О"],
-          words: ["БРАТ", "БАРТОН", "ТАБОР", "РАБОТА", "КАБАН", "БАНК", "ТАБУ"],
+          words: [
+            "БРАТ",
+            "ТАБОР",
+            "РАБОТА",
+            "БОРТ",
+            "БРАК",
+            "БАРАК",
+            "БОБР",
+            "БАРКА",
+            "АКРОБАТ",
+          ],
         },
         {
           letters: ["З", "О", "Н", "А", "К", "В"],
-          words: ["ЗОНТ", "КЛИН", "ЗВОН", "ЗНАК", "ВОЛНА", "СКАЗКА", "ЗАВОД"],
+          words: [
+            "ЗВОН",
+            "ЗНАК",
+            "ЗВОНОК",
+            "ЗАКОН",
+            "КАЗНА",
+            "ЗАВОЗ",
+            "КОЗА",
+            "ВАЗОН",
+          ],
         },
         {
           letters: ["Д", "О", "М", "А", "Р", "К"],
           words: [
             "ДОМА",
-            "ДРОБЬ",
             "КОМАР",
-            "МОРД",
             "ДРАМА",
             "КАДР",
             "МАРКА",
-            "ДРЕЛЬ",
+            "КОРМ",
+            "КОМОД",
+            "МОДА",
+            "РАМКА",
+            "КОРА",
           ],
         },
         {
           letters: ["Г", "О", "Р", "А", "М", "Т"],
-          words: ["ГОРА", "ГРОТ", "РОГА", "ТОРГ", "ГРОМАДА", "ГРАММ", "МАРКА"],
+          words: [
+            "ГОРА",
+            "ГРОТ",
+            "РОГА",
+            "ТОРГ",
+            "ГРАММ",
+            "ГРОМ",
+            "ГАММА",
+            "МАГМА",
+            "РОТА",
+            "АТОМ",
+            "ГРАМОТА",
+          ],
         },
         {
           letters: ["Ш", "К", "О", "Л", "А", "Н"],
-          words: ["ШКОЛА", "ШАЛУН", "КАША", "ЛУНА", "ШКАФ", "ШПАЛА", "КАЛАН"],
+          words: [
+            "ШКОЛА",
+            "КАША",
+            "КАЛАН",
+            "ШЛАК",
+            "КЛАН",
+            "ШАКАЛ",
+            "ШКАЛА",
+            "НОША",
+            "КАНАЛ",
+          ],
         },
       ];
 
@@ -295,95 +378,80 @@
         return true;
       }
 
-      // Генерация кодов, удовлетворяющих условию Фано
-      // existingCodes - массив уже существующих кодов, которые нужно учитывать
-      function generateFanoCodes(letters, symbols, existingCodes = []) {
-        const codes = {};
-        const usedCodes = [...existingCodes]; // Начинаем с уже существующих кодов
-
-        // Стратегия: создаём коды разной длины так, чтобы ни один не был префиксом другого
-        // Используем префиксный код (direct Fano)
-        // Минимальная длина кода - 2 символа
-
-        const shuffledLetters = [...letters].sort(() => Math.random() - 0.5);
-
-        // Генерируем все возможные коды (минимальная длина 2)
-        function generateAllCodes(symbols, minLength, maxLength) {
-          const result = [];
-          function generate(current) {
-            if (current.length <= maxLength) {
-              if (current.length >= minLength) result.push(current);
-              for (const s of symbols) {
-                generate(current + s);
-              }
-            }
-          }
-          generate("");
-          return result;
+      // Перемешивание массива (алгоритм Фишера—Йетса)
+      function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
         }
-
-        const allCodes = generateAllCodes(symbols, 2, 4);
-
-        // Перемешиваем коды для разнообразия
-        allCodes.sort(() => Math.random() - 0.5);
-
-        // Выбираем коды, удовлетворяющие прямому условию Фано
-        for (let i = 0; i < shuffledLetters.length; i++) {
-          for (const code of allCodes) {
-            if (!usedCodes.includes(code)) {
-              // Проверяем, что новый код не нарушает условие Фано
-              const testCodes = [...usedCodes, code];
-              if (checkDirectFano(testCodes)) {
-                codes[shuffledLetters[i]] = code;
-                usedCodes.push(code);
-                break;
-              }
-            }
-          }
-        }
-
-        return codes;
+        return a;
       }
 
-      // Генерация кодов, удовлетворяющих обратному условию Фано
-      // existingCodes - массив уже существующих кодов, которые нужно учитывать
-      function generateReverseFanoCodes(letters, symbols, existingCodes = []) {
+      // Построение префиксного кода для n символов.
+      // Длины кодов выбираются случайно (2–4 символа), но так, чтобы
+      // выполнялось неравенство Крафта (сумма 2^-длина <= 1) — это гарантирует,
+      // что код получит КАЖДАЯ буква. «Жадный» перебор кодов мог «занять» все
+      // короткие комбинации и оставить часть букв вообще без кода.
+      function buildPrefixCodes(n) {
+        for (let attempt = 0; attempt < 100; attempt++) {
+          const lengths = [];
+          let kraft = 0;
+          for (let i = 0; i < n; i++) {
+            const len = 2 + Math.floor(Math.random() * 3); // 2, 3 или 4
+            lengths.push(len);
+            kraft += Math.pow(2, -len);
+          }
+          if (kraft > 1) continue;
+
+          lengths.sort((a, b) => a - b);
+
+          // Каноническое назначение: коды идут подряд по возрастанию длины,
+          // поэтому ни один код не является началом другого.
+          const codes = [];
+          let value = 0;
+          let prevLen = lengths[0];
+          for (let i = 0; i < n; i++) {
+            const len = lengths[i];
+            if (i > 0) value = (value + 1) << (len - prevLen);
+            codes.push(value.toString(2).padStart(len, "0"));
+            prevLen = len;
+          }
+
+          if (checkDirectFano(codes)) return codes;
+        }
+
+        // Страховка (в норме недостижима): классический префиксный код.
+        return [
+          "00",
+          "01",
+          "10",
+          "110",
+          "1110",
+          "11110",
+          "111110",
+          "1111110",
+        ].slice(0, n);
+      }
+
+      // Генерация таблицы кодов для букв.
+      // reverse = false → прямое условие Фано (префиксный код),
+      // reverse = true  → обратное условие Фано: берём префиксный код и
+      //                   переворачиваем каждое кодовое слово — тогда ни один
+      //                   код не является окончанием другого.
+      function generateCodes(letters, symbols, reverse) {
+        const bitCodes = buildPrefixCodes(letters.length);
         const codes = {};
-        const usedCodes = [...existingCodes]; // Начинаем с уже существующих кодов
-        const shuffledLetters = [...letters].sort(() => Math.random() - 0.5);
 
-        // Минимальная длина кода - 2 символа
-        function generateAllCodes(symbols, minLength, maxLength) {
-          const result = [];
-          function generate(current) {
-            if (current.length <= maxLength) {
-              if (current.length >= minLength) result.push(current);
-              for (const s of symbols) {
-                generate(current + s);
-              }
-            }
-          }
-          generate("");
-          return result;
-        }
-
-        const allCodes = generateAllCodes(symbols, 2, 4);
-
-        // Перемешиваем коды для разнообразия
-        allCodes.sort(() => Math.random() - 0.5);
-
-        for (let i = 0; i < shuffledLetters.length; i++) {
-          for (const code of allCodes) {
-            if (!usedCodes.includes(code)) {
-              const testCodes = [...usedCodes, code];
-              if (checkReverseFano(testCodes)) {
-                codes[shuffledLetters[i]] = code;
-                usedCodes.push(code);
-                break;
-              }
-            }
-          }
-        }
+        shuffle(letters).forEach((letter, i) => {
+          const bits = reverse
+            ? bitCodes[i].split("").reverse().join("")
+            : bitCodes[i];
+          codes[letter] = bits
+            .split("")
+            .map((bit) => (bit === "0" ? symbols[0] : symbols[1]))
+            .join("");
+        });
 
         return codes;
       }
@@ -409,66 +477,43 @@
 
         // Случайно выбираем тип условия Фано
         const useDirectFano = Math.random() > 0.3;
+        const fanoType = useDirectFano ? "direct" : "reverse";
 
-        let codes;
-        let fanoType;
-
-        if (useDirectFano) {
-          codes = generateFanoCodes(wordSet.letters, symbolPair.symbols);
-          fanoType = "direct";
-        } else {
-          codes = generateReverseFanoCodes(wordSet.letters, symbolPair.symbols);
-          fanoType = "reverse";
-        }
-
-        // Добавляем 1-2 лишние буквы, которые не используются в словах
-        const usedLetters = wordSet.letters;
-        const availableExtraLetters = extraLetters.filter(
-          (l) => !usedLetters.includes(l),
-        );
-        const numExtra = Math.random() < 0.5 ? 1 : 2;
-        const shuffledExtra = [...availableExtraLetters].sort(
-          () => Math.random() - 0.5,
-        );
-        const extraLettersToAdd = shuffledExtra.slice(0, numExtra);
-
-        // Генерируем коды для лишних букв с учётом уже существующих кодов
-        if (extraLettersToAdd.length > 0) {
-          // Получаем массив уже использованных кодов
-          const existingCodesArray = Object.values(codes);
-
-          if (fanoType === "direct") {
-            const extraCodes = generateFanoCodes(
-              extraLettersToAdd,
-              symbolPair.symbols,
-              existingCodesArray, // Передаём существующие коды
-            );
-            Object.assign(codes, extraCodes);
-          } else {
-            const extraCodes = generateReverseFanoCodes(
-              extraLettersToAdd,
-              symbolPair.symbols,
-              existingCodesArray, // Передаём существующие коды
-            );
-            Object.assign(codes, extraCodes);
-          }
-        }
-
-        // Выбираем слово для кодирования (только от 4 до 7 букв)
+        // Сначала выбираем слово (4–7 букв), чтобы все его буквы
+        // гарантированно попали в таблицу кодов.
         const validWords = wordSet.words.filter(
           (word) =>
             word.length >= 4 &&
             word.length <= 7 &&
-            word.split("").every((letter) => codes[letter]),
+            word.split("").every((letter) => wordSet.letters.includes(letter)),
+        );
+        const selectedWord = randomChoice(
+          validWords.length > 0 ? validWords : wordSet.words,
         );
 
-        if (validWords.length === 0) {
-          // Пробуем снова
-          generateTask();
-          return;
-        }
+        // 1–2 лишние буквы, которых нет в наборе: в реальных заданиях в таблице
+        // всегда есть «лишние» коды, которые не нужны для ответа.
+        const numExtra = Math.random() < 0.5 ? 1 : 2;
+        const extraLettersToAdd = shuffle(
+          extraLetters.filter((l) => !wordSet.letters.includes(l)),
+        ).slice(0, numExtra);
 
-        const selectedWord = randomChoice(validWords);
+        // Таблица кодов: буквы набора + буквы слова + лишние буквы.
+        const tableLetters = [
+          ...new Set([
+            ...wordSet.letters,
+            ...selectedWord.split(""),
+            ...extraLettersToAdd,
+          ]),
+        ];
+
+        // Коды получают сразу ВСЕ буквы таблицы: и префиксный код, и код без
+        // общих окончаний строятся по одному и тому же принципу.
+        const codes = generateCodes(
+          tableLetters,
+          symbolPair.symbols,
+          fanoType === "reverse",
+        );
 
         // Кодируем слово
         const encodedMessage = selectedWord
@@ -702,13 +747,16 @@
       // Переключение видимости условия Фано
       function toggleFano() {
         const toggle = document.getElementById("fanoToggle");
-        toggle.classList.toggle("open");
+        const isOpen = toggle.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
       }
 
       // Сброс игры
       function resetGame() {
         // Закрываем подсказку Фано при новой задаче
-        document.getElementById("fanoToggle").classList.remove("open");
+        const fanoToggle = document.getElementById("fanoToggle");
+        fanoToggle.classList.remove("open");
+        fanoToggle.setAttribute("aria-expanded", "false");
         generateTask();
       }
 

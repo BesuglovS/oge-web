@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
     
     <title>Задание 1 ОГЭ - Информационный объём</title>
     <link rel="stylesheet" href="assets/styles.css" />
-<meta name="theme-color" content="#764ba2" />
+<meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Определите информационный объём сообщения. Задачи на кодирование текста в Unicode и KOI8-R, вычисление объёма при удалении и добавлении слов." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge1.html" />
@@ -73,10 +73,12 @@
     </div>
   <script>
       // Данные для генерации задач
+      // Набор кодировок согласован с таблицей на странице теории (oge1-t.html).
+      // UTF-8 намеренно отсутствует: он не имеет фиксированного размера символа
+      // (кириллица — 2 байта), а кириллические слова кодируются KOI8-R/Windows-1251.
       const encodings = [
-        { name: "Unicode", bits: 16, bytes: 2 },
-        { name: "Unicode", bits: 32, bytes: 4 },
-        { name: "Unicode", bits: 8, bytes: 1, description: "UTF-8" },
+        { name: "Unicode", bits: 16, bytes: 2, description: "UTF-16" },
+        { name: "Unicode", bits: 32, bytes: 4, description: "UTF-32" },
         { name: "KOI8-R", bits: 8, bytes: 1 },
         { name: "Windows-1251", bits: 8, bytes: 1 },
       ];
@@ -134,6 +136,7 @@
         {
           theme: "биологии",
           person: "Маша",
+          female: true,
           items: [
             "лев",
             "тигр",
@@ -179,6 +182,7 @@
         {
           theme: "литературе",
           person: "Анна",
+          female: true,
           items: [
             "Пушкин",
             "Лермонтов",
@@ -226,6 +230,7 @@
         {
           theme: "химии",
           person: "Ирина",
+          female: true,
           items: [
             "водород",
             "кислород",
@@ -250,6 +255,7 @@
         {
           theme: "ботанике",
           person: "Лена",
+          female: true,
           items: [
             "роза",
             "тюльпан",
@@ -276,7 +282,7 @@
           person: "Кирилл",
           items: [
             "кварц",
-            "полевой шпат",
+            "аквамарин",
             "слюда",
             "кальцит",
             "гипс",
@@ -301,6 +307,42 @@
       const operations = ["delete", "add"];
 
       let currentTask = null;
+
+      // Склонение существительного после числа: 1 символ, 2 символа, 5 символов
+      function pluralForm(n, one, few, many) {
+        const n10 = n % 10;
+        const n100 = n % 100;
+        if (n10 === 1 && n100 !== 11) return one;
+        if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+        return many;
+      }
+      function symbolsText(n) {
+        return `${n} ${pluralForm(n, "символ", "символа", "символов")}`;
+      }
+      function bitsText(n) {
+        return `${n} ${pluralForm(n, "бит", "бита", "бит")}`;
+      }
+      function bytesText(n) {
+        return `${n} ${pluralForm(n, "байт", "байта", "байт")}`;
+      }
+      function unitText(n, unit) {
+        return unit === "бит" ? bitsText(n) : bytesText(n);
+      }
+      function encodingLabel(encoding) {
+        return encoding.description
+          ? `${encoding.name} (${encoding.description})`
+          : encoding.name;
+      }
+      // Согласование глагола с полом персонажа: «Вова написал», «Лена написала»
+      function wroteVerb(subject) {
+        return subject.female ? "написала" : "написал";
+      }
+      function deleteVerb(subject) {
+        return subject.female ? "удалила" : "удалил";
+      }
+      function addVerb(subject) {
+        return subject.female ? "добавила" : "добавил";
+      }
 
       // Генерация задачи
       function generateTask() {
@@ -401,16 +443,16 @@
         sizeChange,
         unit,
       ) {
-        const encodingDesc = encoding.description
-          ? `${encoding.name} (${encoding.description})`
-          : encoding.name;
+        const encodingDesc = encodingLabel(encoding);
+        const wrote = wroteVerb(subject);
+        const removed = deleteVerb(subject);
 
         return `
           <p>В одной из кодировок ${encodingDesc} каждый символ кодируется <span class="highlight">${encoding.bits} битами</span>.</p>
-          <p>При подготовке сообщения по ${subject.theme} ${subject.person} написал текст (в нём нет лишних пробелов):</p>
+          <p>При подготовке сообщения по ${subject.theme} ${subject.person} ${wrote} текст (в нём нет лишних пробелов):</p>
           <div class="quote">«Такие ${subject.itemNamePlural}, как ${itemsInText}, известны многим.»</div>
-          <p>Затем ${subject.person} удалил из списка ${subject.itemNameAccusative}, а также лишние запятую и пробел — два пробела не должны идти подряд.</p>
-          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${sizeChange} ${unit}</span> меньше, чем размер исходного предложения.</p>
+          <p>Затем ${subject.person} ${removed} из списка ${subject.itemNameAccusative}, а также лишние запятую и пробел — два пробела не должны идти подряд.</p>
+          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${unitText(sizeChange, unit)}</span> меньше, чем размер исходного предложения.</p>
           <p>Напишите в ответе ${subject.itemDeleted}.</p>
         `;
       }
@@ -423,15 +465,15 @@
         sizeChange,
         unit,
       ) {
-        const encodingDesc = encoding.description
-          ? `${encoding.name} (${encoding.description})`
-          : encoding.name;
+        const encodingDesc = encodingLabel(encoding);
+        const wrote = wroteVerb(subject);
+        const added = addVerb(subject);
 
         return `
           <p>В одной из кодировок ${encodingDesc} каждый символ кодируется <span class="highlight">${encoding.bits} битами</span>.</p>
-          <p>При подготовке реферата по ${subject.theme} ${subject.person} написал текст с ${subject.itemNameInstrumental}. Затем ${subject.person} добавил в текст ещё ${subject.itemNameAccusative}, вставив также необходимые пробелы и знаки препинания, после чего текст стал таким:</p>
+          <p>При подготовке реферата по ${subject.theme} ${subject.person} ${wrote} текст с ${subject.itemNameInstrumental}. Затем ${subject.person} ${added} в текст ещё ${subject.itemNameAccusative}, вставив также необходимые пробелы и знаки препинания, после чего текст стал таким:</p>
           <div class="quote">«Такие ${subject.itemNamePlural}, как ${itemsInText}, известны многим.»</div>
-          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${sizeChange} ${unit}</span> больше, чем размер исходного предложения.</p>
+          <p>При этом размер нового предложения в данной кодировке оказался на <span class="highlight">${unitText(sizeChange, unit)}</span> больше, чем размер исходного предложения.</p>
           <p>Напишите в ответе ${subject.itemAdded}.</p>
         `;
       }
@@ -515,12 +557,12 @@
 
         hintText.innerHTML = `
           <strong>Шаг 1:</strong> Определите размер одного символа.<br>
-          В данной кодировке один символ = ${charSize} ${currentTask.unit}.<br><br>
+          В данной кодировке один символ = ${unitText(charSize, currentTask.unit)}.<br><br>
           <strong>Шаг 2:</strong> Найдите количество изменённых символов.<br>
-          Изменение объёма = ${currentTask.sizeChange} ${currentTask.unit}.<br>
-          Количество символов = ${currentTask.sizeChange} ÷ ${charSize} = ${currentTask.charCount} символов.<br><br>
+          Изменение объёма = ${unitText(currentTask.sizeChange, currentTask.unit)}.<br>
+          Количество символов = ${currentTask.sizeChange} ÷ ${charSize} = ${symbolsText(currentTask.charCount)}.<br><br>
           <strong>Шаг 3:</strong> Вычтите 2 символа (запятая и пробел).<br>
-          Длина слова = ${currentTask.charCount} - 2 = ${currentTask.targetLength} символов.<br><br>
+          Длина слова = ${currentTask.charCount} - 2 = ${symbolsText(currentTask.targetLength)}.<br><br>
           <strong>Шаг 4:</strong> Найдите в тексте слово из ${currentTask.targetLength} символов.
         `;
 
@@ -545,18 +587,18 @@
         solutionSteps.innerHTML = `
           <div class="solution-step">
             <strong>1. Определяем размер одного символа:</strong><br>
-            В кодировке ${currentTask.encoding.name} каждый символ кодируется ${currentTask.encoding.bits} бит = ${currentTask.encoding.bytes} байт.<br>
-            Размер одного символа = ${charSize} ${currentTask.unit}.
+            В кодировке ${encodingLabel(currentTask.encoding)} каждый символ кодируется ${bitsText(currentTask.encoding.bits)} = ${bytesText(currentTask.encoding.bytes)}.<br>
+            Размер одного символа = ${unitText(charSize, currentTask.unit)}.
           </div>
           <div class="solution-step">
             <strong>2. Находим количество изменённых символов:</strong><br>
-            При ${operationWord} слова размер изменился на ${currentTask.sizeChange} ${currentTask.unit}.<br>
-            Количество символов = ${currentTask.sizeChange} ${currentTask.unit} ÷ ${charSize} ${currentTask.unit} = ${currentTask.charCount} символов.
+            При ${operationWord} слова размер изменился на ${unitText(currentTask.sizeChange, currentTask.unit)}.<br>
+            Количество символов = ${unitText(currentTask.sizeChange, currentTask.unit)} ÷ ${unitText(charSize, currentTask.unit)} = ${symbolsText(currentTask.charCount)}.
           </div>
           <div class="solution-step">
             <strong>3. Вычисляем длину искомого слова:</strong><br>
             При ${operationWord} слова также ${operation === "удалено" ? "удаляются" : "добавляются"} запятая и пробел (+2 символа).<br>
-            Длина слова = ${currentTask.charCount} - 2 = ${currentTask.targetLength} символов.
+            Длина слова = ${currentTask.charCount} - 2 = ${symbolsText(currentTask.targetLength)}.
           </div>
           <div class="solution-step">
             <strong>4. Находим слово нужной длины:</strong><br>

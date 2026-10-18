@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
     
     <title>Задание 3 ОГЭ - Истинность составного высказывания</title>
     <link rel="stylesheet" href="assets/styles.css" />
-<meta name="theme-color" content="#764ba2" />
+<meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Определите истинность составного высказывания. Задачи на логические операции И, ИЛИ, НЕ и поиск числа по условию." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge3.html" />
@@ -255,13 +255,8 @@
         {
           generate: () => {
             const m = Math.floor(Math.random() * 400) + 200;
+            // наибольшее число ≤ m, в записи которого нет повторяющихся цифр
             let answer = m;
-            while (!conditionTypes.uniqueDigits.check(answer) || answer > m) {
-              if (answer > m) answer = m;
-              answer--;
-              if (answer < 100) break;
-            }
-            // Находим реальный ответ
             for (let x = m; x >= 100; x--) {
               if (conditionTypes.uniqueDigits.check(x)) {
                 answer = x;
@@ -311,7 +306,8 @@
         {
           generate: () => {
             const m = Math.floor(Math.random() * 100) + 50;
-            const answer = m % 2 === 0 ? m - 1 : m;
+            // наибольшее нечётное число, строго меньшее m
+            const answer = m % 2 === 0 ? m - 1 : m - 2;
             return {
               condition: `(x < ${m}) И НЕ (x чётное)`,
               isTrue: true,
@@ -344,8 +340,8 @@
         {
           generate: () => {
             const m = Math.floor(Math.random() * 200) + 500;
-            const answer = m % 2 === 0 ? m + 1 : m + 1;
-            const realAnswer = m % 2 === 0 ? m + 2 : m + 1;
+            // наименьшее чётное число, строго большее m
+            const answer = m % 2 === 0 ? m + 2 : m + 1;
             return {
               condition: `(x > ${m}) И НЕ (x нечётное)`,
               isTrue: true,
@@ -367,9 +363,7 @@
                 if (m % 2 === 0) {
                   steps.push(`• ${m + 2} чётное ✓`);
                 }
-                steps.push(
-                  `<strong>Ответ: ${m % 2 === 0 ? m + 2 : m + 1}</strong>`,
-                );
+                steps.push(`<strong>Ответ: ${answer}</strong>`);
                 return steps;
               },
             };
@@ -558,6 +552,26 @@
         document.getElementById("answerInput").focus();
       }
 
+      // Правильный ответ находится перебором: при isTrue = false нужен x,
+      // для которого высказывание ЛОЖНО (т.е. !check(x)).
+      function getCorrectAnswer() {
+        const checkCondition = (x) =>
+          currentTask.isTrue ? currentTask.check(x) : !currentTask.check(x);
+
+        if (currentTask.findGreatest) {
+          // Ищем наибольшее число
+          for (let x = 1000; x >= 1; x--) {
+            if (checkCondition(x)) return x;
+          }
+        } else {
+          // Ищем наименьшее число
+          for (let x = 1; x <= 10000; x++) {
+            if (checkCondition(x)) return x;
+          }
+        }
+        return undefined;
+      }
+
       function checkAnswer() {
         const input = document.getElementById("answerInput");
         const result = document.getElementById("result");
@@ -568,30 +582,7 @@
           return;
         }
 
-        // Находим правильный ответ
-        // Если isTrue = false, ищем число для которого высказывание ЛОЖНО (т.е. !check(x))
-        // Если isTrue = true, ищем число для которого высказывание ИСТИННО (т.е. check(x))
-        let correctAnswer;
-        const checkCondition = (x) =>
-          currentTask.isTrue ? currentTask.check(x) : !currentTask.check(x);
-
-        if (currentTask.findGreatest) {
-          // Ищем наибольшее число
-          for (let x = 1000; x >= 1; x--) {
-            if (checkCondition(x)) {
-              correctAnswer = x;
-              break;
-            }
-          }
-        } else {
-          // Ищем наименьшее число
-          for (let x = 1; x <= 10000; x++) {
-            if (checkCondition(x)) {
-              correctAnswer = x;
-              break;
-            }
-          }
-        }
+        const correctAnswer = getCorrectAnswer();
 
         if (userAnswer === correctAnswer) {
           input.classList.remove("incorrect");
@@ -637,28 +628,7 @@
         const solutionBox = document.getElementById("solutionBox");
         const solutionSteps = document.getElementById("solutionSteps");
 
-        // Находим правильный ответ
-        // Если isTrue = false, ищем число для которого высказывание ЛОЖНО (т.е. !check(x))
-        // Если isTrue = true, ищем число для которого высказывание ИСТИННО (т.е. check(x))
-        let correctAnswer;
-        const checkCondition = (x) =>
-          currentTask.isTrue ? currentTask.check(x) : !currentTask.check(x);
-
-        if (currentTask.findGreatest) {
-          for (let x = 1000; x >= 1; x--) {
-            if (checkCondition(x)) {
-              correctAnswer = x;
-              break;
-            }
-          }
-        } else {
-          for (let x = 1; x <= 10000; x++) {
-            if (checkCondition(x)) {
-              correctAnswer = x;
-              break;
-            }
-          }
-        }
+        const correctAnswer = getCorrectAnswer();
 
         const steps = currentTask.solution(correctAnswer);
         solutionSteps.innerHTML = steps
