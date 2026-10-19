@@ -426,17 +426,32 @@
           )
           .join("");
 
+        // Описываем обе команды, подставляя фактические значения (у разных
+        // генераторов «прибавь 1/2/3» и «возведи в квадрат последнюю цифру»/
+        // «умножь на 2»).
+        const addMatch = task.commands[0].match(/\d+/);
+        const addValue = addMatch ? addMatch[0] : "1";
+
+        let secondCommandDesc;
+        if (task.commands[1].includes("квадрат последнюю цифру")) {
+          secondCommandDesc =
+            "заменяет число на экране числом, у которого цифра младшего разряда заменена квадратом её числового значения";
+        } else if (task.commands[1].includes("умножь")) {
+          const multMatch = task.commands[1].match(/\d+/);
+          secondCommandDesc = `умножает число на экране на ${
+            multMatch ? multMatch[0] : "2"
+          }`;
+        } else {
+          secondCommandDesc = task.commands[1].toLowerCase();
+        }
+
         return `
           <p>У исполнителя Омега две команды, которым присвоены номера:</p>
           <div class="commands-box">
             <h4>Команды:</h4>
             ${commandsHTML}
           </div>
-          <p>Первая из них увеличивает число на экране на 1${
-            task.commands[0].includes("прибавь")
-              ? ""
-              : ", вторая заменяет число на экране числом, у которого цифра младшего разряда заменена квадратом её числового значения"
-          }.</p>
+          <p>Выполняя первую из них, Омега увеличивает число на экране на ${addValue}, а выполняя вторую, ${secondCommandDesc}.</p>
           <p>Составьте алгоритм получения из числа <span class="highlight">${
             task.startNum
           }</span> числа <span class="highlight">${
@@ -506,7 +521,8 @@
             if (commands[1].includes("квадрат последнюю цифру")) {
               num = squareLastDigit(num);
             } else if (commands[1].includes("умножь")) {
-              num *= 2;
+              const multMatch = commands[1].match(/\d+/);
+              num *= multMatch ? parseInt(multMatch[0], 10) : 2;
             }
           }
         }
@@ -679,10 +695,12 @@
                 content: `${prevNum} → последняя цифра ${lastDigit}, ${lastDigit}² = ${square} → ${num}`,
               });
             } else if (currentTask.commands[1].includes("умножь")) {
-              num *= 2;
+              const multMatch = currentTask.commands[1].match(/\d+/);
+              const mult = multMatch ? parseInt(multMatch[0], 10) : 2;
+              num *= mult;
               steps.push({
                 title: `Команда ${i + 1} (${cmd}): ${currentTask.commands[1]}`,
-                content: `${prevNum} × 2 = ${num}`,
+                content: `${prevNum} × ${mult} = ${num}`,
               });
             }
           }

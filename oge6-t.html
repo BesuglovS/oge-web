@@ -206,7 +206,13 @@
             <h4>🔍 Тип 2: Определение параметра A</h4>
             <p>
               Дана программа с параметром A и набор входных данных. Нужно найти
+              <strong>наименьшее</strong> или <strong>наибольшее</strong> целое
               значение A, при котором программа выведет «YES» ровно N раз.
+            </p>
+            <p>
+              Если условие имеет вид <code>(s &gt;= A) and (t &lt; 1)</code>,
+              ищут наименьшее A, а если <code>(s &lt; A) or (t &lt; A)</code> —
+              наибольшее A.
             </p>
           </div>
         </div>
@@ -633,8 +639,11 @@ A = int(input())
           </p>
 
           <div class="example-solution">
-            <strong>Решение:</strong><br /><br />
-            Условие: <code>(s >= A) and (t < 1)</code><br />
+            <details>
+              <summary><strong>Показать решение</strong></summary>
+              <br />
+              <strong>Решение:</strong><br /><br />
+              Условие: <code>(s >= A) and (t < 1)</code><br />
             Для вывода «YES» должны выполняться
             <span class="highlight">оба</span> условия одновременно.<br /><br />
 
@@ -758,6 +767,74 @@ A = int(input())
 
             Итого: 5 «YES» (пары 4, 6, 7, 9, 10) ✓<br /><br />
             <strong>Ответ: 2</strong>
+            </details>
+          </div>
+        </div>
+
+        <div class="example-box">
+          <h4>Пример 5: Определение наибольшего параметра A (OR)</h4>
+          <p><strong>Условие:</strong></p>
+          <div class="code-block">
+            <pre>s = int(input())
+t = int(input())
+A = int(input())
+<span class="keyword">if</span> (s < A) <span class="keyword">or</span> (t < A):
+    print(<span class="string">'YES'</span>)
+<span class="keyword">else</span>:
+    print(<span class="string">'NO'</span>)</pre>
+          </div>
+          <p>
+            Пары входных данных: (25, 5); (8, 8); (20, 10); (22, 12); (15, 25);
+            (18, 22); (30, 30); (35, 7); (40, 3); (28, 14).
+          </p>
+          <p>
+            <strong>Вопрос:</strong> Укажите наибольшее целое значение параметра
+            A, при котором для указанных входных данных программа напечатает
+            «YES» ровно 5 раз.
+          </p>
+
+          <div class="example-solution">
+            <details>
+              <summary><strong>Показать решение</strong></summary>
+              <br />
+              <strong>Решение:</strong><br /><br />
+              Условие: <code>(s &lt; A) or (t &lt; A)</code><br />
+              Достаточно выполнения <span class="highlight">одного</span> из
+              условий, поэтому всё выражение истинно, когда
+              <code>min(s, t) &lt; A</code>.<br /><br />
+
+              <strong>Шаг 1:</strong> Найдём min(s, t) для каждой пары:<br />
+              <table class="trace-table">
+                <tr>
+                  <th>№</th>
+                  <th>s</th>
+                  <th>t</th>
+                  <th>min(s, t)</th>
+                </tr>
+                <tr><td>1</td><td>25</td><td>5</td><td>5</td></tr>
+                <tr><td>2</td><td>8</td><td>8</td><td>8</td></tr>
+                <tr><td>3</td><td>20</td><td>10</td><td>10</td></tr>
+                <tr><td>4</td><td>22</td><td>12</td><td>12</td></tr>
+                <tr><td>5</td><td>15</td><td>25</td><td>15</td></tr>
+                <tr><td>6</td><td>18</td><td>22</td><td>18</td></tr>
+                <tr><td>7</td><td>30</td><td>30</td><td>30</td></tr>
+                <tr><td>8</td><td>35</td><td>7</td><td>7</td></tr>
+                <tr><td>9</td><td>40</td><td>3</td><td>3</td></tr>
+                <tr><td>10</td><td>28</td><td>14</td><td>14</td></tr>
+              </table>
+              <br />
+              <strong>Шаг 2:</strong> Отсортируем значения min(s, t):<br />
+              3, 5, 7, 8, 10, 12, 14, 15, 18, 30<br /><br />
+              <strong>Шаг 3:</strong> Нужно ровно 5 «YES». Условие
+              <code>min &lt; A</code> должно быть истинно ровно для 5 наименьших
+              значений min — это 3, 5, 7, 8 и 10.<br />
+              Чтобы не захватить шестое значение (12), нужно A ≤ 12, значит
+              наибольшее A = <strong>12</strong>.<br /><br />
+              <strong>Проверка для A = 12:</strong> min &lt; 12 верно для пар со
+              значениями min 3, 5, 7, 8, 10 → ровно 5 «YES» ✓<br />
+              Если взять A = 13, подойдёт ещё пара с min = 12 → уже 6 «YES» ✗<br /><br />
+              <strong>Ответ: 12</strong>
+            </details>
           </div>
         </div>
       </div>

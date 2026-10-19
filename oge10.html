@@ -345,24 +345,24 @@
             generate: () => {
               const bin1 = generateBinary(6);
               const oct1 = generateOctal(2);
-              const hex1 = generateHex(2);
+              const hex1 = generateHex(1);
               const dec1 = toDecimal(bin1, 2);
               const dec2 = toDecimal(oct1, 8);
               const dec3 = toDecimal(hex1, 16);
-              const result = Math.floor(((dec1 + dec2) * dec3) / 16);
+              const result = (dec1 + dec2) * dec3;
               return {
-                expr: `(${formatNumber(bin1, 2)} + ${formatNumber(oct1, 8)}) * ${formatNumber(hex1, 16)} : 16`,
+                expr: `(${formatNumber(bin1, 2)} + ${formatNumber(oct1, 8)}) * ${formatNumber(hex1, 16)}`,
                 dec1,
                 dec2,
                 dec3,
                 result,
-                exact: ((dec1 + dec2) * dec3) % 16 === 0,
+                exact: true,
                 steps: [
                   `Переводим все числа в десятичную систему:`,
                   `${bin1}<sub>2</sub> = ${dec1}<sub>10</sub>`,
                   `${oct1}<sub>8</sub> = ${dec2}<sub>10</sub>`,
                   `${hex1}<sub>16</sub> = ${dec3}<sub>10</sub>`,
-                  `Вычисляем: (${dec1} + ${dec2}) * ${dec3} : 16 = ${dec1 + dec2} * ${dec3} : 16 = ${result}`,
+                  `Вычисляем: (${dec1} + ${dec2}) * ${dec3} = ${dec1 + dec2} * ${dec3} = ${result}`,
                 ],
               };
             },
@@ -372,8 +372,9 @@
         const pattern = patterns[Math.floor(Math.random() * patterns.length)];
         const data = pattern.generate();
 
-        // Убеждаемся, что результат положительный, и что деление точное
-        // (иначе решение «(a − b) : c = …» было бы методически неверным)
+        // Отбрасываем варианты, где результат неположительный или деление
+        // в решении неточное (иначе запись «(a − b) : c = …» была бы неверной).
+        // Для умножения (шаблон 3) точность выполняется всегда.
         if (data.result < 1 || data.exact === false) {
           return generateArithmeticComplex();
         }
@@ -416,12 +417,10 @@
 
         nums.sort((a, b) => a.decimal - b.decimal);
 
-        let answer, selected;
+        let answer;
         if (type === "smallest") {
-          selected = [nums[0], nums[1]];
           answer = nums[0].decimal + nums[1].decimal;
         } else {
-          selected = [nums[1], nums[2]];
           answer = nums[1].decimal + nums[2].decimal;
         }
 
@@ -455,20 +454,17 @@
 
       // Задача: найти число по условию (чётное/нечётное)
       function generateFindCondition(extremum, condition) {
-        const generateNum = () => {
-          const bases = [
-            { gen: () => generateHex(2), base: 16 },
-            { gen: () => generateOctal(3), base: 8 },
-            { gen: () => generateBinary(8), base: 2 },
-          ];
-          const b = bases[Math.floor(Math.random() * bases.length)];
-          return { hex: b.gen(), base: b.base };
-        };
+        // Три числа должны быть записаны в разных системах счисления
+        const bases = [
+          { gen: () => generateHex(2), base: 16 },
+          { gen: () => generateOctal(3), base: 8 },
+          { gen: () => generateBinary(8), base: 2 },
+        ].sort(() => Math.random() - 0.5);
 
-        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
-          ...n,
-          decimal: toDecimal(n.hex, n.base),
-        }));
+        const nums = bases.map((b) => {
+          const hex = b.gen();
+          return { hex, base: b.base, decimal: toDecimal(hex, b.base) };
+        });
 
         // Проверяем, что все три числа различны
         if (
@@ -526,20 +522,17 @@
         const divisors = [3, 5];
         const divisor = divisors[Math.floor(Math.random() * divisors.length)];
 
-        const generateNum = () => {
-          const bases = [
-            { gen: () => generateHex(2), base: 16 },
-            { gen: () => generateOctal(3), base: 8 },
-            { gen: () => generateBinary(8), base: 2 },
-          ];
-          const b = bases[Math.floor(Math.random() * bases.length)];
-          return { hex: b.gen(), base: b.base };
-        };
+        // Три числа должны быть записаны в разных системах счисления
+        const bases = [
+          { gen: () => generateHex(2), base: 16 },
+          { gen: () => generateOctal(3), base: 8 },
+          { gen: () => generateBinary(8), base: 2 },
+        ].sort(() => Math.random() - 0.5);
 
-        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
-          ...n,
-          decimal: toDecimal(n.hex, n.base),
-        }));
+        const nums = bases.map((b) => {
+          const hex = b.gen();
+          return { hex, base: b.base, decimal: toDecimal(hex, b.base) };
+        });
 
         // Проверяем, что все три числа различны
         if (
@@ -590,20 +583,17 @@
 
       // Задача: найти простое число
       function generateFindPrime(extremum) {
-        const generateNum = () => {
-          const bases = [
-            { gen: () => generateHex(2), base: 16 },
-            { gen: () => generateOctal(2), base: 8 },
-            { gen: () => generateBinary(6), base: 2 },
-          ];
-          const b = bases[Math.floor(Math.random() * bases.length)];
-          return { hex: b.gen(), base: b.base };
-        };
+        // Три числа должны быть записаны в разных системах счисления
+        const bases = [
+          { gen: () => generateHex(2), base: 16 },
+          { gen: () => generateOctal(2), base: 8 },
+          { gen: () => generateBinary(6), base: 2 },
+        ].sort(() => Math.random() - 0.5);
 
-        const nums = [generateNum(), generateNum(), generateNum()].map((n) => ({
-          ...n,
-          decimal: toDecimal(n.hex, n.base),
-        }));
+        const nums = bases.map((b) => {
+          const hex = b.gen();
+          return { hex, base: b.base, decimal: toDecimal(hex, b.base) };
+        });
 
         // Проверяем, что все три числа различны
         if (

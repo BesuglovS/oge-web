@@ -123,7 +123,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="95" y="65" fill="#333" font-size="12">2</text>
+            <text x="95" y="65" fill="#333" font-size="18">2</text>
 
             <line
               x1="70"
@@ -133,7 +133,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="95" y="135" fill="#333" font-size="12">3</text>
+            <text x="95" y="135" fill="#333" font-size="18">3</text>
 
             <line
               x1="150"
@@ -143,7 +143,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="160" y="100" fill="#333" font-size="12">4</text>
+            <text x="160" y="100" fill="#333" font-size="18">4</text>
 
             <line
               x1="170"
@@ -153,7 +153,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="210" y="65" fill="#333" font-size="12">5</text>
+            <text x="210" y="65" fill="#333" font-size="18">5</text>
 
             <line
               x1="170"
@@ -163,7 +163,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="210" y="140" fill="#333" font-size="12">1</text>
+            <text x="210" y="140" fill="#333" font-size="18">1</text>
 
             <line
               x1="290"
@@ -173,7 +173,7 @@
               stroke="#333"
               stroke-width="2"
             />
-            <text x="310" y="90" fill="#333" font-size="12">6</text>
+            <text x="310" y="90" fill="#333" font-size="18">6</text>
           </svg>
         </div>
       </div>
@@ -271,43 +271,17 @@
       <div class="theory-section">
         <h2>📝 Алгоритм решения</h2>
 
-        <h3>Метод перебора путей</h3>
         <p>
-          Для небольших графов (5-6 вершин) удобно использовать метод перебора
-          всех возможных путей:
+          <strong>Основной способ решения задания 4 — построение дерева путей.</strong>
+          Дерево наглядно показывает все возможные маршруты от начального пункта к
+          конечному и помогает ничего не пропустить. Остальные способы (перебор
+          списком и алгоритм Дейкстры) приведены ниже как дополнительные.
         </p>
-        <ol>
-          <li>
-            Выпишите все возможные маршруты из начального пункта в конечный
-          </li>
-          <li>Для каждого маршрута посчитайте суммарное расстояние</li>
-          <li>Выберите маршрут с минимальным расстоянием</li>
-        </ol>
 
-        <div class="warning-box">
-          <h4>⚠️ Важно!</h4>
-          <p>
-            При переборе путей не забывайте, что можно двигаться только по
-            дорогам, указанным в таблице. Если ячейка пуста — дороги нет!
-          </p>
-        </div>
-
-        <h3>Метод Дейкстры (для более сложных графов)</h3>
-        <p>Алгоритм пошагового нахождения кратчайшего пути:</p>
-        <ol>
-          <li>Отметьте начальную вершину расстоянием 0, остальные — ∞</li>
-          <li>Выберите непосещённую вершину с минимальным расстоянием</li>
-          <li>
-            Для каждой соседней вершины пересчитайте расстояние через текущую
-          </li>
-          <li>Если новое расстояние меньше — обновите его</li>
-          <li>Повторяйте шаги 2-4, пока не достигнете целевой вершины</li>
-        </ol>
-
-        <h3>Метод построения дерева путей</h3>
+        <h3>🛤️ Основной способ: построение дерева путей</h3>
         <p>
-          Этот метод наглядно показывает все возможные маршруты в виде дерева.
-          Он особенно удобен для задач ОГЭ с небольшим количеством вершин.
+          От начального пункта последовательно «выращиваем» ветви ко всем пунктам,
+          куда есть дорога из текущего, не возвращаясь в уже посещённые пункты:
         </p>
         <ol>
           <li>Начните с начального пункта — это корень дерева</li>
@@ -330,605 +304,114 @@
         <div class="tip-box">
           <h4>Пример дерева путей</h4>
           <p>
-            Рассмотрим отдельный небольшой граф (не совпадающий с матрицей выше)
-            и для поиска пути из A в E построим дерево всех возможных маршрутов:
+            Рассмотрим граф из примера выше и для поиска пути из A в E построим
+            дерево всех возможных маршрутов:
           </p>
           <div style="margin: 20px 0; overflow-x: auto">
             <svg
               width="100%"
-              height="420"
-              viewBox="0 0 800 420"
-              style="max-width: 800px; display: block; margin: 0 auto"
+              height="470"
+              viewBox="0 0 1000 470"
+              style="max-width: 1000px; display: block; margin: 0 auto"
             >
-              <!-- Уровень 0: A -->
-              <circle
-                cx="400"
-                cy="30"
-                r="22"
-                fill="#667eea"
-                stroke="#5a6fd6"
-                stroke-width="2"
-              />
-              <text
-                x="400"
-                y="36"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="16"
-              >
-                A
-              </text>
-              <text
-                x="400"
-                y="60"
-                text-anchor="middle"
-                fill="#667eea"
-                font-weight="bold"
-                font-size="12"
-              >
-                0 км
-              </text>
+              <!-- Рёбра -->
+              <line x1="500" y1="40" x2="250" y2="130" stroke="#333" stroke-width="2" />
+              <line x1="500" y1="40" x2="760" y2="130" stroke="#4caf50" stroke-width="3" />
+              <line x1="250" y1="130" x2="140" y2="230" stroke="#333" stroke-width="2" />
+              <line x1="250" y1="130" x2="350" y2="230" stroke="#333" stroke-width="2" />
+              <line x1="760" y1="130" x2="560" y2="230" stroke="#333" stroke-width="2" />
+              <line x1="760" y1="130" x2="700" y2="230" stroke="#333" stroke-width="2" />
+              <line x1="760" y1="130" x2="880" y2="230" stroke="#4caf50" stroke-width="3" />
+              <line x1="140" y1="230" x2="60" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="140" y1="230" x2="210" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="350" y1="230" x2="330" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="350" y1="230" x2="440" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="560" y1="230" x2="560" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="700" y1="230" x2="700" y2="330" stroke="#333" stroke-width="2" />
+              <line x1="210" y1="330" x2="210" y2="430" stroke="#333" stroke-width="2" />
+              <line x1="440" y1="330" x2="440" y2="430" stroke="#333" stroke-width="2" />
+              <line x1="560" y1="330" x2="560" y2="430" stroke="#333" stroke-width="2" />
 
-              <!-- Уровень 1: B и C -->
-              <!-- Линия A -> B -->
-              <line
-                x1="378"
-                y1="45"
-                x2="220"
-                y2="95"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="280"
-                y="65"
-                fill="#333"
-                font-size="11"
-                font-weight="bold"
-              >
-                2
-              </text>
+              <!-- Вершины -->
+              <circle cx="500" cy="40" r="22" fill="#667eea" stroke="#5a6fd6" stroke-width="2" />
+              <circle cx="250" cy="130" r="20" fill="#2196f3" stroke="#1976d2" stroke-width="2" />
+              <circle cx="760" cy="130" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+              <circle cx="140" cy="230" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="350" cy="230" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="560" cy="230" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="700" cy="230" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="880" cy="230" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+              <circle cx="60" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="210" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="330" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="440" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="560" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="700" cy="330" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="210" cy="430" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="440" cy="430" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+              <circle cx="560" cy="430" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
 
-              <!-- Линия A -> C -->
-              <line
-                x1="422"
-                y1="45"
-                x2="580"
-                y2="95"
-                stroke="#4caf50"
-                stroke-width="3"
-              />
-              <text
-                x="520"
-                y="65"
-                fill="#4caf50"
-                font-size="11"
-                font-weight="bold"
-              >
-                3
-              </text>
+              <!-- Обозначения вершин -->
+              <text x="500" y="46" text-anchor="middle" fill="white" font-weight="bold" font-size="16">A</text>
+              <text x="250" y="136" text-anchor="middle" fill="white" font-weight="bold" font-size="14">B</text>
+              <text x="760" y="136" text-anchor="middle" fill="white" font-weight="bold" font-size="14">C</text>
+              <text x="140" y="235" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+              <text x="350" y="235" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+              <text x="560" y="235" text-anchor="middle" fill="white" font-weight="bold" font-size="13">B</text>
+              <text x="700" y="235" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+              <text x="880" y="235" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="60" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="210" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+              <text x="330" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="440" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+              <text x="560" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+              <text x="700" y="335" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="210" y="435" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="440" y="435" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+              <text x="560" y="435" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
 
-              <!-- B -->
-              <circle
-                cx="200"
-                cy="110"
-                r="20"
-                fill="#2196f3"
-                stroke="#1976d2"
-                stroke-width="2"
-              />
-              <text
-                x="200"
-                y="116"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="14"
-              >
-                B
-              </text>
-              <text
-                x="200"
-                y="138"
-                text-anchor="middle"
-                fill="#2196f3"
-                font-weight="bold"
-                font-size="11"
-              >
-                2 км
-              </text>
+              <!-- Накопленные расстояния от A -->
+              <text x="528" y="46" text-anchor="start" fill="#667eea" font-weight="bold" font-size="18">0</text>
+              <text x="276" y="136" text-anchor="start" fill="#2196f3" font-weight="bold" font-size="18">2</text>
+              <text x="786" y="136" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">3</text>
+              <text x="164" y="236" text-anchor="start" fill="#666" font-size="18">6</text>
+              <text x="374" y="236" text-anchor="start" fill="#666" font-size="18">7</text>
+              <text x="584" y="236" text-anchor="start" fill="#666" font-size="18">7</text>
+              <text x="724" y="236" text-anchor="start" fill="#666" font-size="18">4</text>
+              <text x="906" y="236" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">5 ✓</text>
+              <text x="84" y="336" text-anchor="start" fill="#666" font-size="18">8</text>
+              <text x="234" y="336" text-anchor="start" fill="#666" font-size="18">7</text>
+              <text x="354" y="336" text-anchor="start" fill="#666" font-size="18">13</text>
+              <text x="464" y="336" text-anchor="start" fill="#666" font-size="18">8</text>
+              <text x="584" y="336" text-anchor="start" fill="#666" font-size="18">12</text>
+              <text x="724" y="336" text-anchor="start" fill="#666" font-size="18">10</text>
+              <text x="234" y="436" text-anchor="start" fill="#666" font-size="18">13</text>
+              <text x="464" y="436" text-anchor="start" fill="#666" font-size="18">10</text>
+              <text x="584" y="436" text-anchor="start" fill="#666" font-size="18">18</text>
 
-              <!-- C (правый верхний) -->
-              <circle
-                cx="600"
-                cy="110"
-                r="20"
-                fill="#4caf50"
-                stroke="#388e3c"
-                stroke-width="2"
-              />
-              <text
-                x="600"
-                y="116"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="14"
-              >
-                C
-              </text>
-              <text
-                x="600"
-                y="138"
-                text-anchor="middle"
-                fill="#4caf50"
-                font-weight="bold"
-                font-size="11"
-              >
-                3 км
-              </text>
-
-              <!-- Уровень 2: C (от B), D (от B), D (от C), E (от C) -->
-              <!-- Линия B -> C -->
-              <line
-                x1="218"
-                y1="125"
-                x2="280"
-                y2="185"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="235"
-                y="160"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                3
-              </text>
-
-              <!-- Линия B -> D -->
-              <line
-                x1="182"
-                y1="128"
-                x2="100"
-                y2="185"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="120"
-                y="160"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                5
-              </text>
-
-              <!-- Линия C -> D -->
-              <line
-                x1="582"
-                y1="125"
-                x2="520"
-                y2="185"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="535"
-                y="160"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                1
-              </text>
-
-              <!-- Линия C -> E (кратчайший путь!) -->
-              <line
-                x1="618"
-                y1="125"
-                x2="700"
-                y2="185"
-                stroke="#4caf50"
-                stroke-width="3"
-              />
-              <text
-                x="675"
-                y="160"
-                fill="#4caf50"
-                font-size="10"
-                font-weight="bold"
-              >
-                2
-              </text>
-
-              <!-- C (от B) -->
-              <circle
-                cx="300"
-                cy="200"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="300"
-                y="206"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                C
-              </text>
-              <text
-                x="300"
-                y="226"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                5 км
-              </text>
-
-              <!-- D (от B) -->
-              <circle
-                cx="80"
-                cy="200"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="80"
-                y="206"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                D
-              </text>
-              <text
-                x="80"
-                y="226"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                7 км
-              </text>
-
-              <!-- D (от C) -->
-              <circle
-                cx="500"
-                cy="200"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="500"
-                y="206"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                D
-              </text>
-              <text
-                x="500"
-                y="226"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                4 км
-              </text>
-
-              <!-- E (от C) - КРАТЧАЙШИЙ ПУТЬ -->
-              <circle
-                cx="720"
-                cy="200"
-                r="20"
-                fill="#4caf50"
-                stroke="#2e7d32"
-                stroke-width="3"
-              />
-              <text
-                x="720"
-                y="206"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                E
-              </text>
-              <text
-                x="720"
-                y="228"
-                text-anchor="middle"
-                fill="#4caf50"
-                font-weight="bold"
-                font-size="10"
-              >
-                5 км ✓
-              </text>
-
-              <!-- Уровень 3: E и D от C(от B), E от D(от B), E от D(от C) -->
-              <!-- Линия C(от B) -> E -->
-              <line
-                x1="318"
-                y1="212"
-                x2="380"
-                y2="285"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="335"
-                y="255"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                2
-              </text>
-
-              <!-- Линия C(от B) -> D -->
-              <line
-                x1="282"
-                y1="215"
-                x2="220"
-                y2="285"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="235"
-                y="255"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                1
-              </text>
-
-              <!-- Линия D(от B) -> E -->
-              <line
-                x1="98"
-                y1="212"
-                x2="140"
-                y2="285"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="105"
-                y="255"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                6
-              </text>
-
-              <!-- Линия D(от C) -> E -->
-              <line
-                x1="518"
-                y1="212"
-                x2="560"
-                y2="285"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="525"
-                y="255"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                6
-              </text>
-
-              <!-- E (от C от B) -->
-              <circle
-                cx="400"
-                cy="300"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="400"
-                y="306"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                E
-              </text>
-              <text
-                x="400"
-                y="326"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                7 км
-              </text>
-
-              <!-- D (от C от B) -->
-              <circle
-                cx="200"
-                cy="300"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="200"
-                y="306"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                D
-              </text>
-              <text
-                x="200"
-                y="326"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                6 км
-              </text>
-
-              <!-- E (от D от B) -->
-              <circle
-                cx="160"
-                cy="300"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="160"
-                y="306"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                E
-              </text>
-              <text
-                x="160"
-                y="326"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                13 км
-              </text>
-
-              <!-- E (от D от C) -->
-              <circle
-                cx="580"
-                cy="300"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="580"
-                y="306"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                E
-              </text>
-              <text
-                x="580"
-                y="326"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                10 км
-              </text>
-
-              <!-- Уровень 4: E от D(от C от B) -->
-              <!-- Линия D(от C от B) -> E -->
-              <line
-                x1="218"
-                y1="312"
-                x2="260"
-                y2="365"
-                stroke="#333"
-                stroke-width="2"
-              />
-              <text
-                x="225"
-                y="345"
-                fill="#333"
-                font-size="10"
-                font-weight="bold"
-              >
-                6
-              </text>
-
-              <!-- E (от D от C от B) -->
-              <circle
-                cx="280"
-                cy="380"
-                r="18"
-                fill="#9e9e9e"
-                stroke="#757575"
-                stroke-width="2"
-              />
-              <text
-                x="280"
-                y="386"
-                text-anchor="middle"
-                fill="white"
-                font-weight="bold"
-                font-size="13"
-              >
-                E
-              </text>
-              <text
-                x="280"
-                y="406"
-                text-anchor="middle"
-                fill="#666"
-                font-size="10"
-              >
-                12 км
-              </text>
+              <!-- Веса рёбер -->
+              <text x="370" y="76" fill="#333" font-size="18" font-weight="bold">2</text>
+              <text x="640" y="76" fill="#4caf50" font-size="18" font-weight="bold">3</text>
+              <text x="183" y="176" fill="#333" font-size="18" font-weight="bold">4</text>
+              <text x="308" y="176" fill="#333" font-size="18" font-weight="bold">5</text>
+              <text x="645" y="176" fill="#333" font-size="18" font-weight="bold">4</text>
+              <text x="742" y="176" fill="#333" font-size="18" font-weight="bold">1</text>
+              <text x="835" y="176" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+              <text x="92" y="278" fill="#333" font-size="18" font-weight="bold">2</text>
+              <text x="188" y="278" fill="#333" font-size="18" font-weight="bold">1</text>
+              <text x="356" y="278" fill="#333" font-size="18" font-weight="bold">6</text>
+              <text x="408" y="278" fill="#333" font-size="18" font-weight="bold">1</text>
+              <text x="576" y="278" fill="#333" font-size="18" font-weight="bold">5</text>
+              <text x="716" y="278" fill="#333" font-size="18" font-weight="bold">6</text>
+              <text x="225" y="378" fill="#333" font-size="18" font-weight="bold">6</text>
+              <text x="455" y="378" fill="#333" font-size="18" font-weight="bold">2</text>
+              <text x="576" y="378" fill="#333" font-size="18" font-weight="bold">6</text>
 
               <!-- Легенда -->
-              <rect
-                x="620"
-                y="360"
-                width="15"
-                height="15"
-                fill="#4caf50"
-                rx="3"
-              />
-              <text x="640" y="372" fill="#333" font-size="11">
-                Кратчайший путь (5 км)
-              </text>
-
-              <rect
-                x="620"
-                y="385"
-                width="15"
-                height="15"
-                fill="#9e9e9e"
-                rx="3"
-              />
-              <text x="640" y="397" fill="#333" font-size="11">
-                Другие маршруты
-              </text>
+              <rect x="760" y="405" width="15" height="15" fill="#4caf50" rx="3" />
+              <text x="780" y="417" fill="#333" font-size="13">Кратчайший путь (5)</text>
+              <rect x="760" y="430" width="15" height="15" fill="#9e9e9e" rx="3" />
+              <text x="780" y="442" fill="#333" font-size="13">Другие маршруты</text>
             </svg>
           </div>
 
@@ -938,10 +421,12 @@
               <strong style="color: #4caf50">A → C → E = 3 + 2 = 5 км</strong> ←
               кратчайший!
             </li>
-            <li>A → B → C → E = 2 + 3 + 2 = 7 км</li>
-            <li>A → B → C → D → E = 2 + 3 + 1 + 6 = 12 км</li>
-            <li>A → B → D → E = 2 + 5 + 6 = 13 км</li>
+            <li>A → B → C → E = 2 + 4 + 2 = 8 км</li>
             <li>A → C → D → E = 3 + 1 + 6 = 10 км</li>
+            <li>A → B → D → C → E = 2 + 5 + 1 + 2 = 10 км</li>
+            <li>A → B → C → D → E = 2 + 4 + 1 + 6 = 13 км</li>
+            <li>A → B → D → E = 2 + 5 + 6 = 13 км</li>
+            <li>A → C → B → D → E = 3 + 4 + 5 + 6 = 18 км</li>
           </ul>
 
           <p>
@@ -949,10 +434,43 @@
             <strong style="color: #4caf50">A → C → E = 5 км</strong>
           </p>
           <p style="font-size: 0.9rem; color: #666; margin-top: 10px">
-            Под каждой вершиной указано накопленное расстояние от начального
+            Справа от каждой вершины указано накопленное расстояние от начального
             пункта A. Зелёным цветом выделен кратчайший путь.
           </p>
         </div>
+
+        <div class="warning-box">
+          <h4>⚠️ Важно!</h4>
+          <p>
+            Строя дерево, двигайтесь только по дорогам, указанным в таблице. Если
+            ячейка пуста — дороги нет!
+          </p>
+        </div>
+
+        <h3>Дополнительно: перебор путей списком</h3>
+        <p>
+          Тот же результат можно получить, выписав все маршруты списком — без
+          рисунка:
+        </p>
+        <ol>
+          <li>
+            Выпишите все возможные маршруты из начального пункта в конечный
+          </li>
+          <li>Для каждого маршрута посчитайте суммарное расстояние</li>
+          <li>Выберите маршрут с минимальным расстоянием</li>
+        </ol>
+
+        <h3>Дополнительно: алгоритм Дейкстры (для больших графов)</h3>
+        <p>Алгоритм пошагового нахождения кратчайшего пути:</p>
+        <ol>
+          <li>Отметьте начальную вершину расстоянием 0, остальные — ∞</li>
+          <li>Выберите непосещённую вершину с минимальным расстоянием</li>
+          <li>
+            Для каждой соседней вершины пересчитайте расстояние через текущую
+          </li>
+          <li>Если новое расстояние меньше — обновите его</li>
+          <li>Повторяйте шаги 2-4, пока не достигнете целевой вершины</li>
+        </ol>
       </div>
 
       <div class="theory-section">
@@ -1020,17 +538,89 @@
           </div>
 
           <div class="example-solution">
-            <strong>Решение:</strong><br /><br />
+            <strong>Решение (построение дерева путей):</strong><br /><br />
             <div class="step-box">
-              <strong>Шаг 1:</strong> Выпишем все возможные пути из A в D:
+              <strong>Шаг 1:</strong> От корня A «выращиваем» ветви ко всем ещё не
+              посещённым пунктам. Ветви, которые не приводят в D, не достраиваем
+              (справа от каждой вершины — накопленная длина пути от A):
+            </div>
+            <div style="margin: 20px 0; overflow-x: auto">
+              <svg
+                width="100%"
+                height="545"
+                viewBox="0 0 594 545"
+                style="max-width: 594px; display: block; margin: 0 auto"
+              >
+                <!-- Рёбра -->
+                <line x1="290" y1="50" x2="150" y2="150" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="150" x2="150" y2="250" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="250" x2="80" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="150" y1="250" x2="220" y2="350" stroke="#4caf50" stroke-width="3" />
+                <line x1="220" y1="350" x2="220" y2="450" stroke="#4caf50" stroke-width="3" />
+                <line x1="290" y1="50" x2="430" y2="150" stroke="#4caf50" stroke-width="3" />
+                <line x1="430" y1="150" x2="360" y2="250" stroke="#333" stroke-width="2" />
+                <line x1="430" y1="150" x2="500" y2="250" stroke="#4caf50" stroke-width="3" />
+                <line x1="500" y1="250" x2="500" y2="350" stroke="#4caf50" stroke-width="3" />
+                <!-- Вершины -->
+                <circle cx="290" cy="50" r="22" fill="#667eea" stroke="#5a6fd6" stroke-width="2" />
+                <circle cx="150" cy="150" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="150" cy="250" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="80" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="220" cy="350" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="220" cy="450" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+                <circle cx="430" cy="150" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="360" cy="250" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="500" cy="250" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="500" cy="350" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+                <!-- Обозначения вершин -->
+                <text x="290" y="55" text-anchor="middle" fill="white" font-weight="bold" font-size="16">A</text>
+                <text x="150" y="155" text-anchor="middle" fill="white" font-weight="bold" font-size="13">B</text>
+                <text x="150" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+                <text x="80" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="220" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="220" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="430" y="155" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+                <text x="360" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="500" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="500" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <!-- Накопленные расстояния -->
+                <text x="318" y="56" text-anchor="start" fill="#667eea" font-weight="bold" font-size="18">0</text>
+                <text x="176" y="156" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">2</text>
+                <text x="176" y="256" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">5</text>
+                <text x="104" y="356" text-anchor="start" fill="#666" font-size="18">9</text>
+                <text x="246" y="356" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">7</text>
+                <text x="246" y="456" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">8 ✓</text>
+                <text x="456" y="156" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">5</text>
+                <text x="384" y="256" text-anchor="start" fill="#666" font-size="18">9</text>
+                <text x="526" y="256" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">7</text>
+                <text x="526" y="356" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">8 ✓</text>
+                <!-- Веса рёбер -->
+                <text x="212" y="94" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="137" y="205" fill="#4caf50" font-size="18" font-weight="bold">3</text>
+                <text x="104" y="298" fill="#333" font-size="18" font-weight="bold">4</text>
+                <text x="174" y="312" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="207" y="405" fill="#4caf50" font-size="18" font-weight="bold">1</text>
+                <text x="352" y="116" fill="#4caf50" font-size="18" font-weight="bold">5</text>
+                <text x="384" y="198" fill="#333" font-size="18" font-weight="bold">4</text>
+                <text x="454" y="212" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="487" y="305" fill="#4caf50" font-size="18" font-weight="bold">1</text>
+                <!-- Легенда -->
+                <rect x="20" y="480" width="15" height="15" fill="#4caf50" rx="3" />
+                <text x="42" y="492" fill="#333" font-size="13">Кратчайший маршрут (8)</text>
+                <rect x="20" y="506" width="15" height="15" fill="#9e9e9e" rx="3" />
+                <text x="42" y="518" fill="#333" font-size="13">Другие маршруты</text>
+              </svg>
+            </div>
+            <div class="step-box">
+              <strong>Шаг 2:</strong> Каждая ветвь, ведущая в D, — отдельный маршрут:
             </div>
             <div class="path-box">
               <strong>Путь 1:</strong> A → B → C → D<br />
               Расстояние: 2 + 3 + 4 = <strong>9</strong>
             </div>
-            <div class="path-box">
+            <div class="path-box best">
               <strong>Путь 2:</strong> A → B → C → E → D<br />
-              Расстояние: 2 + 3 + 2 + 1 = <strong>8</strong>
+              Расстояние: 2 + 3 + 2 + 1 = <strong>8</strong> ← минимальный!
             </div>
             <div class="path-box">
               <strong>Путь 3:</strong> A → C → D<br />
@@ -1109,25 +699,75 @@
           </div>
 
           <div class="example-solution">
-            <strong>Решение:</strong><br /><br />
+            <strong>Решение (построение дерева путей):</strong><br /><br />
             <div class="step-box">
-              <strong>Шаг 1:</strong> Разобьём задачу на две части:<br />
-              1) Найти кратчайший путь из A в C<br />
-              2) Найти кратчайший путь из C в E
+              <strong>Шаг 1:</strong> Построим дерево путей из A в E (справа от
+              каждой вершины — накопленная длина пути от A):
+            </div>
+            <div style="margin: 20px 0; overflow-x: auto">
+              <svg
+                width="100%"
+                height="545"
+                viewBox="0 0 454 545"
+                style="max-width: 454px; display: block; margin: 0 auto"
+              >
+                <!-- Рёбра -->
+                <line x1="255" y1="50" x2="255" y2="150" stroke="#4caf50" stroke-width="3" />
+                <line x1="255" y1="150" x2="150" y2="250" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="250" x2="80" y2="350" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="250" x2="220" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="220" y1="350" x2="220" y2="450" stroke="#333" stroke-width="2" />
+                <line x1="255" y1="150" x2="360" y2="250" stroke="#333" stroke-width="2" />
+                <!-- Вершины -->
+                <circle cx="255" cy="50" r="22" fill="#667eea" stroke="#5a6fd6" stroke-width="2" />
+                <circle cx="255" cy="150" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="150" cy="250" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="80" cy="350" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+                <circle cx="220" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="220" cy="450" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="360" cy="250" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <!-- Обозначения вершин -->
+                <text x="255" y="55" text-anchor="middle" fill="white" font-weight="bold" font-size="16">A</text>
+                <text x="255" y="155" text-anchor="middle" fill="white" font-weight="bold" font-size="13">B</text>
+                <text x="150" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+                <text x="80" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="220" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="220" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="360" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <!-- Накопленные расстояния -->
+                <text x="283" y="56" text-anchor="start" fill="#667eea" font-weight="bold" font-size="18">0</text>
+                <text x="281" y="156" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">1</text>
+                <text x="176" y="256" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">3</text>
+                <text x="106" y="356" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">7 ✓</text>
+                <text x="244" y="356" text-anchor="start" fill="#666" font-size="18">6</text>
+                <text x="244" y="456" text-anchor="start" fill="#666" font-size="18">8</text>
+                <text x="384" y="256" text-anchor="start" fill="#666" font-size="18">8</text>
+                <!-- Веса рёбер -->
+                <text x="242" y="105" fill="#4caf50" font-size="18" font-weight="bold">1</text>
+                <text x="194" y="196" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="104" y="298" fill="#4caf50" font-size="18" font-weight="bold">4</text>
+                <text x="174" y="312" fill="#333" font-size="18" font-weight="bold">3</text>
+                <text x="207" y="405" fill="#333" font-size="18" font-weight="bold">2</text>
+                <text x="299" y="214" fill="#333" font-size="18" font-weight="bold">7</text>
+                <!-- Легенда -->
+                <rect x="20" y="480" width="15" height="15" fill="#4caf50" rx="3" />
+                <text x="42" y="492" fill="#333" font-size="13">Кратчайший маршрут (7)</text>
+                <rect x="20" y="506" width="15" height="15" fill="#9e9e9e" rx="3" />
+                <text x="42" y="518" fill="#333" font-size="13">Другие маршруты</text>
+              </svg>
             </div>
             <div class="step-box">
-              <strong>Шаг 2:</strong> Пути из A в C:<br />
-              • A → B → C = 1 + 2 = <strong>3</strong> ✓
+              <strong>Шаг 2:</strong> Выпишем маршруты из дерева и отметим те, что
+              проходят через C:
             </div>
-            <div class="step-box">
-              <strong>Шаг 3:</strong> Пути из C в E:<br />
-              • C → E = <strong>4</strong><br />
-              • C → D → E = 3 + 2 = <strong>5</strong><br />
-              Кратчайший: C → E = 4
+            <div class="path-box best">
+              <strong>Путь 1:</strong> A → B → C → E = 1 + 2 + 4 = <strong>7</strong> ✓ через C
             </div>
-            <div class="step-box">
-              <strong>Шаг 4:</strong> Объединяем пути:<br />
-              A → B → C → E = 1 + 2 + 4 = <strong>7</strong>
+            <div class="path-box">
+              <strong>Путь 2:</strong> A → B → C → D → E = 1 + 2 + 3 + 2 = <strong>8</strong> ✓ через C
+            </div>
+            <div class="path-box">
+              <strong>Путь 3:</strong> A → B → E = 1 + 7 = <strong>8</strong> (без C — не подходит)
             </div>
             <div class="step-box">
               <strong>Ответ: 7</strong>
@@ -1213,21 +853,142 @@
           </div>
 
           <div class="example-solution">
-            <strong>Решение:</strong><br /><br />
+            <strong>Решение (построение дерева путей):</strong><br /><br />
             <div class="step-box">
-              <strong>Шаг 1:</strong> Найти кратчайший путь из A в C:<br />
-              • A → B → C = 3 + 1 = <strong>4</strong>
+              <strong>Шаг 1:</strong> Построим дерево путей из A в F (справа от
+              каждой вершины — накопленная длина пути от A):
+            </div>
+            <div style="margin: 20px 0; overflow-x: auto">
+              <svg
+                width="100%"
+                height="645"
+                viewBox="0 0 1014 645"
+                style="max-width: 1014px; display: block; margin: 0 auto"
+              >
+                <!-- Рёбра -->
+                <line x1="535" y1="50" x2="535" y2="150" stroke="#4caf50" stroke-width="3" />
+                <line x1="535" y1="150" x2="290" y2="250" stroke="#4caf50" stroke-width="3" />
+                <line x1="290" y1="250" x2="150" y2="350" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="350" x2="80" y2="450" stroke="#4caf50" stroke-width="3" />
+                <line x1="150" y1="350" x2="220" y2="450" stroke="#4caf50" stroke-width="3" />
+                <line x1="220" y1="450" x2="220" y2="550" stroke="#4caf50" stroke-width="3" />
+                <line x1="290" y1="250" x2="430" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="430" y1="350" x2="360" y2="450" stroke="#333" stroke-width="2" />
+                <line x1="430" y1="350" x2="500" y2="450" stroke="#333" stroke-width="2" />
+                <line x1="500" y1="450" x2="500" y2="550" stroke="#333" stroke-width="2" />
+                <line x1="535" y1="150" x2="780" y2="250" stroke="#333" stroke-width="2" />
+                <line x1="780" y1="250" x2="640" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="780" y1="250" x2="780" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="780" y1="350" x2="780" y2="450" stroke="#333" stroke-width="2" />
+                <line x1="780" y1="250" x2="920" y2="350" stroke="#333" stroke-width="2" />
+                <line x1="920" y1="350" x2="920" y2="450" stroke="#333" stroke-width="2" />
+                <line x1="920" y1="450" x2="920" y2="550" stroke="#333" stroke-width="2" />
+                <!-- Вершины -->
+                <circle cx="535" cy="50" r="22" fill="#667eea" stroke="#5a6fd6" stroke-width="2" />
+                <circle cx="535" cy="150" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="290" cy="250" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="150" cy="350" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="80" cy="450" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+                <circle cx="220" cy="450" r="20" fill="#4caf50" stroke="#388e3c" stroke-width="2" />
+                <circle cx="220" cy="550" r="20" fill="#4caf50" stroke="#2e7d32" stroke-width="3" />
+                <circle cx="430" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="360" cy="450" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="500" cy="450" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="500" cy="550" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="780" cy="250" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="640" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="780" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="780" cy="450" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="920" cy="350" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="920" cy="450" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <circle cx="920" cy="550" r="18" fill="#9e9e9e" stroke="#757575" stroke-width="2" />
+                <!-- Обозначения вершин -->
+                <text x="535" y="55" text-anchor="middle" fill="white" font-weight="bold" font-size="16">A</text>
+                <text x="535" y="155" text-anchor="middle" fill="white" font-weight="bold" font-size="13">B</text>
+                <text x="290" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+                <text x="150" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="80" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="220" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="220" y="555" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="430" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="360" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="500" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="500" y="555" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="780" y="255" text-anchor="middle" fill="white" font-weight="bold" font-size="13">E</text>
+                <text x="640" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="780" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="780" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <text x="920" y="355" text-anchor="middle" fill="white" font-weight="bold" font-size="13">C</text>
+                <text x="920" y="455" text-anchor="middle" fill="white" font-weight="bold" font-size="13">D</text>
+                <text x="920" y="555" text-anchor="middle" fill="white" font-weight="bold" font-size="13">F</text>
+                <!-- Накопленные расстояния -->
+                <text x="563" y="56" text-anchor="start" fill="#667eea" font-weight="bold" font-size="18">0</text>
+                <text x="561" y="156" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">3</text>
+                <text x="316" y="256" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">4</text>
+                <text x="176" y="356" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">6</text>
+                <text x="106" y="456" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">9 ✓</text>
+                <text x="246" y="456" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">7</text>
+                <text x="246" y="556" text-anchor="start" fill="#4caf50" font-weight="bold" font-size="18">9 ✓</text>
+                <text x="454" y="356" text-anchor="start" fill="#666" font-size="18">9</text>
+                <text x="384" y="456" text-anchor="start" fill="#666" font-size="18">11</text>
+                <text x="524" y="456" text-anchor="start" fill="#666" font-size="18">10</text>
+                <text x="524" y="556" text-anchor="start" fill="#666" font-size="18">13</text>
+                <text x="804" y="256" text-anchor="start" fill="#666" font-size="18">7</text>
+                <text x="664" y="356" text-anchor="start" fill="#666" font-size="18">9</text>
+                <text x="804" y="356" text-anchor="start" fill="#666" font-size="18">8</text>
+                <text x="804" y="456" text-anchor="start" fill="#666" font-size="18">11</text>
+                <text x="944" y="356" text-anchor="start" fill="#666" font-size="18">12</text>
+                <text x="944" y="456" text-anchor="start" fill="#666" font-size="18">14</text>
+                <text x="944" y="556" text-anchor="start" fill="#666" font-size="18">17</text>
+                <!-- Веса рёбер -->
+                <text x="522" y="105" fill="#4caf50" font-size="18" font-weight="bold">3</text>
+                <text x="408" y="193" fill="#4caf50" font-size="18" font-weight="bold">1</text>
+                <text x="212" y="294" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="104" y="398" fill="#4caf50" font-size="18" font-weight="bold">3</text>
+                <text x="174" y="412" fill="#4caf50" font-size="18" font-weight="bold">1</text>
+                <text x="207" y="505" fill="#4caf50" font-size="18" font-weight="bold">2</text>
+                <text x="352" y="316" fill="#333" font-size="18" font-weight="bold">5</text>
+                <text x="384" y="398" fill="#333" font-size="18" font-weight="bold">2</text>
+                <text x="454" y="412" fill="#333" font-size="18" font-weight="bold">1</text>
+                <text x="487" y="505" fill="#333" font-size="18" font-weight="bold">3</text>
+                <text x="653" y="217" fill="#333" font-size="18" font-weight="bold">4</text>
+                <text x="702" y="294" fill="#333" font-size="18" font-weight="bold">2</text>
+                <text x="767" y="305" fill="#333" font-size="18" font-weight="bold">1</text>
+                <text x="767" y="405" fill="#333" font-size="18" font-weight="bold">3</text>
+                <text x="842" y="316" fill="#333" font-size="18" font-weight="bold">5</text>
+                <text x="907" y="405" fill="#333" font-size="18" font-weight="bold">2</text>
+                <text x="907" y="505" fill="#333" font-size="18" font-weight="bold">3</text>
+                <!-- Легенда -->
+                <rect x="20" y="580" width="15" height="15" fill="#4caf50" rx="3" />
+                <text x="42" y="592" fill="#333" font-size="13">Кратчайший маршрут (9)</text>
+                <rect x="20" y="606" width="15" height="15" fill="#9e9e9e" rx="3" />
+                <text x="42" y="618" fill="#333" font-size="13">Другие маршруты</text>
+              </svg>
             </div>
             <div class="step-box">
-              <strong>Шаг 2:</strong> Найти кратчайший путь из C в F:<br />
-              • C → D → F = 2 + 3 = <strong>5</strong><br />
-              • C → D → E → F = 2 + 1 + 2 = <strong>5</strong><br />
-              • C → E → F = 5 + 2 = <strong>7</strong><br />
-              Кратчайший: C → D → F = 5
+              <strong>Шаг 2:</strong> Выпишем маршруты из дерева. Подходящие — только
+              ветви, проходящие через C:
             </div>
-            <div class="step-box">
-              <strong>Шаг 3:</strong> Объединяем:<br />
-              A → B → C → D → F = 3 + 1 + 2 + 3 = <strong>9</strong>
+            <div class="path-box best">
+              <strong>Путь 1:</strong> A → B → C → D → F = 3 + 1 + 2 + 3 = <strong>9</strong> ✓ через C
+            </div>
+            <div class="path-box best">
+              <strong>Путь 2:</strong> A → B → C → D → E → F = 3 + 1 + 2 + 1 + 2 = <strong>9</strong> ✓ через C
+            </div>
+            <div class="path-box">
+              <strong>Путь 3:</strong> A → B → C → E → F = 3 + 1 + 5 + 2 = <strong>11</strong> ✓ через C
+            </div>
+            <div class="path-box">
+              <strong>Путь 4:</strong> A → B → C → E → D → F = 3 + 1 + 5 + 1 + 3 = <strong>13</strong> ✓ через C
+            </div>
+            <div class="path-box">
+              <strong>Путь 5:</strong> A → B → E → C → D → F = 3 + 4 + 5 + 2 + 3 = <strong>17</strong> ✓ через C
+            </div>
+            <div class="path-box">
+              <strong>Путь 6:</strong> A → B → E → F = 3 + 4 + 2 = <strong>9</strong> (без C — не подходит)
+            </div>
+            <div class="path-box">
+              <strong>Путь 7:</strong> A → B → E → D → F = 3 + 4 + 1 + 3 = <strong>11</strong> (без C — не подходит)
             </div>
             <div class="step-box">
               <strong>Ответ: 9</strong>
@@ -1256,8 +1017,8 @@
             расстояний
           </li>
           <li>
-            <strong>Выбор не кратчайшего пути</strong> — нужно перебрать все
-            варианты
+            <strong>Выбор не кратчайшего пути</strong> — сравните все ветви дерева
+            и выберите минимальную
           </li>
         </ul>
       </div>
@@ -1265,25 +1026,33 @@
       <div class="theory-section">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
-          <h4>Как правильно перебирать пути</h4>
+          <h4>Как строить дерево путей</h4>
           <ul>
+            <li>Корень дерева — начальный пункт</li>
             <li>
-              Начинайте с начального пункта и последовательно перебирайте все
-              соседние
+              Из каждого пункта проводите ветви ко всем ещё не посещённым соседям
             </li>
-            <li>Записывайте каждый путь и его длину</li>
-            <li>Не забывайте про пути через промежуточные пункты</li>
-            <li>Сравнивайте все найденные пути перед выбором ответа</li>
+            <li>Подписывайте на ветвях протяжённость дорог</li>
+            <li>
+              Заканчивайте ветвь, когда пришли в конечный пункт или в тупик
+            </li>
+            <li>Сравнивайте длину всех ветвей, ведущих в конечный пункт</li>
           </ul>
         </div>
 
         <div class="tip-box">
-          <h4>Если путь должен проходить через пункт C</h4>
+          <h4>Быстрая проверка для задач «через пункт»</h4>
           <ol>
-            <li>Найдите кратчайший путь от начала до C</li>
-            <li>Найдите кратчайший путь от C до конца</li>
-            <li>Сложите эти два расстояния</li>
+            <li>
+              Постройте дерево и оставьте только ветви, проходящие через нужный
+              пункт (например, C)
+            </li>
+            <li>Среди них найдите ветвь с минимальной длиной</li>
           </ol>
+          <p>
+            Короткая альтернатива: сложить кратчайший путь от начала до C и
+            кратчайший путь от C до конца.
+          </p>
         </div>
 
         <div class="tip-box">
@@ -1312,8 +1081,8 @@
             промежуточные пункты (если есть)
           </li>
           <li>📊 Изучите таблицу расстояний</li>
-          <li>🛤️ Выпишите все возможные маршруты</li>
-          <li>🔢 Посчитайте расстояние для каждого маршрута</li>
+          <li>🌳 Постройте дерево путей от начального пункта к конечному</li>
+          <li>🔢 Посчитайте длину каждой ветви (маршрута) и сравните их</li>
           <li>✅ Выберите кратчайший путь и запишите ответ</li>
         </ol>
       </div>

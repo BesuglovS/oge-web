@@ -399,76 +399,148 @@
       // Генерация задачи
       function generateTask() {
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge4'); }
-        const template =
-          graphTemplates[Math.floor(Math.random() * graphTemplates.length)];
-        const edges = template.generate();
-        const vertices = template.vertices;
-        const matrix = createMatrix(edges, vertices);
+        // Тип задачи (с промежуточным пунктом или без) выбирается один раз
+        const wantsViaPoint = Math.random() > 0.5;
 
-        // Выбираем начальный и конечный пункты
-        const startVertex = vertices[0]; // A
-        const endVertex = vertices[vertices.length - 1]; // E или F
+        let task = null;
 
-        // Определяем тип задачи
-        const hasViaPoint = Math.random() > 0.5;
-        let viaVertex = null;
+        // Задачу с промежуточным пунктом можно ставить только тогда, когда
+        // сумма кратчайших отрезков «старт→via» и «via→финиш» образует
+        // простой путь (без повторного посещения вершин). Иначе реальный
+        // простой путь через via длиннее суммы, и задача становится
+        // некорректной, поэтому веса генерируем заново.
+        for (let attempt = 0; attempt < 50 && task === null; attempt++) {
+          const template =
+            graphTemplates[Math.floor(Math.random() * graphTemplates.length)];
+          const edges = template.generate();
+          const vertices = template.vertices;
+          const matrix = createMatrix(edges, vertices);
 
-        if (hasViaPoint && vertices.length > 4) {
-          // Выбираем промежуточный пункт (не начальный и не конечный)
-          const viaOptions = vertices.slice(1, -1);
-          viaVertex = viaOptions[Math.floor(Math.random() * viaOptions.length)];
+          // Выбираем начальный и конечный пункты
+          const startVertex = vertices[0]; // A
+          const endVertex = vertices[vertices.length - 1]; // E или F
+
+          let viaVertex = null;
+          if (wantsViaPoint && vertices.length > 4) {
+            // Выбираем промежуточный пункт (не начальный и не конечный)
+            const viaOptions = vertices.slice(1, -1);
+            viaVertex =
+              viaOptions[Math.floor(Math.random() * viaOptions.length)];
+          }
+
+          if (viaVertex) {
+            const path1 = findShortestPath(
+              matrix,
+              vertices,
+              startVertex,
+              viaVertex,
+            );
+            const path2 = findShortestPath(
+              matrix,
+              vertices,
+              viaVertex,
+              endVertex,
+            );
+
+            const combined = path1.path.concat(path2.path.slice(1));
+            const isSimplePath =
+              new Set(combined).size === combined.length;
+            if (!isSimplePath) continue;
+
+            // Для решения находим пути (лимит повышен, чтобы истинный минимум
+            // почти всегда попадал в выборку; истинные минимумы берём из Дейкстры).
+            const pathsToVia = findAllPaths(
+              matrix,
+              vertices,
+              startVertex,
+              viaVertex,
+              30,
+            );
+            const pathsFromVia = findAllPaths(
+              matrix,
+              vertices,
+              viaVertex,
+              endVertex,
+              30,
+            );
+
+            task = {
+              matrix: matrix,
+              vertices: vertices,
+              edges: edges,
+              startVertex: startVertex,
+              endVertex: endVertex,
+              viaVertex: viaVertex,
+              answer: path1.distance + path2.distance,
+              solutionPaths: {
+                pathsToVia,
+                pathsFromVia,
+                viaVertex,
+                bestToVia: path1.distance,
+                bestFromVia: path2.distance,
+              },
+            };
+          } else {
+            // Прямой путь
+            const result = findShortestPath(
+              matrix,
+              vertices,
+              startVertex,
+              endVertex,
+            );
+            task = {
+              matrix: matrix,
+              vertices: vertices,
+              edges: edges,
+              startVertex: startVertex,
+              endVertex: endVertex,
+              viaVertex: null,
+              answer: result.distance,
+              solutionPaths: {
+                allPaths: findAllPaths(
+                  matrix,
+                  vertices,
+                  startVertex,
+                  endVertex,
+                  30,
+                ),
+                bestDistance: result.distance,
+              },
+            };
+          }
         }
 
-        // Вычисляем ответ
-        let answer, solutionPaths;
-
-        if (viaVertex) {
-          // Путь через промежуточный пункт
-          const path1 = findShortestPath(
+        // Страховка: если по какой-то причине не удалось построить задачу
+        // через промежуточный пункт, выдаём обычный кратчайший путь.
+        if (task === null) {
+          const template = graphTemplates[0];
+          const edges = template.generate();
+          const vertices = template.vertices;
+          const matrix = createMatrix(edges, vertices);
+          const startVertex = vertices[0];
+          const endVertex = vertices[vertices.length - 1];
+          const result = findShortestPath(
             matrix,
             vertices,
             startVertex,
-            viaVertex,
-          );
-          const path2 = findShortestPath(
-            matrix,
-            vertices,
-            viaVertex,
             endVertex,
           );
-          answer = path1.distance + path2.distance;
-
-          // Для решения находим пути (лимит повышен, чтобы истинный минимум
-          // почти всегда попадал в выборку; истинные минимумы берём из Дейкстры).
-          const pathsToVia = findAllPaths(matrix, vertices, startVertex, viaVertex, 30);
-          const pathsFromVia = findAllPaths(matrix, vertices, viaVertex, endVertex, 30);
-          solutionPaths = {
-            pathsToVia,
-            pathsFromVia,
-            viaVertex,
-            bestToVia: path1.distance,
-            bestFromVia: path2.distance,
-          };
-        } else {
-          // Прямой путь
-          const result = findShortestPath(matrix, vertices, startVertex, endVertex);
-          answer = result.distance;
-          solutionPaths = {
-            allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 30),
-            bestDistance: result.distance,
+          task = {
+            matrix: matrix,
+            vertices: vertices,
+            edges: edges,
+            startVertex: startVertex,
+            endVertex: endVertex,
+            viaVertex: null,
+            answer: result.distance,
+            solutionPaths: {
+              allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 30),
+              bestDistance: result.distance,
+            },
           };
         }
 
-        currentTask = {
-          matrix: matrix,
-          vertices: vertices,
-          edges: edges,
-          startVertex: startVertex,
-          endVertex: endVertex,
-          viaVertex: viaVertex,
-          answer: answer,
-          solutionPaths: solutionPaths,
-        };
+        currentTask = task;
 
         renderTask();
         hideHintsAndSolution();

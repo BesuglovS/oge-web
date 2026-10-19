@@ -75,12 +75,12 @@
       </div>
 
       <div class="hint-box" id="hintBox">
-        <h3>💡 Подсказка</h3>
+        <h4>💡 Подсказка</h4>
         <div id="hintText"></div>
       </div>
 
       <div class="solution-box" id="solutionBox">
-        <h3>📝 Решение</h3>
+        <h4>📝 Решение</h4>
         <div id="solutionSteps"></div>
       </div>
     
@@ -115,7 +115,7 @@
           answer: "19",
           hint: 'Откройте папку Классика/Стихи в проводнике. В строке поиска введите <span class="code">*.txt OR *.docx</span> — проводник покажет все файлы с этими расширениями во всех подкаталогах. Посмотрите количество в строке состояния внизу окна.',
           solution:
-            "1. Открываем каталог Классика/Стихи.<br>2. Просматриваем все подкаталоги: Блок, Есенин, Лермонтов, Маяковский, Некрасов, Пушкин.<br>3. Подсчитываем файлы с расширением .txt и .docx.<br>4. Складываем полученные числа.<br><strong>Ответ: 19</strong>",
+            "1. Открываем каталог Классика/Стихи.<br>2. Просматриваем все подкаталоги: Блок, Грибоедов, Есенин, Лермонтов, Маяковский, Некрасов, Пушкин.<br>3. Подсчитываем файлы с расширением .txt и .docx.<br>4. Складываем полученные числа.<br><strong>Ответ: 19</strong>",
         },
         {
           id: 2,
@@ -285,19 +285,36 @@
       let currentTask = null;
       let answeredTasks = new Set();
 
-      function getRandomUnansweredIndex() {
-        // Сначала ищем среди неотвеченных
+      // Приводим ответ к единому виду: регистр, «ё»→«е», пробелы и обрамляющие знаки
+      function normalizeAnswer(value) {
+        return (value || "")
+          .toLowerCase()
+          .replace(/ё/g, "е")
+          .replace(/\s+/g, " ")
+          .replace(/^[\s.,;:!?"'«»()\u2014-]+/, "")
+          .replace(/[\s.,;:!?"'«»()\u2014-]+$/, "");
+      }
+
+      function getRandomUnansweredIndex(excludeIndex) {
+        // Сначала ищем среди неотвеченных (кроме текущей задачи)
         const unanswered = [];
         for (let i = 0; i < shuffledTasks.length; i++) {
-          if (!answeredTasks.has(i)) {
+          if (!answeredTasks.has(i) && i !== excludeIndex) {
             unanswered.push(i);
           }
         }
         if (unanswered.length > 0) {
           return unanswered[Math.floor(Math.random() * unanswered.length)];
         }
-        // Если все отвечены, берём случайную
-        return Math.floor(Math.random() * shuffledTasks.length);
+        // Если все отвечены, берём случайную, но не текущую
+        if (shuffledTasks.length > 1) {
+          let index = Math.floor(Math.random() * shuffledTasks.length);
+          while (index === excludeIndex) {
+            index = Math.floor(Math.random() * shuffledTasks.length);
+          }
+          return index;
+        }
+        return 0;
       }
 
       function renderTask(index) {
@@ -335,8 +352,8 @@
       function checkAnswer() {
         const input = document.getElementById("answerInput");
         const result = document.getElementById("result");
-        const userAnswer = input.value.trim();
-        const correctAnswer = currentTask.answer;
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(currentTask.answer);
 
         if (!userAnswer) {
           input.focus();
@@ -346,9 +363,12 @@
         if (userAnswer === correctAnswer) {
           input.className = "answer-input correct";
           input.disabled = true;
-          result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge12', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge12', 1); };
+          result.className = "result correct";
+          if (typeof OGEProgress !== 'undefined') {
+            OGEProgress.save('oge12', 1, 1);
+            OGEProgress.renderProgressBar('progressContainer');
+          }
+          if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge12', 1); }
           result.innerHTML = "✅ Правильно! Отличная работа!";
           answeredTasks.add(currentTaskIndex);
         } else {
@@ -362,7 +382,7 @@
       }
 
       function nextTask() {
-        const newIndex = getRandomUnansweredIndex();
+        const newIndex = getRandomUnansweredIndex(currentTaskIndex);
         renderTask(newIndex);
       }
 
@@ -376,6 +396,7 @@
       }
 
       function showSolution() {
+    if (typeof trackSolution === 'function') { trackSolution('oge12'); }
         const solutionBox = document.getElementById("solutionBox");
         const solutionSteps = document.getElementById("solutionSteps");
         solutionSteps.innerHTML = currentTask.solution;

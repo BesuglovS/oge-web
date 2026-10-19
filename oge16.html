@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="description" content="Напишите программу на Python для подсчёта суммы элементов по заданному условию. Задачи на анализ цифр числа." />
+    <meta name="description" content="Тренажёр задания 16 ОГЭ по информатике: программы на Python для подсчёта суммы, количества, среднего, минимума и максимума по условию, анализ цифр числа." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge16.html" />
     <meta property="og:title" content="Задание 16 ОГЭ - Программирование на Python" />
-    <meta property="og:description" content="Напишите программу на Python для подсчёта суммы элементов по заданному условию. Задачи на анализ цифр числа." />
+    <meta property="og:description" content="Тренажёр задания 16 ОГЭ по информатике: программы на Python для подсчёта суммы, количества, среднего, минимума и максимума по условию, анализ цифр числа." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge16.html" />
     <meta property="og:image" content="https://oge.nayanovaacademy.ru/assets/og-image.png" />
@@ -424,7 +424,7 @@
             { input: "100", expected: "1" },
             { input: "12345678", expected: "24" },
             { input: "40", expected: "0" },
-            { input: "123", expected: "6" },
+            { input: "6974193", expected: "35" },
           ],
         },
         {
@@ -538,8 +538,8 @@
             { input: "1111111111", expected: "1" },
             { input: "100", expected: "1" },
             { input: "12", expected: "2" },
-            { input: "123456789", expected: "9" },
             { input: "1000000000", expected: "1" },
+            { input: "2210536", expected: "6" },
           ],
         },
         {
@@ -585,7 +585,7 @@
             { input: '3\n3\n6\n9', expected: '3' },
             { input: '2\n1000\n2000', expected: '0' },
             { input: '2\n3\n6', expected: '2' },
-            { input: '3\n0\n3\n6', expected: '3' },
+            { input: '3\n12\n15\n18', expected: '3' },
             { input: '1\n1000', expected: '0' },
             { input: '4\n3\n6\n9\n12', expected: '4' }
           ]
@@ -611,7 +611,7 @@
             { input: '2\n6\n12', expected: '0' },
             { input: '3\n5\n17\n23', expected: '45' },
             { input: '1\n1000', expected: '0' },
-            { input: '4\n5\n11\n17\n23', expected: '56' }
+            { input: '2\n323\n320', expected: '323' }
           ]
         },
         {
@@ -633,7 +633,7 @@
             { input: '3\n4\n9\n14', expected: '27' },
             { input: '2\n1000\n2000', expected: '3000' },
             { input: '2\n5\n10', expected: '15' },
-            { input: '3\n0\n5\n10', expected: '15' },
+            { input: '3\n5\n10\n15', expected: '30' },
             { input: '1\n1000', expected: '1000' },
             { input: '4\n4\n14\n19\n24', expected: '61' }
           ]
@@ -647,19 +647,19 @@
           conditionText: 'оканчивается на цифру 4',
           conditionHighlight: '4',
           testData: { input: '3\n4\n10\n16', expected: '10.0' },
-          hint: 'Вычисляем среднее арифметическое как sum / count.',
-          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 4:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: 'Считаем sum / count и округляем: round(s / k, 2).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 6 == 4:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '3\n4\n10\n16', expected: '10.0' },
             { input: '1\n4', expected: '4.0' },
             { input: '1\n1', expected: 'Нет' },
             { input: '3\n1\n2\n3', expected: 'Нет' },
-            { input: '3\n4\n10\n16', expected: '10.0' },
             { input: '2\n1000\n2000', expected: '1000.0' },
             { input: '2\n6\n12', expected: 'Нет' },
             { input: '3\n4\n16\n22', expected: '14.0' },
             { input: '1\n1000', expected: '1000.0' },
-            { input: '4\n4\n10\n16\n22', expected: '13.0' }
+            { input: '4\n4\n10\n16\n22', expected: '13.0' },
+            { input: '4\n976\n246\n1036\n291', expected: '1006.0' }
           ]
         },
         {
@@ -671,10 +671,10 @@
           conditionText: 'оканчивается на 0 или 3',
           conditionHighlight: '0 или 3',
           testData: { input: '3\n7\n10\n14', expected: '10.333333333333334' },
-          hint: 'Проверяем два условия: if x % 7 == 0 or x % 7 == 3.',
-          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: 'Проверяем if x % 7 == 0 or x % 7 == 3, среднее округляем: round(s / k, 2).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
-            { input: '3\n7\n10\n14', expected: '10.333333333333334' },
+            { input: '3\n7\n10\n14', expected: '10.33' },
             { input: '1\n7', expected: '7.0' },
             { input: '1\n1', expected: 'Нет' },
             { input: '3\n1\n2\n3', expected: '3.0' },
@@ -722,10 +722,10 @@
             { input: '1\n49', expected: '49' },
             { input: '1\n1', expected: '0' },
             { input: '3\n1\n2\n3', expected: '0' },
-            { input: '3\n49\n130\n211', expected: '390' },
             { input: '2\n1000\n2000', expected: '0' },
             { input: '2\n81\n162', expected: '0' },
-            { input: '3\n49\n211\n292', expected: '552' }
+            { input: '3\n49\n211\n292', expected: '552' },
+            { input: '2\n454\n509', expected: '454' }
           ]
         },
         {
@@ -786,12 +786,12 @@
             { input: '3\n0', expected: '1' },
             { input: '7\n11\n15\n0', expected: '3' },
             { input: '3\n7\n11\n0', expected: '3' },
-            { input: '3\n0', expected: '1' },
             { input: '4\n3\n7\n11\n0', expected: '3' },
             { input: '11\n0', expected: '1' },
             { input: '3\n15\n19\n0', expected: '3' },
             { input: '0', expected: '0' },
-            { input: '7\n3\n7\n15\n0', expected: '4' }
+            { input: '7\n3\n7\n15\n0', expected: '4' },
+            { input: '1463\n784\n0', expected: '1' }
           ]
         },
         {
@@ -810,12 +810,12 @@
             { input: '9\n0', expected: '9' },
             { input: '1\n0', expected: '1' },
             { input: '9\n17\n25\n0', expected: '51' },
-            { input: '1\n0', expected: '1' },
             { input: '9\n17\n0', expected: '26' },
             { input: '0', expected: '0' },
             { input: '1\n9\n17\n25\n0', expected: '52' },
-            { input: '1\n0', expected: '1' },
-            { input: '9\n1\n17\n0', expected: '27' }
+            { input: '9\n1\n17\n0', expected: '27' },
+            { input: '49\n341\n296\n879\n0', expected: '49' },
+            { input: '721\n501\n0', expected: '721' }
           ]
         },
         {
@@ -827,19 +827,19 @@
           conditionText: 'оканчивается на цифру 2 (ввод до 0)',
           conditionHighlight: '2',
           testData: { input: '2\n11\n20\n0', expected: '11.0' },
-          hint: 'Среднее арифметическое: сумма / количество.',
-          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: 'Среднее: round(s / k, 2) (округление до двух знаков).',
+          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 2:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '2\n11\n20\n0', expected: '11.0' },
             { input: '2\n0', expected: '2.0' },
             { input: '0', expected: 'Нет' },
             { input: '11\n20\n29\n0', expected: '20.0' },
-            { input: '2\n0', expected: '2.0' },
             { input: '11\n0', expected: '11.0' },
-            { input: '0', expected: 'Нет' },
-            { input: '2\n11\n20\n0', expected: '11.0' },
             { input: '2\n29\n0', expected: '15.5' },
-            { input: '2\n11\n0', expected: '6.5' }
+            { input: '2\n11\n0', expected: '6.5' },
+            { input: '53\n291\n758\n0', expected: '758.0' },
+            { input: '1422\n506\n50\n0', expected: '506.0' },
+            { input: '837\n560\n0', expected: '560.0' }
           ]
         },
         {
@@ -860,10 +860,10 @@
             { input: '25\n41\n57\n0', expected: '123' },
             { input: '0', expected: '0' },
             { input: '9\n25\n0', expected: '34' },
-            { input: '9\n0', expected: '9' },
             { input: '25\n41\n0', expected: '66' },
-            { input: '0', expected: '0' },
-            { input: '9\n57\n0', expected: '66' }
+            { input: '9\n57\n0', expected: '66' },
+            { input: '518\n377\n0', expected: '377' },
+            { input: '253\n453\n1353\n0', expected: '1353' }
           ]
         },
         {
@@ -883,10 +883,10 @@
             { input: '77\n126\n175\n0', expected: '378' },
             { input: '0', expected: '0' },
             { input: '28\n77\n0', expected: '105' },
-            { input: '28\n0', expected: '28' },
             { input: '77\n126\n0', expected: '203' },
-            { input: '0', expected: '0' },
-            { input: '28\n175\n0', expected: '203' }
+            { input: '28\n175\n0', expected: '203' },
+            { input: '1385\n1061\n0', expected: '1061' },
+            { input: '615\n1402\n0', expected: '1402' }
           ]
         },
         {
@@ -905,12 +905,12 @@
             { input: '1\n0', expected: '1' },
             { input: '0', expected: '0' },
             { input: '6\n11\n16\n0', expected: '3' },
-            { input: '1\n0', expected: '1' },
             { input: '6\n0', expected: '1' },
-            { input: '0', expected: '0' },
-            { input: '1\n6\n11\n0', expected: '3' },
             { input: '1\n16\n0', expected: '2' },
-            { input: '6\n11\n0', expected: '2' }
+            { input: '6\n11\n0', expected: '2' },
+            { input: '171\n1473\n0', expected: '1' },
+            { input: '502\n221\n0', expected: '1' },
+            { input: '204\n45\n1016\n0', expected: '1' }
           ]
         },
         {
@@ -931,10 +931,10 @@
             { input: '42\n67\n92\n0', expected: '201' },
             { input: '0', expected: '0' },
             { input: '17\n42\n0', expected: '59' },
-            { input: '17\n0', expected: '17' },
             { input: '42\n67\n0', expected: '109' },
-            { input: '0', expected: '0' },
-            { input: '17\n92\n0', expected: '109' }
+            { input: '17\n92\n0', expected: '109' },
+            { input: '134\n942\n411\n0', expected: '942' },
+            { input: '895\n1392\n159\n0', expected: '1392' }
           ]
         },
         {
@@ -954,10 +954,10 @@
             { input: '40\n65\n90\n0', expected: '195' },
             { input: '0', expected: '0' },
             { input: '15\n40\n0', expected: '55' },
-            { input: '15\n0', expected: '15' },
             { input: '40\n65\n0', expected: '105' },
-            { input: '0', expected: '0' },
-            { input: '15\n90\n0', expected: '105' }
+            { input: '15\n90\n0', expected: '105' },
+            { input: '335\n560\n490\n0', expected: '490' },
+            { input: '915\n47\n8\n0', expected: '915' }
           ]
         },
         {
@@ -1120,7 +1120,7 @@
           typeLabel: 'Минимум (до 0, конец на 3 в 7-ричной)',
           base: 7,
           baseText: '7-ричной',
-          conditionText: 'оканчивается на цифру 3 (ввод до 0). Найти минимальное число',
+          conditionText: 'оканчивается на цифру 3 (ввод до 0) найти минимум',
           conditionHighlight: '3',
           testData: { input: '3\n10\n17\n0', expected: '3' },
           hint: 'Находим минимальное среди чисел, оканчивающихся на 3 в 7-ричной. Ввод до 0.',
@@ -1130,12 +1130,12 @@
             { input: '3\n0', expected: '3' },
             { input: '0', expected: 'Нет' },
             { input: '10\n17\n24\n0', expected: '10' },
-            { input: '3\n0', expected: '3' },
             { input: '17\n10\n0', expected: '10' },
-            { input: '0', expected: 'Нет' },
-            { input: '3\n10\n17\n0', expected: '3' },
             { input: '24\n31\n0', expected: '24' },
-            { input: '10\n3\n0', expected: '3' }
+            { input: '10\n3\n0', expected: '3' },
+            { input: '899\n918\n0', expected: '899' },
+            { input: '1159\n231\n549\n0', expected: '549' },
+            { input: '83\n1166\n47\n367\n0', expected: '367' }
           ]
         },
         {
@@ -1154,12 +1154,12 @@
             { input: '6\n0', expected: '6' },
             { input: '0', expected: 'Нет' },
             { input: '15\n24\n33\n0', expected: '33' },
-            { input: '6\n0', expected: '6' },
             { input: '24\n15\n0', expected: '24' },
-            { input: '0', expected: 'Нет' },
-            { input: '6\n15\n24\n0', expected: '24' },
             { input: '33\n42\n0', expected: '42' },
-            { input: '15\n6\n0', expected: '15' }
+            { input: '15\n6\n0', expected: '15' },
+            { input: '43\n1086\n11\n270\n0', expected: '1086' },
+            { input: '483\n452\n115\n0', expected: '483' },
+            { input: '111\n393\n313\n184\n0', expected: '393' }
           ]
         },
         {
@@ -1217,8 +1217,8 @@
           conditionText: 'оканчивается на 0',
           conditionHighlight: '0',
           testData: { input: '4\n13\n26\n39\n52', expected: '32.5' },
-          hint: 'x % 13 == 0 (оканчивается на 0 в 13-ричной).',
-          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 13 == 0:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: 'x % 13 == 0; среднее округляем: round(s / k, 2).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 13 == 0:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '4\n13\n26\n39\n52', expected: '32.5' },
             { input: '1\n13', expected: '13.0' },
@@ -1227,7 +1227,7 @@
             { input: '3\n13\n26\n39', expected: '26.0' },
             { input: '2\n1000\n2000', expected: 'Нет' },
             { input: '2\n13\n26', expected: '19.5' },
-            { input: '3\n13\n39\n52', expected: '34.666666666666664' }
+            { input: '3\n13\n39\n52', expected: '34.67' }
           ]
         },
         {
@@ -1259,8 +1259,8 @@
           baseText: '3-ричной',
           conditionText: "предпоследняя цифра в записи которых в <span class=\"highlight\">3-ричной</span> системе равна <span class=\"highlight-digit\">1</span>",
           testData: { input: '4\n3\n12\n21\n30', expected: '16.5' },
-          hint: '(x // 3) % 3 == 1, среднее.',
-          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 3) % 3 == 1:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: '(x // 3) % 3 == 1; среднее: round(s / k, 2).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if (x // 3) % 3 == 1:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '4\n3\n12\n21\n30', expected: '16.5' },
             { input: '1\n3', expected: '3.0' },
@@ -1303,17 +1303,17 @@
           conditionText: 'оканчивается на 23',
           conditionHighlight: '23',
           testData: { input: '3\n13\n38\n63', expected: '38.0' },
-          hint: '23 в 5-ричной = 2*5+3=13, p²=25.',
-          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 25 == 13:\n        s += x\n        k += 1\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: '23 в 5-ричной = 2*5+3=13, p²=25; среднее: round(s / k, 2).',
+          solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 25 == 13:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '3\n13\n38\n63', expected: '38.0' },
             { input: '1\n13', expected: '13.0' },
             { input: '1\n1', expected: 'Нет' },
             { input: '3\n1\n2\n3', expected: 'Нет' },
-            { input: '3\n13\n38\n63', expected: '38.0' },
             { input: '2\n1000\n2000', expected: 'Нет' },
             { input: '2\n25\n50', expected: 'Нет' },
-            { input: '3\n13\n63\n88', expected: '54.666666666666664' }
+            { input: '3\n13\n63\n88', expected: '54.67' },
+            { input: '4\n1113\n29\n1238\n710', expected: '1175.5' }
           ]
         },
         {
@@ -1325,19 +1325,19 @@
           conditionText: 'оканчивается на 12 (ввод до 0) найти среднее',
           conditionHighlight: '12',
           testData: { input: '5\n8\n11\n0', expected: '5.0' },
-          hint: '12 в 3-ричной = 1*3+2=5, p²=9. Ввод до 0, среднее.',
-          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 5:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(s / k)\nelse:\n    print("Нет")',
+          hint: '12 в 3-ричной = 1*3+2=5, p²=9. Ввод до 0, среднее: round(s / k, 2).',
+          solutionCode:'x = int(input())\ns = 0\nk = 0\nwhile x != 0:\n    if x % 9 == 5:\n        s += x\n        k += 1\n    x = int(input())\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
             { input: '5\n8\n11\n0', expected: '5.0' },
             { input: '5\n0', expected: '5.0' },
             { input: '0', expected: 'Нет' },
             { input: '8\n11\n14\n0', expected: '14.0' },
-            { input: '5\n0', expected: '5.0' },
             { input: '5\n8\n0', expected: '5.0' },
-            { input: '0', expected: 'Нет' },
             { input: '5\n14\n0', expected: '9.5' },
             { input: '8\n5\n0', expected: '5.0' },
-            { input: '5\n8\n11\n0', expected: '5.0' }
+            { input: '480\n869\n58\n0', expected: '869.0' },
+            { input: '617\n251\n956\n0', expected: '617.0' },
+            { input: '1409\n86\n170\n347\n0', expected: '614.0' }
           ]
         },
         {
@@ -1355,12 +1355,12 @@
             { input: '12\n0', expected: '1' },
             { input: '0', expected: '0' },
             { input: '48\n84\n120\n0', expected: '3' },
-            { input: '12\n0', expected: '1' },
             { input: '12\n48\n0', expected: '2' },
-            { input: '0', expected: '0' },
             { input: '12\n84\n0', expected: '2' },
             { input: '48\n12\n0', expected: '2' },
-            { input: '12\n120\n0', expected: '2' }
+            { input: '12\n120\n0', expected: '2' },
+            { input: '70\n1204\n730\n56\n0', expected: '1' },
+            { input: '134\n357\n202\n1492\n0', expected: '1' }
           ]
         },
         {
@@ -1379,12 +1379,12 @@
             { input: '6\n0', expected: '1' },
             { input: '0', expected: '0' },
             { input: '15\n24\n33\n0', expected: '3' },
-            { input: '6\n0', expected: '1' },
             { input: '6\n15\n0', expected: '2' },
-            { input: '0', expected: '0' },
             { input: '6\n24\n0', expected: '2' },
             { input: '15\n6\n0', expected: '2' },
-            { input: '6\n33\n0', expected: '2' }
+            { input: '6\n33\n0', expected: '2' },
+            { input: '510\n74\n0', expected: '1' },
+            { input: '573\n986\n0', expected: '1' }
           ]
         },
         {
@@ -1416,7 +1416,7 @@
           conditionText: "<span class=\"highlight-digit\">максимальную чётную</span> цифру в записи натурального числа",
           testData: { input: '84951', expected: '8' },
           hint: 'Находим максимальную чётную цифру.',
-          solutionCode:'x = int(input())\nmax_digit = 0\nfound = False\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit > max_digit:\n        max_digit = digit\n        found = True\n    temp //= 10\nif found:\n    print(max_digit)\nelse:\n    print("Нет")',
+          solutionCode:'x = int(input())\nmax_even = -1\ntemp = x\nwhile temp > 0:\n    digit = temp % 10\n    if digit % 2 == 0 and digit > max_even:\n        max_even = digit\n    temp //= 10\nif max_even >= 0:\n    print(max_even)\nelse:\n    print("Нет")',
           tests: [
             { input: '84951', expected: '8' },
             { input: '8', expected: '8' },
@@ -1446,22 +1446,29 @@
             { input: '5\n0', expected: '1' },
             { input: '0', expected: '0' },
             { input: '13\n21\n29\n37\n0', expected: '4' },
-            { input: '5\n0', expected: '1' },
             { input: '5\n13\n0', expected: '2' },
-            { input: '0', expected: '0' },
             { input: '5\n29\n0', expected: '2' },
             { input: '13\n5\n0', expected: '2' },
-            { input: '5\n37\n0', expected: '2' }
+            { input: '5\n37\n0', expected: '2' },
+            { input: '317\n1267\n0', expected: '1' },
+            { input: '88\n211\n1397\n28\n0', expected: '1' }
           ]
         }
       ];
 
       var cur = 0;
       var task = null;
+      var isRunning = false;
+      var runTaskId = null;
 
       function genTask() {
+        if (isRunning) return;
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge16'); }
-        cur = Math.floor(Math.random() * tasks.length);
+        var newIdx;
+        do {
+          newIdx = Math.floor(Math.random() * tasks.length);
+        } while (task !== null && newIdx === cur && tasks.length > 1);
+        cur = newIdx;
         task = tasks[cur];
         renderTask(task);
         hideHints();
@@ -1472,6 +1479,7 @@
       }
 
       function selectTaskByNumber() {
+        if (isRunning) return;
         var input = document.getElementById("taskNumInput");
         var num = parseInt(input.value);
         if (isNaN(num) || num < 1 || num > tasks.length) {
@@ -1485,26 +1493,6 @@
         var os = document.getElementById("outputSection");
         if (os) os.className = "output-section";
         document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      function getHighlightedText(t) {
-        if (t.type === 'end-digit' || t.type === 'end-two') {
-          // End-digit/end-two: baseText already has class="highlight" from the template,
-          // wrap conditionHighlight in highlight-digit
-          if (t.conditionHighlight) {
-            return t.conditionText.replace(
-              t.conditionHighlight,
-              '<span class="highlight-digit">' + t.conditionHighlight + '</span>'
-            );
-          }
-          return t.conditionText;
-        }
-        if (t.type === 'penult') {
-          // Penult: conditionText already has embedded highlight spans
-          return t.conditionText;
-        }
-        // count-digits, sum-digits, minmax: conditionText already has embedded highlight-digit spans
-        return t.conditionText;
       }
 
       function renderTask(t) {
@@ -1552,6 +1540,7 @@
                hlCond +
               '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать только ' + outputDesc +
               (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1583,6 +1572,7 @@
               "</span> системе счисления " +
               hlCondEnd +
               '. В ответе запишите только ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму')))) + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'искомое' : 'искомую')))) + ' ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество элементов' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму элементов')))) + (t.typeLabel.indexOf('Кол') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Среднее') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Минимум') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Максимум') !== -1 ? ', записанное' : ', записанную')))) + ' в десятичной системе счисления.' +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1615,6 +1605,7 @@
             ' ' + actionWord + ' последовательности натуральных чисел, ' +
                t.conditionText.replace(/ \(ввод до 0\)( найти минимум| найти максимум| найти среднее)?/g, '').replace(/^ /, '') +
               '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать ' + outputDesc + (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1656,6 +1647,7 @@
               " " + actionWordPenult + " последовательности натуральных чисел, " +
               t.conditionText +
               '. В ответе запишите только ' + outputDescPenult + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + itsPenult + ', записанное в десятичной системе счисления.' +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1700,7 +1692,7 @@
           ph +
           '" spellcheck="false">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="60" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
+          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (ed) ed.focus();
@@ -1716,6 +1708,8 @@
             '<div class="output-title">⚠️ Ошибка</div><div class="output-content">Введите код программы.</div>';
           return;
         }
+        isRunning = true;
+        runTaskId = task.id;
         runBtn.disabled = true;
         runBtn.innerHTML = '<span class="spinner"></span> Выполнение...';
         os.className = "output-section show loading";
@@ -1731,6 +1725,7 @@
         function runNextTest() {
           if (currentTest >= tests.length) {
             // All tests done
+            isRunning = false;
             runBtn.disabled = false;
             runBtn.innerHTML = "▶ Запустить и проверить (" + tests.length + " тестов)";
             showTestResults(results, passed, failed);
@@ -1771,11 +1766,26 @@
                 return {
                   error:
                     "Слишком много запросов к песочнице. Подождите минуту и попробуйте снова.",
+                  rateLimited: true,
                 };
               }
               return r.json();
             })
             .then(function (d) {
+              if (d && d.rateLimited) {
+                isRunning = false;
+                runBtn.disabled = false;
+                runBtn.innerHTML =
+                  "▶ Запустить и проверить (" + tests.length + " тестов)";
+                os.className = "output-section show error";
+                os.innerHTML =
+                  '<div class="output-title">⏳ Песочница перегружена</div><div class="output-content">Слишком много запросов. Подождите минуту и запустите проверку снова. Успешно пройдено до остановки: ' +
+                  passed +
+                  " из " +
+                  tests.length +
+                  " тестов.</div>";
+                return;
+              }
               var ok = false;
               var output = "";
               if (d.error) {
@@ -1872,7 +1882,7 @@
             "Обратите внимание на тесты, которые не прошли.</div>";
         }
 
-        if (allPassed) {
+        if (allPassed && task && task.id === runTaskId) {
           if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge16', 1, 1); }
           if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge16', 1); }
         }
@@ -1883,6 +1893,7 @@
       }
 
       function prevTask() {
+        if (isRunning) return;
         cur = (cur - 1 + tasks.length) % tasks.length;
         task = tasks[cur];
         renderTask(task);
@@ -1894,23 +1905,8 @@
         document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      function randomTask() {
-        var newIdx;
-        do {
-          newIdx = Math.floor(Math.random() * tasks.length);
-        } while (newIdx === cur && tasks.length > 1);
-        cur = newIdx;
-        task = tasks[cur];
-        renderTask(task);
-        hideHints();
-        var os = document.getElementById("outputSection");
-        if (os) os.className = "output-section";
-        var numInput = document.getElementById("taskNumInput");
-        if (numInput) numInput.value = cur + 1;
-        document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
       function nextTask() {
+        if (isRunning) return;
         cur = (cur + 1) % tasks.length;
         task = tasks[cur];
         renderTask(task);

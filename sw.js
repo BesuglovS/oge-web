@@ -1,5 +1,5 @@
 /* Service Worker — oge-web PWA */
-var CACHE_NAME = 'oge-web-v6';
+var CACHE_NAME = 'oge-web-v10';
 var ASSETS = [
   '/',
   '/oge.html',
@@ -12,6 +12,8 @@ var ASSETS = [
   '/assets/icon-maskable-512.png',
   '/js/metrika.js',
   '/js/progress.js',
+  '/js/oge15-ref.js',
+  '/js/oge15-gen.js',
   '/js/progress-client.js',
   '/js/progress-sync.js',
   '/js/tracking-client.js',

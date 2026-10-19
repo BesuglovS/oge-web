@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="description" content="Проанализируйте программу на языке программирования. Задачи на подсчёт запусков с «YES» и поиск параметра A." />
+    <meta name="description" content="Проанализируйте программу на языке программирования. Задачи на подсчёт запусков с «YES» и «NO», а также на поиск наименьшего и наибольшего значения параметра A." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge6.html" />
     <meta property="og:title" content="Задание 6 ОГЭ - Анализ программы с формальным исполнителем" />
     <meta property="og:description" content="Проанализируйте программу на языке программирования. Задачи на подсчёт запусков с «YES» и поиск параметра A." />
@@ -213,10 +213,15 @@
         const pairs = [];
         const used = new Set();
 
-        // Генерируем 10 пар
+        // Генерируем 10 пар. Примерно в половине пар t равен остатку от деления s
+        // на divisor (гарантированный «YES»), в остальных t выбирается случайно.
         while (pairs.length < 10) {
-          const s = Math.floor(Math.random() * 50) + 1;
-          const t = Math.floor(Math.random() * divisor);
+          const s = Math.floor(Math.random() * 80) + 1;
+          const remainder = s % divisor;
+          const t =
+            Math.random() < 0.5
+              ? remainder
+              : Math.floor(Math.random() * divisor);
           const key = `${s},${t}`;
           if (!used.has(key)) {
             used.add(key);
@@ -242,8 +247,8 @@
         const used = new Set();
 
         while (pairs.length < 10) {
-          const s = Math.floor(Math.random() * 10) - 5; // -5 до 4
-          const t = Math.floor(Math.random() * 10) - 5;
+          const s = Math.floor(Math.random() * 20) - 10; // -10 до 9
+          const t = Math.floor(Math.random() * 20) - 10; // -10 до 9
           const key = `${s},${t}`;
           if (!used.has(key)) {
             used.add(key);
@@ -294,71 +299,44 @@
       function generatePairsForParameter() {
         // Генерируем пары для задачи с параметром A
         // Условие: (s >= A) and (t < 1)
-        // Важно: все s среди пар с t < 1 должны быть уникальными
-        const pairs = [
-          { s: -8, t: -11 }, // t < 1, s = -8
-          { s: 1, t: -20 }, // t < 1, s = 1
-          { s: 4, t: -37 }, // t < 1, s = 4
-          { s: 7, t: 46 }, // t >= 1, не подходит
-          { s: 15, t: -14 }, // t < 1, s = 15
-          { s: 30, t: -4 }, // t < 1, s = 30
-          { s: 30, t: 15 }, // t >= 1, не подходит
-          { s: 50, t: -30 }, // t < 1, s = 50
-          { s: 80, t: -3 }, // t < 1, s = 80
-          { s: 100, t: -5 }, // t < 1, s = 100
-        ];
-        // Уникальные s среди пар с t < 1: -8, 1, 4, 15, 30, 50, 80, 100 (8 значений)
+        // Важно: все s среди пар с t < 1 должны быть уникальными,
+        // иначе у границы A появятся «склеенные» значения s.
+        const sPool = shuffleArray([
+          -12, -8, -3, 1, 4, 7, 11, 15, 19, 24, 30, 37, 45, 55, 66, 80, 95, 110,
+        ]);
+        // 8 пар с t < 1 (s уникальны) + 2 пары, где t >= 1
+        const pairs = sPool
+          .slice(0, 8)
+          .map((s) => ({ s, t: Math.floor(Math.random() * 41) - 40 }));
+
+        while (pairs.length < 10) {
+          const s = Math.floor(Math.random() * 121) - 10;
+          const t = Math.floor(Math.random() * 50) + 1; // t >= 1
+          if (pairs.some((p) => p.s === s && p.t === t)) continue;
+          pairs.push({ s, t });
+        }
 
         // Перемешиваем пары
-        return shuffleArray([...pairs]);
+        return shuffleArray(pairs);
       }
 
       function generatePairsForParameter2() {
         // Генерируем пары для задачи с параметром A
         // Условие: (s < A) or (t < A)
         // Важно: все min(s, t) должны быть уникальными для корректного решения
-        const pairs = [
-          { s: 25, t: 5 }, // min = 5
-          { s: 8, t: 8 }, // min = 8
-          { s: 20, t: 10 }, // min = 10
-          { s: 22, t: 12 }, // min = 12
-          { s: 15, t: 25 }, // min = 15
-          { s: 18, t: 22 }, // min = 18
-          { s: 10, t: 20 }, // min = 10 - дубликат, исправим
-          { s: 30, t: 30 }, // min = 30
-          { s: 5, t: 35 }, // min = 5 - дубликат, исправим
-          { s: 12, t: 28 }, // min = 12 - дубликат, исправим
-        ];
+        const pairs = [];
+        const usedMins = new Set();
 
-        // Исправленные пары с уникальными min значениями
-        const correctedPairs = [
-          { s: 25, t: 5 }, // min = 5
-          { s: 8, t: 8 }, // min = 8
-          { s: 20, t: 10 }, // min = 10
-          { s: 22, t: 12 }, // min = 12
-          { s: 15, t: 25 }, // min = 15
-          { s: 18, t: 22 }, // min = 18
-          { s: 30, t: 30 }, // min = 20
-          { s: 35, t: 7 }, // min = 7
-          { s: 40, t: 3 }, // min = 3
-          { s: 28, t: 14 }, // min = 14
-        ];
+        while (pairs.length < 10) {
+          const s = Math.floor(Math.random() * 70) + 1;
+          const t = Math.floor(Math.random() * 70) + 1;
+          const minVal = Math.min(s, t);
+          if (usedMins.has(minVal)) continue;
+          usedMins.add(minVal);
+          pairs.push({ s, t });
+        }
 
-        // Финальный набор с уникальными min: 3, 5, 7, 8, 10, 12, 14, 15, 18, 20
-        const finalPairs = [
-          { s: 40, t: 3 }, // min = 3
-          { s: 25, t: 5 }, // min = 5
-          { s: 35, t: 7 }, // min = 7
-          { s: 8, t: 8 }, // min = 8
-          { s: 20, t: 10 }, // min = 10
-          { s: 22, t: 12 }, // min = 12
-          { s: 28, t: 14 }, // min = 14
-          { s: 15, t: 25 }, // min = 15
-          { s: 18, t: 22 }, // min = 18
-          { s: 30, t: 20 }, // min = 20
-        ];
-
-        return shuffleArray([...finalPairs]);
+        return shuffleArray(pairs);
       }
 
       function findParameterA(pairs, targetYes, findType) {
@@ -369,31 +347,25 @@
         // Сортируем по s
         const sortedS = validPairs.map((p) => p.s).sort((a, b) => a - b);
 
-        // Нам нужно ровно targetYes пар с s >= A
-        // Это значит A должно быть таким, чтобы ровно targetYes пар удовлетворяли s >= A
-        // Граница: sortedS[validPairs.length - targetYes] - минимальное s из выбранных пар
-        // Но A может быть любым от (предыдущее s + 1) до этого s
-        // Для наименьшего A: A = sortedS[validPairs.length - targetYes - 1] + 1
-        // (на единицу больше предыдущего значения s)
-
+        // Нам нужно ровно targetYes пар с s >= A, поэтому выбираем targetYes
+        // наибольших значений s. Наименьшее подходящее A лежит в интервале
+        // (sortedS[idx - 1]; sortedS[idx]], где idx = sortedS.length - targetYes.
         if (sortedS.length < targetYes) return null;
+        if (targetYes === 0) return null;
 
         const idx = sortedS.length - targetYes;
 
-        // Наименьшее A должно быть больше предыдущего s (чтобы не включить лишнюю пару)
-        // и может быть любым до sortedS[idx] включительно
-        if (idx > 0) {
-          // A должно быть > sortedS[idx - 1] и <= sortedS[idx]
-          // Наименьшее целое A = sortedS[idx - 1] + 1
-          const answer = sortedS[idx - 1] + 1;
-          return { answer };
-        } else {
-          // idx = 0, значит нужно targetYes = validPairs.length пар
-          // A может быть любым <= sortedS[0]
-          // Наименьшее целое A не ограничено снизу, берём минимальное разумное
-          const answer = sortedS[0];
-          return { answer };
-        }
+        // idx = 0 означает, что условие должны выполнить ВСЕ пары с t < 1.
+        // Тогда A можно брать сколь угодно малым — наименьшего значения нет.
+        if (idx === 0) return null;
+
+        // Граница должна быть строгой, иначе при совпадающих s решение
+        // «перепрыгнет» лишнюю пару.
+        if (sortedS[idx - 1] === sortedS[idx]) return null;
+
+        // A должно быть > sortedS[idx - 1] и <= sortedS[idx]
+        // Наименьшее целое A = sortedS[idx - 1] + 1
+        return { answer: sortedS[idx - 1] + 1 };
       }
 
       function findParameterA2(pairs, targetYes, findType) {
@@ -409,6 +381,10 @@
         // Тогда min < A будет верно ровно для targetYes пар (индексы 0..targetYes-1)
 
         if (targetYes >= minValues.length) return null;
+        if (targetYes <= 0) return null;
+
+        // При совпадающих min граница «склеит» пары и решение станет неверным.
+        if (minValues[targetYes - 1] === minValues[targetYes]) return null;
 
         const answer = minValues[targetYes];
 
@@ -741,21 +717,26 @@ A = int(input())
         const hintText = document.getElementById("hintText");
 
         if (currentTask.taskType === "count") {
+          const targetWord = currentTask.countType === "no" ? "«NO»" : "«YES»";
+          const extraStep =
+            currentTask.countType === "no"
+              ? "<br>5. Либо найдите количество «YES» и вычтите его из 10 (всего было 10 запусков)."
+              : "";
           if (currentTask.condition === "mod") {
             hintText.innerHTML = `
               <strong>Алгоритм решения:</strong><br><br>
               1. Для каждой пары (s, t) вычислите остаток от деления s на ${currentTask.divisor}.<br>
               2. Сравните полученный остаток с t.<br>
-              3. Если они равны — программа выведет «YES».<br>
-              4. Подсчитайте количество таких пар.
+              3. Если они равны — программа выведет «YES», иначе — «NO».<br>
+              4. Подсчитайте количество пар, для которых программа вывела ${targetWord}.${extraStep}
             `;
           } else if (currentTask.condition === "or") {
             hintText.innerHTML = `
               <strong>Алгоритм решения:</strong><br><br>
               1. Для каждой пары (s, t) вычислите |s| и |t|.<br>
               2. Проверьте: |s| < ${currentTask.threshold} ИЛИ |t| < ${currentTask.threshold}?<br>
-              3. Если хотя бы одно условие истинно — программа выведет «YES».<br>
-              4. Подсчитайте количество таких пар.
+              3. Если хотя бы одно условие истинно — программа выведет «YES», иначе — «NO».<br>
+              4. Подсчитайте количество пар, для которых программа вывела ${targetWord}.${extraStep}
             `;
           } else if (currentTask.condition === "and") {
             hintText.innerHTML = `
@@ -763,8 +744,8 @@ A = int(input())
               1. Для каждой пары (s, t) проверьте оба условия:<br>
               &nbsp;&nbsp;&nbsp;• s > ${currentTask.thresholdS}?<br>
               &nbsp;&nbsp;&nbsp;• t < ${currentTask.thresholdT}?<br>
-              2. Если ОБА условия истинны — программа выведет «YES».<br>
-              3. Подсчитайте количество таких пар.
+              2. Если ОБА условия истинны — программа выведет «YES», иначе — «NO».<br>
+              3. Подсчитайте количество пар, для которых программа вывела ${targetWord}.${extraStep}
             `;
           }
         } else {
@@ -810,6 +791,16 @@ A = int(input())
         solutionBox.style.display = "block";
       }
 
+      function renderCountSummary(yesCount) {
+        if (currentTask.countType === "no") {
+          return `
+            <div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>
+            <div class="solution-step"><strong>Количество «NO»: 10 − ${yesCount} = ${10 - yesCount}</strong></div>
+          `;
+        }
+        return `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+      }
+
       function generateCountSolution() {
         let html = `<div class="solution-step"><strong>Составим таблицу трассировки:</strong></div>`;
 
@@ -845,7 +836,7 @@ A = int(input())
           });
 
           html += `</table>`;
-          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+          html += renderCountSummary(yesCount);
         } else if (currentTask.condition === "or") {
           html += `
             <table class="trace-table">
@@ -881,7 +872,7 @@ A = int(input())
           });
 
           html += `</table>`;
-          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+          html += renderCountSummary(yesCount);
         } else if (currentTask.condition === "and") {
           html += `
             <table class="trace-table">
@@ -917,7 +908,7 @@ A = int(input())
           });
 
           html += `</table>`;
-          html += `<div class="solution-step"><strong>Количество «YES»: ${yesCount}</strong></div>`;
+          html += renderCountSummary(yesCount);
         }
 
         html += `

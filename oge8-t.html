@@ -93,21 +93,45 @@
               <clipPath id="clipC">
                 <circle cx="200" cy="250" r="100" />
               </clipPath>
-              <!-- Not A clip -->
-              <clipPath id="clipNotA">
-                <rect x="0" y="0" width="400" height="350" />
-                <circle cx="130" cy="160" r="100" fill="black" />
-              </clipPath>
-              <!-- Not B clip -->
-              <clipPath id="clipNotB">
-                <rect x="0" y="0" width="400" height="350" />
+              <!-- Маски «только X»: белый прямоугольник минус лишние круги.
+                   clipPath объединяет фигуры, а не вычитает их, поэтому
+                   исключение областей делается через mask. -->
+              <mask
+                id="maskOnlyA"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="400"
+                height="350"
+              >
+                <rect x="0" y="0" width="400" height="350" fill="white" />
                 <circle cx="270" cy="160" r="100" fill="black" />
-              </clipPath>
-              <!-- Not C clip -->
-              <clipPath id="clipNotC">
-                <rect x="0" y="0" width="400" height="350" />
                 <circle cx="200" cy="250" r="100" fill="black" />
-              </clipPath>
+              </mask>
+              <mask
+                id="maskOnlyB"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="400"
+                height="350"
+              >
+                <rect x="0" y="0" width="400" height="350" fill="white" />
+                <circle cx="130" cy="160" r="100" fill="black" />
+                <circle cx="200" cy="250" r="100" fill="black" />
+              </mask>
+              <mask
+                id="maskOnlyC"
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width="400"
+                height="350"
+              >
+                <rect x="0" y="0" width="400" height="350" fill="white" />
+                <circle cx="130" cy="160" r="100" fill="black" />
+                <circle cx="270" cy="160" r="100" fill="black" />
+              </mask>
             </defs>
 
             <!-- Circle A (Red) - left -->
@@ -147,17 +171,15 @@
               class="highlight-group"
               style="display: none"
             >
-              <g style="clip-path: url(#clipNotB)">
-                <circle
-                  cx="130"
-                  cy="160"
-                  r="100"
-                  fill="#FFD700"
-                  opacity="0.35"
-                  style="clip-path: url(#clipNotC)"
-                  filter="url(#glow)"
-                />
-              </g>
+              <circle
+                cx="130"
+                cy="160"
+                r="100"
+                fill="#FFD700"
+                opacity="0.35"
+                mask="url(#maskOnlyA)"
+                filter="url(#glow)"
+              />
             </g>
 
             <!-- Region: Only B (!A & B & !C) -->
@@ -166,17 +188,15 @@
               class="highlight-group"
               style="display: none"
             >
-              <g style="clip-path: url(#clipNotA)">
-                <circle
-                  cx="270"
-                  cy="160"
-                  r="100"
-                  fill="#FFD700"
-                  opacity="0.35"
-                  style="clip-path: url(#clipNotC)"
-                  filter="url(#glow)"
-                />
-              </g>
+              <circle
+                cx="270"
+                cy="160"
+                r="100"
+                fill="#FFD700"
+                opacity="0.35"
+                mask="url(#maskOnlyB)"
+                filter="url(#glow)"
+              />
             </g>
 
             <!-- Region: Only C (!A & !B & C) -->
@@ -185,17 +205,15 @@
               class="highlight-group"
               style="display: none"
             >
-              <g style="clip-path: url(#clipNotA)">
-                <circle
-                  cx="200"
-                  cy="250"
-                  r="100"
-                  fill="#FFD700"
-                  opacity="0.35"
-                  style="clip-path: url(#clipNotB)"
-                  filter="url(#glow)"
-                />
-              </g>
+              <circle
+                cx="200"
+                cy="250"
+                r="100"
+                fill="#FFD700"
+                opacity="0.35"
+                mask="url(#maskOnlyC)"
+                filter="url(#glow)"
+              />
             </g>
 
             <!-- Region: A & B & !C -->
@@ -207,7 +225,6 @@
                   r="100"
                   fill="#FFD700"
                   opacity="0.35"
-                  style="clip-path: url(#clipNotC)"
                   filter="url(#glow)"
                 />
               </g>
@@ -222,7 +239,6 @@
                   r="100"
                   fill="#FFD700"
                   opacity="0.35"
-                  style="clip-path: url(#clipNotB)"
                   filter="url(#glow)"
                 />
               </g>
@@ -237,7 +253,6 @@
                   r="100"
                   fill="#FFD700"
                   opacity="0.35"
-                  style="clip-path: url(#clipNotA)"
                   filter="url(#glow)"
                 />
               </g>
@@ -832,6 +847,9 @@
             915 = X + 615 - 405<br />
             X = 915 - 615 + 405 = <span class="highlight">705</span>
           </p>
+          <p style="margin-top: 10px; color: #38ef7d">
+            ✓ Ответ: 705 тысяч страниц
+          </p>
         </div>
 
         <div class="tip-box">
@@ -840,7 +858,7 @@
             <li>Всегда рисуйте диаграмму!</li>
             <li>Обозначайте неизвестные области буквами или числами</li>
             <li>Используйте формулы последовательно, выражая неизвестные</li>
-            <li>Проверяйте: все значения должны быть положительными!</li>
+            <li>Проверяйте: все значения должны быть неотрицательными (0 тоже возможен!)</li>
           </ul>
         </div>
       </div>

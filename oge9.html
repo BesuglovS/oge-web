@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -247,8 +247,45 @@
           }
         }
 
-        // Связи между вершинами в одном слое НЕ добавляем
-        // так как на маленьком расстоянии стрелки не видны
+        // Гарантируем, что у каждой вершины, кроме последней, есть хотя бы одно
+        // исходящее ребро. Иначе появляются тупиковые вершины, из которых нельзя
+        // добраться до конца, и задача «через вершину» получает ответ 0.
+        for (let source = 0; source < vertexCount - 1; source++) {
+          let hasOutgoing = false;
+          for (let target = source + 1; target < vertexCount; target++) {
+            if (edges[source][target]) {
+              hasOutgoing = true;
+              break;
+            }
+          }
+          if (hasOutgoing) continue;
+
+          // Ищем ближайшую вершину, у которой ещё есть место по входящим рёбрам
+          let best = -1;
+          for (let target = source + 1; target < vertexCount; target++) {
+            if (countIncomingEdges(target) < 4) {
+              best = target;
+              break;
+            }
+          }
+
+          // Если места нет (например, в слое больше 4 вершин, а следующий слой
+          // состоит из одной), соединяем с наименее загруженной вершиной
+          if (best === -1) {
+            let fewestIncoming = Infinity;
+            for (let target = source + 1; target < vertexCount; target++) {
+              const incoming = countIncomingEdges(target);
+              if (incoming < fewestIncoming) {
+                fewestIncoming = incoming;
+                best = target;
+              }
+            }
+          }
+
+          if (best !== -1) {
+            edges[source][best] = true;
+          }
+        }
 
         return { vertices, edges, vertexCount, layers };
       }
@@ -334,35 +371,45 @@
           // Общее количество путей
           question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}?`;
           answer = paths[graph.vertexCount - 1];
-          typeClass = "";
+          typeClass = "total";
           typeLabel = "Общее количество путей";
-        } else if (taskType === 1) {
-          // Пути через вершину (выбираем вершину не первую и не последнюю)
-          throughIndex = randomInt(1, graph.vertexCount - 2);
-          throughVertex = graph.vertices[throughIndex];
-          answer = calculatePathsThrough(
-            graph.vertices,
-            graph.edges,
-            throughIndex,
-            paths,
-          );
-          question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}, которые проходят через город ${throughVertex}?`;
-          typeClass = "through";
-          typeLabel = "Пути через вершину";
         } else {
-          // Пути не через вершину
-          throughIndex = randomInt(1, graph.vertexCount - 2);
-          throughVertex = graph.vertices[throughIndex];
-          const pathsThrough = calculatePathsThrough(
-            graph.vertices,
-            graph.edges,
-            throughIndex,
-            paths,
-          );
-          answer = paths[graph.vertexCount - 1] - pathsThrough;
-          question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}, которые НЕ проходят через город ${throughVertex}?`;
-          typeClass = "not-through";
-          typeLabel = "Пути не через вершину";
+          // Пути через вершину / не через вершину (вершина не первая и не последняя).
+          // Подбираем вершину так, чтобы ответ был не меньше 1: «0 путей» —
+          // вырожденная задача, в ОГЭ такие не встречаются.
+          for (let attempt = 0; attempt < 100 && answer < 1; attempt++) {
+            throughIndex = randomInt(1, graph.vertexCount - 2);
+            throughVertex = graph.vertices[throughIndex];
+
+            const pathsThrough = calculatePathsThrough(
+              graph.vertices,
+              graph.edges,
+              throughIndex,
+              paths,
+            );
+            answer =
+              taskType === 1
+                ? pathsThrough
+                : paths[graph.vertexCount - 1] - pathsThrough;
+          }
+
+          if (answer < 1) {
+            // Страховка: подходящей вершины не нашлось — показываем общий подсчёт
+            throughVertex = null;
+            throughIndex = -1;
+            typeClass = "total";
+            typeLabel = "Общее количество путей";
+            answer = paths[graph.vertexCount - 1];
+            question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}?`;
+          } else if (taskType === 1) {
+            question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}, которые проходят через город ${throughVertex}?`;
+            typeClass = "through";
+            typeLabel = "Пути через вершину";
+          } else {
+            question = `Сколько существует различных путей из города ${graph.vertices[0]} в город ${graph.vertices[graph.vertexCount - 1]}, которые НЕ проходят через город ${throughVertex}?`;
+            typeClass = "not-through";
+            typeLabel = "Пути не через вершину";
+          }
         }
 
         currentTask = {
@@ -443,33 +490,6 @@
         );
       }
 
-      // Проверка пересечения двух кривых Безье (приближённо)
-      function curvesIntersect(x1, y1, cx1, cy1, x2, y2, cx2, cy2, threshold) {
-        // Разбиваем кривые на точки и проверяем расстояние
-        const steps = 10;
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps;
-          // Точка на первой кривой
-          const px1 =
-            (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx1 + t * t * x2;
-          const py1 =
-            (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy1 + t * t * y2;
-
-          for (let j = 0; j <= steps; j++) {
-            const s = j / steps;
-            // Точка на второй кривой
-            const px2 =
-              (1 - s) * (1 - s) * x1 + 2 * (1 - s) * s * cx2 + s * s * x2;
-            const py2 =
-              (1 - s) * (1 - s) * y1 + 2 * (1 - s) * s * cy2 + s * s * y2;
-
-            const dist = Math.sqrt((px1 - px2) ** 2 + (py1 - py2) ** 2);
-            if (dist < threshold) return true;
-          }
-        }
-        return false;
-      }
-
       // Отрисовка задачи
       function renderTask() {
         const taskCard = document.getElementById("taskCard");
@@ -480,11 +500,11 @@
           ...graph.layers.map((layer) => layer.length),
         );
         const svgHeight = Math.max(350, maxVerticesInLayer * 80 + 60);
-        const svgWidth = 780; // Увеличена ширина для полей ввода
+        const svgWidth = 800; // столько, чтобы поля ввода у последнего слоя не выходили за границу
 
         const positions = calculateVertexPositions(graph, svgWidth, svgHeight);
 
-        // Собираем все рёбра и их параметры для предотвращения наложений
+        // Собираем все рёбра графа
         const edgeData = [];
         for (let i = 0; i < graph.vertexCount; i++) {
           for (let j = 0; j < graph.vertexCount; j++) {
@@ -494,17 +514,8 @@
           }
         }
 
-        // Группируем рёбра по парам вершин (для определения параллельных рёбер)
-        const edgeGroups = {};
-        for (const edge of edgeData) {
-          const key = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
-          if (!edgeGroups[key]) edgeGroups[key] = [];
-          edgeGroups[key].push(edge);
-        }
-
         // Вычисляем параметры кривых для каждого ребра
         const curveParams = {};
-        const usedOffsets = {}; // Для отслеживания используемых смещений
 
         for (const edge of edgeData) {
           const x1 = positions[edge.from].x;
@@ -537,21 +548,7 @@
             }
           }
 
-          // Проверяем наложение с другими рёбрами между теми же слоями
           const edgeKey = `${edge.from}-${edge.to}`;
-          const reverseKey = `${edge.to}-${edge.from}`;
-
-          // Увеличиваем смещение для каждого последующего параллельного ребра
-          const parallelKey = `${Math.min(edge.from, edge.to)}-${Math.max(edge.from, edge.to)}`;
-          if (edgeGroups[parallelKey] && edgeGroups[parallelKey].length > 1) {
-            needsCurve = true;
-            const idx = edgeGroups[parallelKey].indexOf(edge);
-            if (idx > 0) {
-              baseOffset = Math.max(baseOffset, 25 + idx * 20);
-              // Чередуем направление для параллельных рёбер
-              curveDirection = idx % 2 === 0 ? 1 : -1;
-            }
-          }
 
           curveParams[edgeKey] = {
             needsCurve,
@@ -685,7 +682,9 @@
         const result = document.getElementById("result");
         const userAnswer = parseInt(input.value, 10);
 
-        if (isNaN(userAnswer)) {
+        if (input.value.trim() === "" || isNaN(userAnswer)) {
+          result.className = "result";
+          result.innerHTML = "⚠️ Введите числовой ответ.";
           input.focus();
           return;
         }
@@ -693,10 +692,15 @@
         if (userAnswer === currentTask.answer) {
           input.classList.remove("incorrect");
           input.classList.add("correct");
-          result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge9', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge9', 1); };
+          result.className = "result correct";
           result.innerHTML = "✅ Правильно! Отличная работа!";
+          // Прогресс и статистику пишем один раз на задачу, чтобы повторные
+          // нажатия «Проверить» не накручивали попытки.
+          if (!currentTask.solved) {
+            currentTask.solved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge9', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge9', 1); }
+          }
         } else {
           input.classList.remove("correct");
           input.classList.add("incorrect");
@@ -728,7 +732,7 @@
             hint += `1. Считаем пути от ${graph.vertices[0]} до ${currentTask.throughVertex}<br>`;
             hint += `2. Считаем пути от ${currentTask.throughVertex} до ${graph.vertices[graph.vertexCount - 1]}<br>`;
             hint += `3. Ответ = пути до ${currentTask.throughVertex} × пути от ${currentTask.throughVertex}<br><br>`;
-            hint += `<em>В полях ввода: для вершин до ${currentTask.throughVertex} — пути от А, для вершин после — пути от ${currentTask.throughVertex}.</em>`;
+            hint += `<em>В полях ввода: для ${currentTask.throughVertex} и вершин до неё — пути от А, для вершин после ${currentTask.throughVertex} — пути от ${currentTask.throughVertex} (он считается новой начальной вершиной).</em>`;
           } else {
             hint += `<span style="color: #c62828;"><strong>Важно:</strong> Считаем, что в вершину ${currentTask.throughVertex} нельзя попасть!</span><br><br>`;
             hint += `При подсчёте путей для каждой вершины считаем, что количество путей до ${currentTask.throughVertex} = 0.<br>`;
@@ -799,14 +803,20 @@
           );
 
           solution += `<p><strong>Подсчёт количества путей, проходящих через ${currentTask.throughVertex}:</strong></p>`;
-          solution += `<p style="color: #666; margin-bottom: 10px;">Разбиваем задачу на две части: пути от ${graph.vertices[0]} до ${currentTask.throughVertex} и пути от ${currentTask.throughVertex} до ${graph.vertices[graph.vertexCount - 1]}.</p>`;
+          solution += `<p style="color: #666; margin-bottom: 10px;">Разбиваем задачу на две части: пути от ${graph.vertices[0]} до ${currentTask.throughVertex} и пути от ${currentTask.throughVertex} до ${graph.vertices[graph.vertexCount - 1]}. В первой части считаем от ${graph.vertices[0]}, во второй — от ${currentTask.throughVertex} как от новой начальной вершины.</p>`;
 
           solution += `<table class="solution-table">
             <tr><th>Вершина</th><th>Откуда можно прийти</th><th>Количество путей</th></tr>`;
 
           for (let i = 0; i < graph.vertexCount; i++) {
+            const isThrough = i === currentTask.throughIndex;
+            // В первой части (до X и сама X) предшественники — все вершины до i,
+            // во второй (после X) — только вершины начиная с X
+            const predecessorFrom = isThrough || i < currentTask.throughIndex
+              ? 0
+              : currentTask.throughIndex;
             const predecessors = [];
-            for (let j = 0; j < i; j++) {
+            for (let j = predecessorFrom; j < i; j++) {
               if (graph.edges[j][i]) {
                 predecessors.push(graph.vertices[j]);
               }
@@ -815,12 +825,11 @@
             const fromStr =
               i === 0 ? "— (начало)" : predecessors.join(", ") || "—";
             const isLast = i === graph.vertexCount - 1;
-            const isThrough = i === currentTask.throughIndex;
 
             // Определяем комментарий для ячейки
             let comment = "";
             if (i === currentTask.throughIndex) {
-              comment = " (обязательно)";
+              comment = " (входит в ответ)";
             } else if (i < currentTask.throughIndex) {
               comment = " (от А)";
             } else {
@@ -920,79 +929,33 @@
         return paths;
       }
 
-      // Расчёт путей для задач "через вершину"
-      // Вершина находится в пути через X, если она лежит на пути от А до конечной через X
-      // Это включает:
-      // 1. Вершины до X, из которых можно попасть в X
-      // 2. Саму вершину X
-      // 3. Вершины после X, в которые можно попасть из X
-      // Все остальные вершины имеют значение 0
+      // Значения для полей ввода в задачах "через вершину".
+      // Задача делится на две части, как сказано в подсказке и в теории:
+      // 1. пути от А: их подписываем у вершины X и у всех вершин до неё;
+      // 2. пути от X: X считаем новой начальной вершиной (N(X) = 1),
+      //    эти значения подписываем у вершин после X.
+      // Ответ = N(А→X) × N(X→конец).
       function calculatePathsThroughVertex(graph, throughIndex) {
         const n = graph.vertexCount;
+        const pathsFromStart = calculatePaths(graph.vertices, graph.edges);
         const paths = new Array(n).fill(0);
 
-        // Находим все вершины, из которых можно попасть в X (включая X)
-        const canReachX = new Set();
-        canReachX.add(throughIndex);
-        // Идём от X назад к А
-        for (let i = throughIndex - 1; i >= 0; i--) {
-          for (let j = i + 1; j <= throughIndex; j++) {
-            if (graph.edges[i][j] && canReachX.has(j)) {
-              canReachX.add(i);
-              break;
-            }
-          }
+        // Часть 1: пути от А (вершины до X и сама X)
+        for (let i = 0; i <= throughIndex; i++) {
+          paths[i] = pathsFromStart[i];
         }
 
-        // Находим все вершины, в которые можно попасть из X (включая X)
-        const reachableFromX = new Set();
-        reachableFromX.add(throughIndex);
-        // Идём от X вперёд к конечной
+        // Часть 2: пути от X (X — новая начальная вершина)
+        const pathsFromThrough = new Array(n).fill(0);
+        pathsFromThrough[throughIndex] = 1;
         for (let i = throughIndex + 1; i < n; i++) {
-          for (let j = throughIndex; j < i; j++) {
-            if (graph.edges[j][i] && reachableFromX.has(j)) {
-              reachableFromX.add(i);
-              break;
-            }
-          }
-        }
-
-        // Вершина в пути через X, если она в canReachX И в reachableFromX
-        // Но это невозможно для вершин до X и после X одновременно
-        // На самом деле: вершина в пути через X, если:
-        // - она в canReachX (для вершин до X и сама X)
-        // - она в reachableFromX (для вершин после X и сама X)
-        const inPathThroughX = new Set();
-        for (let i = 0; i < n; i++) {
-          if (i <= throughIndex && canReachX.has(i)) {
-            inPathThroughX.add(i);
-          } else if (i >= throughIndex && reachableFromX.has(i)) {
-            inPathThroughX.add(i);
-          }
-        }
-
-        // Считаем пути от А до X (только для вершин в пути)
-        paths[0] = 1;
-        for (let i = 1; i <= throughIndex; i++) {
-          if (!inPathThroughX.has(i)) continue;
-          let sum = 0;
-          for (let j = 0; j < i; j++) {
-            if (graph.edges[j][i] && inPathThroughX.has(j)) {
-              sum += paths[j];
-            }
-          }
-          paths[i] = sum;
-        }
-
-        // Считаем пути от X до конечной (только для вершин в пути)
-        for (let i = throughIndex + 1; i < n; i++) {
-          if (!inPathThroughX.has(i)) continue;
           let sum = 0;
           for (let j = throughIndex; j < i; j++) {
-            if (graph.edges[j][i] && inPathThroughX.has(j)) {
-              sum += paths[j];
+            if (graph.edges[j][i]) {
+              sum += pathsFromThrough[j];
             }
           }
+          pathsFromThrough[i] = sum;
           paths[i] = sum;
         }
 
@@ -1012,7 +975,8 @@
           return calculatePathsWithoutVertex(graph, currentTask.throughIndex);
         }
 
-        // Для задач "через вершину" показываем пути до и после вершины
+        // Для задач "через вершину" показываем пути до X и пути от X
+        // (ровно так, как описано в подсказке и в таблице решения)
         if (
           currentTask.typeClass === "through" &&
           currentTask.throughIndex !== -1

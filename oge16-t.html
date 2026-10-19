@@ -1,4 +1,4 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
@@ -46,7 +46,7 @@
           <li>Анализировать цифры числа</li>
           <li>Подсчитывать сумму или количество по условию</li>
         </ul>
-        <p>Задача может быть одного из трёх типов, представленных ниже.</p>
+        <p>Задача может относиться к нескольким типам, представленным ниже.</p>
       </div>
 
       <div class="theory-section">
@@ -120,6 +120,7 @@
           <ul>
             <li>Последняя цифра числа в p-ричной системе = N % p</li>
             <li>Последние две цифры числа в p-ричной системе = N % (p²)</li>
+            <li>Последние k цифр числа в p-ричной системе = N % p<sup>k</sup></li>
             <li>Предпоследняя цифра = (N // p) % p</li>
           </ul>
         </div>
@@ -170,8 +171,8 @@
             class="builtin"
             >input</span
           >())<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>
-          <span class="comment"># условие отбора</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> x % p == d:
+          <span class="comment"># условие отбора</span><br />
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_sum += x<br />
           <br />
           <span class="comment"># Вывод результата</span><br />
@@ -217,8 +218,8 @@
           ><br />
           <span class="keyword">while</span> x !=
           <span class="number">0</span>:<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>
-          <span class="comment"># условие отбора</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> x % p == d:
+          <span class="comment"># условие отбора</span><br />
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_sum += x<br />
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"
             ># Чтение следующего числа</span
@@ -448,27 +449,35 @@
             class="builtin"
             >input</span
           >())<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span>
-          <span class="comment"># условие отбора</span>:<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> x % p == d:
+          <span class="comment"># условие отбора</span><br />
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;total_sum += x<br />
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count +=
           <span class="number">1</span><br />
           <br />
           <span class="keyword">if</span> count >
           <span class="number">0</span>:<br />
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="builtin">print</span>(total_sum /
-          count)<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="builtin">print</span>(<span
+            class="builtin"
+            >round</span
+          >(total_sum / count, <span class="number">2</span>))<br />
           <span class="keyword">else</span>:<br />
           &nbsp;&nbsp;&nbsp;&nbsp;<span class="builtin">print</span>(<span
-            class="number"
-            >0</span
+            class="string"
+            >"Нет"</span
           >)
         </div>
         <p>
           Важно помнить, что если ни одно число не подошло под условие, то
           <code>count == 0</code>. Делить на ноль нельзя, поэтому сначала
-          проверяем <code>count > 0</code>. В ответ при таком случае, вероятнее
-          всего, нужно вывести <strong>0</strong>.
+          проверяем <code>count &gt; 0</code>. В таком случае принято выводить не
+          число, а слово <strong>«Нет»</strong> — так же поступают и в задачах на
+          минимальный/максимальный элемент, если подходящих чисел не нашлось.
+        </p>
+        <p>
+          Само среднее арифметическое выводится как результат деления,
+          округлённый до двух знаков после запятой:
+          <code>round(total_sum / count, 2)</code>.
         </p>
         <div class="tip-box">
           <h4>💡 Связь со стандартными формулами</h4>

@@ -38,34 +38,51 @@
 
       <div class="card">
         <h2>⚙️ Настройка матрицы смежности</h2>
-        <div class="controls-row">
-          <div class="control-group">
-            <label for="matrixSize">Количество вершин (2–10)</label>
-            <input
-              type="number"
-              id="matrixSize"
-              min="2"
-              max="10"
-              value="5"
-            />
-          </div>
-          <button class="btn btn-primary" onclick="buildMatrix()">
-            📐 Построить матрицу
-          </button>
-          <button class="btn btn-warning" onclick="clearMatrix()">
-            🗑️ Очистить матрицу
-          </button>
-        </div>
 
-        <div id="labelsEditor" style="margin-top: 10px">
-          <div class="control-group">
-            <label>Обозначения вершин (можно изменить)</label>
-            <div class="label-editor" id="labelInputs"></div>
-            <span class="label-hint"
-              >По умолчанию буквы английского алфавита A, B, C, …</span
+        <fieldset class="setup-group">
+          <legend>Размер графа</legend>
+          <div class="controls-row">
+            <div class="control-group">
+              <label for="matrixSize">Количество вершин (2–10)</label>
+              <input
+                type="number"
+                id="matrixSize"
+                min="2"
+                max="10"
+                value="5"
+              />
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="buildMatrix()"
             >
+              📐 Построить матрицу
+            </button>
+            <button
+              type="button"
+              class="btn btn-warning"
+              onclick="clearMatrix()"
+            >
+              🗑️ Очистить матрицу
+            </button>
           </div>
-        </div>
+          <span class="label-hint"
+            >При том же количестве вершин введённые расстояния сохраняются; кнопка
+            «Очистить матрицу» обнуляет значения.</span
+          >
+        </fieldset>
+
+        <fieldset class="setup-group">
+          <legend>Обозначения вершин</legend>
+          <div class="label-editor" id="labelInputs"></div>
+          <span class="label-hint"
+            >По умолчанию буквы английского алфавита A, B, C, …; можно заменить
+            (до 2 символов).</span
+          >
+        </fieldset>
+
+        <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
       </div>
 
       <div class="card" id="matrixCard" style="display: none">
@@ -153,17 +170,33 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
+      let messageTimer = null;
+      function showMessage(text, type) {
+        const el = document.getElementById("formMessage");
+        if (!el) return;
+        el.textContent = text || "";
+        el.className = "form-message" + (type ? " " + type : "");
+        if (messageTimer) clearTimeout(messageTimer);
+        if (text) {
+          messageTimer = setTimeout(function () {
+            el.textContent = "";
+            el.className = "form-message";
+          }, 5000);
+        }
+      }
+
       function buildMatrix() {
         const sizeInput = document.getElementById("matrixSize");
         const size = parseInt(sizeInput.value, 10);
 
         if (isNaN(size) || size < 2 || size > 10) {
           sizeInput.classList.add("error");
-          alert("Пожалуйста, введите число от 2 до 10.");
+          showMessage("Пожалуйста, введите число от 2 до 10.", "error");
           sizeInput.focus();
           return;
         }
         sizeInput.classList.remove("error");
+        showMessage("");
         vertexCount = size;
 
         labels = [];
@@ -185,7 +218,8 @@
         for (let i = 0; i < vertexCount; i++) {
           html +=
             `<input type="text" maxlength="2" value="${escapeHtml(labels[i])}" ` +
-            `onchange="updateLabel(${i}, this.value)" title="Вершина ${i + 1}" />`;
+            `aria-label="Обозначение вершины ${i + 1}" title="Вершина ${i + 1}" ` +
+            `onchange="updateLabel(${i}, this.value)" />`;
         }
         container.innerHTML = html;
       }
@@ -195,7 +229,7 @@
         if (trimmed.length > 0 && trimmed.length <= 2) {
           const others = labels.filter((_, i) => i !== index);
           if (others.includes(trimmed)) {
-            alert("Обозначения должны быть уникальными!");
+            showMessage("Обозначения вершин не должны повторяться.", "error");
             renderLabelEditor();
             return;
           }
@@ -203,41 +237,56 @@
         } else if (trimmed.length === 0) {
           labels[index] = DEFAULT_LABELS[index] || String.fromCharCode(65 + index);
         }
+        showMessage("");
+
+        // Запоминаем выбранные вершины, чтобы не сбрасывать их при перерисовке.
+        const prevFrom = document.getElementById("fromVertex").value;
+        const prevTo = document.getElementById("toVertex").value;
+        const prevVia = document.getElementById("viaVertex").value;
+
         renderLabelEditor();
         renderMatrix();
         renderVertexSelects();
+
+        document.getElementById("fromVertex").value = prevFrom;
+        document.getElementById("toVertex").value = prevTo;
+        document.getElementById("viaVertex").value = prevVia;
+
+        // Обозначения изменились — прежний результат больше не актуален.
+        document.getElementById("resultBox").classList.remove("show");
       }
 
       function renderMatrix() {
         const table = document.getElementById("matrixTable");
-        let html = "<tr><th></th>";
+        let html =
+          `<caption class="visually-hidden">Матрица расстояний между населёнными пунктами</caption>` +
+          `<tr><th></th>`;
 
         for (let i = 0; i < vertexCount; i++) {
-          html += `<th>${escapeHtml(labels[i])}</th>`;
+          html += `<th scope="col">${escapeHtml(labels[i])}</th>`;
         }
         html += "</tr>";
 
-        let tabCounter = 1;
         const data = getMatrixData();
 
         for (let i = 0; i < vertexCount; i++) {
-          html += `<tr><th>${escapeHtml(labels[i])}</th>`;
+          html += `<tr><th scope="row">${escapeHtml(labels[i])}</th>`;
           for (let j = 0; j < vertexCount; j++) {
             if (i === j) {
-              html += `<td class="diagonal"><span class="mirror-value">—</span></td>`;
+              html += `<td class="diagonal" aria-hidden="true"><span class="mirror-value">—</span></td>`;
             } else if (j > i) {
               const cellId = `cell_${i}_${j}`;
               const val = data[i][j] !== null && data[i][j] !== undefined ? data[i][j] : "";
               html +=
                 `<td id="${cellId}" class="editable"><input type="text" inputmode="numeric" ` +
-                `tabindex="${tabCounter}" placeholder="—" value="${val}" ` +
+                `placeholder="—" value="${val}" ` +
+                `aria-label="Расстояние ${escapeHtml(labels[i])}–${escapeHtml(labels[j])}" ` +
                 `onchange="onCellChange(${i}, ${j}, this.value)" ` +
                 `onfocus="this.select()" /></td>`;
-              tabCounter++;
             } else {
               const cellId = `cell_${i}_${j}`;
               const val = data[i][j] !== null && data[i][j] !== undefined ? data[i][j] : "—";
-              html += `<td id="${cellId}" class="mirror"><span class="mirror-value">${val}</span></td>`;
+              html += `<td id="${cellId}" class="mirror" aria-hidden="true"><span class="mirror-value">${val}</span></td>`;
             }
           }
           html += "</tr>";
@@ -288,14 +337,19 @@
             const input = cell.querySelector("input");
             if (input) input.value = data[i][j] || "";
           }
+          showMessage("Расстояние должно быть целым положительным числом.", "error");
           return;
         }
+        showMessage("");
 
         data[i][j] = num;
         data[j][i] = num;
 
         updateCellUI(i, j, num);
         updateCellUI(j, i, num);
+
+        // Данные изменились — прежний результат больше не актуален.
+        document.getElementById("resultBox").classList.remove("show");
       }
 
       function updateCellUI(i, j, num) {
@@ -328,6 +382,7 @@
         }
         renderMatrix();
         document.getElementById("resultBox").classList.remove("show");
+        showMessage("");
       }
 
       function renderVertexSelects() {
@@ -436,6 +491,40 @@
         return pathIndices;
       }
 
+      // Кратчайший ПРОСТОЙ путь from→to, обязательно проходящий через via.
+      // Сумма кратчайших отрезков from→via и via→to может повторно посещать
+      // вершины (быть маршрутом-обходом, а не путём), поэтому перебираем
+      // простые пути с отсечением по длине.
+      function shortestSimplePathThrough(adj, fromIdx, viaIdx, toIdx) {
+        let best = { distance: Infinity, path: null };
+        const visited = new Array(vertexCount).fill(false);
+        const path = [fromIdx];
+        visited[fromIdx] = true;
+
+        function dfs(current, visitedVia, distance) {
+          // Веса положительны — длиннее текущего лучшего смысла нет.
+          if (distance >= best.distance) return;
+          if (current === toIdx) {
+            if (visitedVia) {
+              best = { distance: distance, path: path.slice() };
+            }
+            return;
+          }
+          for (const edge of adj[current]) {
+            const v = edge.to;
+            if (visited[v]) continue;
+            visited[v] = true;
+            path.push(v);
+            dfs(v, visitedVia || v === viaIdx, distance + edge.weight);
+            path.pop();
+            visited[v] = false;
+          }
+        }
+
+        dfs(fromIdx, fromIdx === viaIdx, 0);
+        return best;
+      }
+
       function formatPathWithSegments(pathIndices) {
         if (pathIndices.length === 0) return "";
         const data = getMatrixData();
@@ -505,27 +594,20 @@
           }
 
           const adj = buildAdjacencyList(data, null);
-          const { dist: dist1, prev: prev1 } = dijkstra(adj, fromIdx, viaIdx);
-          const { dist: dist2, prev: prev2 } = dijkstra(adj, viaIdx, toIdx);
+          const best = shortestSimplePathThrough(adj, fromIdx, viaIdx, toIdx);
 
-          if (dist1[viaIdx] === Infinity || dist2[toIdx] === Infinity) {
+          if (best.path === null) {
             showResult(
               "error",
               "❌ Путь не найден",
               `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span><div class="segment-edge"><span class="segment-arrow">⋯</span></div><span class="segment-vertex">${escapeHtml(labels[toIdx])}</span>`,
-              "Нет пути, проходящего через вершину «" + labels[viaIdx] + "»."
+              "Нет пути, проходящего через вершину «" + escapeHtml(labels[viaIdx]) + "»."
             );
             return;
           }
 
-          const path1 = reconstructPath(prev1, viaIdx);
-          const path2 = reconstructPath(prev2, toIdx);
-          path2.shift();
-          const fullPath = path1.concat(path2);
-          const totalDist = dist1[viaIdx] + dist2[toIdx];
-
-          const pathHtml = formatPathWithSegments(fullPath);
-          const lengthStr = "Длина кратчайшего пути (через «" + labels[viaIdx] + "»): <strong>" + totalDist + "</strong>";
+          const pathHtml = formatPathWithSegments(best.path);
+          const lengthStr = "Длина кратчайшего пути (через «" + escapeHtml(labels[viaIdx]) + "»): <strong>" + best.distance + "</strong>";
 
           showResult("success", "✅ Кратчайший путь через вершину найден!", pathHtml, lengthStr);
 
@@ -550,14 +632,14 @@
               "error",
               "❌ Путь не найден",
               `<span class="segment-vertex">${escapeHtml(labels[fromIdx])}</span><div class="segment-edge"><span class="segment-arrow">⋯</span></div><span class="segment-vertex">${escapeHtml(labels[toIdx])}</span>`,
-              "Нет пути, не проходящего через вершину «" + labels[avoidIdx] + "»."
+              "Нет пути, не проходящего через вершину «" + escapeHtml(labels[avoidIdx]) + "»."
             );
             return;
           }
 
           const pathIndices = reconstructPath(prev, toIdx);
           const pathHtml = formatPathWithSegments(pathIndices);
-          const lengthStr = "Длина кратчайшего пути (минуя «" + labels[avoidIdx] + "»): <strong>" + dist[toIdx] + "</strong>";
+          const lengthStr = "Длина кратчайшего пути (минуя «" + escapeHtml(labels[avoidIdx]) + "»): <strong>" + dist[toIdx] + "</strong>";
 
           showResult("success", "✅ Кратчайший путь в обход вершины найден!", pathHtml, lengthStr);
         }
@@ -582,9 +664,12 @@
       }
 
       function escapeHtml(str) {
-        const div = document.createElement("div");
-        div.textContent = str;
-        return div.innerHTML;
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
       }
 
       (function init() {
