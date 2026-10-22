@@ -1588,11 +1588,55 @@ textarea:focus-visible {
 
 .code-label { font-weight: bold; color: #333; margin-bottom: 10px; display: block; font-size: 1.05rem;}
 
-.code-editor { width: 100%; min-height: 220px; padding: 16px 20px; font-family: "Consolas", "Courier New", monospace; font-size: 0.95rem; line-height: 1.6; color: #d4d4d4; background: #1e1e1e; border: 2px solid #333; border-radius: 10px; resize: vertical; tab-size: 4; white-space: pre; overflow-x: auto;}
+.code-editor-box { --gutter-w: 46px; --editor-pad: 14px; position: relative; border: 2px solid #333; border-radius: 10px 10px 0 0; background: linear-gradient(90deg, #252526 0 var(--gutter-w), #3a3a3a var(--gutter-w) calc(var(--gutter-w) + 1px), #1e1e1e calc(var(--gutter-w) + 1px)) #1e1e1e; overflow: hidden;}
 
-.code-editor:focus { outline: none; border-color: #569cd6; box-shadow: 0 0 10px rgba(86, 156, 214, 0.3);}
+.code-editor-box:focus-within { border-color: #569cd6; box-shadow: 0 0 10px rgba(86, 156, 214, 0.3);}
+
+.code-editor-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 16px 20px 16px calc(var(--gutter-w) + var(--editor-pad)); font-family: "Consolas", "Courier New", monospace; font-size: 0.95rem; line-height: 1.6; color: #d4d4d4; white-space: pre-wrap; overflow-wrap: break-word; tab-size: 4; box-sizing: border-box; overflow: auto; pointer-events: none; background: transparent; z-index: 1; scrollbar-width: none; -ms-overflow-style: none;}
+
+.code-editor-layer::-webkit-scrollbar { display: none;}
+
+.oge-code-line { position: relative; min-height: 1.6em;}
+
+.oge-code-line-num { position: absolute; top: 0; left: calc(-1 * (var(--gutter-w) + var(--editor-pad)) + 12px); width: calc(var(--gutter-w) - 14px); text-align: right; color: #858585; user-select: none;}
+
+.code-editor { position: relative; z-index: 2; width: 100%; height: 220px; min-height: 160px; padding: 16px 20px 16px calc(var(--gutter-w) + var(--editor-pad)); font-family: "Consolas", "Courier New", monospace; font-size: 0.95rem; line-height: 1.6; color: #d4d4d4; background: transparent; border: none; border-radius: 0; resize: vertical; tab-size: 4; white-space: pre-wrap; overflow-wrap: break-word; box-sizing: border-box; overflow: auto; outline: none; caret-color: #ffffff; scrollbar-width: thin; scrollbar-color: #4a4a4a #1e1e1e;}
+
+/* Текст прячем только когда слой подсветки уже нарисован */
+.code-editor-box.is-ready .code-editor { color: transparent;}
 
 .code-editor::placeholder { color: #6a9955; font-style: italic;}
+
+.code-editor-statusbar { display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; min-height: 26px; padding: 5px 12px 4px; background: #252526; border: 2px solid #333; border-top: none; border-radius: 0 0 10px 10px; font-family: "Consolas", "Courier New", monospace; font-size: 12px; color: #858585; user-select: none; contain: inline-size;}
+
+.code-editor-box:focus-within + .code-editor-statusbar { border-color: #569cd6;}
+
+.code-editor-note { order: 1; flex: 0 0 auto; max-width: 40%; color: #4ec9b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+.code-editor-cursor { order: 2; flex: none; margin-left: auto; font-family: "Consolas", "Courier New", monospace; font-size: 12px;}
+
+.code-editor-hint { order: 3; flex: 1 0 100%; display: flex; flex-wrap: wrap; column-gap: 8px; font-size: 11px; line-height: 1.6; color: #6e6e6e;}
+
+.code-editor-hint span { white-space: nowrap;}
+
+.code-editor-hint span:not(:last-child)::after { content: "·"; margin-left: 6px; color: #4a4a4a;}
+
+.oge-hl-keyword { color: #569cd6;}
+
+.oge-hl-builtin { color: #dcdcaa;}
+
+.oge-hl-string { color: #ce9178;}
+
+.oge-hl-multiline { color: #ce9178; font-style: italic;}
+
+.oge-hl-fstring { color: #ce9178;}
+
+.oge-hl-comment { color: #6a9955; font-style: italic;}
+
+.oge-hl-number { color: #b5cea8;}
+
+/* На узком экране 16px — иначе iOS Safari зумит страницу при фокусе */
+@media (max-width: 768px) { .code-editor, .code-editor-layer { font-size: 16px;} .code-editor-hint { display: none;} }
 
 .btn-run { background: linear-gradient(145deg, #3f7f5e, #5f9a68); color: white;}
 

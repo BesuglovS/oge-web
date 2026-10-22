@@ -65,6 +65,7 @@ oge7.txt               # легаси-данные задания 7; data/oge7.j
 run_python.php         # Python-песочница (задание 16) — СМ. крит. правило 2
 assets/styles.css      # общий стиль (организован по секциям и постранично); design-tokens.css НЕ подключён
 js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
+js/code-editor.js      # overlay-редактор кода для задания 16 (подсветка, номера строк, отступы)
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
 js/oge15-gen.js        # генератор случайных обстановок задания 15
 js/oge15-ref.js        # АВТОГЕНЕРАЦИЯ: эталонные .kum, встроенные для «оракула» генератора

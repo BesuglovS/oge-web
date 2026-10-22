@@ -22,6 +22,7 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
+    <script src="js/code-editor.js"></script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
@@ -1496,6 +1497,8 @@
       }
 
       function renderTask(t) {
+        // Перед перерисовкой сохраняем черновик текущего задания
+        if (window.OgeCodeEditor && OgeCodeEditor.flush) OgeCodeEditor.flush();
         var c = document.getElementById("taskCard");
         var h =
           '<div class="task-header"><span class="task-type ' +
@@ -1688,13 +1691,25 @@
         var defCode = "";
         var ph = "";
         h +=
-          '</div><div class="code-section"><label class="code-label">💻 Напишите программу на Python:</label><textarea class="code-editor" id="codeEditor" placeholder="' +
+          '</div><div class="code-section"><label class="code-label" for="codeEditor">💻 Напишите программу на Python:</label>' +
+          '<div class="code-editor-box" id="codeEditorBox">' +
+          '<div class="code-editor-layer" id="codeHighlight" aria-hidden="true"></div>' +
+          '<textarea class="code-editor" id="codeEditor" aria-label="Код программы на Python" placeholder="' +
           ph +
-          '" spellcheck="false">' +
+          '" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off">' +
           defCode +
-          '</textarea><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
+          '</textarea>' +
+          '</div>' +
+          '<div class="code-editor-statusbar">' +
+          '<span class="code-editor-note" id="editorNote"></span>' +
+          '<span class="code-editor-cursor" id="editorPosition">1:1</span>' +
+          '<span class="code-editor-hint"><span>Esc — выйти</span><span>Tab/Shift+Tab — отступ</span><span>Ctrl+/ — комментарий</span><span>Ctrl+D — дублировать</span><span>Ctrl+Enter — запустить</span></span>' +
+          '</div><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
+        if (window.OgeCodeEditor) {
+          OgeCodeEditor.init({ draftKey: "oge16-draft-" + t.id });
+        }
         if (ed) ed.focus();
       }
 
