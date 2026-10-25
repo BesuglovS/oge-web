@@ -157,6 +157,10 @@ if [ -d "$ROOT/git" ]; then
   mkdir -p "$NEW/git"
   cp -a -n "$ROOT/git/." "$NEW/git/"
 fi
+# Нормализуем права: tar с Windows может принести 0777 у каталогов
+# (в частности git/); webroot не должен быть world-writable.
+find "$NEW" -type d -exec chmod 755 {} +
+find "$NEW" -type f -exec chmod 644 {} +
 test -s "$NEW/oge.html"
 test -s "$NEW/sw.js"
 test -s "$NEW/version.json"
