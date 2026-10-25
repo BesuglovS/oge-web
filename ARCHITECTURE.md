@@ -98,11 +98,12 @@ oge.html (навигация + прогресс)
 Задание 16 выполняет Python-код на сервере:
 
 ```
-HTTP POST (code, test_input, expected_output)
+HTTP POST (code, test_input, expected_output)  — один тест
+HTTP POST (code, tests=[{input, expected}...]) — пакет до 12 тестов, ≤200 КБ, бюджет 20 с
     │
     ▼
-run_python.php
-    ├── POST-only, лимит 20 КБ кода, timeout 5 с
+run_python.php   (отдаёт X-Sandbox-Build — хеш файла для проверки деплоя)
+    ├── POST-only, лимит 20 КБ кода, timeout 5 с на тест
     ├── rate-limit: nginx `20r/s burst=60` + файловый 600/мин по IP
     ├── pre-фильтры: белый список модулей + запрет опасных конструкций
     ├── wrapper: exec(compile(base64-код)) в namespace с усечёнными builtins
@@ -111,6 +112,8 @@ run_python.php
     │   (unshare net+pid, пользователь sandbox, prlimit RLIMIT_AS/CPU);
     │   без хелпера на Linux — fail-closed (503)
     └── JSON-ответ {output, expected, matched, error, timeout}
+        (пакет: {results[], passed, total, stopped}; ошибка/таймаут останавливают
+         прогон, остальные тесты помечаются skipped)
 ```
 
 Разрешённые модули: `math`, `random`, `datetime`, `decimal`, `fractions`,
@@ -129,6 +132,13 @@ run_python.php
 `sudo /usr/local/sbin/deploy-nginx.sh`. Откат — `.\deploy.ps1 -Rollback`
 (предыдущий релиз) или `-Rollback -Release <имя>`; симлинк переключается
 атомарно.
+
+**opcache:** `public` — симлинк, поэтому PHP-FPM нужен
+`opcache.revalidate_path=1` (файл `php-fpm-opcache.ini` →
+`/etc/php/8.1/fpm/conf.d/99-oge-opcache.ini`), иначе после деплоя продолжает
+выполняться PHP-код предыдущего релиза. `deploy.ps1` сверяет заголовок
+`X-Sandbox-Build` с локальным хешем `run_python.php` и предупреждает о
+расхождении.
 
 ## Дизайн-система
 
