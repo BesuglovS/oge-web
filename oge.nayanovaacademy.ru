@@ -96,7 +96,7 @@ server {
     # ВАЖНО: этот location идёт ПЕРВЫМ, иначе manifest.json перехватится
     # правилом для `.json` ниже. Security-заголовки продублированы: add_header
     # не наследуется из server{}, если в location объявлен собственный add_header.
-    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|sw\.js)$ {
+    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|version\.json|sw\.js)$ {
         add_header Cache-Control "no-cache, must-revalidate" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
