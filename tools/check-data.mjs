@@ -999,6 +999,71 @@ try {
   errors.push('oge8: ' + e.message);
 }
 
+/* ─────────── 2k. Задание 7: сборка URL ─────────── */
+// Проверяется, что «правильный ответ» собирается из полей задачи
+// (протокол, домен, каталоги, файл), является корректным URL и что в
+// тексте задания упомянуты те же протокол, домен, каталог и файл.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge7.html'), 'utf8');
+  const from = html.indexOf('function generateSimpleTask(domains, files) {');
+  const to = html.indexOf('function renderTask() {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
+  const sb = {
+    Math, console,
+    protocols: data.protocols,
+    currentTask: null,
+  };
+  vm.createContext(sb);
+  vm.runInContext(html.slice(from, to) + `
+    ; globalThis.__simple = generateSimpleTask;
+    globalThis.__withPath = generateWithPathTask;
+    globalThis.__deepPath = generateDeepPathTask;
+  `, sb);
+
+  let sevenTasks = 0;
+  const variants = [
+    ['simple', () => sb.__simple(data.domainsLatin, data.filesLatin)],
+    ['withPath', () => sb.__withPath(data.domainsLatin, data.pathsLatin, data.filesLatin)],
+    ['deepPath', () => sb.__deepPath(data.domainsLatin, data.pathsLatin, data.filesLatin)],
+    ['simple-cyr', () => sb.__simple(data.domainsCyrillic, data.filesCyrillic)],
+    ['withPath-cyr', () => sb.__withPath(data.domainsCyrillic, data.pathsCyrillic, data.filesCyrillic)],
+  ];
+  for (const [label, gen] of variants) {
+    for (let k = 0; k < 60; k++) {
+      const task = gen();
+      sevenTasks++;
+      if (!task) { errors.push(`oge7 ${label}: задача не создана`); continue; }
+      const path = (task.pathParts || []).map((p) => '/' + p).join('');
+      const want = `${task.protocol}://${task.domain}${path}/${task.file}`;
+      if (task.correctUrl !== want) {
+        errors.push(`oge7 ${label}: URL «${task.correctUrl}», из полей — «${want}»`);
+      }
+      const cyrillic = /[\u0400-\u04FF]/.test(task.correctUrl);
+      if (!cyrillic) {
+        try {
+          const url = new URL(task.correctUrl);
+          if (url.protocol !== task.protocol + ':') errors.push(`oge7 ${label}: протокол URL ${url.protocol}`);
+          if (url.hostname !== task.domain) errors.push(`oge7 ${label}: хост URL ${url.hostname} ≠ ${task.domain}`);
+          if (!url.pathname.endsWith('/' + task.file)) errors.push(`oge7 ${label}: файл не в пути URL`);
+        } catch (e) {
+          errors.push(`oge7 ${label}: URL не разбирается (${task.correctUrl})`);
+        }
+      }
+      for (const [what, value] of [['протокол', task.protocol], ['домен', task.domain], ['файл', task.file]]) {
+        if (!task.text.includes(value)) errors.push(`oge7 ${label}: в тексте нет ${what} «${value}»`);
+      }
+      for (const part of task.pathParts || []) {
+        if (!task.text.includes(part)) errors.push(`oge7 ${label}: в тексте нет каталога «${part}»`);
+      }
+      if (!data.protocols.includes(task.protocol)) errors.push(`oge7 ${label}: протокол вне списка`);
+    }
+  }
+  console.log(`oge7: проверено ${sevenTasks} URL (5 вариантов, латиница и кириллица)`);
+} catch (e) {
+  errors.push('oge7: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
