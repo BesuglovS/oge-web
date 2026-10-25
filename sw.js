@@ -1,5 +1,5 @@
 ﻿/* Service Worker — oge-web PWA */
-var CACHE_NAME = 'oge-web-v18';
+var CACHE_NAME = 'oge-web-v19';
 var ASSETS = [
   '/',
   '/oge.html',

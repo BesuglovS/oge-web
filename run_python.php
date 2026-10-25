@@ -91,6 +91,8 @@ function oge_rate_limit(int $limit = 600, int $window = 60): void {
 $code = isset($_POST['code']) ? $_POST['code'] : '';
 $testInput = isset($_POST['test_input']) ? $_POST['test_input'] : '';
 $expectedOutput = isset($_POST['expected_output']) ? $_POST['expected_output'] : '';
+// Пакетный режим: JSON [{"input": "...", "expected": "..."}, ...].
+$testsJson = isset($_POST['tests']) && is_string($_POST['tests']) ? trim($_POST['tests']) : '';
 
 if (trim($code) === '') {
     header('Content-Type: application/json');
@@ -318,6 +320,142 @@ file_put_contents($tmpFile, $wrapper);
 const OGE_MEMORY_LIMIT_MB = 128;
 const OGE_TIMEOUT_SEC = 5;
 
+/* Пакетный режим: несколько тестов за один HTTP-запрос.
+   Код проверяется и оборачивается один раз, дальше он просто запускается
+   с разными входными данными. Ограничения: не больше 12 тестов и 200 КБ
+   суммарных данных, иначе — отказ. */
+if ($testsJson !== '') {
+    $cases = json_decode($testsJson, true);
+    if (!is_array($cases) || count($cases) < 1 || !array_is_list($cases)) {
+        @unlink($tmpFile);
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Некорректный список тестов']);
+        exit;
+    }
+    if (count($cases) > 12) {
+        @unlink($tmpFile);
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Слишком много тестов за один раз (максимум 12)']);
+        exit;
+    }
+    $totalBytes = 0;
+    foreach ($cases as $case) {
+        if (!is_array($case) || !isset($case['input'], $case['expected'])
+            || !is_string($case['input']) || !is_string($case['expected'])) {
+            @unlink($tmpFile);
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Каждый тест должен содержать input и expected']);
+            exit;
+        }
+        $totalBytes += strlen($case['input']) + strlen($case['expected']);
+    }
+    if ($totalBytes > 204800) {
+        @unlink($tmpFile);
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Суммарные данные тестов слишком большие']);
+        exit;
+    }
+
+    $results = [];
+    $stopped = false;
+    // Бюджет времени: PHP-FPM режет запрос на 30 с, поэтому после 20 с
+    // перестаём запускать новые тесты и помечаем остальные как пропущенные.
+    $deadline = microtime(true) + 20.0;
+    foreach ($cases as $case) {
+        if (!$stopped && microtime(true) > $deadline) {
+            $stopped = true;
+        }
+        if ($stopped) {
+            $results[] = [
+                'input' => $case['input'],
+                'expected' => $case['expected'],
+                'output' => '',
+                'matched' => false,
+                'skipped' => true,
+            ];
+            continue;
+        }
+        list($rawOut, $rawErr, $code, $timedOut) = oge_run($tmpFile, $case['input'], OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+        if ($rawOut === false) {
+            @unlink($tmpFile);
+            http_response_code(503);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error' => 'Песочница временно недоступна. Попробуйте позже.',
+                'unavailable' => true,
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $parsed = oge_parse_sentinels($rawOut, $sentinel);
+        $out = oge_truncate($parsed['stdout']);
+        $err = $parsed['stderr'];
+        if ($timedOut) {
+            $results[] = [
+                'input' => $case['input'],
+                'expected' => $case['expected'],
+                'output' => '',
+                'matched' => false,
+                'timeout' => true,
+                'error' => '⏱️ Превышено время выполнения (5 сек). Проверьте, нет ли бесконечного цикла в вашей программе.',
+            ];
+            $stopped = true;
+            continue;
+        }
+        if ($rawErr !== '' && $err === '') {
+            $err = oge_sanitize_stderr($rawErr);
+        }
+        $err = oge_truncate($err);
+        if ($err !== '') {
+            $results[] = [
+                'input' => $case['input'],
+                'expected' => $case['expected'],
+                'output' => $out,
+                'matched' => false,
+                'error' => $err,
+            ];
+            $stopped = true;
+            continue;
+        }
+        if ($code !== 0 && $out === '') {
+            $results[] = [
+                'input' => $case['input'],
+                'expected' => $case['expected'],
+                'output' => '',
+                'matched' => false,
+                'error' => "Ошибка выполнения (код: $code)",
+            ];
+            $stopped = true;
+            continue;
+        }
+        $results[] = [
+            'input' => $case['input'],
+            'expected' => $case['expected'],
+            'output' => $out,
+            'matched' => oge_compare($out, $case['expected']),
+        ];
+    }
+    @unlink($tmpFile);
+
+    $passed = 0;
+    foreach ($results as $r) {
+        if (!empty($r['matched'])) {
+            $passed++;
+        }
+    }
+    header('Content-Type: application/json');
+    echo json_encode([
+        'results' => $results,
+        'passed' => $passed,
+        'total' => count($cases),
+        'stopped' => $stopped,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 list($rawStdout, $rawStderr, $exitCode, $timedOut) = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
 @unlink($tmpFile);
 
@@ -355,16 +493,7 @@ $errorOutput = oge_truncate($errorOutput);
 // Строки сравниваются после нормализации пробелов; числа — с допуском,
 // чтобы «14.0», «14.00» и «14» (а также «10.5» и «10.50») считались
 // одним и тем же ответом при округлении среднего.
-$matched = false;
-$normalizedOutput = trim(preg_replace('/\s+/', ' ', $output));
-$normalizedExpected = trim(preg_replace('/\s+/', ' ', $expectedOutput));
-$matched = ($normalizedOutput === $normalizedExpected);
-if (!$matched && $normalizedOutput !== '' && is_numeric($normalizedOutput) && is_numeric($normalizedExpected)) {
-    $got = (float)$normalizedOutput;
-    $want = (float)$normalizedExpected;
-    $scale = max(1.0, abs($want));
-    $matched = abs($got - $want) <= 1e-9 * $scale;
-}
+$matched = oge_compare($output, $expectedOutput);
 
 $result = [];
 if ($errorOutput !== '') {
@@ -387,6 +516,26 @@ header('Content-Type: application/json');
 echo json_encode($result);
 
 /* ═══════════════════ Helper functions ═══════════════════ */
+
+/**
+ * Сравнивает вывод программы с ожидаемым: сначала после нормализации
+ * пробелов, затем (если оба числа) с относительным допуском 1e-9.
+ * Используется и в одиночном, и в пакетном режиме.
+ */
+function oge_compare(string $output, string $expected): bool {
+    $a = trim(preg_replace('/\s+/', ' ', $output));
+    $b = trim(preg_replace('/\s+/', ' ', $expected));
+    if ($a === $b) {
+        return true;
+    }
+    if ($a !== '' && is_numeric($a) && is_numeric($b)) {
+        $got = (float)$a;
+        $want = (float)$b;
+        $scale = max(1.0, abs($want));
+        return abs($got - $want) <= 1e-9 * $scale;
+    }
+    return false;
+}
 
 /**
  * Запускает скрипт: через изолирующий sudo-хелпер (если установлен),

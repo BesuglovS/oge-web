@@ -1734,148 +1734,103 @@
           '<div class="output-title">⏳ Запуск тестов (0/' + task.tests.length + ')...</div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="output-content">Запускаем вашу программу на ' + task.tests.length + ' тестах...</div>';
 
         var tests = task.tests;
-        var results = [];
-        var passed = 0;
-        var failed = 0;
-        var currentTest = 0;
-        var rateLimitRetries = 0;
+        var progressBar = document.getElementById("progressBar");
+        if (progressBar) progressBar.style.width = "100%";
+        var loadingContent = document.querySelector(".output-section.loading .output-content");
+        if (loadingContent) {
+          loadingContent.textContent = "Выполняем все тесты одним запуском…";
+        }
 
-        function runNextTest() {
-          if (currentTest >= tests.length) {
-            // All tests done
-            isRunning = false;
-            runBtn.disabled = false;
-            runBtn.innerHTML = "▶ Запустить и проверить (" + tests.length + " тестов)";
-            showTestResults(results, passed, failed);
-            return;
-          }
+        function finish() {
+          isRunning = false;
+          runBtn.disabled = false;
+          runBtn.innerHTML = "▶ Запустить и проверить (" + tests.length + " тестов)";
+        }
 
-          var test = tests[currentTest];
-          var testNum = currentTest + 1;
-          var progressBar = document.getElementById("progressBar");
-          if (progressBar) {
-            progressBar.style.width = (currentTest / tests.length) * 100 + "%";
-          }
+        function showMessage(title, text) {
+          finish();
+          os.className = "output-section show error";
+          os.innerHTML =
+            '<div class="output-title">' + title + '</div><div class="output-content">' + esc(text) + "</div>";
+        }
 
-          var loadingContent = document.querySelector(
-            ".output-section.loading .output-content",
-          );
-          if (loadingContent) {
-            loadingContent.textContent =
-              "Тест " +
-              testNum +
-              "/" +
-              tests.length +
-              ": " +
-              test.input.replace(/\n/g, " ") +
-              " → ожидается " +
-              test.expected;
-          }
+        // Все тесты уходят одним запросом: код проверяется и оборачивается
+        // один раз, песочница запускается по разу на тест. Это в разы быстрее
+        // последовательных запросов и меньше нагружает rate-limit.
+        var fd = new FormData();
+        fd.append("code", code);
+        fd.append(
+          "tests",
+          JSON.stringify(
+            tests.map(function (t) {
+              return { input: t.input, expected: t.expected };
+            }),
+          ),
+        );
 
-          var fd = new FormData();
-          fd.append("code", code);
-          fd.append("test_input", test.input);
-          fd.append("expected_output", test.expected);
+        fetch("run_python.php", { method: "POST", body: fd })
+          .then(function (r) {
+            if (r.status === 429) return { rateLimited: true };
+            if (r.status === 503) return { unavailable: true };
+            return r.json();
+          })
+          .then(function (d) {
+            if (!d || d.rateLimited) {
+              showMessage(
+                "⏳ Песочница перегружена",
+                "Слишком много запросов. Подождите минуту и запустите проверку снова.",
+              );
+              return;
+            }
+            if (d.unavailable) {
+              showMessage(
+                "⏳ Песочница недоступна",
+                "Песочница временно недоступна. Попробуйте позже.",
+              );
+              return;
+            }
+            if (d.error) {
+              showMessage("⚠️ Ошибка", String(d.error));
+              return;
+            }
 
-          fetch("run_python.php", { method: "POST", body: fd })
-            .then(function (r) {
-              if (r.status === 429) {
-                // nginx limit_req или файловый rate-limit PHP.
-                return {
-                  error:
-                    "Слишком много запросов к песочнице. Подождите минуту и попробуйте снова.",
-                  rateLimited: true,
-                };
-              }
-              return r.json();
-            })
-            .then(function (d) {
-              if (d && d.rateLimited) {
-                // Повторяем тот же тест пару раз: школьный NAT часто даёт
-                // кратковременные 429 при одновременных прогонах.
-                if (rateLimitRetries < 2) {
-                  rateLimitRetries++;
-                  var loading = document.querySelector(
-                    ".output-section.loading .output-content",
-                  );
-                  if (loading) {
-                    loading.textContent =
-                      "Песочница занята, повторяем тест " +
-                      testNum +
-                      " через 1,5 с…";
-                  }
-                  setTimeout(runNextTest, 1500);
-                  return;
-                }
-                isRunning = false;
-                runBtn.disabled = false;
-                runBtn.innerHTML =
-                  "▶ Запустить и проверить (" + tests.length + " тестов)";
-                os.className = "output-section show error";
-                os.innerHTML =
-                  '<div class="output-title">⏳ Песочница перегружена</div><div class="output-content">Слишком много запросов. Подождите минуту и запустите проверку снова. Успешно пройдено до остановки: ' +
-                  passed +
-                  " из " +
-                  tests.length +
-                  " тестов.</div>";
-                return;
-              }
-              rateLimitRetries = 0;
-              var ok = false;
-              var output = "";
-              if (d.error) {
-                output = "Ошибка: " + d.error;
-                ok = false;
-              } else if (d.matched) {
-                output = d.output;
-                ok = true;
+            var list = d.results || [];
+            var results = [];
+            var passed = 0;
+            var failed = 0;
+            for (var i = 0; i < tests.length; i++) {
+              var r = list[i] || {};
+              var ok = r.matched === true;
+              var got;
+              if (r.skipped) {
+                got = "— (прогон остановлен: ошибка в программе)";
+              } else if (r.timeout) {
+                got = "⏱️ превышено время выполнения";
+              } else if (r.error) {
+                got = "Ошибка: " + r.error;
               } else {
-                output = d.output !== undefined ? d.output : "(пусто)";
-                ok = false;
+                got = r.output === undefined || r.output === "" ? "(пусто)" : r.output;
               }
               results.push({
-                num: testNum,
-                input: test.input,
-                expected: test.expected,
-                got: output,
+                num: i + 1,
+                input: tests[i].input,
+                expected: tests[i].expected,
+                got: got,
                 passed: ok,
+                skipped: !!r.skipped,
               });
               if (ok) passed++;
               else failed++;
-              currentTest++;
-              if (!ok && d.error) {
-                // Ошибка компиляции/выполнения не зависит от входных данных:
-                // остальные тесты дадут тот же результат, не гоняем их.
-                for (var rest = currentTest; rest < tests.length; rest++) {
-                  results.push({
-                    num: rest + 1,
-                    input: tests[rest].input,
-                    expected: tests[rest].expected,
-                    got: "— (прогон остановлен: ошибка в программе)",
-                    passed: false,
-                    skipped: true,
-                  });
-                  failed++;
-                }
-                currentTest = tests.length;
-              }
-              runNextTest();
-            })
-            .catch(function (err) {
-              results.push({
-                num: testNum,
-                input: test.input,
-                expected: test.expected,
-                got: "Ошибка соединения: " + err.message,
-                passed: false,
-              });
-              failed++;
-              currentTest++;
-              runNextTest();
-            });
-        }
-
-        runNextTest();
+            }
+            finish();
+            showTestResults(results, passed, failed);
+          })
+          .catch(function (err) {
+            showMessage(
+              "⚠️ Ошибка соединения",
+              String((err && err.message) || err),
+            );
+          });
       }
 
       function showTestResults(results, passed, failed) {

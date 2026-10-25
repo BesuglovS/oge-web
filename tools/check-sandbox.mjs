@@ -92,6 +92,73 @@ try {
 
   const get = await fetch(base + '/run_python.php', { signal: AbortSignal.timeout(5000) });
   expect('GET → 405', get.status === 405, 'status ' + get.status);
+
+  /* ── Пакетный режим ── */
+  const batch = async (code, tests) => {
+    const body = new URLSearchParams({ code, tests: JSON.stringify(tests) });
+    const r = await fetch(base + '/run_python.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+      signal: AbortSignal.timeout(60000),
+    });
+    const text = await r.text();
+    try {
+      return { status: r.status, data: JSON.parse(text) };
+    } catch (e) {
+      return { status: r.status, data: null, text };
+    }
+  };
+
+  const b1 = await batch('print(int(input()) * 2)', [
+    { input: '5', expected: '10' },
+    { input: '7', expected: '14' },
+    { input: '0', expected: '0' },
+  ]);
+  expect('пакет: 3 теста пройдены', b1.data && b1.data.passed === 3 && b1.data.total === 3, JSON.stringify(b1.data));
+
+  const b2 = await batch("print('14.00')", [{ input: '', expected: '14' }]);
+  expect('пакет: числовой допуск', b2.data && b2.data.results[0].matched === true, JSON.stringify(b2.data));
+
+  const b3 = await batch('print(int(input()) + 1)', [
+    { input: '1', expected: '2' },
+    { input: '2', expected: '999' },
+    { input: '3', expected: '4' },
+  ]);
+  expect('пакет: частичный провал', b3.data && b3.data.passed === 2 && b3.data.results[1].matched === false, JSON.stringify(b3.data));
+
+  const b4 = await batch('while True:\n    pass', [
+    { input: '', expected: '1' },
+    { input: '', expected: '2' },
+  ]);
+  expect(
+    'пакет: timeout останавливает прогон',
+    b4.data && b4.data.results[0].timeout === true && b4.data.results[1].skipped === true,
+    JSON.stringify(b4.data),
+  );
+
+  const b5 = await batch('raise ValueError("boom")', [
+    { input: '', expected: '1' },
+    { input: '', expected: '2' },
+  ]);
+  expect(
+    'пакет: ошибка программы останавливает прогон',
+    b5.data && /boom/.test(b5.data.results[0].error || '') && b5.data.results[1].skipped === true,
+    JSON.stringify(b5.data),
+  );
+
+  const b6 = await batch('import os', [{ input: '', expected: '1' }]);
+  expect('пакет: запрещённый импорт отклонён', b6.data && /запрещ/.test(b6.data.error || ''), JSON.stringify(b6.data));
+
+  const many = Array.from({ length: 13 }, () => ({ input: '1', expected: '1' }));
+  const b7 = await batch('print(1)', many);
+  expect('пакет: больше 12 тестов → 400', b7.status === 400 && /много тестов/i.test(b7.data.error || ''), JSON.stringify(b7.data));
+
+  const b8 = await batch('print(1)', []);
+  expect('пакет: пустой список → 400', b8.status === 400, JSON.stringify(b8.data));
+
+  const b9 = await batch('print(1)', [{ input: 'x' }]);
+  expect('пакет: тест без expected → 400', b9.status === 400, JSON.stringify(b9.data));
 } catch (e) {
   errors.push(e.message);
 } finally {

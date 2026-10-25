@@ -31,6 +31,31 @@ for (const f of htmlFiles) {
   }
 }
 
+// 1b. Якоря: href="файл.html#id" — id должен существовать на целевой странице.
+const idsCache = new Map();
+const idsOf = (file) => {
+  if (!idsCache.has(file)) {
+    const html = readFileSync(join(root, file), 'utf8')
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '');
+    idsCache.set(file, new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])));
+  }
+  return idsCache.get(file);
+};
+for (const f of htmlFiles) {
+  const html = readFileSync(join(root, f), 'utf8');
+  for (const m of html.matchAll(/href="([^"]*#[^"]+)"/g)) {
+    const raw = m[1];
+    if (/^https?:\/\//i.test(raw) && !raw.startsWith('https://oge.nayanovaacademy.ru/')) continue;
+    const [filePart, anchor] = raw.split('#');
+    if (!anchor) continue;
+    const rel = filePart.replace(/^https:\/\/oge\.nayanovaacademy\.ru\//, '').replace(/^\.?\//, '');
+    const file = rel === '' ? f : rel;
+    if (!htmlFiles.includes(file)) continue;
+    if (!idsOf(file).has(anchor)) errors.push(`${f}: якорь #${anchor} отсутствует в ${file}`);
+  }
+}
+
 // 2. canonical
 for (const f of htmlFiles) {
   const html = readFileSync(join(root, f), 'utf8');
