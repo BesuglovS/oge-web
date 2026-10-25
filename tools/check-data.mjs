@@ -406,6 +406,134 @@ try {
   errors.push('oge4: ' + e.message);
 }
 
+/* ─────────── 2d. Задание 10: ответы по тексту задачи ─────────── */
+// Ответ сверяется с тем, что видит ученик: числа вытаскиваются из текста
+// задачи и переводятся в десятичную систему независимой реализацией.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge10.html'), 'utf8');
+  const from = html.indexOf('function toDecimal(numStr, base) {');
+  const to = html.indexOf('function checkAnswer() {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console };
+  vm.createContext(sb);
+  vm.runInContext(html.slice(from, to) + `
+    ; globalThis.__gens = {
+        convertToBinary: generateConvertToBinary,
+        convertFromBinary: generateConvertFromBinary,
+        arithmeticSimple: generateArithmeticSimple,
+        arithmeticComplex: generateArithmeticComplex,
+        compareSmallest: () => generateCompareTwo('smallest'),
+        compareLargest: () => generateCompareTwo('largest'),
+        maxEven: () => generateFindCondition('max', 'even'),
+        minOdd: () => generateFindCondition('min', 'odd'),
+        maxDiv: () => generateFindDivisible('max'),
+        minDiv: () => generateFindDivisible('min'),
+        maxPrime: () => generateFindPrime('max'),
+        minPrime: () => generateFindPrime('min'),
+        minBase: generateFindMinBase,
+      };
+    globalThis.__current = () => currentTask;
+  `, sb);
+  // Перехватываем разметку задачи вместо записи в DOM.
+  vm.runInContext('renderTask = function (text) { globalThis.__text = text; };', sb);
+
+  const toDec = (raw, base) => {
+    let value = 0;
+    for (const ch of String(raw)) {
+      const digit = parseInt(ch, 36);
+      if (!(digit >= 0 && digit < base)) throw new Error(`цифра ${ch} недопустима в системе ${base}`);
+      value = value * base + digit;
+    }
+    return value;
+  };
+  const isPrimeNum = (n) => {
+    if (n < 2) return false;
+    for (let d = 2; d * d <= n; d++) if (n % d === 0) return false;
+    return true;
+  };
+  const numRe = /([0-9A-F]+)<span class="base">(\d+)<\/span>/g;
+  const numsOf = (text) => [...text.matchAll(numRe)].map((m) => ({
+    raw: m[1], base: Number(m[2]), value: toDec(m[1], m[2]),
+  }));
+
+  const checkOne = (name, label) => {
+    const task = sb.__current();
+    const text = sb.__text;
+    if (!task || !text) { errors.push(`oge10 ${label}: задача не сгенерирована`); return false; }
+    const answer = String(task.answer);
+    const fail = (want) => errors.push(`oge10 ${label}: ответ ${answer}, по тексту ${want}`);
+
+    if (/Сколько единиц содержит полученное число/.test(text)) {
+      const m = text.match(/число <span class="highlight">(\d+)<\/span>/);
+      const bin = Number(m[1]).toString(2);
+      const want = String([...bin].filter((c) => c === '1').length);
+      if (answer !== want) fail(want);
+    } else if (/разряде десятков полученного числа/.test(text)) {
+      const m = text.match(/<span class="highlight">([01]+)<\/span>/);
+      const dec = String(toDec(m[1], 2));
+      const want = dec.length >= 2 ? dec[dec.length - 2] : '0';
+      if (answer !== want) fail(want);
+    } else if (/Вычислите значение арифметического выражения/.test(text)) {
+      const block = text.match(/<div class="numbers-list">([\s\S]*?)<\/div>/);
+      const expr = block[1]
+        .replace(numRe, (m, raw, base) => String(toDec(raw, base)))
+        .replace(/<[^>]+>/g, '')
+        .replace(/:/g, '/')
+        .replace(/\s+/g, '');
+      if (!/^[\d+\-*/().]+$/.test(expr)) { errors.push(`oge10 ${label}: неразобранное выражение «${expr}»`); return false; }
+      const value = Function('"use strict";return (' + expr + ')')();
+      if (Number(answer) !== value) fail(value);
+    } else if (/найдите два (наименьших|наибольших)/.test(text)) {
+      const nums = numsOf(text).map((n) => n.value);
+      nums.sort((a, b) => a - b);
+      const want = /наименьших/.test(text) ? nums[0] + nums[1] : nums[1] + nums[2];
+      if (Number(answer) !== want) fail(want);
+    } else if (/(чётное|нечётное) число/.test(text)) {
+      // «нечётное» содержит «чётное» как подстроку — проверяем отрицание первым.
+      const wantEven = !/нечётное/.test(text);
+      const nums = numsOf(text).map((n) => n.value);
+      const parts = nums.filter((n) => (n % 2 === 0) === wantEven);
+      if (!parts.length) { errors.push(`oge10 ${label}: нет подходящих чисел`); return false; }
+      const want = /максимальное/.test(text) ? Math.max(...parts) : Math.min(...parts);
+      if (Number(answer) !== want) fail(want);
+    } else if (/делящееся на <span class="highlight">(\d+)<\/span>/.test(text)) {
+      const divisor = Number(text.match(/делящееся на <span class="highlight">(\d+)<\/span>/)[1]);
+      const parts = numsOf(text).map((n) => n.value).filter((n) => n % divisor === 0);
+      if (!parts.length) { errors.push(`oge10 ${label}: нет чисел, делящихся на ${divisor}`); return false; }
+      const want = /максимальное/.test(text) ? Math.max(...parts) : Math.min(...parts);
+      if (Number(answer) !== want) fail(want);
+    } else if (/простое число/.test(text)) {
+      const parts = numsOf(text).map((n) => n.value).filter(isPrimeNum);
+      if (!parts.length) { errors.push(`oge10 ${label}: нет простых чисел`); return false; }
+      const want = /максимальное/.test(text) ? Math.max(...parts) : Math.min(...parts);
+      if (Number(answer) !== want) fail(want);
+    } else if (/основанием n &gt; 1|основанием n > 1/.test(text)) {
+      const m = text.match(/highlight">([0-9A-F]+)<sub>n<\/sub>/);
+      const digits = m[1];
+      const minBase = Math.max(...[...digits].map((c) => parseInt(c, 36))) + 1;
+      if (minBase <= 1) { errors.push(`oge10 ${label}: неверное основание ${minBase}`); return false; }
+      const want = toDec(digits, minBase);
+      if (Number(answer) !== want) fail(want);
+    } else {
+      errors.push(`oge10 ${label}: неизвестный тип задачи`);
+      return false;
+    }
+    return true;
+  };
+
+  let tenTasks = 0;
+  for (const [name, gen] of Object.entries(sb.__gens)) {
+    for (let k = 0; k < 40; k++) {
+      sb.__text = null;
+      gen();
+      if (checkOne(name, name)) tenTasks++;
+    }
+  }
+  console.log(`oge10: проверено ${tenTasks} задач (ответ пересчитан по тексту задания)`);
+} catch (e) {
+  errors.push('oge10: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -529,4 +657,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 4, 6, 7, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 4, 6, 7, 10, 12, 15 и 16 согласованы');
