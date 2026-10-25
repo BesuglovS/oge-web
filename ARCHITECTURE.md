@@ -16,7 +16,7 @@ oge-web/
 ├── oge131-t.html, oge132-t.html, oge14-t.html  # Задания 13.1/13.2/14 — только теория
 ├── oge4-path.html             # Альтернативный тренажёр задания 4
 ├── run_python.php             # Серверная песочница (Python, задание 16)
-├── assets/                    # styles.css, favicon.svg, design-tokens.css
+├── assets/                    # styles.css, favicon.svg, иконки
 ├── data/oge7.json             # Данные задания 7 (JSON)
 ├── files/                     # Задание11-12.zip, files/oge15/ (данные задания 15)
 ├── js/                        # metrika.js, progress.js, progress-client.js,
@@ -76,7 +76,7 @@ oge.html (навигация + прогресс)
 ## PWA
 
 - `manifest.json` подключается на всех страницах (`<link rel="manifest">`).
-- `sw.js` (`CACHE_NAME='oge-web-v12'`) кэширует статику и данные задания 15;
+- `sw.js` (`CACHE_NAME='oge-web-v13'`) кэширует статику и данные задания 15;
   HTML — network-first с фолбэком на кэш и `offline.html`; остальные ассеты —
   cache-first. Большие архивы (`files/*.zip`) не кэшируются.
 - При изменении списка ассетов поднять `CACHE_NAME`.
@@ -126,12 +126,14 @@ run_python.php
 выполняется smoke-check, затем `public` — симлинк на новый релиз (замена
 через `mv -T`). При ошибке live-версия не меняется; старые релизы хранятся
 (KEEP=5) для отката. nginx-конфиг деплоится отдельным шагом через
-`sudo /usr/local/sbin/deploy-nginx.sh`.
+`sudo /usr/local/sbin/deploy-nginx.sh`. Откат — `.\deploy.ps1 -Rollback`
+(предыдущий релиз) или `-Rollback -Release <имя>`; симлинк переключается
+атомарно.
 
 ## Дизайн-система
 
-Общая с экосистемой (`assets/design-tokens.css` — источник токенов
-`--na-*`; `assets/styles.css` — фактические стили страниц):
+Стили страниц — `assets/styles.css`; токены `--na-*` заданы inline в
+`404.html`/`offline.html` (неиспользуемый `assets/design-tokens.css` удалён):
 
 - Фон: тёмный градиент.
 - Карточки: полупрозрачные с градиентными бордерами.

@@ -6,13 +6,21 @@
   to remote server over SSH. Excludes dev files (.git, IDE files, deploy script).
 .PARAMETER DryRun
   Show commands without executing.
+.PARAMETER Rollback
+  Switch the public symlink to the previous release (or to -Release) and exit.
+.PARAMETER Release
+  Release directory name for -Rollback (e.g. 20261025-095658-1648451).
 .EXAMPLE
   .\deploy.ps1
   .\deploy.ps1 -DryRun
+  .\deploy.ps1 -Rollback
+  .\deploy.ps1 -Rollback -Release 20261025-095536-1648371
 #>
 
 param(
-  [switch]$DryRun
+  [switch]$DryRun,
+  [switch]$Rollback,
+  [string]$Release
 )
 
 $ErrorActionPreference = 'Stop'
@@ -100,6 +108,60 @@ if ($identityFile -and (Test-Path $identityFile)) {
   icacls $identityFullPath /reset           2>$null
   icacls $identityFullPath /inheritance:r    2>$null
   icacls $identityFullPath /grant "${env:USERNAME}:(R)" 2>$null
+}
+
+# ─── 1.5. Rollback (optional) ───
+if ($Rollback) {
+  if ($Release -and $Release -notmatch '^[A-Za-z0-9._-]+$') {
+    Write-Host "ERROR: invalid -Release name" -ForegroundColor Red
+    exit 1
+  }
+  $rollbackTemplate = @'
+set -e
+ROOT="__REMOTE_PATH__"
+PARENT=$(dirname "$ROOT")
+RELEASES="$PARENT/releases"
+TARGET="__TARGET__"
+if [ -z "$TARGET" ]; then
+  CUR=$(basename "$(readlink -f "$ROOT")")
+  TARGET=$(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\n' 2>/dev/null | sort -r | grep -Fvx "$CUR" | head -1)
+  if [ -z "$TARGET" ]; then
+    TARGET=$(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d ! -name '20*' -printf '%f\n' 2>/dev/null | sort -r | grep -Fvx "$CUR" | head -1)
+  fi
+fi
+[ -n "$TARGET" ] || { echo "no previous release found" >&2; exit 1; }
+[ -d "$RELEASES/$TARGET" ] || { echo "release not found: $TARGET" >&2; exit 1; }
+ln -s "releases/$TARGET" "$PARENT/.public-$$"
+mv -T "$PARENT/.public-$$" "$ROOT"
+echo "rolled back to: $TARGET"
+curl -sS -o /dev/null -w "https %{http_code}\n" "https://oge.nayanovaacademy.ru/oge.html"
+'@
+  $rbScript = $rollbackTemplate.Replace('__REMOTE_PATH__', $remotePath).Replace('__TARGET__', $Release)
+  if ($DryRun) {
+    $targetText = if ($Release) { $Release } else { 'previous release' }
+    Write-Host "[DryRun] rollback to: $targetText" -ForegroundColor Yellow
+    exit 0
+  }
+  Write-Host "==> Rolling back $remote ..." -ForegroundColor Cyan
+  $rbName = '/tmp/oge-rollback-' + [guid]::NewGuid().ToString('N') + '.sh'
+  $rbFile = Join-Path $env:TEMP ("oge-rollback-" + [guid]::NewGuid().ToString('N') + ".sh")
+  [System.IO.File]::WriteAllText($rbFile, $rbScript.Replace("`r`n", "`n"), (New-Object System.Text.UTF8Encoding($false)))
+  $uploadCmd = "ssh $sshPortArg $identityArg $remote `"cat > $rbName`""
+  cmd /c "$uploadCmd < `"$rbFile`""
+  $rbUpload = $LASTEXITCODE
+  Remove-Item $rbFile -ErrorAction SilentlyContinue
+  if ($rbUpload -ne 0) {
+    Write-Host "Rollback script upload failed" -ForegroundColor Red
+    exit 1
+  }
+  $runCmd = "ssh $sshPortArg $identityArg $remote `"bash $rbName; rc=`$?; rm -f $rbName; exit `$rc`""
+  cmd /c $runCmd
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Rollback failed" -ForegroundColor Red
+    exit 1
+  }
+  Write-Host "Rollback complete" -ForegroundColor Green
+  exit 0
 }
 
 # ─── 2. Pack & deploy via tar + ssh ───

@@ -93,7 +93,7 @@ oge-web/
 ├── oge4-path.html        # Доп. тренажёр: кратчайший путь в графе
 ├── oge7.txt              # Легаси-данные задания 7 (JSON-версия: data/oge7.json)
 ├── run_python.php        # Python-песочница (задание 16)
-├── assets/               # styles.css, favicon.svg, design-tokens.css
+├── assets/               # styles.css, favicon.svg, иконки
 ├── js/                   # metrika.js, progress.js, progress-client.js,
 │                         # progress-sync.js, tracking-client.js
 ├── data/oge7.json        # Данные задания 7
@@ -126,6 +126,8 @@ oge-web/
 ```powershell
 .\deploy.ps1 -DryRun   # сухой прогон
 .\deploy.ps1           # деплой
+.\deploy.ps1 -Rollback # откат на предыдущий релиз
+.\deploy.ps1 -Rollback -Release 20261025-095536-1648371
 ```
 
 `deploy.ps1` читает `.env`, пакует проект `tar`-ом (без `.git`, `.env`,

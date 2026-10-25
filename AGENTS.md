@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v12'`) предкэширует жёсткий
-   список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v11` → `v12`), иначе пользователи вечно видят старый кэш.
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v13'`) предкэширует жёсткий
+   список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v12` → `v13`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -74,7 +74,7 @@ oge{N}-t.html          # теория для каждого задания; oge1
 oge4-path.html         # доп. тренажёр: кратчайший путь в графе
 oge7.txt               # легаси-данные задания 7; data/oge7.json — JSON-версия (в синхроне)
 run_python.php         # Python-песочница (задание 16) — СМ. крит. правило 2
-assets/styles.css      # общий стиль (организован по секциям и постранично); design-tokens.css НЕ подключён
+assets/styles.css      # общий стиль (организован по секциям и постранично)
 js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
 js/code-editor.js      # overlay-редактор кода для задания 16 (подсветка, номера строк, отступы)
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
@@ -116,6 +116,10 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
    для отката. Первичная миграция real-dir `public` → `releases/initial-*` + симлинк.
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
+
+**Откат:** `.\deploy.ps1 -Rollback` переключает `public` на предыдущий релиз,
+`.\deploy.ps1 -Rollback -Release <имя>` — на указанный. Переключение симлинка
+атомарное, reload nginx не требуется.
 
 Требования сервера: nginx + PHP 8.1-FPM, root `/var/www/oge.nayanovaacademy.ru/public/`.
 Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `max-age=2592000, immutable`,

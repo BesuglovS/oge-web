@@ -23,7 +23,7 @@ oge-web/
 ├── run_python.php        # Песочница Python (задание 16)
 ├── files/                # Архив заданий 11-12 и данные задания 15
 ├── git/                  # Web-UI self-hosted git
-├── assets/               # styles.css, favicon.svg, design-tokens.css
+├── assets/               # styles.css, favicon.svg, иконки
 ├── js/                   # metrika.js, progress.js и клиенты прогресса/трекинга
 ├── manifest.json, sw.js  # PWA
 ├── offline.html, 404.html
@@ -327,7 +327,7 @@ export function getProgress() {
 | Утверждение | Статус |
 |-------------|--------|
 | CSS inline во всех HTML-файлах | ✅ Исправлено — общий `assets/styles.css`, дублирование устранено |
-| PWA-файлы отсутствуют | ✅ Исправлено — добавлены `manifest.json` и `sw.js` (сейчас v12), манифест подключён на всех страницах |
+| PWA-файлы отсутствуют | ✅ Исправлено — добавлены `manifest.json` и `sw.js` (сейчас v13), манифест подключён на всех страницах |
 | JS inline в HTML | ⚠️ Частично — логика заданий по-прежнему inline (осознанное решение ради автономности страниц) |
 | `<meta name="description">` отсутствует | ✅ Исправлено — добавлены description/canonical/OG на все страницы |
 | `<link rel="canonical">` отсутствует | ✅ Исправлено |
