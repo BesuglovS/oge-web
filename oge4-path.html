@@ -299,6 +299,25 @@
 
         table.innerHTML = html;
         restoreMatrixUI();
+
+        // Клавиатурная навигация по редактируемым клеткам: Enter/↓ — следующая,
+        // Shift+Enter/↑ — предыдущая. Иначе таблицу приходится обходить мышью.
+        if (!table.dataset.keynav) {
+          table.dataset.keynav = "1";
+          table.addEventListener("keydown", (e) => {
+            if (!e.target || e.target.tagName !== "INPUT") return;
+            if (e.key !== "Enter" && e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+            const cells = Array.from(table.querySelectorAll("td.editable input"));
+            const idx = cells.indexOf(e.target);
+            if (idx < 0) return;
+            const back = e.key === "ArrowUp" || (e.key === "Enter" && e.shiftKey);
+            const next = cells[idx + (back ? -1 : 1)];
+            if (!next) return;
+            e.preventDefault();
+            next.focus();
+            next.select();
+          });
+        }
       }
 
       let matrixData = null;

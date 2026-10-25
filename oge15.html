@@ -2741,6 +2741,17 @@ function stopProgram(silent) {
 // =====================================================
 // CHECK PROGRAM — compare painted cells with target
 // =====================================================
+// Координаты клеток (r,c) в формате 1-based, не более 12 штук в списке:
+// иначе при большой ошибке журнал растягивается на несколько экранов.
+function formatCells(set) {
+  const all = Array.from(set).map(k => {
+    const [r, c] = k.split(',').map(n => parseInt(n) + 1);
+    return `(${r},${c})`;
+  });
+  const shown = all.slice(0, 12).join(', ');
+  return all.length > 12 ? shown + ` и ещё ${all.length - 12}` : shown;
+}
+
 function checkProgram() {
   // Снимок последнего прогона: либо живой интерпретатор, либо состояние,
   // сохранённое stopProgram() (после ручной остановки).
@@ -2788,16 +2799,12 @@ function checkProgram() {
   log('✅ Верно закрашено: ' + correct.size + ' из ' + targetPainted.size + ' клеток', correct.size === targetPainted.size ? 'ok' : 'info');
 
   if (missing.size > 0) {
-    const missingList = Array.from(missing)
-      .map(k => { const [r, c] = k.split(',').map(n => parseInt(n) + 1); return `(${r},${c})`; })
-      .join(', ');
+    const missingList = formatCells(missing);
     log('❌ Не хватает (' + missing.size + '): ' + missingList, 'err');
   }
 
   if (extra.size > 0) {
-    const extraList = Array.from(extra)
-      .map(k => { const [r, c] = k.split(',').map(n => parseInt(n) + 1); return `(${r},${c})`; })
-      .join(', ');
+    const extraList = formatCells(extra);
     log('⚠ Лишние (' + extra.size + '): ' + extraList, 'info');
   }
 
