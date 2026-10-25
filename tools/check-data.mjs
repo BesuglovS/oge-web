@@ -534,6 +534,85 @@ try {
   errors.push('oge10: ' + e.message);
 }
 
+/* ─────────── 2e. Задание 3: высказывания о числе x ─────────── */
+// Условие задачи разбирается из текста («x кратно 5», «x > 73», «НЕ», «ИЛИ»…)
+// и превращается в независимый предикат. Ответ страницы сверяется с
+// перебором по этому предикату, плюс проверяется экстремальность.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge3.html'), 'utf8');
+  const from = html.indexOf('const conditionTypes = {');
+  const to = html.indexOf('function renderTask() {', from);
+  const ansFrom = html.indexOf('function getCorrectAnswer() {', to);
+  const ansTo = html.indexOf('function checkAnswer() {', ansFrom);
+  if (from < 0 || to < 0 || ansFrom < 0 || ansTo < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console, renderTask() {}, hideHintsAndSolution() {} };
+  vm.createContext(sb);
+  vm.runInContext(
+    html.slice(from, to) + '\n' + html.slice(ansFrom, ansTo) +
+    '\n; globalThis.__generate = generateTask; globalThis.__current = () => currentTask; globalThis.__answer = getCorrectAnswer;',
+    sb
+  );
+
+  const compileCondition = (text) => {
+    let js = text;
+    const repl = [
+      [/\(x кратно (\d+)\)/g, '(x % $1 === 0)'],
+      [/\(x > (\d+)\)/g, '(x > $1)'],
+      [/\(x < (\d+)\)/g, '(x < $1)'],
+      [/\(x ≤ (\d+)\)/g, '(x <= $1)'],
+      [/\(x ≥ (\d+)\)/g, '(x >= $1)'],
+      [/\(x чётное\)/g, '(x % 2 === 0)'],
+      [/\(x нечётное\)/g, '(x % 2 !== 0)'],
+      [/\(в записи числа x нет повторяющихся цифр\)/g, '(new Set(String(x)).size === String(x).length)'],
+      [/НЕ/g, '!'],
+      [/ИЛИ/g, '||'],
+      [/И/g, '&&'],
+    ];
+    for (const [re, to2] of repl) js = js.replace(re, to2);
+    if (/[\u0400-\u04FF]/.test(js)) throw new Error('неразобранное условие: ' + text);
+    return Function('"use strict"; return function (x) { return (' + js + '); };')();
+  };
+
+  let threeTasks = 0;
+  for (let k = 0; k < 200; k++) {
+    sb.__generate();
+    const task = sb.__current();
+    if (!task) { errors.push('oge3: задача не сгенерирована'); continue; }
+    threeTasks++;
+    let pred;
+    try {
+      pred = compileCondition(task.condition);
+    } catch (e) {
+      errors.push('oge3: ' + e.message);
+      continue;
+    }
+    const ok = (x) => (task.isTrue ? pred(x) : !pred(x));
+
+    let want = null;
+    if (task.findGreatest) {
+      for (let x = 10000; x >= 1; x--) if (ok(x)) { want = x; break; }
+    } else {
+      for (let x = 1; x <= 10000; x++) if (ok(x)) { want = x; break; }
+    }
+    const pageAnswer = sb.__answer();
+    if (want === null) {
+      errors.push(`oge3: по условию «${task.condition}» нет решения`);
+      continue;
+    }
+    if (pageAnswer !== want) {
+      errors.push(`oge3: ответ ${pageAnswer}, по условию «${task.condition}» — ${want}`);
+    }
+    // Экстремальность: соседнее число уже не подходит.
+    const neighbour = task.findGreatest ? want + 1 : want - 1;
+    if (ok(neighbour)) {
+      errors.push(`oge3: ${want} не ${task.findGreatest ? 'наибольшее' : 'наименьшее'} («${task.condition}»)`);
+    }
+  }
+  console.log(`oge3: проверено ${threeTasks} задач (условие разобрано из текста, ответ — перебор)`);
+} catch (e) {
+  errors.push('oge3: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -657,4 +736,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 4, 6, 7, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 3, 4, 6, 7, 10, 12, 15 и 16 согласованы');
