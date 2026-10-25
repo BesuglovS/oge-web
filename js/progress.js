@@ -108,7 +108,7 @@ var OGEProgress = (function() {
     var level = getLevel();
     var total = getTotalScore();
     el.innerHTML =
-      '<div class="progress-bar">' +
+      '<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Пройдено заданий: ' + pct + '%">' +
         '<div class="progress-bar-fill" style="width:' + pct + '%"></div>' +
       '</div>' +
       '<div class="progress-score">' +

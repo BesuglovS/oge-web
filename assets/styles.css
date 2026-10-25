@@ -49,12 +49,6 @@ body.body-center {
   width: 100%;
 }
 
-.container-wide {
-  max-width: 1000px;
-  margin: 0 auto;
-  width: 100%;
-}
-
 /* === Typography === */
 h1 {
   text-align: center;
@@ -977,8 +971,6 @@ textarea:focus-visible {
 
 .task-card.disabled:hover { transform: none; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);}
 
-.disabled-badge { background: linear-gradient(145deg, #6c757d 0%, #adb5bd 100%);}
-
 .exam-mode .task-number { background: linear-gradient( 145deg, #b0675c 0%, #a8633f 100% ) !important; box-shadow: 0 8px 20px rgba(176,103,92, 0.4) !important;}
 
 .generator .task-number { background: linear-gradient( 145deg, #c2a04e 0%, #bd8a3f 100% ) !important; box-shadow: 0 8px 20px rgba(194,160,78, 0.4) !important;}
@@ -1131,8 +1123,6 @@ textarea:focus-visible {
 
 .element-card.table-card h4 { color: #3a6a94;}
 
-.score-box { background: linear-gradient(145deg, #f7f4ef 0%, #e8e1d8 100%); border-radius: 12px; padding: 20px; margin: 15px 0; text-align: center;}
-
 .score-box .score { font-size: 2.5rem; font-weight: 700; display: block;}
 
 .score-box .score.good { color: #3f6b45;}
@@ -1140,12 +1130,6 @@ textarea:focus-visible {
 .score-box .score.medium { color: #b55a25;}
 
 .score-box .score.bad { color: #9e4038;}
-
-.requirements-list { list-style: none; padding: 0; margin: 15px 0;}
-
-.requirements-list li { background: #f8f5f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #3f4a52; color: #555; line-height: 1.6;}
-
-.requirements-list li strong { color: #333;}
 
 .comparison-table th:first-child { width: 30%;}
 
@@ -1191,19 +1175,9 @@ textarea:focus-visible {
 
 .criteria-card ul { margin: 8px 0 0 20px; color: #666; font-size: 0.95rem;}
 
-.func-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;}
-
-.func-card { background: linear-gradient(145deg, #f7f4ef 0%, #e8e1d8 100%); border-radius: 12px; padding: 15px; border-top: 4px solid #a56347; text-align: center;}
-
-.func-card .func-name { font-size: 1.2rem; font-weight: bold; color: #333; font-family: "Courier New", monospace; margin-bottom: 8px;}
-
-.func-card .func-desc { color: #666; font-size: 0.9rem; line-height: 1.5;}
-
 .section-link { cursor: pointer; scroll-margin-top: 20px;}
 
 .data-table-sample th, .data-table-sample td { padding: 5px 6px; font-size: 0.8rem;}
-
-.func-grid { grid-template-columns: 1fr;}
 
 .criteria-grid { grid-template-columns: 1fr;}
 
@@ -1238,10 +1212,6 @@ textarea:focus-visible {
 .step-card .step-text { color: #555; line-height: 1.6;}
 
 .step-card .step-text strong { color: #333;}
-
-.score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 20px 0;}
-
-.score-card { background: linear-gradient(145deg, #f7f4ef 0%, #e8e1d8 100%); border-radius: 12px; padding: 20px; text-align: center; border-top: 4px solid #a56347;}
 
 .score-card .score { font-size: 2.5rem; font-weight: 700; display: block;}
 
@@ -1286,8 +1256,6 @@ textarea:focus-visible {
 .secret-card p { color: #444; margin: 0;}
 
 .feature-grid { grid-template-columns: 1fr;}
-
-.score-grid { grid-template-columns: 1fr;}
 
 .time-grid { grid-template-columns: 1fr;}
 
@@ -1422,14 +1390,6 @@ textarea:focus-visible {
 .code-block .builtin { color: #4ec9b0;}
 
 .table-wrapper { overflow-x: auto; margin: 15px 0;}
-
-.info-table { width: 100%; border-collapse: collapse;}
-
-.info-table th, .info-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd;}
-
-.info-table th { background: linear-gradient(145deg, #a56347 0%, #7f5468 100%); color: white; font-weight: 600;}
-
-.info-table tr:hover { background: #f6f3ef;}
 
 /* --- oge16.html --- */
 
@@ -2237,8 +2197,6 @@ textarea:focus-visible {
 
 /* SVG styles */ .euler-circle { opacity: 0.5; transition: opacity 0.3s; stroke: rgba(255, 255, 255, 0.4); stroke-width: 2;}
 
-.region-highlight { opacity: 0; transition: opacity 0.3s; pointer-events: none;}
-
 .region-highlight.visible { opacity: 0.7; filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));}
 
 .category-header { flex-direction: column; text-align: center;}
@@ -2303,8 +2261,6 @@ textarea:focus-visible {
 
 .hint-box .hint-text { color: #856404; margin-top: 8px; line-height: 1.5;}
 
-.formula-hint { background: #2e2a26; padding: 10px 15px; border-radius: 8px; font-family: "Consolas", monospace; color: #d9b47f; margin-top: 10px; font-size: 0.95rem;}
-
 .score-board { background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; text-align: center; margin-top: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);}
 
 .score { font-size: 1.3rem; font-weight: bold; color: #333;}
@@ -2322,10 +2278,6 @@ textarea:focus-visible {
 .click-region:hover { opacity: 0.2; fill: white;}
 
 .highlight-group { pointer-events: none;}
-
-.region-overlay { fill: transparent; cursor: pointer; transition: fill 0.2s;}
-
-.region-overlay:hover { fill: rgba(255, 255, 255, 0.2);}
 
 .region-overlay.selected { fill: rgba(255, 255, 255, 0.4); stroke: #fff; stroke-width: 2;}
 
@@ -2366,14 +2318,6 @@ textarea:focus-visible {
 .graph-example { background: #241d18; border-radius: 12px; padding: 20px; margin: 15px 0; text-align: center;}
 
 .graph-example svg { max-width: 100%; height: auto;}
-
-.step-table { width: 100%; border-collapse: collapse; margin: 15px 0;}
-
-.step-table th, .step-table td { padding: 10px 15px; text-align: center; border: 1px solid #ddd;}
-
-.step-table th { background: linear-gradient(145deg, #a56347 0%, #7f5468 100%); color: white; font-weight: 600;}
-
-.step-table td { background: #f8f5f0;}
 
 .step-table .highlight-cell { background: #fff9c4; font-weight: bold;}
 
@@ -2447,4 +2391,18 @@ body.body-red-purple {
 
 body.body-blue-indigo {
   background: linear-gradient(135deg, #3f4a52 0%, #574a50 100%);
+}
+
+/* ============================================================
+   Accessibility: reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
