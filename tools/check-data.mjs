@@ -613,6 +613,88 @@ try {
   errors.push('oge3: ' + e.message);
 }
 
+/* ─────────── 2f. Задание 5: программы исполнителя Омега ─────────── */
+// Программа из ответа прогоняется независимой реализацией команд:
+// для «определи b» — проверяется, что при b из ответа получается endNum
+// (и что такое b единственно), для «составь алгоритм» — что программа
+// переводит startNum в endNum и укладывается в лимит команд.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge5.html'), 'utf8');
+  const from = html.indexOf('const taskGenerators = [');
+  const to = html.indexOf('function renderTask() {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console, renderTask() {}, hideHintsAndSolution() {} };
+  vm.createContext(sb);
+  vm.runInContext(
+    html.slice(from, to) + '\n; globalThis.__generate = generateTask; globalThis.__current = () => currentTask;',
+    sb
+  );
+
+  const squareLast = (n) => {
+    const str = String(n);
+    const d = Number(str[str.length - 1]);
+    return Number(str.slice(0, -1) + String(d * d));
+  };
+  const apply = (task, ch, n, b) => {
+    const [first, second] = task.commands;
+    if (ch === '1') {
+      if (first.includes('прибавь b')) return n + b;
+      const m = first.match(/\d+/);
+      return n + (m ? Number(m[0]) : 1);
+    }
+    if (ch !== '2') throw new Error('недопустимый номер команды «' + ch + '»');
+    if (second.includes('возведи в квадрат последнюю цифру')) return squareLast(n);
+    if (second.includes('возведи в квадрат')) return n * n;
+    if (second.includes('припиши слева')) return Number(String(b) + String(n));
+    const m = second.match(/\d+/);
+    return n * (m ? Number(m[0]) : 2);
+  };
+  const run = (task, program, b) => {
+    let n = task.startNum;
+    for (const ch of program) n = apply(task, ch, n, b);
+    return n;
+  };
+
+  let fiveTasks = 0;
+  let algos = 0;
+  for (let k = 0; k < 300; k++) {
+    sb.__generate();
+    const task = sb.__current();
+    if (!task) { errors.push('oge5: задача не сгенерирована'); continue; }
+    fiveTasks++;
+
+    if (task.taskType === 'algorithm') {
+      algos++;
+      const program = String(task.answer);
+      if (!/^[12]+$/.test(program)) { errors.push(`oge5: ответ-программа «${program}» содержит не 1/2`); continue; }
+      if (program.length > task.maxCommands) {
+        errors.push(`oge5: программа «${program}» длиннее ${task.maxCommands} команд`);
+      }
+      const got = (() => { try { return run(task, program, 0); } catch (e) { errors.push('oge5: ' + e.message); return null; } })();
+      if (got !== null && got !== task.endNum) {
+        errors.push(`oge5: программа «${program}» даёт ${got}, ожидалось ${task.endNum}`);
+      }
+    } else {
+      const b = task.answer;
+      if (!Number.isInteger(b) || b < 1) { errors.push(`oge5: b = ${b}`); continue; }
+      if (run(task, task.program, b) !== task.endNum) {
+        errors.push(`oge5: при b = ${b} программа ${task.program} не даёт ${task.endNum}`);
+      }
+      // Значение b должно определяться однозначно.
+      const fits = [];
+      for (let cand = 1; cand <= 9; cand++) {
+        if (run(task, task.program, cand) === task.endNum) fits.push(cand);
+      }
+      if (fits.length !== 1) {
+        errors.push(`oge5: b неоднозначно (${fits.join(', ') || 'нет решений'}) для программы ${task.program}`);
+      }
+    }
+  }
+  console.log(`oge5: проверено ${fiveTasks} задач (из них «составь алгоритм»: ${algos})`);
+} catch (e) {
+  errors.push('oge5: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -736,4 +818,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 3, 4, 6, 7, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
