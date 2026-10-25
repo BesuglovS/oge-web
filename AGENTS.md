@@ -78,7 +78,10 @@ page-секций, требующий визуального аудита),
 `.kum`↔`e-*.json` и синхронность `js/oge15-ref.js`↔`.kum`, структура `tasks.json`;
 генератор задания 15; синхронность `data/oge7.json`↔`oge7.txt`; ответы задания 12 по архиву),
 `node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
-допуск, строки, запрещённый импорт, timeout, GET 405) и `php -l run_python.php git/index.php`;
+допуск, строки, запрещённый импорт, timeout, GET 405),
+`node tools/check-oge11-archive.mjs` (ответы задания 11 сверяются с текстом произведений
+в `files/Задание11-12.zip`: папка и файл берутся из подсказки, поддерживаются
+`.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
 они же запускаются в CI (`.github/workflows/checks.yml`). Остальное — вручную (drag-drop, офлайн).
 
 ## 🏗 Структура
@@ -103,8 +106,9 @@ tools/check-site.mjs               # статические проверки (с
 tools/check-css.mjs                # CSS-аудит + реестр известных конфликтов
 tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # 41 известный конфликт page-секций
-tools/check-data.mjs               # проверки данных заданий 7/12/15/16 (нужен python 3)
+tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
+tools/check-oge11-archive.mjs      # ответы задания 11 по текстам в архиве (нужен python 3)
 tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum
 manifest.json, sw.js, offline.html, 404.html, LICENSE
 deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
