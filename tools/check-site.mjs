@@ -230,6 +230,21 @@ for (const f of htmlFiles) {
   }
 }
 
+// 12. Бюджет размера: страницы и общие ассеты не должны незаметно разрастаться.
+const budgets = [
+  { dir: '.', ext: '.html', max: 200 * 1024, label: 'HTML' },
+  { dir: '.', ext: '.css', max: 120 * 1024, label: 'CSS' },
+  { dir: 'js', ext: '.js', max: 80 * 1024, label: 'JS' },
+];
+for (const b of budgets) {
+  for (const f of readdirSync(join(root, b.dir)).filter((x) => x.endsWith(b.ext))) {
+    const size = statSync(join(root, b.dir, f)).size;
+    if (size > b.max) {
+      errors.push(`${b.dir === '.' ? '' : b.dir + '/'}${f}: ${Math.round(size / 1024)} КБ > бюджета ${Math.round(b.max / 1024)} КБ (${b.label})`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error('Найдено проблем: ' + errors.length);
   for (const e of errors) console.error(' - ' + e);

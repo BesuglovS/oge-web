@@ -50,5 +50,11 @@
     <button type="button" onclick="location.reload()">Повторить</button>
     <p style="margin:16px 0 0"><a href="/" style="color:#fff;font-weight:600">← На главную</a></p>
   </main>
+  <script>
+    // Как только сеть вернётся, перезагружаем страницу сами.
+    window.addEventListener("online", function () {
+      location.reload();
+    });
+  </script>
 </body>
 </html>

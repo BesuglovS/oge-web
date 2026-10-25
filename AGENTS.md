@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v20'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v21'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v19` → `v20`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v20` → `v21`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -65,7 +65,7 @@ php -S 127.0.0.1:8080        # локально с PHP (задание 16)
 Сборки нет. Есть статические проверки: `node tools/check-site.mjs` (ссылки, canonical,
 sw-ассеты вместе с 40 файлами задания 15, иконки, head-теги, BOM, sitemap, noindex, а также
 разметка/доступность: один `h1`, уникальные `id`, `alt` у картинок, `type` у кнопок,
-`rel="noopener"` и подключение скриптов аналитики/прогресса),
+`rel="noopener"`, подключение скриптов аналитики/прогресса и бюджет размера файлов),
 `node tools/check-css.mjs` (баланс скобок, мёртвые правила, точные дубли, полностью
 перекрытые правила и реестр `tools/css-known-conflicts.json` — 41 известный конфликт
 page-секций, требующий визуального аудита),
@@ -87,7 +87,8 @@ page-секций, требующий визуального аудита),
 `node tools/check-oge11-archive.mjs` (ответы задания 11 сверяются с текстом произведений
 в `files/Задание11-12.zip`: папка и файл берутся из подсказки, поддерживаются
 `.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
-они же запускаются в CI (`.github/workflows/checks.yml`). Остальное — вручную (drag-drop, офлайн).
+они же запускаются в CI (`.github/workflows/checks.yml`). Вне CI (нужен интернет):
+`node tools/check-links.mjs` — внешние ссылки на sister-сайты. Остальное — вручную (drag-drop, офлайн).
 
 ## 🏗 Структура
 
@@ -115,6 +116,7 @@ tools/css-known-conflicts.json     # 41 известный конфликт page
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
+tools/check-links.mjs              # внешние ссылки (вне CI, нужен интернет)
 tools/check-oge11-archive.mjs      # ответы задания 11 по текстам в архиве (нужен python 3)
 tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum
 manifest.json, sw.js, offline.html, 404.html, LICENSE
