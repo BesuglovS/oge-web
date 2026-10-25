@@ -61,9 +61,10 @@ php -S 127.0.0.1:8080        # локально с PHP (задание 16)
 Сборки нет. Есть статические проверки: `node tools/check-site.mjs` (ссылки, canonical,
 sw-ассеты вместе с 40 файлами задания 15, иконки, head-теги, BOM, sitemap, noindex),
 `node tools/check-data.mjs` (577 тестов задания 16, сверка `.kum`↔`e-*.json` и генератора
-задания 15, синхронность `data/oge7.json`↔`oge7.txt`, ответы задания 12 по архиву) и
-`php -l run_python.php git/index.php`; они же запускаются в CI (`.github/workflows/checks.yml`).
-Остальное — вручную (drag-drop, офлайн, песочница).
+задания 15, синхронность `data/oge7.json`↔`oge7.txt`, ответы задания 12 по архиву),
+`node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
+допуск, строки, запрещённый импорт, timeout, GET 405) и `php -l run_python.php git/index.php`;
+они же запускаются в CI (`.github/workflows/checks.yml`). Остальное — вручную (drag-drop, офлайн).
 
 ## 🏗 Структура
 
@@ -85,6 +86,7 @@ files/oge15/                     # tasks.json + оge-15-2026-NN.json (поля) 
 git/index.php                      # web-UI self-hosted git-репозиториев
 tools/check-site.mjs               # статические проверки (ссылки, SW, SEO, BOM)
 tools/check-data.mjs               # проверки данных заданий 7/12/15/16 (нужен python 3)
+tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum
 manifest.json, sw.js, offline.html, 404.html, LICENSE
 deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)

@@ -26,3 +26,6 @@ jobs:
 
       - name: Data checks (tasks 7, 12, 15, 16)
         run: node tools/check-data.mjs
+
+      - name: Sandbox integration test
+        run: node tools/check-sandbox.mjs
