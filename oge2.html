@@ -535,7 +535,7 @@
         taskText +=
           '<br><div class="message-container" id="messageContainer"></div>';
         taskText +=
-          '<div class="divider-hint">💡 Кликните между символами, чтобы поставить разделитель</div>';
+          '<div class="divider-hint">💡 Кликните между символами (или Tab + Enter), чтобы поставить разделитель</div>';
 
         if (fanoType === "direct") {
           taskText += `При передаче шифрограммы было потеряно разбиение на буквы.`;
@@ -593,13 +593,33 @@
 
         container.innerHTML = "";
 
+        // Слот разделителя доступен и с клавиатуры: Tab до него,
+        // Enter/пробел — поставить или убрать разделитель.
+        const addSlot = (position) => {
+          const slot = document.createElement("div");
+          slot.className = "message-divider-slot";
+          slot.dataset.position = position;
+          slot.setAttribute("role", "button");
+          slot.setAttribute("tabindex", "0");
+          slot.setAttribute("aria-pressed", "false");
+          slot.setAttribute(
+            "aria-label",
+            position === 0
+              ? "Граница перед первым символом"
+              : "Граница после " + position + " символов",
+          );
+          slot.onclick = () => toggleDivider(slot);
+          slot.onkeydown = (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggleDivider(slot);
+            }
+          };
+          container.appendChild(slot);
+        };
+
         for (let i = 0; i < encoded.length; i++) {
-          // Создаём слот для разделителя перед символом
-          const dividerSlot = document.createElement("div");
-          dividerSlot.className = "message-divider-slot";
-          dividerSlot.dataset.position = i;
-          dividerSlot.onclick = () => toggleDivider(dividerSlot);
-          container.appendChild(dividerSlot);
+          addSlot(i);
 
           // Создаём символ
           const char = document.createElement("span");
@@ -608,17 +628,14 @@
           container.appendChild(char);
         }
 
-        // Добавляем слот для разделителя в конце
-        const endDividerSlot = document.createElement("div");
-        endDividerSlot.className = "message-divider-slot";
-        endDividerSlot.dataset.position = encoded.length;
-        endDividerSlot.onclick = () => toggleDivider(endDividerSlot);
-        container.appendChild(endDividerSlot);
+        // Слот для разделителя в конце
+        addSlot(encoded.length);
       }
 
       // Переключение разделителя
       function toggleDivider(slot) {
-        slot.classList.toggle("has-divider");
+        const on = slot.classList.toggle("has-divider");
+        slot.setAttribute("aria-pressed", on ? "true" : "false");
       }
 
       // Генерация подсказки
