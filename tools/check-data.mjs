@@ -856,6 +856,149 @@ try {
   errors.push('oge2: ' + e.message);
 }
 
+/* ─────────── 2i. Задание 9: количество путей в графе ─────────── */
+// Ответ сверяется с полным перебором всех путей в графе (DFS), включая
+// варианты «через вершину» и «не через вершину».
+try {
+  const html = fs.readFileSync(path.join(root, 'oge9.html'), 'utf8');
+  const from = html.indexOf('const VERTEX_NAMES = [');
+  const to = html.indexOf('function calculateVertexPositions(', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генератора');
+  const sb = { Math, console, renderTask() {}, hideHintsAndSolution() {} };
+  vm.createContext(sb);
+  vm.runInContext(
+    html.slice(from, to) + '\n; globalThis.__generate = generateTask; globalThis.__current = () => currentTask;',
+    sb
+  );
+
+  const countPaths = (edges, n, through) => {
+    let total = 0;
+    const seen = new Set([0]);
+    const dfs = (u, passed) => {
+      if (u === n - 1) { if (through < 0 || passed) total++; return; }
+      for (let v = 1; v < n; v++) {
+        if (!edges[u][v] || seen.has(v)) continue;
+        seen.add(v);
+        dfs(v, passed || v === through);
+        seen.delete(v);
+      }
+    };
+    dfs(0, through === 0);
+    return total;
+  };
+
+  let nineTasks = 0;
+  let throughTasks = 0;
+  for (let k = 0; k < 200; k++) {
+    sb.__generate();
+    const task = sb.__current();
+    if (!task) { errors.push('oge9: задача не сгенерирована'); continue; }
+    nineTasks++;
+    const n = task.graph.vertexCount;
+    const edges = task.graph.edges;
+    const total = countPaths(edges, n, -1);
+    if (total !== task.paths[n - 1]) {
+      errors.push(`oge9: путей ${total}, в задаче ${task.paths[n - 1]}`);
+    }
+    if (task.throughIndex >= 0) {
+      throughTasks++;
+      const via = countPaths(edges, n, task.throughIndex);
+      const want = task.typeClass === 'through' ? via : total - via;
+      if (task.answer !== want) {
+        errors.push(`oge9 (${task.typeClass}): ответ ${task.answer}, перебор ${want}`);
+      }
+      if (task.answer < 1) errors.push(`oge9: вырожденный ответ ${task.answer}`);
+    } else if (task.answer !== total) {
+      errors.push(`oge9 (всего): ответ ${task.answer}, перебор ${total}`);
+    }
+    if (!task.graph.layers.flat().every((v) => Number.isInteger(v))) {
+      errors.push('oge9: в слоях графа нецелые вершины');
+    }
+  }
+  console.log(`oge9: проверено ${nineTasks} графов (из них через/не через вершину: ${throughTasks})`);
+} catch (e) {
+  errors.push('oge9: ' + e.message);
+}
+
+/* ─────────── 2j. Задание 8: формула включений-исключений ─────────── */
+// Каждый тип задачи сверяется по формуле включений-исключений, а запросы
+// разбираются из данных задачи (имена множеств произвольные).
+try {
+  const html = fs.readFileSync(path.join(root, 'oge8.html'), 'utf8');
+  const from = html.indexOf('const setNames = {');
+  const to = html.indexOf('function randomInt(min, max) {', from);
+  const end = html.indexOf('function generateTask() {', to);
+  if (from < 0 || to < 0 || end < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console };
+  vm.createContext(sb);
+  vm.runInContext(
+    html.slice(from, end) + '\n; globalThis.__types = taskTypes; globalThis.__sets = allSets;',
+    sb
+  );
+
+  const roles = (data) => {
+    const out = { single: [], pairAnd: [], pairOr: [], tripleAnd: [], tripleOr: [], andOr: [] };
+    for (const { query, value } of data) {
+      let m;
+      if ((m = query.match(/^([^&|()]+) & \(([^&|()]+) \| ([^&|()]+)\)$/))) out.andOr.push({ a: m[1], b: m[2], c: m[3], value });
+      else if ((m = query.match(/^([^&|()]+) & ([^&|()]+) & ([^&|()]+)$/))) out.tripleAnd.push({ a: m[1], b: m[2], c: m[3], value });
+      else if ((m = query.match(/^([^&|()]+) \| ([^&|()]+) \| ([^&|()]+)$/))) out.tripleOr.push({ a: m[1], b: m[2], c: m[3], value });
+      else if ((m = query.match(/^([^&|()]+) & ([^&|()]+)$/))) out.pairAnd.push({ a: m[1], b: m[2], value });
+      else if ((m = query.match(/^([^&|()]+) \| ([^&|()]+)$/))) out.pairOr.push({ a: m[1], b: m[2], value });
+      else if ((m = query.match(/^([^&|()]+)$/))) out.single.push({ a: m[1], value });
+      else throw new Error('неразобранный запрос: ' + query);
+    }
+    return out;
+  };
+
+  let eightTasks = 0;
+  const typesSeen = new Set();
+  for (const [typeName, type] of Object.entries(sb.__types)) {
+    for (let k = 0; k < 60; k++) {
+      const sets = sb.__sets[k % sb.__sets.length];
+      const task = type.generate(sets);
+      typesSeen.add(typeName);
+      eightTasks++;
+      const r = roles(task.data);
+      const single = (name) => {
+        const hit = r.single.filter((s) => s.a === name);
+        if (!hit.length) throw new Error(`нет значения для «${name}»`);
+        return hit[0].value;
+      };
+      let want = null;
+      if (typeName === 'intersection2') {
+        want = single(r.single[0].a) + single(r.single[1].a) - r.pairOr[0].value;
+      } else if (typeName === 'union2') {
+        want = single(r.single[0].a) + single(r.single[1].a) - r.pairAnd[0].value;
+      } else if (typeName === 'intersection3') {
+        const u = r.tripleOr[0].value;
+        want = u - single(r.single[0].a) - single(r.single[1].a) - single(r.single[2].a)
+          + r.pairAnd[0].value + r.pairAnd[1].value + r.pairAnd[2].value;
+      } else if (typeName === 'union3') {
+        want = single(r.single[0].a) + single(r.single[1].a) + single(r.single[2].a)
+          - r.pairAnd[0].value - r.pairAnd[1].value - r.pairAnd[2].value
+          + r.tripleAnd[0].value;
+      } else if (typeName === 'formulaABorC') {
+        want = r.andOr[0].value - r.pairAnd[0].value + r.tripleAnd[0].value;
+      } else {
+        errors.push(`oge8: неизвестный тип ${typeName}`);
+        continue;
+      }
+      if (task.answer !== want) {
+        errors.push(`oge8 (${typeName}): ответ ${task.answer}, по формуле ${want}`);
+      }
+      if (!(task.answer >= 0)) errors.push(`oge8 (${typeName}): отрицательный ответ ${task.answer}`);
+      // Ответ не должен встречаться в данных задачи.
+      if (task.data.some((d) => d.query === task.question)) {
+        errors.push(`oge8 (${typeName}): искомый запрос уже есть в данных`);
+      }
+    }
+  }
+  console.log(`oge8: проверено ${eightTasks} задач (${[...typesSeen].length} типов) по формуле включений-исключений`);
+} catch (e) {
+  errors.push('oge8: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -979,4 +1122,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15 и 16 согласованы');
