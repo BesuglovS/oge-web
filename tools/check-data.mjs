@@ -763,6 +763,99 @@ try {
   errors.push('oge1: ' + e.message);
 }
 
+/* ─────────── 2h. Задание 2: расшифровка по таблице кодов ─────────── */
+// Таблица кодов проверяется на условие Фано (прямое/обратное), а сообщение —
+// на однозначность расшифровки: число разбиений на кодовые слова должно быть
+// ровно 1, и оно обязано давать исходное слово.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge2.html'), 'utf8');
+  const from = html.indexOf('let answered = false;');
+  const to = html.indexOf('function createInteractiveMessage(encoded) {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генератора');
+  const el = () => ({
+    className: '', style: {}, value: '', innerHTML: '', textContent: '',
+    classList: { add() {}, remove() {}, toggle() {} },
+    addEventListener() {}, focus() {}, appendChild() {}, append() {},
+    querySelectorAll: () => [], children: [],
+  });
+  const ids = new Map();
+  const documentStub = {
+    getElementById(id) { if (!ids.has(id)) ids.set(id, el()); return ids.get(id); },
+    createElement: el,
+    querySelector: el,
+    querySelectorAll: () => [],
+    addEventListener() {},
+    body: el(),
+  };
+  const sb = { Math, console, document: documentStub, createInteractiveMessage() {} };
+  vm.createContext(sb);
+  vm.runInContext(html.slice(from, to) + '\n; globalThis.__generate = generateTask; globalThis.__current = () => currentTask;', sb);
+
+  let twoTasks = 0;
+  let direct = 0;
+  for (let k = 0; k < 200; k++) {
+    sb.__generate();
+    const task = sb.__current();
+    if (!task) { errors.push('oge2: задача не сгенерирована'); continue; }
+    twoTasks++;
+    const entries = Object.entries(task.codes);
+    if (!entries.length) { errors.push('oge2: пустая таблица кодов'); continue; }
+
+    // Условие Фано, заявленное в задаче.
+    if (task.fanoType === 'direct') {
+      direct++;
+      for (const [a, ca] of entries) {
+        for (const [b, cb] of entries) {
+          if (a !== b && cb.startsWith(ca)) {
+            errors.push(`oge2: прямое условие Фано нарушено (${a}=${ca} — начало ${b}=${cb})`);
+          }
+        }
+      }
+    } else {
+      for (const [a, ca] of entries) {
+        for (const [b, cb] of entries) {
+          if (a !== b && cb.endsWith(ca)) {
+            errors.push(`oge2: обратное условие Фано нарушено (${a}=${ca} — конец ${b}=${cb})`);
+          }
+        }
+      }
+    }
+
+    // Сообщение должно быть кодом слова.
+    const expected = [...String(task.word)].map((ch) => task.codes[ch]).join('');
+    if (expected !== task.encoded) {
+      errors.push(`oge2: шифрограмма ${task.encoded} не соответствует слову «${task.word}»`);
+    }
+    if (!/^[01]+$/.test(task.encoded)) {
+      const alphabet = new Set(task.symbols || []);
+      const bad = [...task.encoded].filter((ch) => !alphabet.has(ch));
+      if (!alphabet.size || bad.length) {
+        errors.push(`oge2: шифрограмма содержит символы вне алфавита (${task.encoded})`);
+      }
+    }
+
+    // Однозначность расшифровки: ровно одно разбиение на кодовые слова.
+    const codeValues = entries.map(([, c]) => c);
+    const msg = task.encoded;
+    const memo = new Map();
+    const countWays = (pos) => {
+      if (pos === msg.length) return 1;
+      if (memo.has(pos)) return memo.get(pos);
+      let total = 0;
+      for (const c of codeValues) if (msg.startsWith(c, pos)) total += countWays(pos + c.length);
+      memo.set(pos, total);
+      return total;
+    };
+    const ways = countWays(0);
+    if (ways !== 1) {
+      errors.push(`oge2: у шифрограммы ${msg} ${ways} расшифровок (ожидалась одна)`);
+    }
+  }
+  console.log(`oge2: проверено ${twoTasks} задач (прямое условие Фано: ${direct}), расшифровка однозначна`);
+} catch (e) {
+  errors.push('oge2: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -886,4 +979,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 1, 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
