@@ -879,6 +879,15 @@ textarea:focus-visible {
     padding: 15px;
   }
 
+  /* iOS Safari зумит страницу, если шрифт в поле меньше 16px.
+     Поднимаем до 16px именно на мобильных: компактные контролы
+     (ячейки таблиц, размеры поля, выбор задания) иначе «прыгают». */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
   h1 {
     font-size: 1.4rem;
   }
@@ -2363,4 +2372,12 @@ body.body-blue-indigo {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   Accessibility: keyboard focus
+   ============================================================ */
+:focus-visible {
+  outline: 3px solid rgba(102, 126, 234, 0.7);
+  outline-offset: 2px;
 }

@@ -76,7 +76,7 @@ oge.html (навигация + прогресс)
 ## PWA
 
 - `manifest.json` подключается на всех страницах (`<link rel="manifest">`).
-- `sw.js` (`CACHE_NAME='oge-web-v19'`) кэширует статику и данные задания 15;
+- `sw.js` (`CACHE_NAME='oge-web-v20'`) кэширует статику и данные задания 15;
   HTML — network-first с фолбэком на кэш и `offline.html`; остальные ассеты —
   cache-first. Большие архивы (`files/*.zip`) не кэшируются.
 - При изменении списка ассетов поднять `CACHE_NAME`.

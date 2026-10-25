@@ -10,6 +10,24 @@
   "theme_color": "#7f5468",
   "orientation": "any",
   "lang": "ru",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Задание 16 — Python",
+      "short_name": "Python",
+      "url": "/oge16.html"
+    },
+    {
+      "name": "Задание 15 — Робот",
+      "short_name": "Робот",
+      "url": "/oge15.html"
+    },
+    {
+      "name": "Все задания",
+      "short_name": "Задания",
+      "url": "/oge.html"
+    }
+  ],
   "icons": [
     {
       "src": "assets/icon-192.png",

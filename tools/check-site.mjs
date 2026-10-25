@@ -93,6 +93,12 @@ try {
     if (!existsSync(join(root, ic.src))) errors.push(`manifest.json: нет иконки ${ic.src}`);
   }
   if (mf.start_url !== '/') errors.push(`manifest.json: start_url=${mf.start_url} (ожидалось /)`);
+  for (const sc of mf.shortcuts || []) {
+    const file = String(sc.url || '').replace(/^\//, '');
+    if (!file || !existsSync(join(root, file))) {
+      errors.push(`manifest.json: ярлык «${sc.name}» ведёт на несуществующий ${sc.url}`);
+    }
+  }
 } catch (e) {
   errors.push('manifest.json: ' + e.message);
 }

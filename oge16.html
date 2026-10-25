@@ -1725,6 +1725,13 @@
             '<div class="output-title">⚠️ Ошибка</div><div class="output-content">Введите код программы.</div>';
           return;
         }
+        // Песочница живёт на сервере: без сети проверка невозможна.
+        if (navigator.onLine === false) {
+          os.className = "output-section show runtime-error";
+          os.innerHTML =
+            '<div class="output-title">📶 Нет подключения к интернету</div><div class="output-content">Проверка кода выполняется на сервере. Подключитесь к сети и запустите снова — код сохранится в черновике.</div>';
+          return;
+        }
         isRunning = true;
         runTaskId = task.id;
         runBtn.disabled = true;
