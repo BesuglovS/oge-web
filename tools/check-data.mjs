@@ -317,6 +317,95 @@ try {
   errors.push('oge6: ' + e.message);
 }
 
+/* ─────────── 2c. Задание 4: кратчайший путь ─────────── */
+// Ответ проверяем «в лоб»: полный перебор простых путей, а не Дейкстра.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge4.html'), 'utf8');
+  const from = html.indexOf('const graphTemplates = [');
+  const to = html.indexOf('function renderTask() {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console, renderTask() {}, hideHintsAndSolution() {} };
+  vm.createContext(sb);
+  vm.runInContext(html.slice(from, to) + '\n; globalThis.__generateTask = generateTask; globalThis.__current = () => currentTask;', sb);
+
+  const matrixOf = (task) => {
+    const n = task.vertices.length;
+    const m = Array.from({ length: n }, () => Array(n).fill(null));
+    for (const e of task.edges) {
+      const i = task.vertices.indexOf(e.from);
+      const j = task.vertices.indexOf(e.to);
+      m[i][j] = e.weight;
+      m[j][i] = e.weight;
+    }
+    return m;
+  };
+
+  // Полный перебор простых путей: истинно минимальное расстояние.
+  const brute = (m, s, e) => {
+    const n = m.length;
+    let best = Infinity;
+    const used = new Set([s]);
+    const dfs = (u, dist) => {
+      if (u === e) { if (dist < best) best = dist; return; }
+      for (let v = 0; v < n; v++) {
+        if (m[u][v] === null || used.has(v)) continue;
+        used.add(v);
+        dfs(v, dist + m[u][v]);
+        used.delete(v);
+      }
+    };
+    dfs(s, 0);
+    return best;
+  };
+
+  let fourTasks = 0;
+  let withVia = 0;
+  for (let k = 0; k < 150; k++) {
+    sb.__generateTask();
+    const task = sb.__current();
+    if (!task) { errors.push('oge4: генератор не создал задачу'); continue; }
+    fourTasks++;
+    const m = matrixOf(task);
+    const idx = (name) => task.vertices.indexOf(name);
+    const s = idx(task.startVertex);
+    const e = idx(task.endVertex);
+
+    if (task.viaVertex) {
+      withVia++;
+      const v = idx(task.viaVertex);
+      const want = brute(m, s, v) + brute(m, v, e);
+      if (task.answer !== want) {
+        errors.push(`oge4 (через ${task.viaVertex}): ответ ${task.answer}, перебор ${want}`);
+      }
+      if (task.answer <= 0 || !Number.isFinite(task.answer)) {
+        errors.push(`oge4: некорректный ответ ${task.answer}`);
+      }
+      if (task.solutionPaths.pathsToVia.length === 0 || task.solutionPaths.pathsFromVia.length === 0) {
+        errors.push('oge4: пустое решение для промежуточного пункта');
+      }
+      if (task.solutionPaths.bestToVia !== brute(m, s, v) ||
+          task.solutionPaths.bestFromVia !== brute(m, v, e)) {
+        errors.push(`oge4 (через ${task.viaVertex}): неверные расстояния в решении`);
+      }
+    } else {
+      const want = brute(m, s, e);
+      if (task.answer !== want) {
+        errors.push(`oge4: ответ ${task.answer}, перебор ${want}`);
+      }
+      if (task.solutionPaths.bestDistance !== want) {
+        errors.push(`oge4: bestDistance ${task.solutionPaths.bestDistance}, перебор ${want}`);
+      }
+      const best = task.solutionPaths.allPaths[0];
+      if (!best || best.distance !== want) {
+        errors.push('oge4: первый путь в решении не кратчайший');
+      }
+    }
+  }
+  console.log(`oge4: проверено ${fourTasks} задач перебором путей (из них с промежуточным пунктом: ${withVia})`);
+} catch (e) {
+  errors.push('oge4: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -440,4 +529,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 6, 7, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 4, 6, 7, 12, 15 и 16 согласованы');
