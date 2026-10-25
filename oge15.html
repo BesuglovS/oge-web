@@ -1281,6 +1281,13 @@ function lex(code) {
       continue;
     }
 
+    // Знак минус: отрицательные границы и шаг в «нц для i от -2 до 2».
+    if (ch === '-') {
+      tokens.push({ type: 'minus', value: '-' });
+      i++;
+      continue;
+    }
+
     // Skip other characters
     i++;
   }
@@ -1348,7 +1355,7 @@ parseProgram() {
     this.consume(); // нц
     const next = this.peek();
     if (next && next.type === 'word' && next.value === 'для') {
-      throw new Error('Конструкция «нц для» пока не поддерживается — используйте «нц пока» или «нц N раз»');
+      return this.parseFor(line);
     }
     if (next && next.type === 'number') {
       this.consume(); // число
@@ -1373,7 +1380,67 @@ parseProgram() {
     return { type: 'while', condition, body, line };
   }
 
-  // Тело цикла до закрывающего слова (кц) — общее для «пока» и «N раз».
+  // «нц для i от 1 до N [шаг S]» — поддерживается в частом случае, когда
+  // переменная цикла в теле не используется (робот не умеет считать).
+  // Тогда тело просто повторяется нужное число раз, как «нц N раз».
+  parseFor(line) {
+    this.consume(); // для
+    const varTok = this.consume();
+    if (!varTok || varTok.type !== 'word') {
+      throw new Error('После «нц для» ожидается имя переменной цикла');
+    }
+    const name = varTok.value;
+    const fromWord = this.consume();
+    if (!fromWord || fromWord.value !== 'от') {
+      throw new Error('Ожидается «от» в «нц для ' + name + ' от … до …»');
+    }
+    const start = this.readNumber('Границы цикла «для» должны быть числами (после «от»)');
+    const toWord = this.consume();
+    if (!toWord || toWord.value !== 'до') {
+      throw new Error('Ожидается «до» в «нц для ' + name + ' от … до …»');
+    }
+    const end = this.readNumber('Границы цикла «для» должны быть числами (после «до»)');
+    let step = 1;
+    const maybeStep = this.peek();
+    if (maybeStep && maybeStep.type === 'word' && maybeStep.value === 'шаг') {
+      this.consume();
+      step = this.readNumber('Ожидается число после «шаг»');
+    }
+    if (step === 0) throw new Error('Шаг цикла «для» не может быть равен 0');
+
+    const bodyStart = this.pos;
+    const body = this.parseBlockUntil('кц');
+    const bodyEnd = this.pos;
+    for (let i = bodyStart; i < bodyEnd; i++) {
+      const t = this.tokens[i];
+      if (t && t.type === 'word' && t.value === name) {
+        throw new Error('Переменная «' + name + '» внутри цикла «для» не поддерживается — используйте «нц N раз» или «нц пока»');
+      }
+    }
+
+    let count = 0;
+    const a = start;
+    const b = end;
+    if (step > 0 && a <= b) count = Math.floor((b - a) / step) + 1;
+    if (step < 0 && a >= b) count = Math.floor((a - b) / -step) + 1;
+    if (count > 10000) throw new Error('Слишком много повторений: ' + count);
+    const label = 'нц для ' + name + ' от ' + a + ' до ' + b + (step !== 1 ? ' шаг ' + step : '');
+    return { type: 'repeat', count, body, line, label };
+  }
+
+  // Число со знаком минус (минус лексер отдаёт отдельным токеном).
+  readNumber(message) {
+    let tok = this.consume();
+    let sign = 1;
+    if (tok && tok.type === 'minus') {
+      sign = -1;
+      tok = this.consume();
+    }
+    if (!tok || tok.type !== 'number') throw new Error(message);
+    return sign * tok.value;
+  }
+
+  // Тело цикла до закрывающего слова (кц) — общее для «пока», «N раз» и «для».
   parseBlockUntil(endWord) {
     const body = [];
     while (this.pos < this.tokens.length) {
@@ -1687,7 +1754,7 @@ class Interpreter {
         for (let rep = 0; rep < total; rep++) {
           yield* this.nextLineMarker(line);
           yield {
-            command: 'нц ' + total + ' раз (' + (rep + 1) + '/' + total + ')',
+            command: (stmt.label || 'нц ' + total + ' раз') + ' (' + (rep + 1) + '/' + total + ')',
             type: 'repeat',
             line,
             beforePos: { row: this.field.robot.row, col: this.field.robot.col }
@@ -1812,7 +1879,7 @@ function highlightCode() {
       const lowerWord = word.toLowerCase();
       if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(lowerWord)) {
         lineHtml += '<span class="cmd">' + word + '</span>';
-      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все', 'использовать', 'алг', 'нач', 'кон', 'раз', 'для', 'от', 'до'].includes(lowerWord)) {
+      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все', 'использовать', 'алг', 'нач', 'кон', 'раз', 'для', 'от', 'до', 'шаг'].includes(lowerWord)) {
         lineHtml += '<span class="kw">' + word + '</span>';
       } else if (lowerWord === 'робот') {
         lineHtml += '<span class="kw">' + word + '</span>';

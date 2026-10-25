@@ -189,6 +189,56 @@ try {
     }
   }
   console.log(`oge15: проверено ${variants} сгенерированных вариантов`);
+
+  // Парсер КуМира: «нц для» в частом случае (переменная не используется в теле).
+  const parseKum = (src) => new sb.__Parser(sb.__lex(src)).parseProgram();
+  const firstRepeat = (src) => {
+    const ast = parseKum(src);
+    const found = [];
+    const walk = (list) => {
+      for (const s of list || []) {
+        if (!s) continue;
+        if (s.type === 'repeat') found.push(s);
+        walk(s.body);
+        walk(s.thenBody);
+        walk(s.elseBody);
+      }
+    };
+    walk(ast);
+    return found[0];
+  };
+  const forCases = [
+    ['нц для i от 1 до 3\n  вправо\nкц', 3],
+    ['нц для i от 1 до 10 шаг 2\n  вниз\nкц', 5],
+    ['нц для i от 5 до 1\n  влево\nкц', 0],
+    ['нц для i от 3 до 1 шаг -1\n  вверх\nкц', 3],
+    ['нц для счётчик от 0 до 0\n  закрасить\nкц', 1],
+  ];
+  for (const [src, want] of forCases) {
+    try {
+      const node = firstRepeat(src);
+      if (!node) errors.push('oge15 парсер: «' + src.split('\n')[0] + '» не распознан как цикл');
+      else if (node.count !== want) {
+        errors.push(`oge15 парсер: «${src.split('\n')[0]}» — повторений ${node.count}, ожидалось ${want}`);
+      }
+    } catch (e) {
+      errors.push('oge15 парсер: «' + src.split('\n')[0] + '» — ' + e.message);
+    }
+  }
+  const forErrors = [
+    ['нц для от 1 до 3\n  вправо\nкц', /«от»/],
+    ['нц для i от 1 до 3\n  вправо i\nкц', /Переменная «i»/],
+    ['нц для i от 1 до n\n  вправо\nкц', /числами/],
+    ['нц для i от 1 до 3 шаг 0\n  вправо\nкц', /Шаг/],
+    ['нц для i от -2 до -5 шаг -1\n  вправо i\nкц', /Переменная/],
+  ];
+  for (const [src, re] of forErrors) {
+    let msg = null;
+    try { parseKum(src); } catch (e) { msg = e.message; }
+    if (!msg) errors.push('oge15 парсер: ожидалась ошибка для «' + src.split('\n')[0] + '»');
+    else if (!re.test(msg)) errors.push('oge15 парсер: неожиданная ошибка «' + msg + '»');
+  }
+  console.log('oge15: парсер «нц для» проверен');
 } catch (e) {
   errors.push('oge15: ' + e.message);
 }
