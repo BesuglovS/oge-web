@@ -164,6 +164,41 @@ for (const f of htmlFiles) {
   }
 }
 
+// 11. SEO-гигиена: язык, og:url = canonical, уникальные title/description,
+// description разумной длины, все адреса из sitemap существуют.
+{
+  const titles = new Map();
+  const descriptions = new Map();
+  for (const f of htmlFiles) {
+    const html = readFileSync(join(root, f), 'utf8');
+    if (!/<html[^>]*\blang="ru"/i.test(html)) errors.push(`${f}: нет lang="ru" у <html>`);
+
+    const canonical = (html.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
+    const ogUrl = (html.match(/<meta property="og:url" content="([^"]+)"/) || [])[1];
+    if (canonical && ogUrl && canonical !== ogUrl) errors.push(`${f}: og:url ≠ canonical`);
+    if (canonical && !ogUrl) errors.push(`${f}: нет og:url`);
+
+    const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
+    if (!title || !title.trim()) errors.push(`${f}: пустой <title>`);
+    else if (titles.has(title)) errors.push(`${f}: <title> совпадает с ${titles.get(title)}`);
+    else titles.set(title, f);
+
+    if (f !== '404.html' && f !== 'offline.html') {
+      const desc = (html.match(/<meta name="description" content="([^"]*)"/) || [])[1];
+      if (!desc) errors.push(`${f}: нет meta description`);
+      else if (desc.length < 50 || desc.length > 200) errors.push(`${f}: description ${desc.length} символов`);
+      else if (descriptions.has(desc)) errors.push(`${f}: description совпадает с ${descriptions.get(desc)}`);
+      else descriptions.set(desc, f);
+    }
+  }
+
+  for (const loc of locs) {
+    const rel = loc.replace(/^https:\/\/oge\.nayanovaacademy\.ru\/?/, '');
+    const file = rel === '' ? 'oge.html' : rel;
+    if (!existsSync(join(root, file))) errors.push(`sitemap.xml: ${loc} не существует (${file})`);
+  }
+}
+
 if (errors.length) {
   console.error('Найдено проблем: ' + errors.length);
   for (const e of errors) console.error(' - ' + e);
