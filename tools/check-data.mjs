@@ -46,6 +46,9 @@ function extractArray(html, marker) {
 try {
   const html = fs.readFileSync(path.join(root, 'oge16.html'), 'utf8');
   const tasks = extractArray(html, 'var tasks = [');
+  const ids16 = tasks.map((t) => t.id);
+  if (ids16.length !== 60) errors.push(`oge16: ожидалось 60 задач, найдено ${ids16.length}`);
+  if (new Set(ids16).size !== ids16.length) errors.push('oge16: дублирующиеся id задач');
   const cases = [];
   for (const t of tasks) {
     if (String(t.testData.input) !== t.tests[0].input ||
@@ -128,6 +131,38 @@ try {
   }
   console.log(`oge15: сверено ${checked} эталонов с e-*.json`);
 
+  // tasks.json: ровно 20 заданий с id 1..20.
+  const tasks15 = JSON.parse(fs.readFileSync(path.join(root, 'files/oge15/tasks.json'), 'utf8'));
+  const ids15 = Array.isArray(tasks15) ? tasks15.map((t) => t.id).sort((a, b) => a - b) : [];
+  const expectedIds = Array.from({ length: 20 }, (_, i) => i + 1);
+  if (JSON.stringify(ids15) !== JSON.stringify(expectedIds)) {
+    errors.push('oge15: tasks.json должен содержать 20 заданий с id 1..20');
+  }
+
+  // js/oge15-ref.js — автогенерация из .kum; иначе «оракул» генератора
+  // расходится с эталонными решениями.
+  const refSandbox = { window: {} };
+  vm.createContext(refSandbox);
+  vm.runInContext(fs.readFileSync(path.join(root, 'js/oge15-ref.js'), 'utf8'), refSandbox);
+  const REF = refSandbox.window.OGE15_REF || {};
+  for (let n = 1; n <= 20; n++) {
+    const id = String(n).padStart(2, '0');
+    const kumPath = path.join(root, `files/oge15/oge-15-2026-${id}.kum`);
+    const buf = fs.readFileSync(kumPath);
+    try {
+      new TextDecoder('utf-8', { fatal: true }).decode(buf);
+    } catch (e) {
+      errors.push(`oge15 ${id}.kum: не UTF-8`);
+    }
+    const kum = buf.toString('utf8').replace(/\r\n/g, '\n').replace(/\s+$/, '');
+    if (!REF[id]) {
+      errors.push(`oge15-ref.js: нет эталона ${id}`);
+    } else if (REF[id] !== kum) {
+      errors.push(`oge15-ref.js: ${id} расходится с .kum — запустите node tools/gen-oge15-ref.mjs`);
+    }
+  }
+  console.log('oge15: js/oge15-ref.js синхронен с 20 .kum');
+
   let variants = 0;
   for (let taskId = 1; taskId <= 20; taskId++) {
     for (let seed = 1; seed <= 25; seed++) {
@@ -200,6 +235,8 @@ try {
 try {
   const html = fs.readFileSync(path.join(root, 'oge12.html'), 'utf8');
   const tasks = extractArray(html, 'const tasks = [');
+  if (tasks.length !== 20) errors.push(`oge12: ожидалось 20 задач, найдено ${tasks.length}`);
+  if (new Set(tasks.map((t) => t.id)).size !== tasks.length) errors.push('oge12: дублирующиеся id задач');
   const zipPath = path.join(root, 'files/Задание11-12.zip');
   const bad = runPython(`
 import json, os, re, sys, zipfile

@@ -63,8 +63,9 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 `node tools/check-css.mjs` (баланс скобок, мёртвые правила, точные дубли, полностью
 перекрытые правила и реестр `tools/css-known-conflicts.json` — 41 известный конфликт
 page-секций, требующий визуального аудита),
-`node tools/check-data.mjs` (577 тестов задания 16, сверка `.kum`↔`e-*.json` и генератора
-задания 15, синхронность `data/oge7.json`↔`oge7.txt`, ответы задания 12 по архиву),
+`node tools/check-data.mjs` (577 тестов задания 16, 60 уникальных id; сверка `.kum`↔`e-*.json`
+и синхронность `js/oge15-ref.js`↔`.kum`, структура `tasks.json`; генератор задания 15;
+синхронность `data/oge7.json`↔`oge7.txt`; ответы задания 12 по архиву),
 `node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
 допуск, строки, запрещённый импорт, timeout, GET 405) и `php -l run_python.php git/index.php`;
 они же запускаются в CI (`.github/workflows/checks.yml`). Остальное — вручную (drag-drop, офлайн).
