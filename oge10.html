@@ -739,7 +739,7 @@
           <div class="task-text">${taskText}</div>
           <div class="answer-section">
             <label class="answer-label" for="answerInput">Ваш ответ:</label>
-            <input type="text" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
+            <input type="text" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off" spellcheck="false" autocapitalize="off" inputmode="numeric" pattern="[0-9]*">
             <div class="buttons">
               <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
               <button type="button" class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
