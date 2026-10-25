@@ -1,5 +1,7 @@
 # ОГЭ — Интерактивные задания по информатике
 
+[![checks](https://github.com/BesuglovS/oge-web/actions/workflows/checks.yml/badge.svg)](https://github.com/BesuglovS/oge-web/actions/workflows/checks.yml)
+
 Интерактивное веб-приложение для подготовки к Основному государственному
 экзамену (ОГЭ) по информатике. 14 интерактивных тренажёров с автоматической
 проверкой, теория по всем 16 номерам заданий, подсказки и разбор решений.
