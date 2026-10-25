@@ -98,6 +98,7 @@ oge{N}-t.html          # теория для каждого задания; oge1
 oge4-path.html         # доп. тренажёр: кратчайший путь в графе
 oge7.txt               # легаси-данные задания 7; data/oge7.json — JSON-версия (в синхроне)
 run_python.php         # Python-песочница (задание 16) — СМ. крит. правило 2
+php-fpm-opcache.ini    # opcache.revalidate_path=1 для симлинк-деплоя (копия серверной)
 assets/styles.css      # общий стиль (организован по секциям и постранично)
 js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
 js/code-editor.js      # overlay-редактор кода для задания 16 (подсветка, номера строк, отступы)
@@ -146,6 +147,14 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
    для отката. Первичная миграция real-dir `public` → `releases/initial-*` + симлинк.
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
+
+**⚠️ opcache и симлинк.** `public` — симлинк, а opcache по умолчанию
+(`revalidate_path=0`) запоминает realpath и после переключения релиза продолжает
+выполнять **старый** PHP-файл (`run_python.php`, `git/index.php`). На сервере
+установлен `/etc/php/8.1/fpm/conf.d/99-oge-opcache.ini` (`opcache.revalidate_path=1`,
+`revalidate_freq=0`), копия — `php-fpm-opcache.ini` в репозитории. `deploy.ps1`
+после деплоя сверяет заголовок `X-Sandbox-Build` с локальным хешем `run_python.php`
+и предупреждает, если PHP-код не обновился.
 
 **Откат:** `.\deploy.ps1 -Rollback` переключает `public` на предыдущий релиз,
 `.\deploy.ps1 -Rollback -Release <имя>` — на указанный. Переключение симлинка

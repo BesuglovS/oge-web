@@ -28,6 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
+// Отпечаток файла: deploy-скрипт сверяет его с локальным, чтобы поймать
+// ситуацию, когда PHP-FPM после переключения симлинка public продолжает
+// выполнять старый run_python.php (нужен opcache.revalidate_path=1).
+header('X-Sandbox-Build: ' . substr((string) hash_file('sha256', __FILE__), 0, 12));
 
 // ─── 2. Rate-limit по IP (файловый, flock) ───
 oge_rate_limit();

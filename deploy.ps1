@@ -334,4 +334,27 @@ if ($DryRun) {
   Write-Host "  Done." -ForegroundColor Green
 }
 
+# ─── 4. Проверка, что PHP-FPM выполняет именно задеплоенный run_python.php ───
+# opcache кэширует realpath симлинка: при revalidate_path=0 после переключения
+# public на новый релиз продолжает работать старый файл. run_python.php отдаёт
+# X-Sandbox-Build (первые 12 символов sha256 файла) — сверяем с локальным.
+$phpLocal = Join-Path $PSScriptRoot 'run_python.php'
+if (-not $DryRun -and (Test-Path $phpLocal)) {
+  $localHash = (Get-FileHash $phpLocal -Algorithm SHA256).Hash.ToLower().Substring(0, 12)
+  try {
+    $probe = Invoke-WebRequest -Method Post -Uri "https://$nginxSite/run_python.php" `
+      -Body @{ code = 'print(1)'; test_input = ''; expected_output = '1' } `
+      -UseBasicParsing -TimeoutSec 20
+    $remoteHash = $probe.Headers['X-Sandbox-Build']
+    if ($remoteHash -ne $localHash) {
+      Write-Host "WARNING: PHP-FPM выполняет другой run_python.php (build=$remoteHash, ожидался $localHash)." -ForegroundColor Yellow
+      Write-Host "         Установите php-fpm-opcache.ini (opcache.revalidate_path=1) и перезагрузите php8.1-fpm." -ForegroundColor Yellow
+    } else {
+      Write-Host "  PHP build matches ($localHash)." -ForegroundColor Gray
+    }
+  } catch {
+    Write-Host "  PHP build check skipped: $($_.Exception.Message)" -ForegroundColor DarkYellow
+  }
+}
+
 Write-Host "`n==> Deploy complete" -ForegroundColor Green
