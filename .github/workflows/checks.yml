@@ -30,6 +30,9 @@ jobs:
       - name: Data checks (tasks 1-10, 12, 15, 16)
         run: node tools/check-data.mjs
 
+      - name: Theory code examples
+        run: node tools/check-theory.mjs
+
       - name: Task 11 answers vs archive
         run: node tools/check-oge11-archive.mjs
 
