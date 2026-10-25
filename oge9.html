@@ -59,14 +59,14 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button
+      <button type="button"
         class="quick-nav-btn theory"
         onclick="location.href = 'oge9-t.html'"
         title="Теория"
       >
         📚
       </button>
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     
@@ -648,19 +648,19 @@
             <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="number" class="answer-input" id="answerInput" placeholder="?" min="0" autocomplete="off">
             <div class="buttons">
-              <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
-              <button class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
-              <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
-              <button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
+              <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
+              <button type="button" class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
+              <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
+              <button type="button" class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
             </div>
             <div class="result" id="result" role="status" aria-live="polite"></div>
           </div>
           <div class="vertex-controls" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
             <label class="answer-label">Проверка значений вершин:</label>
             <div class="buttons">
-              <button class="btn btn-check-values" onclick="checkVertexValues()">🔍 Проверить значения</button>
-              <button class="btn btn-show-values" onclick="showVertexValues()">👁 Показать ответ</button>
-              <button class="btn btn-clear-values" onclick="clearVertexValues()">🗑 Очистить</button>
+              <button type="button" class="btn btn-check-values" onclick="checkVertexValues()">🔍 Проверить значения</button>
+              <button type="button" class="btn btn-show-values" onclick="showVertexValues()">👁 Показать ответ</button>
+              <button type="button" class="btn btn-clear-values" onclick="clearVertexValues()">🗑 Очистить</button>
             </div>
           </div>
         `;

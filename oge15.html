@@ -70,9 +70,9 @@
         <option value="0">🎲 Случайная обстановка</option>
         <option value="-1">📁 Свой файл…</option>
       </select>
-      <button class="btn-sm load-task" onclick="loadCurrentTask()">📂 Загрузить обстановку</button>
+      <button type="button" class="btn-sm load-task" onclick="loadCurrentTask()">📂 Загрузить обстановку</button>
       <input type="file" id="customTaskInput" accept=".json" style="display:none">
-      <button class="btn-sm load-task" id="btnCustomLoad" onclick="loadCustomTask()" style="display:none">📁 Выбрать файл...</button>
+      <button type="button" class="btn-sm load-task" id="btnCustomLoad" onclick="loadCustomTask()" style="display:none">📁 Выбрать файл...</button>
     </div>
   </div>
   <div class="task-text" id="taskText">Выберите задание из списка и нажмите «Загрузить обстановку».</div>
@@ -102,22 +102,22 @@
 
     <div class="panel">
       <div class="control-bar">
-        <button class="btn-run"    id="btnRun"    title="Запустить (F9)">▶ Запустить</button>
-        <button class="btn-step"  id="btnStep"   title="Шаг (F8)">⏭ Шаг</button>
-        <button class="btn-pause" id="btnPause"  title="Пауза (Shift+F5)">⏸ Пауза</button>
-        <button class="btn-stop"  id="btnStop"   title="Стоп (Shift+F8)">⏹ Стоп</button>
-        <button class="btn-check" id="btnCheck"  title="Проверить закрашенные клетки">✓ Проверить</button>
+        <button type="button" class="btn-run"    id="btnRun"    title="Запустить (F9)">▶ Запустить</button>
+        <button type="button" class="btn-step"  id="btnStep"   title="Шаг (F8)">⏭ Шаг</button>
+        <button type="button" class="btn-pause" id="btnPause"  title="Пауза (Shift+F5)">⏸ Пауза</button>
+        <button type="button" class="btn-stop"  id="btnStop"   title="Стоп (Shift+F8)">⏹ Стоп</button>
+        <button type="button" class="btn-check" id="btnCheck"  title="Проверить закрашенные клетки">✓ Проверить</button>
         <div class="speed-control">
           <span>🐢</span>
           <input type="range" id="speedSlider" min="0" max="20" value="18" aria-label="Скорость выполнения программы">
           <span>🐇</span>
         </div>
         <span style="margin:0 4px;color:#ddd">|</span>
-        <button class="btn-run" id="btnSaveKum" title="Сохранить программу в файл .kum">💾 Сохранить .kum</button>
-        <button class="btn-step" id="btnLoadKum" title="Загрузить программу из файла .kum">📂 Загрузить .kum</button>
+        <button type="button" class="btn-run" id="btnSaveKum" title="Сохранить программу в файл .kum">💾 Сохранить .kum</button>
+        <button type="button" class="btn-step" id="btnLoadKum" title="Загрузить программу из файла .kum">📂 Загрузить .kum</button>
         <input type="file" id="kumFileInput" accept=".kum" style="display:none">
         <span style="margin:0 4px;color:#ddd">|</span>
-        <button class="btn-stop" id="btnResetProgram" title="Сбросить программу до базового шаблона">🔄 Сбросить программу</button>
+        <button type="button" class="btn-stop" id="btnResetProgram" title="Сбросить программу до базового шаблона">🔄 Сбросить программу</button>
       </div>
     </div>
 
@@ -138,14 +138,14 @@
       <div class="field-controls">
         <label>Строк: <input type="number" id="fieldRows" value="10" min="2" max="30"></label>
         <label>Столбцов: <input type="number" id="fieldCols" value="10" min="2" max="30"></label>
-        <button class="btn-sm primary" id="btnResize">Применить</button>
+        <button type="button" class="btn-sm primary" id="btnResize">Применить</button>
         <span style="margin:0 4px;color:#ddd">|</span>
-        <button class="btn-sm warning"  id="btnClearWalls">🧱 Очистить стены</button>
-        <button class="btn-sm danger"   id="btnClearPaint">🎨 Очистить закраску</button>
-        <button class="btn-sm secondary" id="btnResetRobot">🤖 Сбросить робота</button>
+        <button type="button" class="btn-sm warning"  id="btnClearWalls">🧱 Очистить стены</button>
+        <button type="button" class="btn-sm danger"   id="btnClearPaint">🎨 Очистить закраску</button>
+        <button type="button" class="btn-sm secondary" id="btnResetRobot">🤖 Сбросить робота</button>
         <span style="margin:0 4px;color:#ddd">|</span>
-        <button class="btn-sm success" id="btnSave">💾 Сохранить</button>
-        <button class="btn-sm primary" id="btnLoad">📂 Загрузить</button>
+        <button type="button" class="btn-sm success" id="btnSave">💾 Сохранить</button>
+        <button type="button" class="btn-sm primary" id="btnLoad">📂 Загрузить</button>
         <input type="file" id="fileInput" accept=".json" style="display:none">
       </div>
     </div>
@@ -160,14 +160,14 @@
     </div>
 <!-- Быстрая навигация -->
 <div class="quick-nav">
-  <button
+  <button type="button"
     class="quick-nav-btn theory"
     onclick="location.href = 'oge15-t.html'"
     title="Теория"
   >
     📚
   </button>
-  <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+  <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
     ↑
   </button>
 </div>

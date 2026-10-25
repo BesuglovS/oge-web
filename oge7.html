@@ -69,20 +69,20 @@
         </div>
 
         <div class="buttons">
-          <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
+          <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
             ✓ Проверить
           </button>
-          <button class="btn btn-clear" onclick="clearAssembly()">
+          <button type="button" class="btn btn-clear" onclick="clearAssembly()">
             ✕ Очистить
           </button>
-          <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
+          <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
             💡 Подсказка
           </button>
         </div>
       </div>
 
       <div class="score-board">
-        <button class="btn btn-reset" onclick="resetGame()">
+        <button type="button" class="btn btn-reset" onclick="resetGame()">
           🔄 Новое задание
         </button>
     </div>
@@ -96,8 +96,8 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button class="quick-nav-btn theory" onclick="location.href = 'oge7-t.html'" title="Теория">📚</button>
-      <button class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
+      <button type="button" class="quick-nav-btn theory" onclick="location.href = 'oge7-t.html'" title="Теория">📚</button>
+      <button type="button" class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
       let protocols = [];

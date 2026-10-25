@@ -732,13 +732,13 @@
             </div>
 
             <div class="buttons">
-              <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
+              <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
                 ✓ Проверить
               </button>
-              <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
+              <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
                 💡 Подсказка
               </button>
-              <button class="btn btn-diagram" onclick="highlightUnknown()">
+              <button type="button" class="btn btn-diagram" onclick="highlightUnknown()">
                 🎯 Показать на схеме
               </button>
             </div>
@@ -765,7 +765,7 @@
       </div>
 
       <div class="score-board">
-        <button class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">
+        <button type="button" class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">
           🔄 Новое задание
         </button>
     </div>
@@ -779,8 +779,8 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button class="quick-nav-btn theory" onclick="location.href = 'oge8-t.html'" title="Теория">📚</button>
-      <button class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
+      <button type="button" class="quick-nav-btn theory" onclick="location.href = 'oge8-t.html'" title="Теория">📚</button>
+      <button type="button" class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
       // Проверяем доступность DOM элементов

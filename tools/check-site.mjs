@@ -114,6 +114,56 @@ for (const f of ['404.html', 'offline.html']) {
   }
 }
 
+// 9. Разметка и доступность: один h1, уникальные id, alt у картинок,
+// type у кнопок, noopener у внешних ссылок в новой вкладке.
+const markupOnly = (html) => html
+  .replace(/<script[\s\S]*?<\/script>/gi, '')
+  .replace(/<style[\s\S]*?<\/style>/gi, '');
+for (const f of htmlFiles) {
+  const html = readFileSync(join(root, f), 'utf8');
+  const markup = markupOnly(html);
+
+  const h1 = (markup.match(/<h1[\s>]/gi) || []).length;
+  if (h1 !== 1) errors.push(`${f}: заголовков <h1> ${h1} (ожидался ровно один)`);
+
+  const ids = [...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+  const seen = new Set();
+  const dupes = new Set();
+  for (const id of ids) {
+    if (seen.has(id)) dupes.add(id);
+    else seen.add(id);
+  }
+  if (dupes.size) errors.push(`${f}: повторяющиеся id: ${[...dupes].join(', ')}`);
+
+  for (const m of markup.matchAll(/<img\b[^>]*>/gi)) {
+    if (!/\balt\s*=/.test(m[0])) errors.push(`${f}: <img> без alt: ${m[0].slice(0, 70)}`);
+  }
+  for (const m of html.matchAll(/<button\b[^>]*>/gi)) {
+    if (!/\btype\s*=/.test(m[0])) errors.push(`${f}: <button> без type: ${m[0].slice(0, 70)}`);
+  }
+  for (const m of markup.matchAll(/<a\b[^>]*target="_blank"[^>]*>/gi)) {
+    if (!/\brel\s*=\s*"[^"]*noopener/.test(m[0])) {
+      errors.push(`${f}: target="_blank" без rel="noopener": ${m[0].slice(0, 70)}`);
+    }
+  }
+}
+
+// 10. Подключение скриптов: аналитика везде, прогресс — на интерактивных.
+for (const f of htmlFiles) {
+  if (f === '404.html' || f === 'offline.html') continue;
+  const html = readFileSync(join(root, f), 'utf8');
+  for (const script of ['js/tracking-client.js', 'js/metrika.js']) {
+    if (!html.includes(script)) errors.push(`${f}: не подключён ${script}`);
+  }
+  const markup = markupOnly(html);
+  const interactive = /id="taskCard"/.test(markup) && !/-t\.html$/.test(f);
+  if (interactive) {
+    for (const script of ['js/progress.js', 'js/progress-client.js', 'js/progress-sync.js']) {
+      if (!html.includes(script)) errors.push(`${f}: интерактив без ${script}`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error('Найдено проблем: ' + errors.length);
   for (const e of errors) console.error(' - ' + e);

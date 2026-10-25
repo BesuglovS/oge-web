@@ -59,14 +59,14 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button
+      <button type="button"
         class="quick-nav-btn theory"
         onclick="location.href = 'oge6-t.html'"
         title="Теория"
       >
         📚
       </button>
-      <button class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     
@@ -478,10 +478,10 @@
             <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="text" class="answer-input" id="answerInput" placeholder="Введите ответ..." autocomplete="off">
             <div class="buttons">
-              <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
-              <button class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
-              <button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
-              <button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
+              <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
+              <button type="button" class="btn btn-next" onclick="nextTask()" aria-label="Новая задача">🔄 Новая задача</button>
+              <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button>
+              <button type="button" class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button>
             </div>
             <div class="result" id="result" role="status" aria-live="polite"></div>
           </div>
@@ -563,7 +563,7 @@ t = int(input())
         const pairsHTML = task.pairs
           .map(
             (p, idx) =>
-              `<button class="pair-btn" data-index="${idx}">(${p.s}, ${p.t})</button>`,
+              `<button type="button" class="pair-btn" data-index="${idx}">(${p.s}, ${p.t})</button>`,
           )
           .join("");
 
@@ -576,8 +576,8 @@ t = int(input())
         return `
           <p>Ниже приведена программа, записанная на языках Pascal и Python.</p>
           <div class="language-tabs">
-            <button class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
-            <button class="lang-tab" onclick="switchLanguage('python')">Python</button>
+            <button type="button" class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
+            <button type="button" class="lang-tab" onclick="switchLanguage('python')">Python</button>
           </div>
           <div class="code-wrapper">
             <div class="code-block active" id="code-pascal">${codeBlockPascal}</div>
@@ -657,8 +657,8 @@ A = int(input())
         return `
           <p>Ниже приведена программа, записанная на языках Pascal и Python.</p>
           <div class="language-tabs">
-            <button class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
-            <button class="lang-tab" onclick="switchLanguage('python')">Python</button>
+            <button type="button" class="lang-tab active" onclick="switchLanguage('pascal')">Pascal</button>
+            <button type="button" class="lang-tab" onclick="switchLanguage('python')">Python</button>
           </div>
           <div class="code-wrapper">
             <div class="code-block active" id="code-pascal">${codeBlockPascal}</div>
