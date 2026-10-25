@@ -578,10 +578,23 @@ function computeCanvasSize() {
   };
 }
 
+let canvasDpr = 1;
+let canvasLogicalW = 0;
+let canvasLogicalH = 0;
+
+function currentDpr() {
+  return Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+}
+
 function resizeCanvas() {
   const { w, h } = computeCanvasSize();
-  canvas.width = w;
-  canvas.height = h;
+  // Буфер канваса — в физических пикселях (чёткость на HiDPI), все
+  // координаты рисования остаются логическими (CSS-пиксели).
+  canvasDpr = currentDpr();
+  canvasLogicalW = w;
+  canvasLogicalH = h;
+  canvas.width = Math.round(w * canvasDpr);
+  canvas.height = Math.round(h * canvasDpr);
   canvas.style.width = w + 'px';
   canvas.style.maxWidth = '100%';
   // Высоту не задаём инлайном: CSS height:auto сохраняет пропорции при
@@ -632,13 +645,17 @@ function canvasToEdge(mx, my) {
 
 function drawField() {
   const { w, h } = computeCanvasSize();
-  if (canvas.width !== w || canvas.height !== h) resizeCanvas();
+  const dpr = currentDpr();
+  if (canvasLogicalW !== w || canvasLogicalH !== h || canvasDpr !== dpr) resizeCanvas();
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Все дальнейшие координаты — логические; трансформация переводит их
+  // в физические пиксели буфера.
+  ctx.setTransform(canvasDpr, 0, 0, canvasDpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
 
   // Background
   ctx.fillStyle = '#f5f5f5';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, w, h);
 
   // Draw row numbers (left side)
   ctx.fillStyle = '#999';
@@ -869,8 +886,12 @@ let isDragging = false;
 
 function getCanvasCoords(e) {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+  // Логический размер канваса (CSS-пиксели); rect может быть меньше из-за
+  // max-width:100% на узких экранах — учитываем масштаб.
+  const logicalW = canvasLogicalW || (canvas.width / canvasDpr) || rect.width;
+  const logicalH = canvasLogicalH || (canvas.height / canvasDpr) || rect.height;
+  const scaleX = rect.width ? logicalW / rect.width : 1;
+  const scaleY = rect.height ? logicalH / rect.height : 1;
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return {

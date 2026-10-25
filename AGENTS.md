@@ -107,9 +107,13 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 ## 🚀 Деплой (`deploy.ps1`)
 
 1. `.env` → SSH-переменные (`DEPLOY_SSH_USER=deploy`, ключ `../ssh-deploy.key`); `icacls` ключа.
-2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, документации, nginx-конфига, `p`, `tools`, `.github`, IDE/лог-файлов) → SSH от deploy-пользователя.
-3. Удалённо: удаляет всё **кроме `git/`** в целевой директории (и стирает старую `p/`, если осталась) → распаковка
-   (`tar -xzf - --no-overwrite-dir -m`, чтобы непривилегированный deploy не менял метаданные существующих каталогов `.` и `git/`).
+2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, документации, nginx-конфига, `p`, `tools`, `.github`, IDE/лог-файлов) → загрузка скрипта деплоя по SSH, затем tar на stdin.
+3. **Атомарный деплой:** новый релиз распаковывается в `releases/<timestamp>-<pid>`,
+   серверные файлы `git/` добавляются в него без перезаписи (`cp -a -n`), выполняется
+   smoke-check (`oge.html`, `sw.js`, `version.json`, `js/progress.js`, `js/oge15-ref.js`,
+   `files/*.zip`), затем `public` — **симлинк** на новый релиз (атомарная замена через
+   `mv -T`). При любой ошибке live не трогается; старые релизы хранятся (KEEP=5)
+   для отката. Первичная миграция real-dir `public` → `releases/initial-*` + симлинк.
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
 
@@ -118,8 +122,9 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
 `no-cache` для `/sw.js`, `version.json`, `manifest.json`, `styles.css` и JS-клиентов (включая
 `code-editor.js`, `oge15-gen.js`, `oge15-ref.js`), dotfiles deny **до** правил расширений,
 `limit_req zone=sandbox_oge rate=20r/s burst=60` на `run_python.php`.
-После распаковки deploy проверяет наличие `oge.html`, `sw.js`, `version.json`, `js/progress.js`,
-`js/oge15-ref.js` и `files/*.zip`.
+Деплой атомарный: `public` — симлинк на `releases/<ts>`; после сборки релиза
+проверяются `oge.html`, `sw.js`, `version.json`, `js/progress.js`, `js/oge15-ref.js`
+и `files/*.zip`. Откат — переключение симлинка на предыдущий релиз.
 
 ## 🔒 Безопасность
 
@@ -131,4 +136,6 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — намеренно задеплоен, не удалять без понимания.
 - `.env` и `C:\websites\na\ssh-deploy.key` — никогда не печатать/коммитить.
-- Деплой сохраняет только `git/`; всё остальное на сервере удаляется (включая рудименты `p/`).
+- Деплой атомарный: `public` — симлинк на `releases/<ts>`; серверные файлы `git/`
+  переносятся в новый релиз без перезаписи, старые релизы хранятся (5) для отката.
+  При ошибке распаковки/проверки live-версия не меняется.

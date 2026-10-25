@@ -135,17 +135,61 @@ $excludeArgs = @(
   '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 
-# После распаковки проверяем, что ключевые файлы на месте (smoke-check).
-$remoteCheck = "test -s `"${remotePath}/oge.html`" -a -s `"${remotePath}/sw.js`" -a -s `"${remotePath}/version.json`" -a -s `"${remotePath}/js/progress.js`" -a -s `"${remotePath}/js/oge15-ref.js`" && ls `"${remotePath}`"/files/*.zip >/dev/null 2>&1"
-$remoteTarCmd = "find `"${remotePath}`" -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf `"${remotePath}/p`" 2>/dev/null; tar -xzf - --no-overwrite-dir -m -C `"${remotePath}`" && $remoteCheck"
-$tarCmd   = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
-$sshCmd   = "ssh $sshPortArg $identityArg $remote `"$remoteTarCmd`""
+# После распаковки проверяем ключевые файлы (smoke-check).
+# Атомарный деплой: новый релиз распаковывается в releases/<ts>-$PID,
+# серверные файлы git/ переносятся без перезаписи, затем public —
+# симлинк на новый релиз (замена симлинка атомарна). Старые релизы
+# хранятся для отката (KEEP=5). При любой ошибке live не трогается.
+$remoteScriptTemplate = @'
+set -e
+ROOT="__REMOTE_PATH__"
+PARENT=$(dirname "$ROOT")
+RELEASES="$PARENT/releases"
+KEEP=5
+NAME="$(date +%Y%m%d-%H%M%S)-$$"
+NEW="$RELEASES/$NAME"
+trap 'rm -rf "$NEW"' EXIT
+mkdir -p "$RELEASES"
+rm -rf "$NEW"
+mkdir -p "$NEW"
+tar -xzf - -C "$NEW"
+if [ -d "$ROOT/git" ]; then
+  mkdir -p "$NEW/git"
+  cp -a -n "$ROOT/git/." "$NEW/git/"
+fi
+test -s "$NEW/oge.html"
+test -s "$NEW/sw.js"
+test -s "$NEW/version.json"
+test -s "$NEW/js/progress.js"
+test -s "$NEW/js/oge15-ref.js"
+ls "$NEW/files/"*.zip >/dev/null 2>&1
+if [ ! -L "$ROOT" ]; then
+  INITIAL="$RELEASES/initial-$$"
+  rm -rf "$INITIAL"
+  mv "$ROOT" "$INITIAL"
+  if ! ln -s "releases/$(basename "$INITIAL")" "$PARENT/.public-$$" || ! mv -T "$PARENT/.public-$$" "$ROOT"; then
+    rm -f "$PARENT/.public-$$"
+    mv "$INITIAL" "$ROOT"
+    exit 1
+  fi
+fi
+ln -s "releases/$NAME" "$PARENT/.public-$$"
+if ! mv -T "$PARENT/.public-$$" "$ROOT"; then
+  rm -f "$PARENT/.public-$$"
+  exit 1
+fi
+trap - EXIT
+ls -1dt "$RELEASES"/*/ 2>/dev/null | tail -n +$((KEEP+1)) | xargs -r rm -rf || true
+'@
+$remoteScript = $remoteScriptTemplate.Replace('__REMOTE_PATH__', $remotePath)
+$tarCmd = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
 
 Write-Host "`n==> Deploying to ${remote}:${remotePath} ..." -ForegroundColor Cyan
 
 try {
   if ($DryRun) {
-    Write-Host "  [DryRun] $tarCmd | $sshCmd" -ForegroundColor Yellow
+    Write-Host "  [DryRun] atomic deploy: новый релиз в releases/, smoke-check, атомарная замена public-симлинка" -ForegroundColor Yellow
+    Write-Host "  [DryRun] $tarCmd" -ForegroundColor Yellow
   } else {
     # Pack first (separately), so a tar failure is detected before transfer.
     Write-Host "  Archiving..." -ForegroundColor Gray
@@ -157,12 +201,30 @@ try {
       exit 1
     }
 
-    Write-Host "  Transferring..." -ForegroundColor Gray
-    cmd /c "$sshCmd < `"$tarFile`""
+    # Скрипт атомарного деплоя загружаем отдельно, затем запускаем его,
+    # подавая tar на stdin (bash читает скрипт из файла, tar — из stdin).
+    $scriptName = '/tmp/oge-deploy-' + [guid]::NewGuid().ToString('N') + '.sh'
+    $scriptFile = Join-Path $env:TEMP ("oge-deploy-" + [guid]::NewGuid().ToString('N') + ".sh")
+    [System.IO.File]::WriteAllText($scriptFile, $remoteScript.Replace("`r`n", "`n"), (New-Object System.Text.UTF8Encoding($false)))
+
+    Write-Host "  Uploading deploy script..." -ForegroundColor Gray
+    $uploadCmd = "ssh $sshPortArg $identityArg $remote `"cat > $scriptName`""
+    cmd /c "$uploadCmd < `"$scriptFile`""
+    $uploadExit = $LASTEXITCODE
+    Remove-Item $scriptFile -ErrorAction SilentlyContinue
+    if ($uploadExit -ne 0) {
+      Write-Host "Deploy script upload failed (exit code: $uploadExit)" -ForegroundColor Red
+      Remove-Item $tarFile -ErrorAction SilentlyContinue
+      exit 1
+    }
+
+    Write-Host "  Transferring (atomic swap)..." -ForegroundColor Gray
+    $runCmd = "ssh $sshPortArg $identityArg $remote `"bash $scriptName; rc=`$?; rm -f $scriptName; exit `$rc`""
+    cmd /c "$runCmd < `"$tarFile`""
     $sshExit = $LASTEXITCODE
     Remove-Item $tarFile -ErrorAction SilentlyContinue
     if ($sshExit -ne 0) {
-      Write-Host "Deploy failed (ssh exit code: $sshExit)" -ForegroundColor Red
+      Write-Host "Deploy failed (ssh exit code: $sshExit); live-версия не тронута" -ForegroundColor Red
       exit 1
     }
     Write-Host "  Done." -ForegroundColor Green
