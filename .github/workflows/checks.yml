@@ -24,6 +24,9 @@ jobs:
       - name: Static site checks
         run: node tools/check-site.mjs
 
+      - name: CSS audit
+        run: node tools/check-css.mjs
+
       - name: Data checks (tasks 7, 12, 15, 16)
         run: node tools/check-data.mjs
 

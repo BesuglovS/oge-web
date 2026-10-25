@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v14'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v15'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v13` → `v14`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v14` → `v15`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -60,6 +60,9 @@ php -S 127.0.0.1:8080        # локально с PHP (задание 16)
 
 Сборки нет. Есть статические проверки: `node tools/check-site.mjs` (ссылки, canonical,
 sw-ассеты вместе с 40 файлами задания 15, иконки, head-теги, BOM, sitemap, noindex),
+`node tools/check-css.mjs` (баланс скобок, мёртвые правила, точные дубли, полностью
+перекрытые правила и реестр `tools/css-known-conflicts.json` — 41 известный конфликт
+page-секций, требующий визуального аудита),
 `node tools/check-data.mjs` (577 тестов задания 16, сверка `.kum`↔`e-*.json` и генератора
 задания 15, синхронность `data/oge7.json`↔`oge7.txt`, ответы задания 12 по архиву),
 `node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
@@ -85,6 +88,9 @@ files/Задание11-12.zip            # скачиваемый архив д�
 files/oge15/                     # tasks.json + оge-15-2026-NN.json (поля) + e-NN.json (ожидаемые клетки) + .kum (решения)
 git/index.php                      # web-UI self-hosted git-репозиториев
 tools/check-site.mjs               # статические проверки (ссылки, SW, SEO, BOM)
+tools/check-css.mjs                # CSS-аудит + реестр известных конфликтов
+tools/css-utils.mjs                # общий парсер CSS
+tools/css-known-conflicts.json     # 41 известный конфликт page-секций
 tools/check-data.mjs               # проверки данных заданий 7/12/15/16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum

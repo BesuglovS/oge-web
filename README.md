@@ -65,6 +65,7 @@ php -S 127.0.0.1:8080
 
 ```bash
 node tools/check-site.mjs
+node tools/check-css.mjs    # CSS-аудит + известные конфликты
 node tools/check-data.mjs   # нужен python 3
 node tools/check-sandbox.mjs # нужен php + python 3
 php -l run_python.php
@@ -100,7 +101,8 @@ oge-web/
 ├── data/oge7.json        # Данные задания 7
 ├── files/                # Задание11-12.zip, files/oge15/ (данные задания 15)
 ├── git/index.php         # Web-UI self-hosted git-репозиториев
-├── tools/                # check-site.mjs, check-data.mjs, check-sandbox.mjs, gen-oge15-ref.mjs
+├── tools/                # check-site.mjs, check-css.mjs, check-data.mjs,
+│                         # check-sandbox.mjs, gen-oge15-ref.mjs, css-utils.mjs
 ├── manifest.json, sw.js  # PWA
 ├── offline.html, 404.html
 ├── deploy.ps1            # Деплой (tar + ssh)
