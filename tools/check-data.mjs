@@ -243,6 +243,80 @@ try {
   errors.push('oge15: ' + e.message);
 }
 
+/* ─────────── 2b. Задание 6: ответы генератора ─────────── */
+// Проверяем не «те же функции», а независимую семантику из условия задачи:
+// для подсчётов — пересчёт по парам, для параметра A — минимальность /
+// максимальность найденного A относительно условия программы.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge6.html'), 'utf8');
+  const from = html.indexOf('const taskGenerators = [');
+  const to = html.indexOf('let currentTask = null;', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const sandbox = { Math, console };
+  vm.createContext(sandbox);
+  vm.runInContext(html.slice(from, to) + '\n; globalThis.__gens = taskGenerators;', sandbox);
+  const gens = sandbox.__gens;
+
+  const countYes = (task) => {
+    const p = task.pairs;
+    if (task.condition === 'mod') return p.filter((x) => x.s % task.divisor === x.t).length;
+    if (task.condition === 'or') return p.filter((x) => Math.abs(x.s) < task.threshold || Math.abs(x.t) < task.threshold).length;
+    if (task.condition === 'and') return p.filter((x) => x.s > task.thresholdS && x.t < task.thresholdT).length;
+    throw new Error('неизвестное условие ' + task.condition);
+  };
+  const yesAt4 = (pairs, A) => pairs.filter((x) => x.s >= A && x.t < 1).length;
+  const yesAt5 = (pairs, A) => pairs.filter((x) => x.s < A || x.t < A).length;
+
+  let sixTasks = 0;
+  for (const gen of gens) {
+    for (let k = 0; k < 60; k++) {
+      let task = null;
+      for (let attempt = 0; attempt < 30 && !task; attempt++) task = gen.generate();
+      if (!task) continue;
+      sixTasks++;
+      const label = `oge6 (${task.taskType}/${task.condition})`;
+
+      if (!Array.isArray(task.pairs) || task.pairs.length !== 10) {
+        errors.push(`${label}: ожидалось 10 пар, найдено ${task.pairs && task.pairs.length}`);
+        continue;
+      }
+      for (const p of task.pairs) {
+        if (!Number.isInteger(p.s) || !Number.isInteger(p.t)) errors.push(`${label}: нецелые данные (${p.s}, ${p.t})`);
+      }
+
+      if (task.taskType === 'count') {
+        const yes = countYes(task);
+        const want = task.countType === 'no' ? 10 - yes : yes;
+        if (task.answer !== want) {
+          errors.push(`${label}: ответ ${task.answer}, по условию ${want}`);
+        }
+        if (task.answer < 0 || task.answer > 10) errors.push(`${label}: ответ вне 0..10 (${task.answer})`);
+      } else {
+        const fn = task.condition === 'and' ? yesAt4 : yesAt5;
+        const at = Number(task.answer);
+        if (!Number.isInteger(at)) {
+          errors.push(`${label}: ответ не целый (${task.answer})`);
+          continue;
+        }
+        if (fn(task.pairs, at) !== task.targetYes) {
+          errors.push(`${label}: при A=${at} YES ${fn(task.pairs, at)}, ожидалось ${task.targetYes}`);
+        }
+        if (task.findType === 'min') {
+          if (fn(task.pairs, at - 1) === task.targetYes) {
+            errors.push(`${label}: A=${at} не наименьшее (A=${at - 1} тоже подходит)`);
+          }
+        } else if (fn(task.pairs, at + 1) === task.targetYes) {
+          errors.push(`${label}: A=${at} не наибольшее (A=${at + 1} тоже подходит)`);
+        }
+      }
+    }
+  }
+  if (sixTasks === 0) errors.push('oge6: генератор не выдал ни одной задачи');
+  console.log(`oge6: проверено ${sixTasks} сгенерированных задач (ответы сверены по условию)`);
+} catch (e) {
+  errors.push('oge6: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -366,4 +440,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 7, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 6, 7, 12, 15 и 16 согласованы');
