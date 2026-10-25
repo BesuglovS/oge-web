@@ -695,6 +695,74 @@ try {
   errors.push('oge5: ' + e.message);
 }
 
+/* ─────────── 2g. Задание 1: размер текста в кодировке ─────────── */
+// Из текста задачи берутся цена символа (бит/байт), изменение размера и
+// список слов. Проверяется: (длина ответа + 2) × цена = изменение, ответ
+// есть в списке, и других слов с такой же длиной нет.
+try {
+  const html = fs.readFileSync(path.join(root, 'oge1.html'), 'utf8');
+  const from = html.indexOf('const encodings = [');
+  const to = html.indexOf('function checkAnswer() {', from);
+  if (from < 0 || to < 0) throw new Error('не найден блок генераторов');
+  const sb = { Math, console, renderTask(t) { this.text = t; }, hideHintsAndSolution() {} };
+  vm.createContext(sb);
+  vm.runInContext(html.slice(from, to) + '\n; globalThis.__generate = generateTask; globalThis.__current = () => currentTask;', sb);
+  vm.runInContext('renderTask = function (t) { globalThis.__text = t; };', sb);
+
+  let oneTasks = 0;
+  let checkedBits = 0;
+  for (let k = 0; k < 250; k++) {
+    sb.__text = null;
+    sb.__generate();
+    const task = sb.__current();
+    const text = sb.__text;
+    if (!task || !text) { errors.push('oge1: задача не сгенерирована'); continue; }
+    oneTasks++;
+
+    const bitsMatch = text.match(/каждый символ кодируется <span class="highlight">(\d+) битами<\/span>/);
+    const deltaMatch = text.match(/оказался на <span class="highlight">(\d+) (бит|байт)/);
+    const listMatch = text.match(/как ([^,«»]+(?:, [^,«»]+)*), известны многим/);
+    if (!bitsMatch || !deltaMatch || !listMatch) {
+      errors.push('oge1: не удалось разобрать текст задачи');
+      continue;
+    }
+    const bits = Number(bitsMatch[1]);
+    const delta = Number(deltaMatch[1]);
+    const deltaUnit = deltaMatch[2];
+    const items = listMatch[1].split(',').map((s) => s.trim()).filter(Boolean);
+    const answer = String(task.answer);
+
+    // Цена одного символа в тех же единицах, что и изменение размера.
+    const perChar = deltaUnit === 'бит' ? bits : bits / 8;
+    if (!Number.isFinite(perChar) || perChar <= 0) {
+      errors.push(`oge1: некорректная цена символа (${bits} бит, ${deltaUnit})`);
+      continue;
+    }
+    if (deltaUnit === 'бит') checkedBits++;
+    const charCount = delta / perChar;
+    if (!Number.isInteger(charCount)) {
+      errors.push(`oge1: изменение ${delta} ${deltaUnit} не кратно цене символа ${perChar}`);
+      continue;
+    }
+    if (charCount !== answer.length + 2) {
+      errors.push(`oge1: ${charCount} символов, а «${answer}» + «, » даёт ${answer.length + 2}`);
+    }
+    if (!items.includes(answer)) {
+      errors.push(`oge1: ответа «${answer}» нет в списке (${items.join(', ')})`);
+    }
+    const sameLength = items.filter((it) => it !== answer && it.length === answer.length);
+    if (sameLength.length) {
+      errors.push(`oge1: ответ неоднозначен — «${sameLength.join('», «')}» такой же длины`);
+    }
+    if (task.unit !== deltaUnit) {
+      errors.push(`oge1: единица в задаче (${task.unit}) и в тексте (${deltaUnit}) расходятся`);
+    }
+  }
+  console.log(`oge1: проверено ${oneTasks} задач (в битах: ${checkedBits})`);
+} catch (e) {
+  errors.push('oge1: ' + e.message);
+}
+
 /* ─────────── 3. Задание 7 ─────────── */
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
@@ -818,4 +886,4 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 1, 3, 4, 5, 6, 7, 10, 12, 15 и 16 согласованы');
