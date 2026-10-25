@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 16 ОГЭ - Программирование</title>
@@ -671,7 +672,7 @@
           baseText: '7-ричной',
           conditionText: 'оканчивается на 0 или 3',
           conditionHighlight: '0 или 3',
-          testData: { input: '3\n7\n10\n14', expected: '10.333333333333334' },
+          testData: { input: '3\n7\n10\n14', expected: '10.33' },
           hint: 'Проверяем if x % 7 == 0 or x % 7 == 3, среднее округляем: round(s / k, 2).',
           solutionCode:'n = int(input())\ns = 0\nk = 0\nfor i in range(n):\n    x = int(input())\n    if x % 7 == 0 or x % 7 == 3:\n        s += x\n        k += 1\nif k > 0:\n    print(round(s / k, 2))\nelse:\n    print("Нет")',
           tests: [
@@ -1704,7 +1705,7 @@
           '<span class="code-editor-note" id="editorNote"></span>' +
           '<span class="code-editor-cursor" id="editorPosition">1:1</span>' +
           '<span class="code-editor-hint"><span>Esc — выйти</span><span>Tab/Shift+Tab — отступ</span><span>Ctrl+/ — комментарий</span><span>Ctrl+D — дублировать</span><span>Ctrl+Enter — запустить</span></span>' +
-          '</div><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Новая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
+          '</div><div class="buttons"><button class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button class="btn btn-next-task" onclick="nextTask()" aria-label="Следующая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (window.OgeCodeEditor) {
@@ -1714,6 +1715,7 @@
       }
 
       function runCode() {
+        if (isRunning) return;
         var code = document.getElementById("codeEditor").value.trim();
         var runBtn = document.getElementById("runBtn");
         var os = document.getElementById("outputSection");
@@ -1736,6 +1738,7 @@
         var passed = 0;
         var failed = 0;
         var currentTest = 0;
+        var rateLimitRetries = 0;
 
         function runNextTest() {
           if (currentTest >= tests.length) {
@@ -1788,6 +1791,22 @@
             })
             .then(function (d) {
               if (d && d.rateLimited) {
+                // Повторяем тот же тест пару раз: школьный NAT часто даёт
+                // кратковременные 429 при одновременных прогонах.
+                if (rateLimitRetries < 2) {
+                  rateLimitRetries++;
+                  var loading = document.querySelector(
+                    ".output-section.loading .output-content",
+                  );
+                  if (loading) {
+                    loading.textContent =
+                      "Песочница занята, повторяем тест " +
+                      testNum +
+                      " через 1,5 с…";
+                  }
+                  setTimeout(runNextTest, 1500);
+                  return;
+                }
                 isRunning = false;
                 runBtn.disabled = false;
                 runBtn.innerHTML =
@@ -1801,6 +1820,7 @@
                   " тестов.</div>";
                 return;
               }
+              rateLimitRetries = 0;
               var ok = false;
               var output = "";
               if (d.error) {
@@ -1823,6 +1843,22 @@
               if (ok) passed++;
               else failed++;
               currentTest++;
+              if (!ok && d.error) {
+                // Ошибка компиляции/выполнения не зависит от входных данных:
+                // остальные тесты дадут тот же результат, не гоняем их.
+                for (var rest = currentTest; rest < tests.length; rest++) {
+                  results.push({
+                    num: rest + 1,
+                    input: tests[rest].input,
+                    expected: tests[rest].expected,
+                    got: "— (прогон остановлен: ошибка в программе)",
+                    passed: false,
+                    skipped: true,
+                  });
+                  failed++;
+                }
+                currentTest = tests.length;
+              }
               runNextTest();
             })
             .catch(function (err) {
@@ -1972,6 +2008,9 @@
       genTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

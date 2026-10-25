@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 4 ОГЭ - Анализ простейшей модели объектов</title>
@@ -292,6 +293,9 @@
       ];
 
       let currentTask = null;
+      // Ставка сохраняется один раз на задачу, чтобы повторные «Проверить»
+      // не накручивали attempts и события Метрики.
+      let taskSaved = false;
 
       // Создание матрицы смежности из списка рёбер
       function createMatrix(edges, vertices) {
@@ -362,7 +366,7 @@
       }
 
       // Найти все пути (для отображения в решении)
-      function findAllPaths(matrix, vertices, start, end, maxPaths = 10) {
+      function findAllPaths(matrix, vertices, start, end, maxPaths = 500) {
         const paths = [];
         const startIdx = vertices.indexOf(start);
         const endIdx = vertices.indexOf(end);
@@ -398,6 +402,7 @@
 
       // Генерация задачи
       function generateTask() {
+        taskSaved = false;
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge4'); }
         // Тип задачи (с промежуточным пунктом или без) выбирается один раз
         const wantsViaPoint = Math.random() > 0.5;
@@ -454,14 +459,14 @@
               vertices,
               startVertex,
               viaVertex,
-              30,
+              500,
             );
             const pathsFromVia = findAllPaths(
               matrix,
               vertices,
               viaVertex,
               endVertex,
-              30,
+              500,
             );
 
             task = {
@@ -502,7 +507,7 @@
                   vertices,
                   startVertex,
                   endVertex,
-                  30,
+                  500,
                 ),
                 bestDistance: result.distance,
               },
@@ -534,7 +539,7 @@
             viaVertex: null,
             answer: result.distance,
             solutionPaths: {
-              allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 30),
+              allPaths: findAllPaths(matrix, vertices, startVertex, endVertex, 500),
               bestDistance: result.distance,
             },
           };
@@ -584,7 +589,7 @@
             ${matrixHTML}
           </div>
           <div class="answer-section">
-            <label class="answer-label">Ваш ответ:</label>
+            <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="number" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
             <div class="buttons">
               <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
@@ -633,19 +638,22 @@
       function checkAnswer() {
         const input = document.getElementById("answerInput");
         const result = document.getElementById("result");
-        const userAnswer = parseInt(input.value.trim(), 10);
-
-        if (isNaN(userAnswer)) {
+        const rawAnswer = input.value.trim();
+        if (!/^\d+$/.test(rawAnswer)) {
           input.focus();
           return;
         }
+        const userAnswer = parseInt(rawAnswer, 10);
 
         if (userAnswer === currentTask.answer) {
           input.classList.remove("incorrect");
           input.classList.add("correct");
           result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge4', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge4', 1); };
+          if (!taskSaved) {
+            taskSaved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge4', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge4', 1); }
+          }
           result.innerHTML = `
             <span class="result-icon">🎉</span>
             ПРАВИЛЬНО! Отличная работа!
@@ -802,6 +810,9 @@
       generateTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

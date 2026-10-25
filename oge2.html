@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 2 ОГЭ - Декодирование сообщений</title>
@@ -68,7 +69,7 @@
         </div>
 
         <div class="answer-section">
-          <label class="answer-label">Введите расшифрованное сообщение:</label>
+          <label class="answer-label" for="answerInput">Введите расшифрованное сообщение:</label>
           <input
             type="text"
             class="answer-input"
@@ -777,6 +778,9 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

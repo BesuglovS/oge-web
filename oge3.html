@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 3 ОГЭ - Истинность составного высказывания</title>
@@ -500,9 +501,13 @@
       ];
 
       let currentTask = null;
+      // Ставка сохраняется один раз на задачу, чтобы повторные «Проверить»
+      // не накручивали attempts и события Метрики.
+      let taskSaved = false;
 
       // Генерация задачи
       function generateTask() {
+        taskSaved = false;
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge3'); }
         const template =
           taskTemplates[Math.floor(Math.random() * taskTemplates.length)];
@@ -529,7 +534,7 @@
             <div class="condition-box">${currentTask.condition}</div>
           </div>
           <div class="answer-section">
-            <label class="answer-label">Ваш ответ:</label>
+            <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="number" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
             <div class="buttons">
               <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
@@ -575,12 +580,12 @@
       function checkAnswer() {
         const input = document.getElementById("answerInput");
         const result = document.getElementById("result");
-        const userAnswer = parseInt(input.value.trim(), 10);
-
-        if (isNaN(userAnswer)) {
+        const rawAnswer = input.value.trim();
+        if (!/^\d+$/.test(rawAnswer)) {
           input.focus();
           return;
         }
+        const userAnswer = parseInt(rawAnswer, 10);
 
         const correctAnswer = getCorrectAnswer();
 
@@ -588,8 +593,11 @@
           input.classList.remove("incorrect");
           input.classList.add("correct");
           result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge3', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge3', 1); };
+          if (!taskSaved) {
+            taskSaved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge3', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge3', 1); }
+          }
           result.innerHTML = `
             <span class="result-icon">🎉</span>
             ПРАВИЛЬНО! Отличная работа!
@@ -655,6 +663,9 @@
       generateTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

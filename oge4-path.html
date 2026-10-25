@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 4 ОГЭ — Поиск кратчайшего пути в графе</title>
@@ -199,9 +200,13 @@
         showMessage("");
         vertexCount = size;
 
-        labels = [];
-        for (let i = 0; i < vertexCount; i++) {
-          labels.push(DEFAULT_LABELS[i] || String.fromCharCode(65 + i));
+        // Сохраняем введённые обозначения, если размер графа не изменился
+        // (подсказка обещает, что значения сохраняются).
+        if (labels.length !== vertexCount) {
+          labels = [];
+          for (let i = 0; i < vertexCount; i++) {
+            labels.push(DEFAULT_LABELS[i] || String.fromCharCode(65 + i));
+          }
         }
 
         renderLabelEditor();
@@ -678,6 +683,9 @@
       })();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

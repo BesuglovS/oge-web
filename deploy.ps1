@@ -129,42 +129,48 @@ $excludeArgs = @(
   '--exclude=refactoring.md',
   '--exclude=analysis-*.md',
   '--exclude=README.md',
-  '--exclude=p',
+  '--exclude=./p',
+  '--exclude=tools',
+  '--exclude=.github',
   '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 
-$remoteTarCmd = "find `"${remotePath}`" -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf `"${remotePath}/p`" 2>/dev/null; tar -xzf - --no-overwrite-dir -m -C `"${remotePath}`"; test -s `"${remotePath}/oge.html`""
+# После распаковки проверяем, что ключевые файлы на месте (smoke-check).
+$remoteCheck = "test -s `"${remotePath}/oge.html`" -a -s `"${remotePath}/sw.js`" -a -s `"${remotePath}/version.json`" -a -s `"${remotePath}/js/progress.js`" -a -s `"${remotePath}/js/oge15-ref.js`" && ls `"${remotePath}`"/files/*.zip >/dev/null 2>&1"
+$remoteTarCmd = "find `"${remotePath}`" -mindepth 1 -maxdepth 1 ! -name 'git' -exec rm -rf {} + 2>/dev/null; rm -rf `"${remotePath}/p`" 2>/dev/null; tar -xzf - --no-overwrite-dir -m -C `"${remotePath}`" && $remoteCheck"
 $tarCmd   = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
 $sshCmd   = "ssh $sshPortArg $identityArg $remote `"$remoteTarCmd`""
 
 Write-Host "`n==> Deploying to ${remote}:${remotePath} ..." -ForegroundColor Cyan
 
-if ($DryRun) {
-  Write-Host "  [DryRun] $tarCmd | $sshCmd" -ForegroundColor Yellow
-} else {
-  # Pack first (separately), so a tar failure is detected before transfer.
-  Write-Host "  Archiving..." -ForegroundColor Gray
-  $tarFile = Join-Path $env:TEMP ("oge-deploy-" + [guid]::NewGuid().ToString('N') + ".tar.gz")
-  cmd /c "tar czf `"$tarFile`" $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "  tar failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
+try {
+  if ($DryRun) {
+    Write-Host "  [DryRun] $tarCmd | $sshCmd" -ForegroundColor Yellow
+  } else {
+    # Pack first (separately), so a tar failure is detected before transfer.
+    Write-Host "  Archiving..." -ForegroundColor Gray
+    $tarFile = Join-Path $env:TEMP ("oge-deploy-" + [guid]::NewGuid().ToString('N') + ".tar.gz")
+    cmd /c "tar czf `"$tarFile`" $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "  tar failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
+      Remove-Item $tarFile -ErrorAction SilentlyContinue
+      exit 1
+    }
+
+    Write-Host "  Transferring..." -ForegroundColor Gray
+    cmd /c "$sshCmd < `"$tarFile`""
+    $sshExit = $LASTEXITCODE
     Remove-Item $tarFile -ErrorAction SilentlyContinue
-    exit 1
+    if ($sshExit -ne 0) {
+      Write-Host "Deploy failed (ssh exit code: $sshExit)" -ForegroundColor Red
+      exit 1
+    }
+    Write-Host "  Done." -ForegroundColor Green
   }
-
-  Write-Host "  Transferring..." -ForegroundColor Gray
-  cmd /c "$sshCmd < `"$tarFile`""
-  $sshExit = $LASTEXITCODE
-  Remove-Item $tarFile -ErrorAction SilentlyContinue
-  if ($sshExit -ne 0) {
-    Write-Host "Deploy failed (ssh exit code: $sshExit)" -ForegroundColor Red
-    exit 1
-  }
-  Write-Host "  Done." -ForegroundColor Green
+} finally {
+  # Чистим временный каталог маркера даже при ошибке деплоя.
+  Remove-Item -Recurse -Force $markerDir -ErrorAction SilentlyContinue
 }
-
-# --- Clean up the temporary marker directory ---
-Remove-Item -Recurse -Force $markerDir -ErrorAction SilentlyContinue
 
 # ─── 3. Deploy nginx config ───
 $nginxSite = 'oge.nayanovaacademy.ru'

@@ -25,7 +25,7 @@ oge-web/
 ├── manifest.json, sw.js       # PWA (манифест + service worker)
 ├── offline.html, 404.html     # Офлайн-страница и страница 404
 ├── deploy.ps1                 # Деплой (tar + ssh)
-├── oge.nayanovaacademy.ru     # nginx-конфиг (untracked)
+├── oge.nayanovaacademy.ru     # nginx-конфиг (tracked, деплоится отдельно)
 ├── LICENSE                    # MIT
 └── README.md
 ```
@@ -66,14 +66,17 @@ oge.html (навигация + прогресс)
 | `nayanova-progress:outbox` | Очередь неотправленных записей | `js/progress-client.js` |
 
 `TASKS` в `js/progress.js` и `js/progress-sync.js` содержит 14 интерактивных
-заданий (13.1/13.2/14 исключены — у них нет интерактивных страниц). Серверный
-синк (`progress-client`/`progress-sync`/`tracking-client`) подключён только на
-`oge.html`; на страницах заданий используется локальный `js/progress.js`.
+заданий (13.1/13.2/14 исключены — у них нет интерактивных страниц). Скрипты
+`progress-client.js`/`progress-sync.js` подключены на всех интерактивных
+страницах, `tracking-client.js` — на всех страницах (включая теорию, чтобы
+портал видел активность). `OGEProgress.save()` диспатчит событие
+`oge-progress-saved`, и `progress-sync.js` сразу отправляет прогресс на портал,
+не дожидаясь возврата на лендинг.
 
 ## PWA
 
 - `manifest.json` подключается на всех страницах (`<link rel="manifest">`).
-- `sw.js` (`CACHE_NAME='oge-web-v11'`) кэширует статику и данные задания 15;
+- `sw.js` (`CACHE_NAME='oge-web-v12'`) кэширует статику и данные задания 15;
   HTML — network-first с фолбэком на кэш и `offline.html`; остальные ассеты —
   cache-first. Большие архивы (`files/*.zip`) не кэшируются.
 - При изменении списка ассетов поднять `CACHE_NAME`.
@@ -100,12 +103,13 @@ HTTP POST (code, test_input, expected_output)
     ▼
 run_python.php
     ├── POST-only, лимит 20 КБ кода, timeout 5 с
-    ├── rate-limit: nginx limit_req zone=sandbox_oge + файловый (flock) по IP
+    ├── rate-limit: nginx `20r/s burst=60` + файловый 600/мин по IP
     ├── pre-фильтры: белый список модулей + запрет опасных конструкций
     ├── wrapper: exec(compile(base64-код)) в namespace с усечёнными builtins
     │   (нет open/eval/exec/getattr; import — только по белому списку)
     ├── изоляция процесса: root-хелпер /usr/local/sbin/sandbox-python.run
-    │   (unshare net+pid, пользователь sandbox, prlimit RLIMIT_AS/CPU)
+    │   (unshare net+pid, пользователь sandbox, prlimit RLIMIT_AS/CPU);
+    │   без хелпера на Linux — fail-closed (503)
     └── JSON-ответ {output, expected, matched, error, timeout}
 ```
 

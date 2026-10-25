@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 10 ОГЭ - Системы счисления</title>
@@ -138,6 +139,9 @@
       }
 
       let currentTask = null;
+      // Ставка сохраняется один раз на задачу, чтобы повторные «Проверить»
+      // не накручивали attempts и события Метрики.
+      let taskSaved = false;
 
       // Типы задач
       const taskTypes = [
@@ -157,6 +161,7 @@
       ];
 
       function generateTask() {
+        taskSaved = false;
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge10'); }
         const taskType =
           taskTypes[Math.floor(Math.random() * taskTypes.length)];
@@ -733,7 +738,7 @@
           </div>
           <div class="task-text">${taskText}</div>
           <div class="answer-section">
-            <label class="answer-label">Ваш ответ:</label>
+            <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="text" class="answer-input" id="answerInput" placeholder="Введите число..." autocomplete="off">
             <div class="buttons">
               <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
@@ -771,8 +776,11 @@
           input.classList.remove("incorrect");
           input.classList.add("correct");
           result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge10', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge10', 1); };
+          if (!taskSaved) {
+            taskSaved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge10', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge10', 1); }
+          }
           result.innerHTML = "✅ Правильно! Отличная работа!";
         } else {
           input.classList.remove("correct");
@@ -817,6 +825,9 @@
       generateTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

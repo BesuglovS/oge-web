@@ -201,6 +201,17 @@ h3 {
   filter: brightness(1.1);
 }
 
+/* Если в карточке две ссылки (теория + доп. тренажёр) — скругляем только
+   нижнюю, у верхней убираем радиус и делаем разделитель. */
+.task-card .theory-link { border-radius: 0; }
+.task-card .theory-link:last-child { border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
+.task-card .theory-link + .theory-link {
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  margin-top: 0;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+}
+
 .task-number {
   width: 70px;
   height: 70px;

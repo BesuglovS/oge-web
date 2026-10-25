@@ -259,6 +259,8 @@
         else if (stmt.elseBody) { for (const s of stmt.elseBody) exec(s); }
       } else if (stmt.type === 'while') {
         while (evalCond(stmt.condition, f)) { for (const s of stmt.body) exec(s); }
+      } else if (stmt.type === 'repeat') {
+        for (let n = 0; n < stmt.count; n++) { for (const s of stmt.body) exec(s); }
       }
     }
     for (const s of ast) exec(s);

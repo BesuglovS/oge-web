@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Тренажёр — Задание 15 ОГЭ (Исполнитель Робот)</title>
@@ -108,7 +109,7 @@
         <button class="btn-check" id="btnCheck"  title="Проверить закрашенные клетки">✓ Проверить</button>
         <div class="speed-control">
           <span>🐢</span>
-          <input type="range" id="speedSlider" min="0" max="20" value="10">
+          <input type="range" id="speedSlider" min="0" max="20" value="18" aria-label="Скорость выполнения программы">
           <span>🐇</span>
         </div>
         <span style="margin:0 4px;color:#ddd">|</span>
@@ -122,7 +123,7 @@
 
     <div class="panel">
       <h2>📋 Лог выполнения</h2>
-      <div class="log-area" id="logArea">▶ Готов к работе. Нажмите «Загрузить обстановку» для выбранного задания.</div>
+      <div class="log-area" id="logArea" role="log" aria-live="polite">▶ Готов к работе. Нажмите «Загрузить обстановку» для выбранного задания.</div>
     </div>
   </div>
 
@@ -131,8 +132,8 @@
     <div class="panel">
       <h2>🎯 Поле</h2>
       <div class="field-container">
-        <canvas id="fieldCanvas"></canvas>
-        <div class="field-info" id="fieldInfo">Клик по границе — стена / убрать стену. Клик по клетке — закрасить. Перетащите робота (🔵) мышкой.</div>
+        <canvas id="fieldCanvas" tabindex="0" role="application" aria-label="Поле Робота. С клавиатуры: стрелки — переместить робота, пробел — закрасить клетку."></canvas>
+        <div class="field-info" id="fieldInfo">Клик по границе — стена / убрать стену. Клик по клетке — закрасить. Перетащите робота (🔵) мышкой. С клавиатуры: Tab к полю, стрелки — робот, пробел — закрасить.</div>
       </div>
       <div class="field-controls">
         <label>Строк: <input type="number" id="fieldRows" value="10" min="2" max="30"></label>
@@ -267,10 +268,12 @@ function loadCurrentTask() {
     .then(data => {
       // Stop any running program
       if (typeof stopProgram === 'function') stopProgram();
+      lastRun = null;
 
       field.fromJSON(data);
       field.defaultRobot = { ...field.robot };
       field.targetPainted.clear();
+      field.rewarded = false;
 
       // Load target (expected) painted cells
       return fetch(eUrl)
@@ -343,6 +346,8 @@ function loadRandomTask() {
 
 function applyGeneratedVariant(taskId, variant) {
   if (typeof stopProgram === 'function') stopProgram();
+  lastRun = null;
+  field.rewarded = false;
 
   field.fromJSON({
     rows: variant.rows,
@@ -387,6 +392,8 @@ document.getElementById('customTaskInput').addEventListener('change', (e) => {
     try {
       const data = JSON.parse(ev.target.result);
       if (typeof stopProgram === 'function') stopProgram();
+      lastRun = null;
+      field.rewarded = false;
       field.fromJSON(data);
       field.defaultRobot = { ...field.robot };
       field.targetPainted.clear();
@@ -418,6 +425,7 @@ const field = {
   defaultRobot: { row: 4, col: 4 },
   defaultPainted: new Set(), // исходные закрашенные клетки задачи (для сброса между запусками)
   paintedByProgram: false,   // были ли клетки закрашены выполнением программы (а не кликами)
+  rewarded: false,           // прогресс за эту обстановку уже начислен
 
   reset() {
     this.walls.clear();
@@ -433,9 +441,9 @@ const field = {
     for (const key of this.walls) {
       const [type, pos] = key.split(':');
       const [rr, cc] = pos.split(',').map(Number);
+      // Валидны h:0..rows-1 и v:0..cols-1 (включая внешние границы),
+      // поэтому удаляем только реально вышедшие за новые размеры.
       if (rr >= r || cc >= c) this.walls.delete(key);
-      if (type === 'h' && rr >= r - 1) this.walls.delete(key);
-      if (type === 'v' && cc >= c - 1) this.walls.delete(key);
     }
     for (const key of this.painted) {
       const [rr, cc] = key.split(',').map(Number);
@@ -448,10 +456,13 @@ const field = {
   },
 
   hasWall(row, col, dir) {
-    if (dir === 'up')    return row > 0 && this.walls.has(`h:${row-1},${col}`);
-    if (dir === 'down')  return row < this.rows && this.walls.has(`h:${row},${col}`);
-    if (dir === 'left')  return col > 0 && this.walls.has(`v:${row},${col-1}`);
-    if (dir === 'right') return col < this.cols && this.walls.has(`v:${row},${col}`);
+    // Граница поля ведёт себя как стена: иначе «справа свободно» на последнем
+    // столбце истинно и корректный цикл «пока … свободно» выводит робота
+    // за пределы поля с ошибкой.
+    if (dir === 'up')    return row <= 0 || this.walls.has(`h:${row-1},${col}`);
+    if (dir === 'down')  return row >= this.rows - 1 || this.walls.has(`h:${row},${col}`);
+    if (dir === 'left')  return col <= 0 || this.walls.has(`v:${row},${col-1}`);
+    if (dir === 'right') return col >= this.cols - 1 || this.walls.has(`v:${row},${col}`);
     return false;
   },
 
@@ -891,6 +902,30 @@ canvas.addEventListener('touchmove', (e) => {
 }, { passive: false });
 canvas.addEventListener('touchend', (e) => { e.preventDefault(); handleMouseUp(); }, { passive: false });
 
+// Клавиатурное управление полем (доступность): стрелки — робот,
+// пробел/Enter — закрасить клетку под роботом.
+canvas.addEventListener('keydown', (e) => {
+  const dirs = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right'
+  };
+  if (dirs[e.key]) {
+    e.preventDefault();
+    const res = field.moveRobot(dirs[e.key]);
+    if (res.error) {
+      log('💥 ' + res.error, 'err');
+    } else {
+      log('🤖 Робот: (' + (field.robot.row + 1) + ', ' + (field.robot.col + 1) + ')', 'info');
+    }
+    drawField();
+    return;
+  }
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    field.togglePainted(field.robot.row, field.robot.col);
+    drawField();
+  }
+});
+
 function handleMouseDown(mx, my) {
   const cell = canvasToCell(mx, my);
   const edge = canvasToEdge(mx, my);
@@ -957,6 +992,14 @@ document.getElementById('btnResize').addEventListener('click', () => {
     field.resize(rows, cols);
     if (field.robot.row >= rows) field.robot.row = rows - 1;
     if (field.robot.col >= cols) field.robot.col = cols - 1;
+    // Стартовая позиция тоже должна остаться в новых границах, иначе
+    // «Сбросить робота»/запуск выставят его за пределы поля.
+    field.defaultRobot.row = Math.min(field.defaultRobot.row, rows - 1);
+    field.defaultRobot.col = Math.min(field.defaultRobot.col, cols - 1);
+    // После изменения размера эталон задания уже не соответствует полю.
+    field.targetPainted.clear();
+    field.rewarded = false;
+    lastRun = null;
     drawField();
   }
 });
@@ -976,8 +1019,12 @@ document.getElementById('btnSave').addEventListener('click', () => {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'robot-field.json';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  // Отзываем не сразу: Firefox может отменить загрузку, если освободить
+  // URL синхронно после click().
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 document.getElementById('btnLoad').addEventListener('click', () => {
   document.getElementById('fileInput').click();
@@ -989,7 +1036,13 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
   reader.onload = (ev) => {
     try {
       const data = JSON.parse(ev.target.result);
+      if (typeof stopProgram === 'function') stopProgram(true);
+      lastRun = null;
+      field.rewarded = false;
       field.fromJSON(data);
+      // Своё поле не имеет эталона: старая цель от предыдущего задания
+      // иначе осталась бы и «Проверить» сравнивало бы с чужим эталоном.
+      field.targetPainted.clear();
       drawField();
       document.getElementById('fieldRows').value = field.rows;
       document.getElementById('fieldCols').value = field.cols;
@@ -1015,7 +1068,7 @@ function computeIndentedCode(code) {
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
-    const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+    const firstWord = firstWordMatch ? firstWordMatch[0].toLowerCase() : '';
 
     // Handle dedent BEFORE this line
     if (['кон', 'кц', 'все', 'иначе'].includes(firstWord)) {
@@ -1128,8 +1181,10 @@ document.getElementById('btnSaveKum').addEventListener('click', () => {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'program.kum';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   log('✓ Программа сохранена в файл program.kum', 'ok');
 });
 
@@ -1188,11 +1243,20 @@ function lex(code) {
       continue;
     }
 
-    // Word
+    // Word (регистр не важен: КуМир регистронезависим, поэтому храним
+    // значение в нижнем регистре, а исходное написание остаётся в `raw`).
     if (/[\u0400-\u04FFа-яa-z]/.test(ch)) {
       let word = '';
       while (i < len && /[\u0400-\u04FFа-яa-z]/.test(code[i])) { word += code[i]; i++; }
-      tokens.push({ type: 'word', value: word });
+      tokens.push({ type: 'word', value: word.toLowerCase(), raw: word });
+      continue;
+    }
+
+    // Number (для конструкции «нц N раз»)
+    if (/[0-9]/.test(ch)) {
+      let num = '';
+      while (i < len && /[0-9]/.test(code[i])) { num += code[i]; i++; }
+      tokens.push({ type: 'number', value: parseInt(num, 10) });
       continue;
     }
 
@@ -1246,7 +1310,7 @@ parseProgram() {
         return { type: 'command', value: tok.value, line: this.line };
       }
       // Skip unrecognized words (но запоминаем для диагностики)
-      const structural = ['использовать', 'робот', 'алг', 'нач', 'кон', 'то', 'иначе', 'все', 'кц', 'нц', 'если', 'пока'];
+      const structural = ['использовать', 'робот', 'алг', 'нач', 'кон', 'то', 'иначе', 'все', 'кц', 'нц', 'если', 'пока', 'раз', 'для', 'от', 'до', 'шаг'];
       if (!structural.includes(tok.value.toLowerCase())) {
         this.unknown.push(tok.value);
       }
@@ -1261,21 +1325,46 @@ parseProgram() {
   parseWhile() {
     const line = this.line;
     this.consume(); // нц
+    const next = this.peek();
+    if (next && next.type === 'word' && next.value === 'для') {
+      throw new Error('Конструкция «нц для» пока не поддерживается — используйте «нц пока» или «нц N раз»');
+    }
+    if (next && next.type === 'number') {
+      this.consume(); // число
+      const raz = this.consume();
+      if (!raz || raz.type !== 'word' || raz.value !== 'раз') {
+        throw new Error('После числа в «нц N раз» ожидается слово «раз»');
+      }
+      const count = next.value;
+      if (!(count >= 0 && count <= 10000)) {
+        throw new Error('Недопустимое число повторений: ' + count);
+      }
+      const body = this.parseBlockUntil('кц');
+      return { type: 'repeat', count, body, line };
+    }
     const word = this.consume(); // пока
-    if (!word || word.value !== 'пока') throw new Error('Ожидается "пока" после "нц"');
+    if (!word || word.value !== 'пока') {
+      throw new Error('Ожидается «пока», «N раз» или «для» после «нц»');
+    }
     const condition = this.parseCondition();
     if (!condition) throw new Error('Ожидается условие после "пока"');
+    const body = this.parseBlockUntil('кц');
+    return { type: 'while', condition, body, line };
+  }
+
+  // Тело цикла до закрывающего слова (кц) — общее для «пока» и «N раз».
+  parseBlockUntil(endWord) {
     const body = [];
     while (this.pos < this.tokens.length) {
       const next = this.peek();
-      if (next && next.type === 'word' && next.value === 'кц') {
-        this.consume(); // кц
+      if (next && next.type === 'word' && next.value === endWord) {
+        this.consume();
         break;
       }
       const stmt = this.parseStatement();
       if (stmt) body.push(stmt);
     }
-    return { type: 'while', condition, body, line };
+    return body;
   }
 
   parseIf() {
@@ -1571,6 +1660,24 @@ class Interpreter {
         }
         break;
       }
+      case 'repeat': {
+        const line = stmt.line || 0;
+        const total = Math.max(0, stmt.count | 0);
+        for (let rep = 0; rep < total; rep++) {
+          yield* this.nextLineMarker(line);
+          yield {
+            command: 'нц ' + total + ' раз (' + (rep + 1) + '/' + total + ')',
+            type: 'repeat',
+            line,
+            beforePos: { row: this.field.robot.row, col: this.field.robot.col }
+          };
+          for (const s of stmt.body) {
+            yield* this.executeStatement(s);
+            if (!this.alive) return;
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -1625,6 +1732,10 @@ class Interpreter {
 }
 
 let interpreter = null;
+// Снимок последнего прогона: нужен, чтобы «Стоп» не обнулял информацию о
+// незавершённой программе (иначе зацикленную программу можно «сдать»,
+// остановив её перед проверкой).
+let lastRun = null;
 
 // =====================================================
 // 7. CODE EDITOR & SYNTAX HIGHLIGHTING
@@ -1677,13 +1788,14 @@ function highlightCode() {
         i++;
       }
 
-      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(word)) {
+      const lowerWord = word.toLowerCase();
+      if (['вверх', 'вниз', 'влево', 'вправо', 'закрасить'].includes(lowerWord)) {
         lineHtml += '<span class="cmd">' + word + '</span>';
-      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все', 'использовать', 'алг', 'нач', 'кон'].includes(word)) {
+      } else if (['нц', 'кц', 'пока', 'если', 'то', 'иначе', 'все', 'использовать', 'алг', 'нач', 'кон', 'раз', 'для', 'от', 'до'].includes(lowerWord)) {
         lineHtml += '<span class="kw">' + word + '</span>';
-      } else if (word === 'Робот') {
+      } else if (lowerWord === 'робот') {
         lineHtml += '<span class="kw">' + word + '</span>';
-      } else if (['сверху', 'снизу', 'слева', 'справа'].includes(word)) {
+      } else if (['сверху', 'снизу', 'слева', 'справа'].includes(lowerWord)) {
         // Look ahead for свободно
         let j = i;
         while (j < len && (code[j] === ' ' || code[j] === '\t')) j++;
@@ -1692,7 +1804,7 @@ function highlightCode() {
           nextWord += code[j];
           j++;
         }
-        if (nextWord === 'свободно' || nextWord === 'стена') {
+        if (nextWord.toLowerCase() === 'свободно' || nextWord.toLowerCase() === 'стена') {
           // Skip whitespace (do NOT add to lineHtml — space goes inside the cond span)
           while (i < len && (code[i] === ' ' || code[i] === '\t')) { i++; }
           let nw = '';
@@ -1756,7 +1868,7 @@ function getIndentForNewLine(code, lineIdx) {
   // Check if previous line's first word increases indent
   const trimmed = prevLine.trim();
   const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
-  const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+  const firstWord = firstWordMatch ? firstWordMatch[0].toLowerCase() : '';
   if (['нач', 'нц', 'если', 'иначе'].includes(firstWord)) {
     indent += 2;
   }
@@ -1766,6 +1878,8 @@ function getIndentForNewLine(code, lineIdx) {
 // Auto-snap cursor forward past leading whitespace (indentation)
 function snapCursorFromIndent() {
   const pos = textarea.selectionStart;
+  // Не трогаем выделение: Ctrl+A / Shift+Home не должны схлопываться.
+  if (textarea.selectionStart !== textarea.selectionEnd) return;
   const code = textarea.value;
   // Find start of current line
   let lineStart = pos;
@@ -1894,7 +2008,7 @@ textarea.addEventListener('input', () => {
     const line = lines[currentLineIdx];
     const trimmed = line.trim();
     const firstWordMatch = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
-    const firstWord = firstWordMatch ? firstWordMatch[0] : '';
+    const firstWord = firstWordMatch ? firstWordMatch[0].toLowerCase() : '';
     if (['кц', 'все', 'иначе', 'кон'].includes(firstWord)) {
       autoIndent();
     }
@@ -2053,6 +2167,56 @@ acList.addEventListener('mouseover', (e) => {
   autocompleteSelectedIndex = parseInt(item.dataset.index);
 });
 
+// Сдвиг отступа выделенных строк (Tab/Shift+Tab по выделению)
+function shiftBlockIndent(direction) {
+  const value = textarea.value;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+
+  let blockEnd = end;
+  if (end > lineStart && value.charAt(end - 1) === '\n') {
+    blockEnd = end - 1;
+  } else {
+    const nl = value.indexOf('\n', end);
+    blockEnd = nl === -1 ? value.length : nl;
+  }
+  if (blockEnd <= lineStart) return;
+
+  const block = value.substring(lineStart, blockEnd);
+  const lines = block.split('\n');
+  const shifted = lines.map(function (line) {
+    if (line.trim() === '') return line;
+    if (direction > 0) return '  ' + line;
+    if (line.indexOf('  ') === 0) return line.slice(2);
+    if (line.charAt(0) === '\t') return line.slice(1);
+    return line.replace(/^ +/, '');
+  }).join('\n');
+
+  if (shifted === block) return;
+
+  textarea.value = value.substring(0, lineStart) + shifted + value.substring(blockEnd);
+  textarea.selectionStart = lineStart;
+  textarea.selectionEnd = lineStart + shifted.length;
+  highlightCode();
+  updateLineNumbers();
+}
+
+// Shift+Tab без выделения: убрать один шаг отступа в начале строки
+function removeIndentAtCaret() {
+  const value = textarea.value;
+  const pos = textarea.selectionStart;
+  const lineStart = value.lastIndexOf('\n', pos - 1) + 1;
+  const match = value.substring(lineStart).match(/^( {1,2}|\t)/);
+  if (!match) return;
+  const cut = match[0].length;
+  textarea.value = value.substring(0, lineStart) + value.substring(lineStart + cut);
+  const caret = Math.max(lineStart, pos - cut);
+  textarea.selectionStart = textarea.selectionEnd = caret;
+  highlightCode();
+  updateLineNumbers();
+}
+
 // Tab support + autocomplete
 textarea.addEventListener('keydown', (e) => {
   // Autocomplete navigation
@@ -2104,7 +2268,7 @@ textarea.addEventListener('keydown', (e) => {
     // Check if current line increases indent
     const trimmed = code.substring(lineStart).trim();
     const firstWord = trimmed.match(/^[\u0400-\u04FFа-яa-z]+/);
-    const fw = firstWord ? firstWord[0] : '';
+    const fw = firstWord ? firstWord[0].toLowerCase() : '';
     if (['нач', 'нц', 'если', 'иначе'].includes(fw)) {
       indent += 2;
     }
@@ -2184,9 +2348,18 @@ textarea.addEventListener('keydown', (e) => {
     e.preventDefault();
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
-    textarea.selectionStart = textarea.selectionEnd = start + 2;
-    highlightCode();
+    if (start !== end) {
+      // Выделение: сдвигаем блок, а не затираем его.
+      shiftBlockIndent(e.shiftKey ? -1 : 1);
+    } else if (e.shiftKey) {
+      removeIndentAtCaret();
+    } else {
+      textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 2;
+      highlightCode();
+      updateLineNumbers();
+    }
+    return;
   }
   if (e.key === 'F9') { e.preventDefault(); runProgram(); }
   if (e.key === 'F8' && !e.shiftKey) { e.preventDefault(); stepProgram(); }
@@ -2279,6 +2452,7 @@ function runProgram() {
 
   // Сброс к исходному состоянию задачи перед новым запуском:
   // возвращаем робота и закрашенные клетки к эталону из файла обстановки.
+  lastRun = null;
   field.robot = { ...field.defaultRobot };
   field.painted = new Set(field.defaultPainted);
   field.paintedByProgram = false;
@@ -2302,11 +2476,29 @@ function runProgram() {
 
 function startAutoRun() {
   stopAutoRun();
+  const startedAt = Date.now();
+  // Лимит по времени масштабируется со скоростью анимации: при медленном
+  // шаге (1200 мс) даже длинная корректная программа успевает завершиться,
+  // а бесконечный цикл всё равно обрывается.
+  const maxRunMs = Math.max(30000, 250 * getSpeed());
   runInterval = setInterval(() => {
+    if (interpreter && !interpreter.finished && !interpreter.paused &&
+        Date.now() - startedAt > maxRunMs) {
+      interpreter.error = 'Превышено время выполнения: возможно, бесконечный цикл';
+      interpreter.stop();
+      stopAutoRun();
+      updateButtons();
+      lastRun = { finished: true, error: interpreter.error };
+      log('❌ ' + interpreter.error, 'err');
+      drawField();
+      setCurrentLine(0);
+      return;
+    }
     if (!interpreter || interpreter.finished || interpreter.paused) {
   if (interpreter && interpreter.finished) {
         stopAutoRun();
         updateButtons();
+        lastRun = { finished: true, error: interpreter.error || null };
         if (interpreter.error) {
           log('Ошибка: ' + interpreter.error, 'err');
         } else {
@@ -2336,6 +2528,7 @@ function startAutoRun() {
     if (result.done || interpreter.finished) {
       stopAutoRun();
       updateButtons();
+      lastRun = { finished: true, error: interpreter.error || null };
       if (interpreter.error) {
         log('❌ Ошибка: ' + interpreter.error, 'err');
       } else {
@@ -2377,6 +2570,7 @@ function stepProgram() {
       log('Ошибка синтаксиса: ' + err.message, 'err');
       return;
     }
+    lastRun = null;
     field.robot = { ...field.defaultRobot };
     field.painted = new Set(field.defaultPainted);
     field.paintedByProgram = false;
@@ -2422,6 +2616,7 @@ function stepProgram() {
   }
 
   if (result.done || interpreter.finished) {
+    lastRun = { finished: true, error: interpreter.error || null };
     if (interpreter.error) {
       log('❌ Ошибка: ' + interpreter.error, 'err');
     } else {
@@ -2436,32 +2631,40 @@ function stepProgram() {
   updateRobotInputs();
 }
 
-function stopProgram() {
+function stopProgram(silent) {
   stopAutoRun();
   const wasRunning = !!(interpreter && !interpreter.finished);
   if (interpreter) {
+    // Сохраняем состояние прогона ДО обнуления: проверка должна знать,
+    // что программа была прервана вручную (иначе зацикленную программу
+    // можно «сдать», нажав «Стоп» перед проверкой).
+    lastRun = wasRunning
+      ? { finished: false, error: interpreter.error || null, interrupted: true }
+      : { finished: true, error: interpreter.error || null, interrupted: false };
     interpreter.stop();
     interpreter = null;
   }
   field.robot = { ...field.defaultRobot };
   drawField();
   updateButtons();
-  if (wasRunning) log('⏹ Выполнение остановлено', 'info');
+  if (wasRunning && !silent) log('⏹ Выполнение остановлено', 'info');
 }
 
 // =====================================================
 // CHECK PROGRAM — compare painted cells with target
 // =====================================================
 function checkProgram() {
-  // Запоминаем состояние выполнения до остановки: проверка должна учитывать
-  // не только закраску, но и то, что программа завершилась без ошибок
-  // (Робот не разрушился, не зациклился и не была прервана вручную).
+  // Снимок последнего прогона: либо живой интерпретатор, либо состояние,
+  // сохранённое stopProgram() (после ручной остановки).
   const prev = interpreter;
-  const hadError = !!(prev && prev.error);
-  const wasUnfinished = !!(prev && !prev.finished);
+  const snapshot = prev
+    ? { finished: !!prev.finished, error: prev.error || null }
+    : lastRun;
+  const hadError = !!(snapshot && snapshot.error);
+  const wasUnfinished = !!(snapshot && !snapshot.finished);
 
-  // Stop any running program
-  stopProgram();
+  // Stop any running program (без лишней записи в лог о проверке)
+  stopProgram(true);
 
   if (field.targetPainted.size === 0) {
     log('⚠ Нет эталонных клеток для проверки. Загрузите обстановку с эталоном.', 'err');
@@ -2519,8 +2722,11 @@ function checkProgram() {
       log('⚠ Программа ещё не завершена (остановлена или приостановлена). Дайте ей завершиться и проверьте снова.', 'err');
     } else {
       log('🎉 Все клетки закрашены верно, программа завершилась без ошибок!', 'ok');
-      if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge15', 1, 1); }
-      if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge15', 1); }
+      if (!field.rewarded) {
+        field.rewarded = true;
+        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge15', 1, 1); }
+        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge15', 1); }
+      }
     }
   } else {
     log('💡 Итог: ' + correct.size + ' / ' + targetPainted.size + ' клеток совпадают', 'info');
@@ -2626,6 +2832,9 @@ function scrollToTop() {
 init();
   if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

@@ -33,6 +33,13 @@ var OGEProgress = (function() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch(e) { /* storage full */ }
+    // Сигнал для progress-sync: прогресс нужно отправить на портал сразу,
+    // не дожидаясь следующего открытия лендинга.
+    try {
+      if (typeof document !== 'undefined' && typeof CustomEvent === 'function') {
+        document.dispatchEvent(new CustomEvent('oge-progress-saved', { detail: { taskId: taskId } }));
+      }
+    } catch(e) { /* старые окружения */ }
     return data[taskId];
   }
 
@@ -106,7 +113,7 @@ var OGEProgress = (function() {
       '</div>' +
       '<div class="progress-score">' +
         level.emoji + ' ' + level.name + ' — ' + total + ' ' +
-        plural(total, 'балл', 'балла', 'баллов') + ' (' + pct + '% заданий пройдено)' +
+        plural(total, 'задание', 'задания', 'заданий') + ' пройдено (' + pct + '%)' +
       '</div>';
   }
 

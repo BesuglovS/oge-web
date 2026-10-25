@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Составление URL-адреса</title>
@@ -446,6 +447,9 @@
         el.className = `path-part ${part.type}`;
         el.textContent = part.text;
         el.draggable = true;
+        el.tabIndex = 0;
+        el.setAttribute("role", "button");
+        el.setAttribute("aria-label", part.text + " — нажмите Enter, чтобы переместить");
         el.dataset.text = part.text;
         el.dataset.type = part.type;
         el.dataset.id = "part-" + partIdCounter++;
@@ -459,24 +463,28 @@
         el.addEventListener("touchmove", handleTouchMove, { passive: false });
         el.addEventListener("touchend", handleTouchEnd);
 
-        // Click event
-        el.addEventListener("click", handleClick);
+        // Click и клавиатура (Enter/Space) — перенос между пулом и зоной
+        el.addEventListener("click", (e) => togglePart(e.target));
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            togglePart(el);
+          }
+        });
 
         return el;
       }
 
-      // Обработка клика
-      function handleClick(e) {
-        const el = e.target;
+      // Перенос части между пулом и зоной сборки (клик или клавиатура)
+      function togglePart(el) {
         const pool = document.getElementById("partsPool");
         const zone = document.getElementById("assemblyZone");
-
+        if (!el || !pool || !zone) return;
         if (el.parentElement === pool) {
           zone.appendChild(el);
         } else {
           pool.appendChild(el);
         }
-
         updateResultDisplay();
       }
 
@@ -793,6 +801,9 @@
       loadData();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

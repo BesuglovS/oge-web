@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 12 ОГЭ - Файловая система</title>
@@ -48,7 +49,7 @@
         </div>
         <div class="task-text" id="taskText"></div>
         <div class="answer-section">
-          <label class="answer-label">Ваш ответ:</label>
+          <label class="answer-label" for="answerInput">Ваш ответ:</label>
           <input
             type="text"
             class="answer-input"
@@ -285,6 +286,27 @@
       let currentTask = null;
       let answeredTasks = new Set();
 
+      // Решённые задачи переживают перезагрузку: храним id задач
+      // (индексы после перемешивания нестабильны).
+      const SOLVED_KEY = 'oge12-solved';
+      function loadSolvedIds() {
+        try {
+          const raw = localStorage.getItem(SOLVED_KEY);
+          const ids = raw ? JSON.parse(raw) : [];
+          return Array.isArray(ids) ? ids : [];
+        } catch (e) { return []; }
+      }
+      function saveSolvedIds(ids) {
+        try { localStorage.setItem(SOLVED_KEY, JSON.stringify(ids)); } catch (e) { /* storage */ }
+      }
+      function rememberSolved(taskId) {
+        const ids = loadSolvedIds();
+        if (ids.indexOf(taskId) === -1) {
+          ids.push(taskId);
+          saveSolvedIds(ids);
+        }
+      }
+
       // Приводим ответ к единому виду: регистр, «ё»→«е», пробелы и обрамляющие знаки
       function normalizeAnswer(value) {
         return (value || "")
@@ -371,6 +393,8 @@
           if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge12', 1); }
           result.innerHTML = "✅ Правильно! Отличная работа!";
           answeredTasks.add(currentTaskIndex);
+          rememberSolved(currentTask.id);
+          updateSolvedCounter();
         } else {
           input.className = "answer-input incorrect";
           result.className = "result incorrect";
@@ -426,10 +450,19 @@
 
       // Инициализация: перемешиваем задачи и показываем первую случайную
       shuffledTasks = shuffleArray([...tasks]);
+      // Восстанавливаем решённые задачи (по id, а не по индексам).
+      const savedSolved = loadSolvedIds();
+      answeredTasks = new Set();
+      for (let si = 0; si < shuffledTasks.length; si++) {
+        if (savedSolved.indexOf(shuffledTasks[si].id) !== -1) answeredTasks.add(si);
+      }
       if (typeof trackTaskStart === 'function') { trackTaskStart('oge12'); }
       renderTask(getRandomUnansweredIndex());
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

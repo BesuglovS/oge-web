@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 6 ОГЭ - Анализ программы с формальным исполнителем</title>
@@ -400,9 +401,13 @@
       }
 
       let currentTask = null;
+      // Ставка сохраняется один раз на задачу, чтобы повторные «Проверить»
+      // не накручивали attempts и события Метрики.
+      let taskSaved = false;
 
       // Генерация задачи
       function generateTask() {
+        taskSaved = false;
     if (typeof trackTaskStart === 'function') { trackTaskStart('oge6'); }
         let task = null;
         let attempts = 0;
@@ -470,7 +475,7 @@
           </div>
           <div class="task-text">${taskHTML}</div>
           <div class="answer-section">
-            <label class="answer-label">Ваш ответ:</label>
+            <label class="answer-label" for="answerInput">Ваш ответ:</label>
             <input type="text" class="answer-input" id="answerInput" placeholder="Введите ответ..." autocomplete="off">
             <div class="buttons">
               <button class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">✓ Проверить</button>
@@ -685,8 +690,11 @@ A = int(input())
           input.classList.remove("incorrect");
           input.classList.add("correct");
           result.className = "result correct"
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge6', 1, 1); }
-        if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge6', 1); };
+          if (!taskSaved) {
+            taskSaved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge6', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge6', 1); }
+          }
           result.innerHTML = `
             <span class="result-icon">🎉</span>
             ПРАВИЛЬНО! Отличная работа!
@@ -1114,6 +1122,9 @@ A = int(input())
       generateTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

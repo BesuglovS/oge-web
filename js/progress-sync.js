@@ -72,4 +72,15 @@
   } else {
     sync();
   }
+
+  // Прогресс сохраняется и на страницах заданий (OGEProgress.save) —
+  // отправляем его на портал сразу, а не только при открытии лендинга.
+  var syncTimer = null;
+  function scheduleSync() {
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(sync, 300);
+  }
+  if (document.addEventListener) {
+    document.addEventListener('oge-progress-saved', scheduleSync);
+  }
 })(window);

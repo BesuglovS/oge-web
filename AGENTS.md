@@ -6,23 +6,29 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v10'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v12'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v4` → `v5`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v11` → `v12`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
-   `open(`, `breakpoint`, `__class__`, `__subclasses__`, `__globals__`, ...), проверка `import` по белому списку, `timeout 5`, сравнение вывода после нормализации пробелов.
-   **Не ослаблять проверки**; `/usr/bin/python3` захардкожен. Реальный песочницей это НЕ является — defense-in-depth.
+   `open(`, `breakpoint`, `__class__`, `__subclasses__`, `__globals__`, ...), проверка `import` по белому списку, `timeout 5`, сравнение вывода после нормализации пробелов (числа — с допуском).
+   **Не ослаблять проверки**; `/usr/bin/python3` захардкожен. Без root-хелпера на Linux песочница
+   **fail-closed** (503), dev-fallback — только Windows или `SANDBOX_ALLOW_FALLBACK=1`.
+   Реальный песочницей это НЕ является — defense-in-depth.
 3. **`oge{N}.html` — интерактив, `oge{N}-t.html` — теория** (`t` = теория, НЕ teacher).
    Задания 13.1/13.2/14 имеют только теорию (`oge131-t.html`, `oge132-t.html`, `oge14-t.html`) — интерактивных нет.
 4. **Прогресс**: задания пишут `localStorage['oge-progress']` через `OGEProgress` (`js/progress.js`).
    `TASKS = ['oge1'..'oge12','oge15','oge16']` в **обоих** `js/progress.js` и `js/progress-sync.js`
    (13/14 намеренно исключены, есть TODO). При добавлении интерактивного задания править оба файла.
-   Серверный синк (`progress-client/sync/tracking-client`) — только на `oge.html`.
-5. **Задание 15 — полный Кумир-интерпретатор на JS** (~2400 строк в `oge15.html`): лексер, парсер
-   (`parseProgram/parseWhile/parseIf`), step/run/pause, поле-канвас, сравнение закрашенных клеток с
-   `files/oge15/oge-15-2026-e-NN.json`. Парсер намеренно толерантен (пропускает неизвестные слова).
+   `OGEProgress.save()` шлёт событие `oge-progress-saved`; `progress-sync.js` слушает его и сразу
+   отправляет прогресс на портал. Скрипты `progress-client/progress-sync` подключены на всех
+   интерактивных страницах, `tracking-client` — на всех страницах (включая теорию).
+5. **Задание 15 — Кумир-интерпретатор на JS** (~2400 строк в `oge15.html`): лексер, парсер
+   (`parseProgram/parseWhile/parseIf`), `нц пока`, `нц N раз`, `если`, step/run/pause, поле-канвас,
+   сравнение закрашенных клеток с `files/oge15/oge-15-2026-e-NN.json`. КуМир **регистронезависим**
+   (слова нормализуются в лексере); `нц для` не поддерживается и даёт понятную ошибку. Парсер
+   намеренно толерантен (пропускает неизвестные слова, но логирует их).
    Есть **генератор случайных обстановок** (`js/oge15-gen.js` + автогенерируемый `js/oge15-ref.js`
    с эталонными решениями). Генератор строит случайную геометрию по семейству задачи, а эталон
    закраски вычисляет «оракулом» — прогоном соответствующего `.kum`. `js/oge15-ref.js` нужно
@@ -31,15 +37,17 @@
    Содержит SSH-параметры (путь к ключу `../ssh-deploy.key`). **Значения не печатать и не логировать.**
    `deploy.ps1` исключает `.env` из архива — на сервер он не попадает. Хранение секретов в публичном
    репозитории — осознанный риск: при утечке сменить ключ и параметры деплоя.
-7. **Два zip в `files/`** (`Задание11-12.zip` и его mojibake-двойник) — байт-идентичны (одинаковый MD5),
-   артефакт кодировки git. Не удалять/переименовывать бездумно; HTML ссылается только на `Задание11-12.zip`.
+7. **Один архив в `files/`** — `Задание11-12.zip`. Дубликат с mojibake-именем удалён (2026-10-25),
+   архив перепакован с флагом UTF-8 (bit 11), чтобы Проводник/`Expand-Archive` не превращали
+   `Классика/Проза` в кракозябры. **Не перепаковывать без флага UTF-8** и не менять имена папок:
+   на них ссылаются задания 11/12.
 8. **`git/` (self-hosted git-UI) не исключён из деплоя** — часть сайта,
    хотя со страниц заданий не линкуется. Каталог `p/` (Leaflet-маршруты)
    УДАЛЁН (сентябрь 2026); `deploy.ps1` исключает его из tar и стирает на сервере.
 9. **Вся страницы с UTF-8 BOM** — сохранять кодировку. PowerShell-консоль показывает mojibake (codepage) — работать UTF-8-инструментами.
 10. **`_orig_oge2.css`** — пустой легаси-файл (3 байта) удалён.
 11. **Нет `.htaccess`** (доки упоминают `.htaccess` — его нет). Есть `.gitignore`, `robots.txt`, `sitemap.xml`.
-    Реальная конфигурация — nginx-файл `oge.nayanovaacademy.ru` (untracked).
+    Реальная конфигурация — nginx-файл `oge.nayanovaacademy.ru` (**отслеживается git**, деплоится отдельным шагом).
 
 ## 🔧 Команды
 
@@ -51,8 +59,11 @@ php -S 127.0.0.1:8080        # локально с PHP (задание 16)
 ```
 
 Сборки нет. Есть статические проверки: `node tools/check-site.mjs` (ссылки, canonical,
-sw-ассеты, иконки, head-теги) и `php -l run_python.php git/index.php`; они же запускаются в CI
-(`.github/workflows/checks.yml`). Остальное — вручную (генерация задач, drag-drop, офлайн, песочница).
+sw-ассеты вместе с 40 файлами задания 15, иконки, head-теги, BOM, sitemap, noindex),
+`node tools/check-data.mjs` (577 тестов задания 16, сверка `.kum`↔`e-*.json` и генератора
+задания 15, синхронность `data/oge7.json`↔`oge7.txt`, ответы задания 12 по архиву) и
+`php -l run_python.php git/index.php`; они же запускаются в CI (`.github/workflows/checks.yml`).
+Остальное — вручную (drag-drop, офлайн, песочница).
 
 ## 🏗 Структура
 
@@ -69,16 +80,19 @@ js/code-editor.js      # overlay-редактор кода для задания
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
 js/oge15-gen.js        # генератор случайных обстановок задания 15
 js/oge15-ref.js        # АВТОГЕНЕРАЦИЯ: эталонные .kum, встроенные для «оракула» генератора
-files/Задание11-12.zip            # скачиваемый архив для заданий 11/12 (34 МБ)
+files/Задание11-12.zip            # скачиваемый архив для заданий 11/12 (34 МБ, имена в UTF-8 с флагом bit 11)
 files/oge15/                     # tasks.json + оge-15-2026-NN.json (поля) + e-NN.json (ожидаемые клетки) + .kum (решения)
 git/index.php                      # web-UI self-hosted git-репозиториев
+tools/check-site.mjs               # статические проверки (ссылки, SW, SEO, BOM)
+tools/check-data.mjs               # проверки данных заданий 7/12/15/16 (нужен python 3)
+tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum
 manifest.json, sw.js, offline.html, 404.html, LICENSE
-deploy.ps1, oge.nayanovaacademy.ru (nginx, untracked)
+deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 ```
 
 ## 💻 Конвенции кода
 
-- **HTML**: `<!doctype html>`, `lang="ru"`, UTF-8 BOM, favicon `assets/favicon.svg`, theme-color `#764ba2`,
+- **HTML**: `<!doctype html>`, `lang="ru"`, UTF-8 BOM, favicon `assets/favicon.svg`, theme-color `#7f5468`,
   meta description/canonical/OG, Yandex.Metrika. Тело: `.container role="main"` → `.nav-links` →
   `.progressContainer` → `#taskCard` → `hint-box`/`solution-box` → `task-nav` → `quick-nav`. Skip-link для a11y.
 - Body-классы для тем: `body-dark` (oge7/8), `body-teal oge2`, `body-red-purple` (oge131-t), `body-blue-indigo` (oge132-t), `body-center` (oge.html).
@@ -93,24 +107,27 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, untracked)
 ## 🚀 Деплой (`deploy.ps1`)
 
 1. `.env` → SSH-переменные (`DEPLOY_SSH_USER=deploy`, ключ `../ssh-deploy.key`); `icacls` ключа.
-2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, nginx-конфига, `p`, IDE/лог-файлов) → SSH от deploy-пользователя.
+2. `tar` (без `.git`, `.gitignore`, `.env`, `deploy.ps1`, документации, nginx-конфига, `p`, `tools`, `.github`, IDE/лог-файлов) → SSH от deploy-пользователя.
 3. Удалённо: удаляет всё **кроме `git/`** в целевой директории (и стирает старую `p/`, если осталась) → распаковка
    (`tar -xzf - --no-overwrite-dir -m`, чтобы непривилегированный deploy не менял метаданные существующих каталогов `.` и `git/`).
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
 
 Требования сервера: nginx + PHP 8.1-FPM, root `/var/www/oge.nayanovaacademy.ru/public/`.
-Nginx: `try_files $uri $uri/ $uri.php =404`, static `immutable 30d`,
-`no-cache` для `/sw.js` и `/js/tracking-client.js`, dotfiles deny,
-`limit_req zone=sandbox_oge 5r/s` на `run_python.php`.
+Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `max-age=2592000, immutable`,
+`no-cache` для `/sw.js`, `version.json`, `manifest.json`, `styles.css` и JS-клиентов (включая
+`code-editor.js`, `oge15-gen.js`, `oge15-ref.js`), dotfiles deny **до** правил расширений,
+`limit_req zone=sandbox_oge rate=20r/s burst=60` на `run_python.php`.
+После распаковки deploy проверяет наличие `oge.html`, `sw.js`, `version.json`, `js/progress.js`,
+`js/oge15-ref.js` и `files/*.zip`.
 
 ## 🔒 Безопасность
 
-- `run_python.php` — 4-слойная защита (модель python-web): rate-limit (nginx limit_req + файловый
-  по IP в /tmp), pre-фильтры (regex + белый список импортов), wrapper с усечёнными builtins
-  (sentinel-канал вывода, stdin напрямую через pipe), изоляция процесса через root-хелпер
-  `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
-  Не ослаблять ни один слой.
+- `run_python.php` — 4-слойная защита (модель python-web): rate-limit (nginx `20r/s` + файловый
+  600/мин по IP в /tmp с периодической чисткой), pre-фильтры (regex + белый список импортов),
+  wrapper с усечёнными builtins (sentinel-канал вывода, stdin через pipe/файл), изоляция процесса
+  через root-хелпер `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
+  **Fail-closed:** без хелпера на Linux — 503, а не запуск без изоляции. Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — намеренно задеплоен, не удалять без понимания.
 - `.env` и `C:\websites\na\ssh-deploy.key` — никогда не печатать/коммитить.

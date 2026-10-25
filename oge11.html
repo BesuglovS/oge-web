@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Задание 11 ОГЭ — Информационный поиск</title>
@@ -285,6 +286,27 @@
       let currentTask = null;
       let answeredTasks = new Set();
 
+      // Решённые задачи переживают перезагрузку: храним id задач
+      // (индексы после перемешивания нестабильны).
+      const SOLVED_KEY = 'oge11-solved';
+      function loadSolvedIds() {
+        try {
+          const raw = localStorage.getItem(SOLVED_KEY);
+          const ids = raw ? JSON.parse(raw) : [];
+          return Array.isArray(ids) ? ids : [];
+        } catch (e) { return []; }
+      }
+      function saveSolvedIds(ids) {
+        try { localStorage.setItem(SOLVED_KEY, JSON.stringify(ids)); } catch (e) { /* storage */ }
+      }
+      function rememberSolved(taskId) {
+        const ids = loadSolvedIds();
+        if (ids.indexOf(taskId) === -1) {
+          ids.push(taskId);
+          saveSolvedIds(ids);
+        }
+      }
+
       function getRandomUnansweredIndex() {
         const unanswered = [];
         for (let i = 0; i < shuffledTasks.length; i++) {
@@ -368,6 +390,7 @@
           result.className = "result correct";
           result.innerHTML = "✅ Правильно! Отличная работа!";
           answeredTasks.add(currentTaskIndex);
+          rememberSolved(currentTask.id);
           updateSolvedCounter();
           if (typeof OGEProgress !== 'undefined') {
             OGEProgress.save('oge11', 1, 1);
@@ -430,10 +453,19 @@
 
       // Инициализация: перемешиваем задачи и показываем первую случайную
       shuffledTasks = shuffleArray([...tasks]);
+      // Восстанавливаем решённые задачи (по id, а не по индексам).
+      const savedSolved = loadSolvedIds();
+      answeredTasks = new Set();
+      for (let si = 0; si < shuffledTasks.length; si++) {
+        if (savedSolved.indexOf(shuffledTasks[si].id) !== -1) answeredTasks.add(si);
+      }
       if (typeof trackTaskStart === 'function') { trackTaskStart('oge11'); }
       renderTask(getRandomUnansweredIndex());
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

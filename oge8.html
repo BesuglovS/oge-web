@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <title>Множества и круги Эйлера</title>
@@ -1169,14 +1170,12 @@
       function checkAnswer() {
         if (answered) return;
 
-        const userAnswer = parseInt(
-          document.getElementById("answerInput").value,
-        );
-
-        if (isNaN(userAnswer)) {
+        const rawAnswer = document.getElementById("answerInput").value.trim();
+        if (!/^\d+$/.test(rawAnswer)) {
           alert("Введите числовой ответ!");
           return;
         }
+        const userAnswer = parseInt(rawAnswer, 10);
 
         answered = true;
 
@@ -1571,6 +1570,9 @@
       };
     </script>
   
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
     <script>
       if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.register('/sw.js').catch(function() {});

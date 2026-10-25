@@ -33,17 +33,26 @@ header('Cache-Control: no-store');
 oge_rate_limit();
 
 // Клиент задания 16 запускает по одному тесту на запрос (обычно 8–10 тестов
-// за прогон), поэтому лимит выставлен с запасом на несколько прогонов в
-// минуту (изначальные 10/мин блокировали уже второй прогон). Основной
-// анти-абьюз-барьер — nginx limit_req (5 r/s) в конфиге
+// за прогон), поэтому лимит выставлен с запасом на параллельную работу класса
+// за одним NAT-IP (25 учеников × 10 тестов ≈ 250 запросов за минуту).
+// Основной анти-абьюз-барьер — nginx limit_req (20 r/s, burst 60) в конфиге
 // `oge.nayanovaacademy.ru`; файловый слой остаётся вторичным.
-function oge_rate_limit(int $limit = 120, int $window = 60): void {
+function oge_rate_limit(int $limit = 600, int $window = 60): void {
     // Каталог rate-limit — вне webroot: webroot принадлежит deploy
     // (www-data не имеет права записи, это часть изоляции).
     $dir = sys_get_temp_dir() . '/oge-sandbox-ratelimit';
     @mkdir($dir, 0700, true);
     if (!is_dir($dir)) {
         return; // каталог недоступен — не блокируем работу эндпоинта
+    }
+    // Изредка подчищаем файлы IP, которые не заходили дольше двух часов,
+    // иначе каталог растёт неограниченно.
+    if (random_int(1, 200) === 1) {
+        foreach ((array)glob($dir . '/*.json') as $old) {
+            if (is_file($old) && (time() - (int)@filemtime($old)) > 7200) {
+                @unlink($old);
+            }
+        }
     }
     $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     $file = $dir . '/' . md5($ip) . '.json';
@@ -101,6 +110,12 @@ if (strlen($testInput) > 102400) {
     exit;
 }
 
+if (strlen($expectedOutput) > 102400) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Ожидаемый вывод слишком длинный']);
+    exit;
+}
+
 // ─── 4. Pre-фильтры (слой 2) ───
 $allowedModules = ['math', 'random', 'datetime', 'decimal', 'fractions', 'string', 're', 'collections', 'itertools', 'functools', 'operator', 'json', 'csv'];
 
@@ -144,8 +159,24 @@ $forbiddenPatterns = [
     '/\bquit\s*\(/',
 ];
 
+// Для regex-фильтра убираем строковые литералы и комментарии: иначе
+// `print("Файл os")` или `# здесь был sys` ложно блокируются. Реальная
+// защита — wrapper с усечёнными builtins, это лишь первый слой.
+$codeForScan = preg_replace([
+    '/"""[\s\S]*?"""/',
+    "/'''[\s\S]*?'''/",
+    '/#[^\n]*/',
+    '/"(?:\\\\.|[^"\\\\])*"/s',
+    "/'(?:\\\\.|[^'\\\\])*'/s",
+], ' ', $code);
+// Если PCRE по какой-то причине не справился — фильтруем исходный код
+// (лучше ложное срабатывание, чем пропуск запрещённой конструкции).
+if (!is_string($codeForScan)) {
+    $codeForScan = $code;
+}
+
 foreach ($forbiddenPatterns as $pattern) {
-    if (preg_match($pattern, $code, $matches)) {
+    if (preg_match($pattern, $codeForScan, $matches)) {
         header('Content-Type: application/json');
         echo json_encode([
             'error' => 'Код содержит запрещённую операцию "' . trim($matches[0]) . '". Используйте только print, переменные, условия, циклы и разрешённые модули (math, random, datetime).'
@@ -156,35 +187,42 @@ foreach ($forbiddenPatterns as $pattern) {
 
 // Разбор import-выражений построчно, чтобы `from math import sqrt`
 // не воспринимался как `import sqrt` (прежний баг: whitelist отвергал имена).
-// Поддерживаются `import a, b as c`, `from x import ...`, `from x.y import ...`.
+// Поддерживаются `import a, b as c`, `from x import ...`, `from x.y import ...`,
+// несколько инструкций через `;` и строчный комментарий после них.
 $codeLines = preg_split('/\R/', $code);
 foreach ($codeLines as $line) {
     $line = trim($line);
     if ($line === '' || $line[0] === '#') {
         continue;
     }
-    if (preg_match('/^from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import\b/', $line, $m)) {
-        $root = explode('.', $m[1])[0];
-        if (!in_array($root, $allowedModules, true)) {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'error' => "Модуль '$root' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
-            ]);
-            exit;
+    foreach (explode(';', $line) as $statement) {
+        $statement = trim(preg_replace('/\s+#.*$/', '', $statement));
+        if ($statement === '') {
+            continue;
         }
-    } elseif (preg_match('/^import\s+(.+)$/', $line, $m)) {
-        foreach (explode(',', $m[1]) as $part) {
-            $name = trim(preg_split('/\s+as\s+/i', trim($part))[0]);
-            $root = explode('.', $name)[0];
-            if ($root === '') {
-                continue;
-            }
+        if (preg_match('/^from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import\b/', $statement, $m)) {
+            $root = explode('.', $m[1])[0];
             if (!in_array($root, $allowedModules, true)) {
                 header('Content-Type: application/json');
                 echo json_encode([
                     'error' => "Модуль '$root' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
                 ]);
                 exit;
+            }
+        } elseif (preg_match('/^import\s+(.+)$/', $statement, $m)) {
+            foreach (explode(',', $m[1]) as $part) {
+                $name = trim(preg_split('/\s+as\s+/i', trim($part))[0]);
+                $root = explode('.', $name)[0];
+                if ($root === '') {
+                    continue;
+                }
+                if (!in_array($root, $allowedModules, true)) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'error' => "Модуль '$root' запрещён. Разрешённые модули: " . implode(', ', $allowedModules)
+                    ]);
+                    exit;
+                }
             }
         }
     }
@@ -193,13 +231,13 @@ foreach ($codeLines as $line) {
 // ─── 5. Wrapper с усечёнными builtins (слой 3) ───
 $sentinel = bin2hex(random_bytes(16));
 $encoded = base64_encode($code);
-$wrapper = oge_build_wrapper($encoded, $sentinel);
+$wrapper = oge_build_wrapper($encoded, $sentinel, $allowedModules);
 
 /**
  * Wrapper: exec(compile(base64-код)) в namespace с усечёнными builtins.
  * Защита в глубину: без open/eval/exec/getattr и импортов вне белого списка.
  */
-function oge_build_wrapper(string $encoded, string $sentinel): string {
+function oge_build_wrapper(string $encoded, string $sentinel, array $allowedModules): string {
     $stdoutBegin = '_OGE_STDOUT_' . $sentinel . '_BEGIN_';
     $stdoutEnd   = '_OGE_STDOUT_' . $sentinel . '_END_';
     $stderrBegin = '_OGE_STDERR_' . $sentinel . '_BEGIN_';
@@ -222,11 +260,7 @@ _oge_blocked = frozenset({
     'globals', 'locals', 'vars', 'dir',
     'help', 'memoryview', 'exit', 'quit',
 })
-_oge_allowed = frozenset({
-    'math', 'random', 'datetime', 'itertools', 'collections',
-    'functools', 'operator', 'json', 're', 'string',
-    'decimal', 'fractions', 'csv',
-})
+_oge_allowed = frozenset(%ALLOWED_MODULES%)
 _oge_real_import = _oge_builtins.__import__
 
 def _oge_safe_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -264,8 +298,15 @@ finally:
 PYTHON;
 
     return str_replace(
-        ['%CODE%', '%STDOUT_BEGIN%', '%STDOUT_END%', '%STDERR_BEGIN%', '%STDERR_END%'],
-        [$encoded, $stdoutBegin, $stdoutEnd, $stderrBegin, $stderrEnd],
+        ['%CODE%', '%STDOUT_BEGIN%', '%STDOUT_END%', '%STDERR_BEGIN%', '%STDERR_END%', '%ALLOWED_MODULES%'],
+        [
+            $encoded,
+            $stdoutBegin,
+            $stdoutEnd,
+            $stderrBegin,
+            $stderrEnd,
+            json_encode(array_values($allowedModules), JSON_UNESCAPED_UNICODE),
+        ],
         $template
     );
 }
@@ -277,10 +318,20 @@ file_put_contents($tmpFile, $wrapper);
 const OGE_MEMORY_LIMIT_MB = 128;
 const OGE_TIMEOUT_SEC = 5;
 
-list($rawStdout, $rawStderr, $exitCode) = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+list($rawStdout, $rawStderr, $exitCode, $timedOut) = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
 @unlink($tmpFile);
 
-$timedOut = ($exitCode === 124);
+// Песочница не смогла стартовать (нет root-хелпера / запрещён fallback):
+// это не ошибка ученика, а недоступность сервиса.
+if ($rawStdout === false) {
+    http_response_code(503);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Песочница временно недоступна. Попробуйте позже.',
+        'unavailable' => true
+    ]);
+    exit;
+}
 
 $parsed = oge_parse_sentinels($rawStdout, $sentinel);
 $output = oge_truncate($parsed['stdout']);
@@ -301,11 +352,18 @@ if ($rawStderr !== '' && $errorOutput === '') {
 $errorOutput = oge_truncate($errorOutput);
 
 // ─── 7. Сравнение с ожидаемым результатом ───
+// Строки сравниваются после нормализации пробелов; числа — с допуском,
+// чтобы «14.0», «14.00» и «14» (а также «10.5» и «10.50») считались
+// одним и тем же ответом при округлении среднего.
 $matched = false;
-if ($expectedOutput !== '' && $output !== '') {
-    $normalizedOutput = trim(preg_replace('/\s+/', ' ', $output));
-    $normalizedExpected = trim(preg_replace('/\s+/', ' ', $expectedOutput));
-    $matched = ($normalizedOutput === $normalizedExpected);
+$normalizedOutput = trim(preg_replace('/\s+/', ' ', $output));
+$normalizedExpected = trim(preg_replace('/\s+/', ' ', $expectedOutput));
+$matched = ($normalizedOutput === $normalizedExpected);
+if (!$matched && $normalizedOutput !== '' && is_numeric($normalizedOutput) && is_numeric($normalizedExpected)) {
+    $got = (float)$normalizedOutput;
+    $want = (float)$normalizedExpected;
+    $scale = max(1.0, abs($want));
+    $matched = abs($got - $want) <= 1e-9 * $scale;
 }
 
 $result = [];
@@ -341,43 +399,112 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
         $helper = '/usr/local/sbin/sandbox-python.run';
     }
 
-    $descriptorspec = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w'],
-    ];
-
     // Windows-фолбэк для локальной разработки: launcher `py` под proc_open
     // с массивом аргументов передаёт `-3` напрямую в python.exe и падает,
     // поэтому используем `python`.
-    $argvBase = DIRECTORY_SEPARATOR === '\\'
-        ? ['python']
-        : ['/usr/bin/python3'];
+    $isWindows = DIRECTORY_SEPARATOR === '\\';
+    $argvBase = $isWindows ? ['python'] : ['/usr/bin/python3'];
+    $useHelper = !$isWindows && is_file($helper) && is_executable($helper);
 
-    if (DIRECTORY_SEPARATOR !== '\\' && is_file($helper) && is_executable($helper)) {
+    if ($useHelper) {
         // Изоляция: root-хелпер -> unshare -> sandbox user -> prlimit
         $cmd = array_merge(
             ['/usr/bin/sudo', '-n', '--', $helper],
             [$tmpFile, (string)$memoryMb, (string)$timeout, '/usr/bin/python3']
         );
+        // Хелпер запускает python от пользователя sandbox, поэтому файл
+        // должен быть доступен на чтение (ограничение текущего хелпера:
+        // он принимает путь к файлу, а не код через stdin).
         @chmod($tmpFile, 0644);
-    } else {
-        // Fallback без хелпера: RLIMIT-префикс в скрипте + хард-токаут процесса
-        // через proc_terminate() в цикле ожидания ниже.
+    } elseif ($isWindows || getenv('SANDBOX_ALLOW_FALLBACK') === '1') {
+        // Fallback без хелпера (только локальная разработка): RLIMIT-префикс
+        // в скрипте + хард-токаут процесса через proc_terminate() ниже.
+        // В продакшене при отсутствии хелпера работаем fail-closed, чтобы
+        // не исполнять код ученика без реальной изоляции.
         $script = (string) file_get_contents($tmpFile);
         $prelude =
             "try:\n" .
             "    import resource\n" .
             "    resource.setrlimit(resource.RLIMIT_AS, ($memBytes, $memBytes))\n" .
+            "    resource.setrlimit(resource.RLIMIT_FSIZE, (2097152, 2097152))\n" .
             "except (ImportError, ValueError, OSError):\n" .
             "    pass\n";
         file_put_contents($tmpFile, $prelude . $script);
         $cmd = array_merge($argvBase, ['-I', '-S', '-X', 'utf8', $tmpFile]);
+    } else {
+        error_log('run_python: sandbox helper is unavailable: ' . $helper);
+        return [false, 'Песочница недоступна', -1, false];
     }
 
+    $startTime = microtime(true);
+    $stdout = '';
+    $stderr = '';
+    $exitCode = -1;
+    $timedOut = false;
+
+    if ($isWindows) {
+        // На Windows stream_select()/stream_set_blocking() не работают с pipe,
+        // поэтому stdin/stdout/stderr передаём через временные файлы: иначе
+        // бесконечный цикл в программе ученика «вешает» запрос навсегда.
+        $inFile = tempnam(sys_get_temp_dir(), 'oge16_in_');
+        $outFile = tempnam(sys_get_temp_dir(), 'oge16_out_');
+        $errFile = tempnam(sys_get_temp_dir(), 'oge16_err_');
+        file_put_contents($inFile, $stdinData);
+        $descriptorspec = [
+            0 => ['file', $inFile, 'r'],
+            1 => ['file', $outFile, 'w'],
+            2 => ['file', $errFile, 'w'],
+        ];
+        $process = proc_open($cmd, $descriptorspec, $pipes, null, null, ['bypass_shell' => true]);
+        if (!is_resource($process)) {
+            @unlink($inFile); @unlink($outFile); @unlink($errFile);
+            return [false, 'Failed to start Python', -1, false];
+        }
+        while (true) {
+            $status = proc_get_status($process);
+            if (!($status['running'] ?? false)) {
+                $exitCode = $status['exitcode'] ?? -1;
+                break;
+            }
+            if (microtime(true) - $startTime >= $timeout) {
+                proc_terminate($process, 9);
+                $timedOut = true;
+                usleep(100000);
+                break;
+            }
+            usleep(20000);
+        }
+        proc_close($process);
+        // Читаем файл порциями и сохраняем начало и хвост: sentinel-маркеры
+        // находятся в начале и в конце, а память не растёт от «печатающих»
+        // программ.
+        $stdoutHead = '';
+        $stdoutTail = '';
+        $stdoutDropped = false;
+        $fh = @fopen($outFile, 'rb');
+        if ($fh) {
+            while (!feof($fh)) {
+                $chunk = fread($fh, 65536);
+                if ($chunk === false || $chunk === '') break;
+                oge_append_limited($stdoutHead, $stdoutTail, $stdoutDropped, $chunk);
+            }
+            fclose($fh);
+        }
+        $stdout = oge_finish_output($stdoutHead, $stdoutTail, $stdoutDropped);
+        $stderr = (string)@file_get_contents($errFile);
+        @unlink($inFile); @unlink($outFile); @unlink($errFile);
+        return [$stdout, $stderr, $exitCode, $timedOut];
+    }
+
+    // Linux/macOS: пайпы + stream_select (там он штатно работает с pipe).
+    $descriptorspec = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
     $process = proc_open($cmd, $descriptorspec, $pipes, null, null, ['bypass_shell' => true]);
     if (!is_resource($process)) {
-        return [false, 'Failed to start Python', -1];
+        return [false, 'Failed to start Python', -1, false];
     }
 
     if ($stdinData !== '') {
@@ -385,35 +512,35 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
     }
     fclose($pipes[0]);
 
-    $startTime = microtime(true);
-    $stdout = '';
-    $stderr = '';
-    $exitCode = -1;
+    $stdoutHead = '';
+    $stdoutTail = '';
+    $stdoutDropped = false;
 
     while (true) {
         $status = proc_get_status($process);
         if (!($status['running'] ?? false)) {
             $exitCode = $status['exitcode'] ?? -1;
-            $stdout .= stream_get_contents($pipes[1]);
+            oge_append_limited($stdoutHead, $stdoutTail, $stdoutDropped, (string)stream_get_contents($pipes[1]));
             $stderr .= stream_get_contents($pipes[2]);
             break;
         }
         $elapsed = microtime(true) - $startTime;
         if ($elapsed >= $timeout) {
             proc_terminate($process, 9);
-            $stdout .= stream_get_contents($pipes[1]);
+            oge_append_limited($stdoutHead, $stdoutTail, $stdoutDropped, (string)stream_get_contents($pipes[1]));
             $stderr .= stream_get_contents($pipes[2]);
             fclose($pipes[1]);
             fclose($pipes[2]);
             proc_close($process);
-            return [$stdout, $stderr, 124];
+            $stdout = oge_finish_output($stdoutHead, $stdoutTail, $stdoutDropped);
+            return [$stdout, $stderr, 124, true];
         }
         $read = [$pipes[1], $pipes[2]];
         $write = null; $except = null;
-        $sel = @stream_select($read, $write, $except, max(0, ceil($timeout - $elapsed)), 100000);
+        $sel = @stream_select($read, $write, $except, max(0, (int)ceil($timeout - $elapsed)), 100000);
         if ($sel === false) {
             // Ошибка select — дочитываем буферы и завершаем.
-            $stdout .= stream_get_contents($pipes[1]);
+            oge_append_limited($stdoutHead, $stdoutTail, $stdoutDropped, (string)stream_get_contents($pipes[1]));
             $stderr .= stream_get_contents($pipes[2]);
             break;
         }
@@ -421,7 +548,11 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
             foreach ($read as $pipe) {
                 $data = fread($pipe, 8192);
                 if ($data === false || $data === '') continue;
-                if ($pipe === $pipes[1]) { $stdout .= $data; } else { $stderr .= $data; }
+                if ($pipe === $pipes[1]) {
+                    oge_append_limited($stdoutHead, $stdoutTail, $stdoutDropped, $data);
+                } else {
+                    $stderr .= $data;
+                }
             }
         }
     }
@@ -429,7 +560,39 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
     fclose($pipes[1]);
     fclose($pipes[2]);
     proc_close($process);
-    return [$stdout, $stderr, $exitCode];
+    $stdout = oge_finish_output($stdoutHead, $stdoutTail, $stdoutDropped);
+    return [$stdout, $stderr, $exitCode, false];
+}
+
+/**
+ * Копит вывод, сохраняя начало и хвост: sentinel-маркеры wrapper'а стоят
+ * в начале и в конце, поэтому нельзя просто обрезать вывод по лимиту.
+ */
+function oge_append_limited(string &$head, string &$tail, bool &$dropped, string $data, int $headLimit = 2097152, int $tailLimit = 262144): void {
+    if ($data === '') {
+        return;
+    }
+    if (strlen($head) < $headLimit) {
+        $room = $headLimit - strlen($head);
+        $head .= substr($data, 0, $room);
+        $data = (string)substr($data, $room);
+    }
+    if ($data === '') {
+        return;
+    }
+    $dropped = true;
+    $tail .= $data;
+    if (strlen($tail) > $tailLimit) {
+        $tail = substr($tail, -$tailLimit);
+    }
+}
+
+/** Собирает начало, пометку об обрезке и хвост вывода. */
+function oge_finish_output(string $head, string $tail, bool $dropped): string {
+    if (!$dropped) {
+        return $head;
+    }
+    return $head . "\n... [вывод превысил 2 МБ, показан фрагмент] ...\n" . $tail;
 }
 
 /** Извлекает stdout/stderr из sentinel-маркеров. */

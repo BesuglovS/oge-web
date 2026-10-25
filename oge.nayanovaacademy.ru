@@ -1,7 +1,7 @@
 # ==========================================
 # 1. Rate limiting для Python-песочницы (уровень http)
 # ==========================================
-limit_req_zone $binary_remote_addr zone=sandbox_oge:10m rate=5r/s;
+limit_req_zone $binary_remote_addr zone=sandbox_oge:10m rate=20r/s;
 limit_req_status 429;
 
 # ==========================================
@@ -21,6 +21,15 @@ server {
 server {
     listen 443 ssl http2;
     server_name oge.nayanovaacademy.ru;
+
+    # Не раскрываем версию nginx в ответах и на страницах ошибок.
+    server_tokens off;
+
+    # Сжатие текстовых ассетов (HTML/CSS/JS/JSON/SVG).
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json application/manifest+json image/svg+xml text/xml application/xml application/xml+rss text/javascript;
 
     # --- SSL-сертификаты (ваши пути) ---
     ssl_certificate     /etc/ssl/certs/nayanovaacademy.ru/cert.pem;
@@ -61,10 +70,18 @@ server {
         try_files $uri $uri/ $uri.php =404;
     }
 
+    # 1a. Блокировка скрытых файлов — ДО остальных regex-локейшенов,
+    # иначе `/.env.json` или `/.hidden.html` перехватит правило расширения.
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
     # 2. Python-песочница (задание 16): точный match выше regex `\.php$`,
     # обязательно с ограничением частоты (2a) и иммутабельным security-набором.
     location = /run_python.php {
-        limit_req zone=sandbox_oge burst=10 nodelay;
+        limit_req zone=sandbox_oge burst=60 nodelay;
 
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
@@ -72,6 +89,7 @@ server {
         include fastcgi_params;
         # add_header в location отменяет наследование server-level заголовков,
         # поэтому security-набор дублируется здесь.
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -96,8 +114,9 @@ server {
     # ВАЖНО: этот location идёт ПЕРВЫМ, иначе manifest.json перехватится
     # правилом для `.json` ниже. Security-заголовки продублированы: add_header
     # не наследуется из server{}, если в location объявлен собственный add_header.
-    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika)\.js|assets/styles\.css|manifest\.json|version\.json|sw\.js)$ {
+    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika|code-editor|oge15-gen|oge15-ref)\.js|assets/styles\.css|manifest\.json|version\.json|sw\.js)$ {
         add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -107,6 +126,7 @@ server {
     # HTML не кэшируем (содержимое может обновляться, а SW кэширует отдельно).
     location ~* \.html$ {
         add_header Cache-Control "no-cache, must-revalidate" always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -115,8 +135,8 @@ server {
 
     # Данные заданий (JSON/TXT/KuMir) — короткий кэш.
     location ~* \.(json|txt|kum)$ {
-        expires 7d;
-        add_header Cache-Control "public" always;
+        add_header Cache-Control "public, max-age=604800" always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -125,8 +145,8 @@ server {
 
     # Скачиваемые архивы — длительный кэш (имена версионированы по заданию).
     location ~* \.zip$ {
-        expires 30d;
-        add_header Cache-Control "public, immutable" always;
+        add_header Cache-Control "public, max-age=2592000, immutable" always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -135,8 +155,8 @@ server {
     }
 
     location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        expires 30d;
-        add_header Cache-Control "public, immutable" always;
+        add_header Cache-Control "public, max-age=2592000, immutable" always;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin" always;
@@ -144,10 +164,6 @@ server {
         access_log off;
     }
 
-    # 5. Блокировка скрытых файлов
-    location ~ /\. {
-        deny all;
-        access_log off;
-        log_not_found off;
-    }
+    # 5. Блокировка скрытых файлов перенесена выше (п. 1a), чтобы её не
+    # перехватывали правила расширений.
 }
