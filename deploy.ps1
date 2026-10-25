@@ -223,6 +223,9 @@ fi
 # (в частности git/); webroot не должен быть world-writable.
 find "$NEW" -type d -exec chmod 755 {} +
 find "$NEW" -type f -exec chmod 644 {} +
+# tar может выставить каталогу mtime исходного дерева — для сортировки
+# релизов и логов фиксируем «сейчас».
+touch "$NEW"
 test -s "$NEW/oge.html"
 test -s "$NEW/sw.js"
 test -s "$NEW/version.json"
@@ -245,7 +248,20 @@ if ! mv -T "$PARENT/.public-$$" "$ROOT"; then
   exit 1
 fi
 trap - EXIT
-ls -1dt "$RELEASES"/*/ 2>/dev/null | tail -n +$((KEEP+1)) | xargs -r rm -rf || true
+# Храним текущий релиз + (KEEP-1) предыдущих. Текущий не удаляем никогда:
+# mtime каталога из tar может быть старее старых релизов, и удаление по
+# mtime уже один раз снесло live-релиз. Сортируем timestamp-релизы по имени.
+CUR=$(basename "$(readlink -f "$ROOT")")
+[ -n "$CUR" ] || { echo "current release unresolved" >&2; exit 1; }
+KEPT=0
+for d in $(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%p\n' | sort -r); do
+  name=$(basename "$d")
+  [ "$name" = "$CUR" ] && continue
+  KEPT=$((KEPT+1))
+  [ "$KEPT" -lt "$KEEP" ] && continue
+  rm -rf "$d" || true
+done
+test -d "$ROOT"
 '@
 $remoteScript = $remoteScriptTemplate.Replace('__REMOTE_PATH__', $remotePath)
 $tarCmd = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
