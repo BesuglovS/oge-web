@@ -165,6 +165,37 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2c. Задание 15: загрузка обстановки → эталонный .kum → запуск → проверка.
+{
+  const { cdp, targetId } = await openPage('oge15.html');
+  const res = await cdp.evalJs(`(async () => {
+    if (typeof loadCurrentTask !== 'function' || typeof runProgram !== 'function') return 'no-api';
+    loadCurrentTask();
+    for (let i = 0; i < 40; i++) {
+      await new Promise((r) => setTimeout(r, 250));
+      if (typeof field !== 'undefined' && field.targetPainted && field.targetPainted.size > 0) break;
+    }
+    if (typeof field === 'undefined' || !field.targetPainted || field.targetPainted.size === 0) return 'fail: эталон не загрузился';
+    const id = String(currentTaskId).padStart(2, '0');
+    const kum = await fetch('files/oge15/oge-15-2026-' + id + '.kum').then((r) => (r.ok ? r.text() : Promise.reject(r.status)));
+    document.getElementById('codeEditor').value = kum;
+    stopAutoRun();
+    runProgram();
+    stopAutoRun();
+    for (let i = 0; i < 60000 && interpreter && !interpreter.finished; i++) interpreter.step();
+    if (!interpreter || !interpreter.finished) return 'fail: программа не завершилась';
+    if (interpreter.error) return 'fail: ' + interpreter.error;
+    checkProgram();
+    if (field.rewarded) return 'ok';
+    const logText = (document.getElementById('logArea') || {}).textContent || '';
+    return 'fail: не зачтено — ' + logText.replace(/\\s+/g, ' ').trim().slice(-140);
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge15.html (обстановка+эталон): ${String(res).slice(0, 170)}`);
+  if (res !== 'ok' && !/no-api/.test(String(res))) errors.push(`oge15.html: e2e — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
 // 3. Задание 16: прогон эталонного решения через песочницу (если PHP доступен).
 {
   const { cdp, targetId } = await openPage('oge16.html');

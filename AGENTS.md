@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v25'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v26'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v24` → `v25`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v25` → `v26`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -88,9 +88,14 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 `node tools/check-oge11-archive.mjs` (ответы задания 11 сверяются с текстом произведений
 в `files/Задание11-12.zip`: папка и файл берутся из подсказки, поддерживаются
 `.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
-они же запускаются в CI (`.github/workflows/checks.yml`). Вне CI (нужен интернет):
-`node tools/check-links.mjs` — внешние ссылки на sister-сайты. Перед коммитом правок
-страниц: `node tools/update-sitemap.mjs` (lastmod = дата последнего коммита файла).
+они же запускаются в CI (`.github/workflows/checks.yml`), там же — браузерный
+smoke-тест (`php -S` + headless Chrome): 35 страниц на ошибки и CSP, ответы
+заданий 1–12, сборка URL (7), КуМир (15), песочница (16).
+Вне CI (нужен интернет): `node tools/check-links.mjs` — внешние ссылки на
+sister-сайты. Перед коммитом правок страниц: `node tools/update-sitemap.mjs`
+(lastmod = дата последнего коммита файла). Визуальная регрессия CSS:
+`node tools/visual-baseline.mjs base.json --shots shots && ... && node tools/visual-shot-diff.mjs shots shots2`
+(рендеринг детерминирован, сравнение по sha256).
 
 ## 🏗 Структура
 
@@ -115,8 +120,9 @@ tools/check-site.mjs               # статические проверки (с
 tools/check-css.mjs                # CSS-аудит + реестр известных конфликтов
 tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
-tools/visual-baseline.mjs          # снимок вычисленных стилей (регрессия CSS, нужен Chrome)
-tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, песочница, CSP (нужен Chrome)
+tools/visual-baseline.mjs          # снимок вычисленных стилей + скриншоты (--shots), нужен Chrome
+tools/visual-shot-diff.mjs         # попиксельное сравнение скриншотов (визуальная регрессия)
+tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, CSP
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)

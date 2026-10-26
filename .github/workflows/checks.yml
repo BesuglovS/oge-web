@@ -38,3 +38,16 @@ jobs:
 
       - name: Sandbox integration test
         run: node tools/check-sandbox.mjs
+
+      # Браузерный smoke-тест: реальный Chrome, реальные страницы.
+      # php -S нужен для задания 16 (песочница) и загрузки JSON задания 15.
+      - name: Start dev server
+        run: |
+          SANDBOX_ALLOW_FALLBACK=1 php -S 127.0.0.1:8080 -t . > /tmp/php-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:8080/oge.html && break
+            sleep 1
+          done
+
+      - name: Browser smoke test (headless Chrome)
+        run: node tools/browser-smoke.mjs http://127.0.0.1:8080

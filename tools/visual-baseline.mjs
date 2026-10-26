@@ -21,11 +21,16 @@ if (!chromePath) {
   process.exit(1);
 }
 
-const outFile = process.argv[2];
+const args = process.argv.slice(2);
+const shotsIdx = args.indexOf('--shots');
+const shotsDir = shotsIdx >= 0 ? args[shotsIdx + 1] : '';
+const positional = args.filter((a, i) => !a.startsWith('--') && (shotsIdx < 0 || i !== shotsIdx + 1));
+const outFile = positional[0];
 if (!outFile) {
-  console.error('Укажите файл: node tools/visual-baseline.mjs baseline.json');
+  console.error('Укажите файл: node tools/visual-baseline.mjs baseline.json [--shots папка]');
   process.exit(1);
 }
+if (shotsDir) fs.mkdirSync(shotsDir, { recursive: true });
 
 const base = process.env.BASE || 'http://127.0.0.1:8080';
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
@@ -38,7 +43,7 @@ const viewports = [
 const port = 9400 + Math.floor(Math.random() * 300);
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'oge-visual-'));
 const chrome = spawn(chromePath, [
-  '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
+  '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
   '--disable-extensions', '--hide-scrollbars',
   `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank',
 ], { stdio: 'ignore' });
@@ -144,6 +149,10 @@ for (const vp of viewports) {
     await sleep(1200);
     const res = await cdp.send('Runtime.evaluate', { expression: COLLECT, returnByValue: true });
     data[`${page}@${vp.name}`] = JSON.parse(res.result.value);
+    if (shotsDir) {
+      const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+      fs.writeFileSync(path.join(shotsDir, `${page.replace(/\.html$/, '')}-${vp.name}.png`), Buffer.from(shot.data, 'base64'));
+    }
     cdp.close();
     await fetch(`http://127.0.0.1:${port}/json/close/${t.id}`);
     process.stdout.write('.');

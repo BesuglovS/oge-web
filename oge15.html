@@ -2528,10 +2528,10 @@ function runProgram() {
   }
 
   const code = textarea.value;
-  let tokens, ast;
+  let tokens, ast, parser;
   try {
     tokens = lex(code);
-    const parser = new Parser(tokens);
+    parser = new Parser(tokens);
     ast = parser.parseProgram();
   } catch (err) {
     log('Ошибка синтаксиса: ' + err.message, 'err');
