@@ -39,6 +39,7 @@
 
       <div class="stats-bar">
         <div class="stat-item">Задача №<span id="taskNumber">1</span></div>
+        <div class="stat-item">Решено: <span id="solvedNumber">0</span> из 20</div>
       </div>
 
             <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
@@ -307,6 +308,12 @@
         }
       }
 
+      // Счётчик «Решено: X из 20» в шапке страницы.
+      function updateSolvedCounter() {
+        const el = document.getElementById("solvedNumber");
+        if (el) el.textContent = answeredTasks.size;
+      }
+
       // Приводим ответ к единому виду: регистр, «ё»→«е», пробелы и обрамляющие знаки
       function normalizeAnswer(value) {
         return (value || "")
@@ -458,6 +465,7 @@
       }
       if (typeof trackTaskStart === 'function') { trackTaskStart('oge12'); }
       renderTask(getRandomUnansweredIndex());
+      updateSolvedCounter();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
     </script>
     <script src="js/progress-client.js"></script>

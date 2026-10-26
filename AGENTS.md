@@ -115,6 +115,7 @@ tools/check-css.mjs                # CSS-аудит + реестр извест�
 tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
 tools/visual-baseline.mjs          # снимок вычисленных стилей (регрессия CSS, нужен Chrome)
+tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, песочница, CSP (нужен Chrome)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
@@ -168,7 +169,8 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `max-age=2592000, immutable`,
 `no-cache` для `/sw.js`, `version.json`, `manifest.json`, `styles.css` и JS-клиентов (включая
 `code-editor.js`, `oge15-gen.js`, `oge15-ref.js`), dotfiles deny **до** правил расширений,
-`limit_req zone=sandbox_oge rate=20r/s burst=60` на `run_python.php`.
+`limit_req zone=sandbox_oge rate=20r/s burst=60` на `run_python.php`,
+**CSP** (см. «Безопасность») на HTML-страницах.
 Деплой атомарный: `public` — симлинк на `releases/<ts>`; после сборки релиза
 проверяются `oge.html`, `sw.js`, `version.json`, `js/progress.js`, `js/oge15-ref.js`
 и `files/*.zip`. Откат — переключение симлинка на предыдущий релиз.
@@ -181,6 +183,13 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   через root-хелпер `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
   **Fail-closed:** без хелпера на Linux — 503, а не запуск без изоляции. Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
+- **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`
+  (`'unsafe-inline'` пока нужен из-за inline-обработчиков), стили — свои и inline,
+  картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
+  `auth.nayanovaacademy.ru`; `object-src/base-uri 'none'`, `form-action 'self'`,
+  `frame-ancestors 'self'`, `upgrade-insecure-requests`. Политика проверена headless
+  Chrome (`tools/browser-smoke.mjs`): 35 страниц, 0 нарушений. При добавлении
+  внешнего ресурса — расширять политику осознанно.
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — намеренно задеплоен, не удалять без понимания.
 - `.env` и `C:\websites\na\ssh-deploy.key` — никогда не печатать/коммитить.
 - Деплой атомарный: `public` — симлинк на `releases/<ts>`; серверные файлы `git/`
