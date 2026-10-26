@@ -1,4 +1,4 @@
-# ОГЭ — Интерактивные задания по информатике
+﻿# ОГЭ — Интерактивные задания по информатике
 
 [![checks](https://github.com/BesuglovS/oge-web/actions/workflows/checks.yml/badge.svg)](https://github.com/BesuglovS/oge-web/actions/workflows/checks.yml)
 
@@ -63,7 +63,7 @@ php -S 127.0.0.1:8080
 Статические проверки (ссылки, canonical, sw-ассеты вместе с 40 файлами задания 15,
 иконки, head-теги, BOM, sitemap, разметка/доступность, бюджет размера), CSS-аудит,
 проверки данных (577 тестов задания 16, ответы генераторов заданий 1–10, сверка
-`.kum`↔`e-*.json` и генератора задания 15, `oge7.json`↔`oge7.txt`, ответы заданий
+`.kum`↔`e-*.json` и генератора задания 15, структура `data/oge7.json`, ответы заданий
 11 и 12 по архиву), примеры кода теории, песочница и PHP-линт:
 
 ```bash
@@ -102,7 +102,6 @@ oge-web/
 ├── oge{N}.html           # Интерактивные задания 1–16
 ├── oge{N}-t.html         # Теория к заданиям (13.1/13.2/14 — только теория)
 ├── oge4-path.html        # Доп. тренажёр: кратчайший путь в графе
-├── oge7.txt              # Легаси-данные задания 7 (JSON-версия: data/oge7.json)
 ├── run_python.php        # Python-песочница (задание 16)
 ├── assets/               # styles.css, favicon.svg, иконки
 ├── js/                   # metrika.js, progress.js, progress-client.js,

@@ -99,6 +99,14 @@ try {
       errors.push(`manifest.json: ярлык «${sc.name}» ведёт на несуществующий ${sc.url}`);
     }
   }
+  for (const sc of mf.screenshots || []) {
+    if (!existsSync(join(root, String(sc.src || '')))) {
+      errors.push(`manifest.json: нет скриншота ${sc.src}`);
+    }
+    if (!/^\d+x\d+$/.test(String(sc.sizes || ''))) {
+      errors.push(`manifest.json: у скриншота ${sc.src} некорректный sizes`);
+    }
+  }
 } catch (e) {
   errors.push('manifest.json: ' + e.message);
 }
@@ -220,6 +228,19 @@ for (const f of htmlFiles) {
       else if (desc.length < 50 || desc.length > 200) errors.push(`${f}: description ${desc.length} символов`);
       else if (descriptions.has(desc)) errors.push(`${f}: description совпадает с ${descriptions.get(desc)}`);
       else descriptions.set(desc, f);
+    } else {
+      // Служебные страницы тоже должны иметь описание — без проверки длины.
+      if (!/<meta name="description"/.test(html)) errors.push(`${f}: нет meta description`);
+    }
+
+    // Skip-link — во всех страницах, включая служебные.
+    if (!/class="skip-link"/.test(html)) errors.push(`${f}: нет skip-link`);
+
+    // og:image должен указывать на существующий файл (свой домен).
+    const ogImage = (html.match(/<meta property="og:image" content="([^"]+)"/) || [])[1];
+    if (ogImage && ogImage.startsWith('https://oge.nayanovaacademy.ru/')) {
+      const rel = ogImage.replace('https://oge.nayanovaacademy.ru/', '');
+      if (!existsSync(join(root, rel))) errors.push(`${f}: og:image ${rel} не существует`);
     }
   }
 

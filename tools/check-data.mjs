@@ -3,7 +3,7 @@
 //  1) задание 16 — каждое эталонное решение проходит все тесты;
 //  2) задание 15 — .kum-эталоны совпадают с e-*.json, генератор строит
 //     валидные обстановки;
-//  3) задание 7 — data/oge7.json синхронен с oge7.txt;
+//  3) задание 7 — структура data/oge7.json (oge7.txt удалён как легаси);
 //  4) задание 12 — ответы совпадают с содержимым files/Задание11-12.zip.
 // Запуск: node tools/check-data.mjs   (нужен python 3)
 import fs from 'node:fs';
@@ -1064,40 +1064,28 @@ try {
   errors.push('oge7: ' + e.message);
 }
 
-/* ─────────── 3. Задание 7 ─────────── */
+/* ─────────── 3. Задание 7: структура данных ─────────── */
+// oge7.txt был легаси-копией данных (его никто не загружал) и удалён —
+// единственный источник теперь data/oge7.json.
 try {
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge7.json'), 'utf8'));
-  const raw = fs.readFileSync(path.join(root, 'oge7.txt'), 'utf8');
-  const mapping = {
-    'Протоколы': 'protocols',
-    'Домены (кириллица)': 'domainsCyrillic',
-    'Домены (латиница)': 'domainsLatin',
-    'Пути (кириллица)': 'pathsCyrillic',
-    'Пути (латиница)': 'pathsLatin',
-    'Имена файлов (кириллица)': 'filesCyrillic',
-    'Имена файлов (латиница)': 'filesLatin',
-  };
-  const sections = {};
-  let current = null;
-  for (const line of raw.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('#')) {
-      current = trimmed.replace(/^#+\s*/, '');
-      sections[current] = [];
-    } else if (trimmed && current) {
-      sections[current].push(trimmed);
+  const keys = ['protocols', 'domainsCyrillic', 'domainsLatin', 'pathsCyrillic', 'pathsLatin', 'filesCyrillic', 'filesLatin'];
+  for (const key of keys) {
+    if (!Array.isArray(data[key]) || data[key].length === 0) {
+      errors.push(`oge7: ${key} отсутствует или пуст`);
+      continue;
+    }
+    if (data[key].some((v) => typeof v !== 'string' || !v.trim())) {
+      errors.push(`oge7: ${key} содержит нестроковые/пустые значения`);
+    }
+    if (new Set(data[key]).size !== data[key].length) {
+      errors.push(`oge7: ${key} содержит дубликаты`);
     }
   }
-  for (const [section, key] of Object.entries(mapping)) {
-    const a = sections[section] || [];
-    const b = data[key] || [];
-    const onlyTxt = a.filter((x) => !b.includes(x));
-    const onlyJson = b.filter((x) => !a.includes(x));
-    if (onlyTxt.length || onlyJson.length) {
-      errors.push(`oge7: ${key} рассинхронизирован (только txt: ${onlyTxt.join(', ') || '—'}; только json: ${onlyJson.join(', ') || '—'})`);
-    }
+  if (Array.isArray(data.protocols) && !data.protocols.every((p) => /^[a-z]+$/.test(p))) {
+    errors.push('oge7: протоколы должны быть латиницей в нижнем регистре');
   }
-  console.log('oge7: data/oge7.json и oge7.txt синхронны');
+  console.log(`oge7: data/oge7.json корректен (${keys.length} списков)`);
 } catch (e) {
   errors.push('oge7: ' + e.message);
 }

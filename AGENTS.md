@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v24'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v25'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v23` → `v24`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v24` → `v25`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -80,7 +80,7 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 5 типов), 9 (пути в графе — полный перебор, включая «через/не через вершину»)
 и 10 (ответ пересчитывается по тексту задачи, который видит ученик); сверка
 `.kum`↔`e-*.json` и синхронность `js/oge15-ref.js`↔`.kum`, структура `tasks.json`;
-генератор задания 15; синхронность `data/oge7.json`↔`oge7.txt`; ответы задания 12 по архиву),
+генератор задания 15; структура `data/oge7.json`; ответы задания 12 по архиву),
 `node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
 допуск, строки, запрещённый импорт, timeout, GET 405),
 `node tools/check-theory.mjs` (примеры кода в теории: Python-блоки компилируются,
@@ -89,7 +89,8 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 в `files/Задание11-12.zip`: папка и файл берутся из подсказки, поддерживаются
 `.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
 они же запускаются в CI (`.github/workflows/checks.yml`). Вне CI (нужен интернет):
-`node tools/check-links.mjs` — внешние ссылки на sister-сайты. Остальное — вручную (drag-drop, офлайн).
+`node tools/check-links.mjs` — внешние ссылки на sister-сайты. Перед коммитом правок
+страниц: `node tools/update-sitemap.mjs` (lastmod = дата последнего коммита файла).
 
 ## 🏗 Структура
 
@@ -98,7 +99,7 @@ oge.html               # лендинг-навигация (карточки з�
 oge{N}.html            # интерактивные задания 1–16 (inline CSS/JS, данные в JS-объектах)
 oge{N}-t.html          # теория для каждого задания; oge131-t / oge132-t / oge14-t — только теория
 oge4-path.html         # доп. тренажёр: кратчайший путь в графе
-oge7.txt               # легаси-данные задания 7; data/oge7.json — JSON-версия (в синхроне)
+data/oge7.json         # данные задания 7 (единственный источник; легаси oge7.txt удалён)
 run_python.php         # Python-песочница (задание 16) — СМ. крит. правило 2
 php-fpm-opcache.ini    # opcache.revalidate_path=1 для симлинк-деплоя (копия серверной)
 assets/styles.css      # общий стиль (организован по секциям и постранично)
@@ -116,6 +117,7 @@ tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
 tools/visual-baseline.mjs          # снимок вычисленных стилей (регрессия CSS, нужен Chrome)
 tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, песочница, CSP (нужен Chrome)
+tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)

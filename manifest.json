@@ -48,11 +48,33 @@
       "purpose": "maskable"
     },
     {
+      "src": "assets/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "assets/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     }
   ],
-  "categories": ["education"]
+  "categories": ["education"],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Все 16 заданий ОГЭ: тренажёры и теория"
+    },
+    {
+      "src": "assets/screenshots/mobile.png",
+      "sizes": "390x780",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Карточки заданий на телефоне"
+    }
+  ]
 }
