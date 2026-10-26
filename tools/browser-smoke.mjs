@@ -28,6 +28,10 @@ if (!CHROME) {
 }
 
 const base = (process.argv[2] || process.env.BASE || 'http://127.0.0.1:8080').replace(/\/$/, '');
+if (typeof WebSocket === 'undefined') {
+  console.error('Нужен Node 22+ (глобальный WebSocket для CDP)');
+  process.exit(1);
+}
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
 const port = 9600 + Math.floor(Math.random() * 200);
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'oge-smoke-'));
