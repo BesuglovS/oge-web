@@ -60,9 +60,10 @@ server {
     add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     # CSP: inline-обработчики и стили пока разрешены ('unsafe-inline'), зато
     # заблокированы сторонние скрипты, object/base/form-hijack и сторонние
-    # фреймы. Разрешены только свои файлы, Метрика (tag.js) и API портала.
-    # Политика проверена headless Chrome: 35 страниц, 0 нарушений.
-    set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://auth.nayanovaacademy.ru; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
+    # фреймы. Разрешены только свои файлы, Метрика (tag.js + её служебный
+    # iframe mc.yandex.ru) и API портала. Проверено headless Chrome:
+    # 35 страниц, 0 нарушений (tools/browser-smoke.mjs).
+    set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
     add_header Content-Security-Policy $csp always;
 
     # --- Основные параметры сайта ---

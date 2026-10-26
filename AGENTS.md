@@ -188,10 +188,11 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
 - **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`
   (`'unsafe-inline'` пока нужен из-за inline-обработчиков), стили — свои и inline,
   картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
-  `auth.nayanovaacademy.ru`; `object-src/base-uri 'none'`, `form-action 'self'`,
-  `frame-ancestors 'self'`, `upgrade-insecure-requests`. Политика проверена headless
-  Chrome (`tools/browser-smoke.mjs`): 35 страниц, 0 нарушений. При добавлении
-  внешнего ресурса — расширять политику осознанно.
+  `auth.nayanovaacademy.ru`, `frame-src` — только `mc.yandex.ru` (Метрика создаёт
+  служебный iframe даже с выключенным вебвизором); `object-src/base-uri 'none'`,
+  `form-action 'self'`, `frame-ancestors 'self'`, `upgrade-insecure-requests`.
+  Политика проверена headless Chrome (`tools/browser-smoke.mjs`): 35 страниц,
+  0 нарушений. При добавлении внешнего ресурса — расширять политику осознанно.
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — задеплоен намеренно,
   но закрыт **HTTP Basic** в nginx (`location ^~ /git/`, `auth_basic_user_file
   /etc/nginx/oge-git-htpasswd`). Логин/пароль — `/root/oge-git-ui-credentials.txt` (600);
