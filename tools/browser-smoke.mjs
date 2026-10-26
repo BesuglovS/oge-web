@@ -42,8 +42,21 @@ const chromeArgs = ['--headless=new', '--disable-gpu', '--disable-dev-shm-usage'
 if (process.env.CI || (typeof process.getuid === 'function' && process.getuid() === 0)) {
   chromeArgs.unshift('--no-sandbox', '--disable-setuid-sandbox');
 }
-const chrome = spawn(CHROME, chromeArgs, { stdio: 'ignore' });
-const kill = () => { try { spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' }); } catch (e) { /* ignore */ } };
+const chrome = spawn(CHROME, chromeArgs, { stdio: 'ignore', detached: process.platform !== 'win32' });
+const kill = () => {
+  if (!chrome || !chrome.pid) return;
+  try {
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' });
+    } else {
+      // Chrome запущен отдельной группой — гасим её целиком, иначе его
+      // дочерние процессы остаются жить и держат пайпы шага CI.
+      process.kill(-chrome.pid, 'SIGKILL');
+    }
+  } catch (e) {
+    try { chrome.kill('SIGKILL'); } catch (e2) { /* ignore */ }
+  }
+};
 process.on('exit', () => { kill(); try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) { /* ignore */ } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -253,3 +266,4 @@ if (errors.length) {
 }
 console.log(`\nOK: ${pages.length} страниц без ошибок, ответы и песочница работают`);
 kill();
+process.exit(0);

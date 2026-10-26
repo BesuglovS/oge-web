@@ -57,5 +57,8 @@ jobs:
             echo "--- php server log ---"
             tail -50 /tmp/php-server.log || true
           fi
-          kill $SERVER_PID 2>/dev/null || true
+          # Гасим всё, что могло остаться: сервер и возможные процессы Chrome.
+          kill -9 $SERVER_PID 2>/dev/null || true
+          pkill -f 'chrome --headless' 2>/dev/null || true
+          pkill -f 'chrome_crashpad' 2>/dev/null || true
           exit $status

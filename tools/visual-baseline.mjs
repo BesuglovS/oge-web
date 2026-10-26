@@ -46,12 +46,12 @@ const chrome = spawn(chromePath, [
   '--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
   '--disable-extensions', '--hide-scrollbars',
   `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank',
-], { stdio: 'ignore' });
+], { stdio: 'ignore', detached: process.platform !== 'win32' });
 
 const kill = () => {
   try {
     if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' });
-    else chrome.kill('SIGKILL');
+    else process.kill(-chrome.pid, 'SIGKILL');
   } catch (e) { /* ignore */ }
 };
 const cleanup = () => { kill(); try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) { /* ignore */ } };
@@ -163,3 +163,4 @@ process.stdout.write('\n');
 fs.writeFileSync(outFile, JSON.stringify(data), 'utf8');
 console.log('сохранено:', outFile, 'снимков:', Object.keys(data).length);
 kill();
+process.exit(0);
