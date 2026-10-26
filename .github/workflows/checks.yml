@@ -40,14 +40,22 @@ jobs:
         run: node tools/check-sandbox.mjs
 
       # Браузерный smoke-тест: реальный Chrome, реальные страницы.
-      # php -S нужен для задания 16 (песочница) и загрузки JSON задания 15.
-      - name: Start dev server
+      # Сервер поднимаем в том же шаге — GitHub гасит фоновые процессы
+      # при завершении шага.
+      - name: Browser smoke test (headless Chrome)
+        timeout-minutes: 12
         run: |
           SANDBOX_ALLOW_FALLBACK=1 php -S 127.0.0.1:8080 -t . > /tmp/php-server.log 2>&1 &
+          SERVER_PID=$!
           for i in $(seq 1 30); do
             curl -sf -o /dev/null http://127.0.0.1:8080/oge.html && break
             sleep 1
           done
-
-      - name: Browser smoke test (headless Chrome)
-        run: node tools/browser-smoke.mjs http://127.0.0.1:8080
+          node tools/browser-smoke.mjs http://127.0.0.1:8080
+          status=$?
+          if [ $status -ne 0 ]; then
+            echo "--- php server log ---"
+            tail -50 /tmp/php-server.log || true
+          fi
+          kill $SERVER_PID 2>/dev/null || true
+          exit $status

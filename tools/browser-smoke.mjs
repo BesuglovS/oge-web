@@ -35,8 +35,14 @@ if (typeof WebSocket === 'undefined') {
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
 const port = 9600 + Math.floor(Math.random() * 200);
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'oge-smoke-'));
-const chrome = spawn(CHROME, ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
-  '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+const chromeArgs = ['--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
+  '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'];
+// В CI контейнеры часто запускают Chrome без user-namespace — иначе он падает
+// или зависает на старте (в логах «Failed to move to new namespace»).
+if (process.env.CI || (typeof process.getuid === 'function' && process.getuid() === 0)) {
+  chromeArgs.unshift('--no-sandbox', '--disable-setuid-sandbox');
+}
+const chrome = spawn(CHROME, chromeArgs, { stdio: 'ignore' });
 const kill = () => { try { spawnSync('taskkill', ['/pid', String(chrome.pid), '/T', '/F'], { stdio: 'ignore' }); } catch (e) { /* ignore */ } };
 process.on('exit', () => { kill(); try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) { /* ignore */ } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -59,10 +65,19 @@ class Cdp {
       } else if (m.method) this.events.push(m);
     });
   }
-  send(method, params = {}) {
+  send(method, params = {}, timeoutMs = 30000) {
     const id = ++this.id;
     this.ws.send(JSON.stringify({ id, method, params }));
-    return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error('CDP timeout: ' + method));
+      }, timeoutMs);
+      this.pending.set(id, {
+        resolve: (v) => { clearTimeout(timer); resolve(v); },
+        reject: (e) => { clearTimeout(timer); reject(e); },
+      });
+    });
   }
   async evalJs(expression) {
     const r = await this.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
@@ -94,6 +109,7 @@ const pages = fs.readdirSync(rootDir).filter((f) => f.endsWith('.html')).sort();
 
 // 1. Все страницы: ошибки консоли и CSP.
 for (const page of pages) {
+  process.stdout.write('.');
   const { cdp, targetId } = await openPage(page);
   const bad = cdp.events
     .filter((e) => e.method === 'Log.entryAdded' && e.params.entry.level === 'error')
@@ -230,7 +246,6 @@ for (const page of pages) {
 
 console.log('\nРезультаты:');
 for (const r of results) console.log('  ' + r);
-
 if (errors.length) {
   console.error(`\nПроблем: ${errors.length}`);
   for (const e of errors) console.error(' - ' + e);
