@@ -190,7 +190,12 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   `frame-ancestors 'self'`, `upgrade-insecure-requests`. Политика проверена headless
   Chrome (`tools/browser-smoke.mjs`): 35 страниц, 0 нарушений. При добавлении
   внешнего ресурса — расширять политику осознанно.
-- `git/index.php` раскрывает внутренности сервера (список репозиториев) — намеренно задеплоен, не удалять без понимания.
+- `git/index.php` раскрывает внутренности сервера (список репозиториев) — задеплоен намеренно,
+  но закрыт **HTTP Basic** в nginx (`location ^~ /git/`, `auth_basic_user_file
+  /etc/nginx/oge-git-htpasswd`). Логин/пароль — `/root/oge-git-ui-credentials.txt` (600);
+  смена пароля — `printf 'oge:%s\n' "$(openssl passwd -apr1 'НОВЫЙ')" >
+  /etc/nginx/oge-git-htpasswd` + `chown root:www-data` + `chmod 640` (reload не нужен).
+  Всё под `/git/` исполняется через `git/index.php` — исходники PHP статикой не отдаются.
 - `.env` и `C:\websites\na\ssh-deploy.key` — никогда не печатать/коммитить.
 - Деплой атомарный: `public` — симлинк на `releases/<ts>`; серверные файлы `git/`
   переносятся в новый релиз без перезаписи, старые релизы хранятся (5) для отката.

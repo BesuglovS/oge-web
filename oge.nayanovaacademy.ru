@@ -84,6 +84,27 @@ server {
         log_not_found off;
     }
 
+    # 1b. Self-hosted git UI: список репозиториев и команды клонирования.
+    # Доступ — только по паролю (файл /etc/nginx/oge-git-htpasswd создаётся
+    # вне репозитория; логин и пароль — /root/oge-git-ui-credentials.txt).
+    # Всё под /git/ выполняет index.php: других файлов там нет, поэтому
+    # исходники PHP не могут быть отданы как статика.
+    location ^~ /git/ {
+        auth_basic "Git UI";
+        auth_basic_user_file /etc/nginx/oge-git-htpasswd;
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root/git/index.php;
+        fastcgi_param SCRIPT_NAME /git/index.php;
+        include fastcgi_params;
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+        add_header Cache-Control "no-store" always;
+        add_header X-Robots-Tag "noindex, nofollow" always;
+    }
+
     # 2. Python-песочница (задание 16): точный match выше regex `\.php$`,
     # обязательно с ограничением частоты (2a) и иммутабельным security-набором.
     location = /run_python.php {
