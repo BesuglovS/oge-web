@@ -18,6 +18,7 @@ const rules = parseRules(css);
 const errors = [];
 const update = process.argv.includes('--update');
 const fix = process.argv.includes('--fix');
+const merge = process.argv.includes('--merge');
 
 function braceDepth(src) {
   let depth = 0;
@@ -90,6 +91,39 @@ for (const r of rules) {
   const key = keyOf(r);
   if (!groups.has(key)) groups.set(key, []);
   groups.get(key).push(r);
+}
+
+// --merge: объединить все правила одного селектора (в одном контексте)
+// в один блок. Значение каждого свойства берётся из последнего объявления,
+// порядок — по последнему появлению свойства, поэтому каскад не меняется.
+if (merge) {
+  const edits = [];
+  let mergedGroups = 0;
+  for (const list of groups.values()) {
+    if (list.length < 2) continue;
+    const order = [];
+    const values = new Map();
+    for (const r of list) {
+      for (const d of splitDeclarations(r.body)) {
+        if (!values.has(d.prop)) order.push(d.prop);
+        values.set(d.prop, d.value + (d.important ? ' !important' : ''));
+        const idx = order.indexOf(d.prop);
+        if (idx >= 0) { order.splice(idx, 1); order.push(d.prop); }
+      }
+    }
+    if (!order.length) continue;
+    const body = '\n  ' + order.map((p) => `${p}: ${values.get(p)};`).join('\n  ') + '\n';
+    const last = list[list.length - 1];
+    edits.push({ start: last.bodyStart, end: last.bodyStart + last.body.length, text: body });
+    for (const r of list.slice(0, -1)) edits.push({ start: r.start, end: r.end, text: '' });
+    mergedGroups++;
+  }
+  edits.sort((a, b) => b.start - a.start);
+  let out = css;
+  for (const e of edits) out = out.slice(0, e.start) + e.text + out.slice(e.end);
+  fs.writeFileSync(cssPath, out, 'utf8');
+  console.log(`--merge: объединено групп ${mergedGroups}; запустите --update и проверку`);
+  process.exit(0);
 }
 
 // --fix: удалить точные дубли (порядок объявлений не важен, если нет

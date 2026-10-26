@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v23'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v24'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v22` → `v23`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v23` → `v24`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -67,8 +67,9 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 разметка/доступность: один `h1`, уникальные `id`, `alt` у картинок, `type` у кнопок,
 `rel="noopener"`, подключение скриптов аналитики/прогресса и бюджет размера файлов),
 `node tools/check-css.mjs` (баланс скобок, мёртвые правила, точные дубли, полностью
-перекрытые правила и реестр `tools/css-known-conflicts.json` — 41 известный конфликт
-page-секций, требующий визуального аудита),
+перекрытые правила и реестр `tools/css-known-conflicts.json` — сейчас конфликтов 0;
+`--merge` объединяет правила одного селектора, `--fix` удаляет дубли, `--update`
+обновляет реестр),
 `node tools/check-data.mjs` (577 тестов задания 16, 60 уникальных id; ответы генераторов
 заданий 1 (размер текста: цена символа × (длина+2) = изменение, ответ есть в списке и
 однозначен), 2 (условие Фано и единственность расшифровки), 3 (условие разбирается из
@@ -112,7 +113,8 @@ git/index.php                      # web-UI self-hosted git-репозитори
 tools/check-site.mjs               # статические проверки (ссылки, SW, SEO, BOM)
 tools/check-css.mjs                # CSS-аудит + реестр известных конфликтов
 tools/css-utils.mjs                # общий парсер CSS
-tools/css-known-conflicts.json     # 41 известный конфликт page-секций
+tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
+tools/visual-baseline.mjs          # снимок вычисленных стилей (регрессия CSS, нужен Chrome)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
