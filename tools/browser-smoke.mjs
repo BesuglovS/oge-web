@@ -44,7 +44,7 @@ let target = base;
 if (process.argv.includes('--csp')) {
   const { buildPolicy } = await import('./csp-policy.mjs');
   const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
-  const { policy, hashes } = buildPolicy(rootDir);
+  const { policy, scriptHashes, styleHashes } = buildPolicy(rootDir);
   const http = await import('node:http');
   const proxyPort = 0;
   cspProxy = http.createServer(async (req, res) => {
@@ -80,7 +80,7 @@ if (process.argv.includes('--csp')) {
   });
   await new Promise((r) => cspProxy.listen(proxyPort, '127.0.0.1', r));
   target = `http://127.0.0.1:${cspProxy.address().port}`;
-  console.log(`CSP-прокси: ${target} (хешей inline-скриптов: ${hashes.length})`);
+  console.log(`CSP-прокси: ${target} (хеши inline-скриптов: ${scriptHashes.length}, стилей: ${styleHashes.length})`);
 }
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
 let port = 0;
@@ -262,6 +262,16 @@ const pages = fs.readdirSync(rootDir).filter((f) => f.endsWith('.html')).sort();
 for (const page of pages) {
   process.stdout.write('.');
   const { cdp, targetId } = await openPage(page);
+  // Подсказка и решение генерируют разметку со style="…" уже после загрузки —
+  // эти значения тоже должны быть в policy, иначе стили молча пропадут.
+  await cdp.evalJs(`(() => {
+    for (const act of ['showHint', 'showSolution']) {
+      const el = document.querySelector('[data-act="' + act + '"]');
+      if (el) el.click();
+    }
+    return true;
+  })()`).catch(() => {});
+  await sleep(300);
   const bad = cdp.events
     .filter((e) => e.method === 'Log.entryAdded' && e.params.entry.level === 'error')
     // CORS локального портала ожидаем при проверке не на проде

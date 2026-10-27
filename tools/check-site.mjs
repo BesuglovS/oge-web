@@ -3,6 +3,7 @@
 // Запуск: node tools/check-site.mjs   (из корня репозитория)
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
+import { buildPolicy } from './csp-policy.mjs';
 
 const root = process.cwd();
 const errors = [];
@@ -174,7 +175,6 @@ for (const f of htmlFiles) {
   if (/data-(act|act-change|act-key|nav)=/.test(html) && !/js\/actions\.js/.test(html)) {
     errors.push(`${f}: есть data-act, но не подключён js/actions.js`);
   }
-
   const h1 = (markup.match(/<h1[\s>]/gi) || []).length;
   if (h1 !== 1) errors.push(`${f}: заголовков <h1> ${h1} (ожидался ровно один)`);
 
@@ -277,6 +277,16 @@ for (const b of budgets) {
       errors.push(`${b.dir === '.' ? '' : b.dir + '/'}${f}: ${Math.round(size / 1024)} КБ > бюджета ${Math.round(b.max / 1024)} КБ (${b.label})`);
     }
   }
+}
+
+// 13. CSP-политика: все inline-скрипты и inline-стили должны иметь хеши.
+//     Динамический style="…" (сборка строкой) захешировать нельзя — его
+//     нужно перевести на CSSOM (el.style.width = …), иначе стили пропадут.
+try {
+  const { scriptHashes, styleHashes } = buildPolicy(root);
+  if (!scriptHashes.length || !styleHashes.length) errors.push('CSP: пустой набор хешей (ожидались inline-скрипты и стили)');
+} catch (e) {
+  errors.push('CSP: ' + e.message);
 }
 
 if (errors.length) {

@@ -109,12 +109,19 @@ var OGEProgress = (function() {
     var total = getTotalScore();
     el.innerHTML =
       '<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Пройдено заданий: ' + pct + '%">' +
-        '<div class="progress-bar-fill" style="width:' + pct + '%"></div>' +
       '</div>' +
       '<div class="progress-score">' +
         level.emoji + ' ' + level.name + ' — ' + total + ' ' +
         plural(total, 'задание', 'задания', 'заданий') + ' пройдено (' + pct + '%)' +
       '</div>';
+    // Заливка — через CSSOM: инлайновый style-атрибут запрещён CSP (нет 'unsafe-inline').
+    var bar = el.querySelector('.progress-bar');
+    if (bar) {
+      var fill = document.createElement('div');
+      fill.className = 'progress-bar-fill';
+      fill.style.width = pct + '%';
+      bar.appendChild(fill);
+    }
   }
 
   return {

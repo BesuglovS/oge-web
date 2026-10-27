@@ -60,8 +60,11 @@ server {
     add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     # CSP: inline-обработчиков в разметке нет (data-act + js/actions.js),
     # поэтому script-src собирается из 'self', 'sha256-…' для каждого inline
-    # <script> и домена Метрики. Хеши подставляет deploy.ps1 при каждом деплое
-    # (tools/csp-policy.mjs) — строка ниже запасная, с 'unsafe-inline'.
+    # <script> и домена Метрики. Стили — так же: 'sha256-…' для <style> и
+    # style="…" (атрибуты — через 'unsafe-hashes'), без 'unsafe-inline'.
+    # Хеши подставляет deploy.ps1 при каждом деплое (tools/csp-policy.mjs) —
+    # строка ниже запасная (с 'unsafe-inline'): если генератор недоступен,
+    # сайт остаётся рабочим, но политика слабее.
     # Проверка политики: node tools/browser-smoke.mjs <url> --csp.
     set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://mc.yandex.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru https://mc.yandex.com; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
     add_header Content-Security-Policy $csp always;

@@ -214,13 +214,18 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   **`script-src` без `'unsafe-inline'`**: inline-обработчиков нет (в разметке
   `data-act`/`data-act-change`/`data-act-key`/`data-nav` + `js/actions.js`), а
   каждый inline `<script>` разрешён по `'sha256-…'`; хеши считает `tools/csp-policy.mjs`
-  и подставляет `deploy.ps1` при каждом деплое. Стили — свои и inline,
-  картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
+  и подставляет `deploy.ps1` при каждом деплое. **`style-src` тоже без
+  `'unsafe-inline'`**: `<style>` и `style="…"` разрешены по `'sha256-…'` значения
+  (`'unsafe-hashes'` — Chrome 69+, Firefox 109+, Safari 15.4+; разрешает только
+  конкретные значения атрибутов). Динамический `style=` захешировать нельзя,
+  поэтому стили из JS — только через CSSOM (`el.style.width = …`), а `check-site`
+  валит сборку, если находит конкатенацию/интерполяцию в стиле.
+  Картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
   `auth.nayanovaacademy.ru`, `frame-src` — только `mc.yandex.ru` (Метрика создаёт
   служебный iframe даже с выключенным вебвизором); `object-src/base-uri 'none'`,
   `form-action 'self'`, `frame-ancestors 'self'`, `upgrade-insecure-requests`.
-  Проверка: `node tools/browser-smoke.mjs <url> --csp` (35 страниц, 0 нарушений,
-  клики/ответы/песочница работают).
+  Проверка: `node tools/browser-smoke.mjs <url> --csp` (35 страниц + подсказки
+  и решения, 0 нарушений, клики/ответы/песочница работают).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — задеплоен намеренно,
   но закрыт **HTTP Basic** в nginx (`location ^~ /git/`, `auth_basic_user_file
   /etc/nginx/oge-git-htpasswd`). Логин/пароль — `/root/oge-git-ui-credentials.txt` (600);
