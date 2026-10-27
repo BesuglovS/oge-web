@@ -87,3 +87,15 @@ jobs:
           pkill -f 'chrome --headless' 2>/dev/null || true
           pkill -f 'chrome_crashpad' 2>/dev/null || true
           exit $status
+
+      # Снимок, на котором упала проверка: скачать и сравнить локально
+      # (node tools/check-visual.mjs snap.json) — так отлаживать расхождения
+      # можно без повторных прогонов CI.
+      - name: Upload visual snapshot (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-snapshot
+          path: /tmp/oge-visual-*.json
+          if-no-files-found: ignore
+          retention-days: 7

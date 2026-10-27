@@ -29,19 +29,31 @@ const raw = args.includes('--raw');
 const given = args.find((a) => !a.startsWith('--'));
 
 // Свойства, значения которых зависят от метрик шрифта (нормальный line-height,
-// высота текстовых блоков, auto-отступы, поглощающие свободное место во flex),
-// поэтому они различаются на Windows и Linux. Их не сравниваем — иначе проверка
-// шумит на ровном месте (проверено на первом прогоне: 837 ложных расхождений,
+// высота/ширина текстовых блоков, auto-отступы, поглощающие свободное место во
+// flex), поэтому они различаются на Windows и Linux. Их не сравниваем — иначе
+// проверка шумит на ровном месте (первый прогон в CI: 837 ложных расхождений,
 // все из этого списка). Для полной выборки — скриншоты: visual-baseline --shots
 // + visual-shot-diff на одной машине.
 const IGNORED = new Set([
-  'line-height', 'height',
+  'line-height', 'height', 'width',
   'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
 ]);
-// Ширину сравниваем: блоки обычно заполняют контейнер, ширина от шрифта не зависит.
-// Но числовой допуск оставляем на случай дробных px из-за округления layout'а.
-const TOLERANT = new Set(['width']);
-const TOLERANCE = { rel: 0.05, abs: 4 }; // px: 5% или 4px
+// У form-контролов UA-дефолты свои в каждой ОС и Chrome (фон 240 vs 239,
+// цвет текста, толщина/цвет рамки). Наши стили остаются видны через
+// background-image, box-shadow, border-radius, padding, font-*.
+const CONTROL_TAGS = new Set(['button', 'input', 'select', 'textarea']);
+const CONTROL_IGNORED = new Set([
+  'background-color', 'color',
+  'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
+  'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+]);
+const tagOf = (sel) => {
+  const mm = /\/([a-z0-9]+)\[\d+\]$/.exec(sel);
+  return mm ? mm[1] : '';
+};
+// Числовой допуск — на случай дробных px из-за округления layout'а.
+const TOLERANT = new Set(['padding-top', 'padding-right', 'padding-bottom', 'padding-left']);
+const TOLERANCE = { rel: 0.05, abs: 1 }; // px: 5% или 1px
 
 const readSnapshot = (file) => {
   const buf = fs.readFileSync(file);
@@ -91,10 +103,12 @@ function compare(base, snap) {
       if (!sEls[el]) { diffs.push(`${page} ${el}: элемент исчез`); continue; }
       const bp = parseProps(bEls[el]);
       const sp = parseProps(sEls[el]);
+      const control = CONTROL_TAGS.has(tagOf(el));
       const props = [...new Set([...bp.keys(), ...sp.keys()])].sort();
       const changed = [];
       for (const prop of props) {
         if (!raw && IGNORED.has(prop)) continue;
+        if (!raw && control && CONTROL_IGNORED.has(prop)) continue;
         const bv = bp.has(prop) ? bp.get(prop) : '—';
         const sv = sp.has(prop) ? sp.get(prop) : '—';
         if (!sameValue(prop, bv, sv)) changed.push(`${prop} ${short(bv)} → ${short(sv)}`);
