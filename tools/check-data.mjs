@@ -1170,9 +1170,105 @@ print(json.dumps(bad, ensure_ascii=False))
   errors.push('oge12: ' + e.message);
 }
 
+/* ─────────── 4b. Задание 14: данные таблиц и ответы ─────────── */
+try {
+  const html = fs.readFileSync(path.join(root, 'oge14.html'), 'utf8');
+  const sheets14 = extractArray(html, 'const sheets = [');
+  const tasks14 = extractArray(html, 'const tasks = [');
+  const byId = new Map(sheets14.map((s) => [s.id, s]));
+
+  // Таблицы: строки совпадают с заголовками, есть и текст, и числа.
+  for (const s of sheets14) {
+    if (!Array.isArray(s.headers) || !s.headers.length) errors.push(`oge14: у листа ${s.id} нет заголовков`);
+    for (const [i, row] of s.rows.entries()) {
+      if (row.length !== s.headers.length) errors.push(`oge14 ${s.id}: строка ${i + 1} длиной ${row.length}, ожидалось ${s.headers.length}`);
+      for (const v of row) {
+        if (typeof v !== 'number' && typeof v !== 'string') errors.push(`oge14 ${s.id}: недопустимое значение ${JSON.stringify(v)}`);
+      }
+    }
+  }
+
+  const numbersIn = (sheet, col, from, to) => {
+    const out = [];
+    for (let r = from; r <= to; r++) {
+      const v = sheet.rows[r] && sheet.rows[r][col];
+      if (typeof v === 'number') out.push(v);
+    }
+    return out;
+  };
+  const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const cmp = (a, op, b) => {
+    if (op === '=') return a === b;
+    if (op === '<>') return a !== b;
+    if (op === '<') return a < b;
+    if (op === '>') return a > b;
+    if (op === '<=') return a <= b;
+    if (op === '>=') return a >= b;
+    throw new Error('неизвестный оператор ' + op);
+  };
+  const matches14 = (sheet, chk, v) => {
+    const op = chk.op;
+    const val = chk.val;
+    if (val && typeof val === 'object' && 'avgOf' in val) {
+      return typeof v === 'number' && cmp(v, op, mean(numbersIn(sheet, val.avgOf, chk.from, chk.to)));
+    }
+    if (typeof val === 'number') return typeof v === 'number' && cmp(v, op, val);
+    return typeof v === 'string' && cmp(v.toLowerCase(), op, String(val).toLowerCase());
+  };
+  const round14 = (x, digits) => {
+    const f = Math.pow(10, digits);
+    return (x < 0 ? -Math.round(-x * f) : Math.round(x * f)) / f;
+  };
+
+  const ids14 = new Set();
+  for (const t of tasks14) {
+    if (ids14.has(t.id)) errors.push(`oge14: дублирующийся id ${t.id}`);
+    ids14.add(t.id);
+    if (!byId.has(t.sheet)) { errors.push(`oge14 ${t.id}: нет листа ${t.sheet}`); continue; }
+    if (typeof t.answer !== 'number' || !isFinite(t.answer)) { errors.push(`oge14 ${t.id}: ответ не число`); continue; }
+    if (typeof t.formula !== 'string' || t.formula[0] !== '=') errors.push(`oge14 ${t.id}: нет эталонной формулы`);
+    if (!Array.isArray(t.solution) || !t.solution.length) errors.push(`oge14 ${t.id}: нет решения`);
+    if (typeof t.hint !== 'string' || !t.hint) errors.push(`oge14 ${t.id}: нет подсказки`);
+    const c = t.check;
+    if (!c || !c.kind) { errors.push(`oge14 ${t.id}: нет описания check`); continue; }
+    const sheet = byId.get(t.sheet);
+    let got;
+    if (c.kind === 'countif') {
+      got = 0;
+      for (let r = c.from; r <= c.to; r++) {
+        if (matches14(sheet, c, sheet.rows[r][c.col])) got++;
+      }
+    } else if (c.kind === 'sumif') {
+      got = 0;
+      for (let r = c.from; r <= c.to; r++) {
+        if (!matches14(sheet, c, sheet.rows[r][c.col])) continue;
+        const v = sheet.rows[r][c.sumCol];
+        if (typeof v === 'number') got += v;
+      }
+    } else if (c.kind === 'sumproduct') {
+      got = 0;
+      for (let r = c.from; r <= c.to; r++) got += sheet.rows[r][c.c1] * sheet.rows[r][c.c2];
+    } else if (c.kind === 'max') {
+      got = Math.max(...numbersIn(sheet, c.col, c.from, c.to));
+    } else if (c.kind === 'roundavg') {
+      got = round14(mean(numbersIn(sheet, c.col, c.from, c.to)), c.digits);
+    } else {
+      errors.push(`oge14 ${t.id}: неизвестный тип check ${c.kind}`);
+      continue;
+    }
+    if (Math.abs(got - t.answer) > 1e-6) {
+      errors.push(`oge14 ${t.id}: независимый пересчёт ${got}, в задаче ${t.answer}`);
+    }
+  }
+  if (tasks14.length < 20) errors.push(`oge14: задач ${tasks14.length}, ожидалось не менее 20`);
+  console.log(`oge14: проверено ${tasks14.length} ответов по ${sheets14.length} таблицам`);
+} catch (e) {
+  errors.push('oge14: ' + e.message);
+}
+
 if (errors.length) {
   console.error(`\nОшибок: ${errors.length}`);
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15 и 16 согласованы');

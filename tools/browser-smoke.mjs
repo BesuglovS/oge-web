@@ -422,6 +422,45 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2g. Задание 14: движок формул — каждая эталонная формула даёт ответ задачи,
+//     и ввод формулы в поле ответа зачитывается (а не только число).
+{
+  const { cdp, targetId } = await openPage('oge14.html');
+  const res = await cdp.evalJs(`(() => {
+    if (typeof evalTaskFormula !== 'function' || typeof tasks === 'undefined') return 'no-api';
+    const bad = [];
+    for (const t of tasks) {
+      let v;
+      try { v = evalTaskFormula(t.id); } catch (e) { bad.push(t.id + ': ' + ((e && e.code) || e.message)); continue; }
+      if (typeof v !== 'number' || Math.abs(v - t.answer) > 1e-6) bad.push(t.id + ': ' + v + ' ≠ ' + t.answer);
+    }
+    const extra = [['=1+2*3', 7], ['=ЕСЛИ(1>2;10;20)', 20], ['=ОКРУГЛ(62,85;0)', 63], ['=2*(3+4)', 14]];
+    for (const [src, want] of extra) {
+      let v;
+      try { v = evalFormula(src); } catch (e) { bad.push(src + ': ' + ((e && e.code) || e.message)); continue; }
+      if (v !== want) bad.push(src + ' = ' + v + ', ожидалось ' + want);
+    }
+    if (bad.length) return 'fail: ' + bad.slice(0, 3).join('; ');
+
+    const input = document.getElementById('answerInput');
+    const btn = document.querySelector('.btn-check');
+    if (!input || !btn) return 'no-ui';
+    input.value = currentTask.formula;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const preview = (document.getElementById('formulaPreview') || {}).textContent || '';
+    btn.click();
+    const box = document.getElementById('result');
+    const text = box ? (box.textContent || '') : '';
+    if (!/равильн/i.test(text)) return 'fail: формула не зачтена — ' + text.trim().slice(0, 60);
+    if (!/Значение формулы/.test(preview)) return 'fail: нет предпросмотра значения (' + preview.slice(0, 40) + ')';
+    return 'ok: ' + tasks.length + ' формул, ввод формулы зачтен';
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge14.html (движок формул): ${String(res).slice(0, 150)}`);
+  if (!String(res).startsWith('ok') && !/no-api/.test(String(res))) errors.push(`oge14.html: формулы — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
 // 2f. Задания 11/12: скачивание архива настоящим Chrome + проверка файла.
 //     Ловит и мёртвую ссылку, и поломку UTF-8-флагов (Проводник покажет
 //     кракозябры вместо «Классика/Проза»), и битые записи (CRC32).

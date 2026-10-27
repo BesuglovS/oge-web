@@ -2518,6 +2518,36 @@ textarea:focus-visible {
   padding: 10px;
 }
 
+/* --- oge14.html --- */
+
+.task-type.table { background: linear-gradient(145deg, #3f7f5e 0%, #5f9a68 100%);}
+
+.sheet-wrap { overflow-x: auto; margin: 16px 0 4px; -webkit-overflow-scrolling: touch;}
+
+.sheet-table { border-collapse: collapse; font-size: 0.9rem; margin: 0 auto; background: #fff;}
+
+.sheet-table .sheet-caption { caption-side: top; padding: 0 0 8px; font-size: 0.85rem; color: #6b625a; font-weight: 600; text-align: center;}
+
+.sheet-table th, .sheet-table td { border: 1px solid #e0d8cf; padding: 6px 12px; text-align: center; color: #333;}
+
+.sheet-table thead th { background: #f3eee9; color: #7f5468; font-weight: 600;}
+
+.sheet-table thead .sheet-head { background: #ece2da; font-size: 0.85rem;}
+
+.sheet-table .sheet-corner { background: #f7f4ef; width: 36px;}
+
+.sheet-table .sheet-row-head { background: #f7f4ef; color: #7f5468; font-size: 0.8rem; width: 36px;}
+
+.sheet-table tbody tr:nth-child(even) td { background: #faf8f5;}
+
+.sheet-table td.num { text-align: right; font-variant-numeric: tabular-nums;}
+
+.formula-preview { min-height: 1.4em; font-size: 0.9rem; color: #6b625a; margin-top: 6px;}
+
+.formula-preview.ok { color: #2e7d32; font-weight: 600;}
+
+.formula-preview.error { color: #c62828; font-weight: 600;}
+
 /* ============================================================
    Body variant: dark theme (oge7, oge8)
    ============================================================ */

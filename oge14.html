@@ -1,0 +1,1184 @@
+﻿<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="assets/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Задание 14 ОГЭ - Электронные таблицы</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+<meta name="theme-color" content="#7f5468" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="description" content="Тренажёр задания 14 ОГЭ по информатике: электронные таблицы, формулы СУММ, СРЗНАЧ, МИН, МАКС, СЧЁТ, СЧЁТЕСЛИ, СУММЕСЛИ, СУММПРОИЗВ, ЕСЛИ, ОКРУГЛ и диапазоны ячеек." />
+    <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge14.html" />
+    <meta property="og:title" content="Задание 14 ОГЭ - Электронные таблицы" />
+    <meta property="og:description" content="Тренажёр задания 14 ОГЭ по информатике: электронные таблицы, формулы и функции, подсчёт по условию, суммы и средние значения." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge14.html" />
+    <meta property="og:image" content="https://oge.nayanovaacademy.ru/assets/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+<!-- Yandex.Metrika -->
+    <script src="js/metrika.js"></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika -->
+    <script src="js/progress.js"></script>
+    <script src="js/actions.js"></script>
+</head>
+  <body>
+    <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+    <div class="container" role="main" id="main-content">
+      <div class="nav-links">
+        <a href="oge.html" class="back-link">← На главную ОГЭ</a>
+        <a href="oge14-t.html" class="back-link">📚 Теория</a>
+      </div>
+
+      <h1>📊 Задание 14 ОГЭ — Электронные таблицы</h1>
+
+      <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
+
+      <div class="task-card" id="taskCard" data-main="true">
+        <!-- Задача будет сгенерирована здесь -->
+      </div>
+
+      <div class="hint-box" id="hintBox">
+        <h4>💡 Подсказка</h4>
+        <p id="hintText"></p>
+      </div>
+
+      <div class="solution-box" id="solutionBox">
+        <h4>📝 Решение</h4>
+        <div id="solutionSteps"></div>
+      </div>
+
+      <!-- Prev/Next Navigation -->
+    <div class="task-nav" role="navigation" aria-label="Навигация между заданиями">
+      <a href="oge12.html" aria-label="Предыдущее задание">&larr; Назад</a>
+      <a href="oge15.html" aria-label="Следующее задание">Далее &rarr;</a>
+    </div>
+    </div>
+    <!-- Быстрая навигация -->
+    <div class="quick-nav">
+      <button type="button"
+        class="quick-nav-btn theory"
+        data-nav="oge14-t.html"
+        title="Теория"
+      >
+        📚
+      </button>
+      <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
+        ↑
+      </button>
+    </div>
+  <script>
+      /* ============================================================
+         Данные таблиц и задачи.
+
+         ВАЖНО: массивы sheets и tasks разбирает tools/check-data.mjs —
+         он ищет их объявления по тексту, поэтому:
+         · объекты — только литералы (без вызовов функций и шаблонов);
+         · массив заканчивается строкой из 6 пробелов и «];».
+         Ответ в tasks[].answer независимо пересчитывается по полю `check`
+         (см. check-data), а формула в `solution` прогоняется через движок
+         в browser-smoke — так проверяются и данные, и формулы.
+         ============================================================ */
+
+      const sheets = [
+        {
+          id: 'students',
+          title: 'Баллы учеников 9-х классов',
+          headers: ['Ученик', 'Класс', 'Баллы'],
+          rows: [
+            ['Иванов', '9А', 78],
+            ['Петрова', '9Б', 54],
+            ['Сидоров', '9А', 91],
+            ['Кузнецова', '9В', 35],
+            ['Смирнов', '9Б', 62],
+            ['Волкова', '9А', 47],
+            ['Морозов', '9В', 83],
+            ['Новикова', '9Б', 29],
+            ['Фёдоров', '9А', 68],
+            ['Соколова', '9В', 74],
+            ['Попов', '9Б', 56],
+            ['Лебедева', '9А', 88],
+            ['Козлов', '9В', 41],
+            ['Егорова', '9Б', 95],
+            ['Павлов', '9А', 23],
+            ['Орлова', '9В', 67],
+            ['Макаров', '9Б', 59],
+            ['Зайцева', '9А', 72],
+            ['Никитин', '9В', 49],
+            ['Белова', '9Б', 86]
+          ]
+        },
+        {
+          id: 'shop',
+          title: 'Продажи канцелярского магазина',
+          headers: ['Товар', 'Цена', 'Количество'],
+          rows: [
+            ['Тетрадь', 45, 120],
+            ['Ручка', 32, 250],
+            ['Альбом', 180, 40],
+            ['Краски', 320, 25],
+            ['Карандаш', 18, 400],
+            ['Ластик', 12, 300],
+            ['Линейка', 55, 90],
+            ['Пенал', 450, 15],
+            ['Клей', 78, 60],
+            ['Бумага', 260, 35],
+            ['Папка', 150, 45],
+            ['Блокнот', 95, 70]
+          ]
+        },
+        {
+          id: 'weather',
+          title: 'Температура воздуха в июне',
+          headers: ['День', 'Температура'],
+          rows: [
+            [1, 18],
+            [2, 21],
+            [3, 24],
+            [4, 19],
+            [5, 15],
+            [6, 12],
+            [7, 9],
+            [8, 14],
+            [9, 20],
+            [10, 23],
+            [11, 26],
+            [12, 22],
+            [13, -2],
+            [14, -5],
+            [15, -8]
+          ]
+        },
+        {
+          id: 'sport',
+          title: 'Результаты соревнований',
+          headers: ['Спортсмен', 'Класс', 'Результат'],
+          rows: [
+            ['Соколов', '9А', 52],
+            ['Морозова', '9Б', 61],
+            ['Кузнецов', '9А', 47],
+            ['Волков', '9В', 58],
+            ['Зайцева', '9Б', 44],
+            ['Орлов', '9А', 66],
+            ['Павлова', '9В', 39],
+            ['Макаров', '9Б', 55],
+            ['Никитина', '9А', 71],
+            ['Белов', '9В', 49],
+            ['Егоров', '9Б', 63],
+            ['Сидорова', '9А', 42],
+            ['Петров', '9В', 57],
+            ['Лебедев', '9Б', 68]
+          ]
+        },
+        {
+          id: 'salary',
+          title: 'Сотрудники фирмы',
+          headers: ['Сотрудник', 'Отдел', 'Оклад'],
+          rows: [
+            ['Иванов', 'Разработка', 65000],
+            ['Петрова', 'Бухгалтерия', 48000],
+            ['Сидоров', 'Разработка', 72000],
+            ['Кузнецова', 'Отдел продаж', 51000],
+            ['Смирнов', 'Разработка', 58000],
+            ['Волкова', 'Бухгалтерия', 45000],
+            ['Морозов', 'Отдел продаж', 62000],
+            ['Новикова', 'Разработка', 69000],
+            ['Фёдоров', 'Отдел продаж', 39000],
+            ['Соколова', 'Бухгалтерия', 53000],
+            ['Попов', 'Разработка', 74000],
+            ['Лебедева', 'Отдел продаж', 47000]
+          ]
+        }
+      ];
+
+      const tasks = [
+        {
+          id: 'students-above-60',
+          sheet: 'students',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов за пробный экзамен.</p><p>Сколько учеников набрали <strong>более 60 баллов</strong>?</p>',
+          answer: 11,
+          formula: '=СЧЁТЕСЛИ(C2:C21;">60")',
+          check: { kind: 'countif', col: 2, from: 0, to: 19, op: '>', val: 60 },
+          hint: 'Функция СЧЁТЕСЛИ(диапазон; условие) считает ячейки, которые удовлетворяют условию. Диапазон баллов — C2:C21, условие «больше 60» записывается строкой ">60".',
+          solution: [
+            'Баллы находятся в столбце C, строки 2–21 (20 учеников).',
+            'Формула: <code>=СЧЁТЕСЛИ(C2:C21;">60")</code>',
+            'Условие <code>">60"</code> означает «строго больше 60» (кавычки обязательны).',
+            'Подсчёт: 78, 91, 62, 83, 68, 74, 88, 95, 67, 72, 86 — <strong>11 учеников</strong>.',
+            '<strong>Ответ: 11</strong>'
+          ]
+        },
+        {
+          id: 'students-below-40',
+          sheet: 'students',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов за пробный экзамен.</p><p>Сколько учеников набрали <strong>менее 40 баллов</strong>?</p>',
+          answer: 3,
+          formula: '=СЧЁТЕСЛИ(C2:C21;"<40")',
+          check: { kind: 'countif', col: 2, from: 0, to: 19, op: '<', val: 40 },
+          hint: 'Условие «меньше 40» в СЧЁТЕСЛИ записывается как "<40" в кавычках. Диапазон — C2:C21.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(C2:C21;"<40")</code>',
+            'Баллы меньше 40: 35, 29, 23.',
+            '<strong>Ответ: 3</strong>'
+          ]
+        },
+        {
+          id: 'students-9a-sum',
+          sheet: 'students',
+          type: 'СУММЕСЛИ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов.</p><p>Чему равна <strong>сумма баллов учеников класса 9А</strong>?</p>',
+          answer: 467,
+          formula: '=СУММЕСЛИ(B2:B21;"9А";C2:C21)',
+          check: { kind: 'sumif', col: 1, from: 0, to: 19, op: '=', val: '9А', sumCol: 2 },
+          hint: 'СУММЕСЛИ(диапазон_условия; условие; диапазон_суммирования) — сначала проверяет класс, потом складывает баллы. Классы — B2:B21, баллы — C2:C21.',
+          solution: [
+            'Классы — столбец B, баллы — столбец C.',
+            'Формула: <code>=СУММЕСЛИ(B2:B21;"9А";C2:C21)</code>',
+            'Баллы 9А: 78 + 91 + 47 + 68 + 88 + 23 + 72 = 467.',
+            '<strong>Ответ: 467</strong>'
+          ]
+        },
+        {
+          id: 'students-9a-count',
+          sheet: 'students',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов.</p><p>Сколько учеников учится в классе <strong>9А</strong>?</p>',
+          answer: 7,
+          formula: '=СЧЁТЕСЛИ(B2:B21;"9А")',
+          check: { kind: 'countif', col: 1, from: 0, to: 19, op: '=', val: '9А' },
+          hint: 'Для подсчёта текстовых значений (классов) тоже подходит СЧЁТЕСЛИ: условие — просто "9А" в кавычках.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(B2:B21;"9А")</code>',
+            'Класс 9А: Иванов, Сидоров, Волкова, Фёдоров, Лебедева, Павлов, Зайцева — 7 человек.',
+            '<strong>Ответ: 7</strong>'
+          ]
+        },
+        {
+          id: 'students-above-avg',
+          sheet: 'students',
+          type: 'СРЗНАЧ + СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов.</p><p>Сколько учеников получили балл <strong>выше среднего балла</strong> по всем ученикам?</p>',
+          answer: 10,
+          formula: '=СЧЁТЕСЛИ(C2:C21;">"&СРЗНАЧ(C2:C21))',
+          check: { kind: 'countif', col: 2, from: 0, to: 19, op: '>', val: { avgOf: 2 } },
+          hint: 'Условие можно собрать из строки и числа: ">"&СРЗНАЧ(C2:C21). Средний балл по таблице равен 62,85.',
+          solution: [
+            'Сначала находим средний балл: <code>=СРЗНАЧ(C2:C21)</code> = 62,85.',
+            'Затем считаем, сколько баллов больше него: <code>=СЧЁТЕСЛИ(C2:C21;">"&СРЗНАЧ(C2:C21))</code>',
+            'Подсчёт: 78, 91, 83, 68, 74, 88, 95, 67, 72, 86 — <strong>10 учеников</strong>.',
+            '<strong>Ответ: 10</strong>'
+          ]
+        },
+        {
+          id: 'students-max',
+          sheet: 'students',
+          type: 'МАКС',
+          text: '<p>В таблице приведены баллы учеников 9-х классов.</p><p>Чему равен <strong>наибольший балл</strong>?</p>',
+          answer: 95,
+          formula: '=МАКС(C2:C21)',
+          check: { kind: 'max', col: 2, from: 0, to: 19 },
+          hint: 'МАКС(диапазон) возвращает наибольшее значение. Диапазон баллов — C2:C21.',
+          solution: [
+            'Формула: <code>=МАКС(C2:C21)</code>',
+            'Наибольший балл в таблице — 95 (Егорова).',
+            '<strong>Ответ: 95</strong>'
+          ]
+        },
+        {
+          id: 'students-avg-round',
+          sheet: 'students',
+          type: 'ОКРУГЛ + СРЗНАЧ',
+          text: '<p>В таблице приведены баллы учеников 9-х классов.</p><p>Чему равен <strong>средний балл</strong>, округлённый до целого?</p>',
+          answer: 63,
+          formula: '=ОКРУГЛ(СРЗНАЧ(C2:C21);0)',
+          check: { kind: 'roundavg', col: 2, from: 0, to: 19, digits: 0 },
+          hint: 'ОКРУГЛ(число; число_разрядов): ОКРУГЛ(62,85;0) = 63. Вложите СРЗНАЧ внутрь ОКРУГЛ.',
+          solution: [
+            'Средний балл: <code>=СРЗНАЧ(C2:C21)</code> = 62,85.',
+            'Округляем до целого: <code>=ОКРУГЛ(СРЗНАЧ(C2:C21);0)</code>',
+            '<strong>Ответ: 63</strong>'
+          ]
+        },
+        {
+          id: 'shop-revenue',
+          sheet: 'shop',
+          type: 'СУММПРОИЗВ',
+          text: '<p>В таблице приведены цены и количество проданных товаров.</p><p>Чему равна <strong>общая выручка магазина</strong> (цена × количество по каждому товару)?</p>',
+          answer: 78280,
+          formula: '=СУММПРОИЗВ(B2:B13;C2:C13)',
+          check: { kind: 'sumproduct', c1: 1, c2: 2, from: 0, to: 11 },
+          hint: 'СУММПРОИЗВ(диапазон1; диапазон2) складывает попарные произведения: цена × количество для каждой строки.',
+          solution: [
+            'Цены — B2:B13, количество — C2:C13.',
+            'Формула: <code>=СУММПРОИЗВ(B2:B13;C2:C13)</code>',
+            '45·120 + 32·250 + 180·40 + … + 95·70 = 78 280.',
+            '<strong>Ответ: 78280</strong>'
+          ]
+        },
+        {
+          id: 'shop-avg-price',
+          sheet: 'shop',
+          type: 'ОКРУГЛ + СРЗНАЧ',
+          text: '<p>В таблице приведены цены товаров.</p><p>Чему равна <strong>средняя цена товара</strong>, округлённая до целого числа рублей?</p>',
+          answer: 141,
+          formula: '=ОКРУГЛ(СРЗНАЧ(B2:B13);0)',
+          check: { kind: 'roundavg', col: 1, from: 0, to: 11, digits: 0 },
+          hint: 'Средняя цена = СРЗНАЧ(B2:B13) = 141,25. ОКРУГЛ(141,25;0) даёт 141.',
+          solution: [
+            'Формула: <code>=ОКРУГЛ(СРЗНАЧ(B2:B13);0)</code>',
+            'Сумма цен — 1695, товаров — 12, среднее — 141,25.',
+            '<strong>Ответ: 141</strong>'
+          ]
+        },
+        {
+          id: 'shop-max-qty',
+          sheet: 'shop',
+          type: 'МАКС',
+          text: '<p>В таблице приведены количество проданных товаров.</p><p>Какое <strong>наибольшее количество</strong> единиц одного товара было продано?</p>',
+          answer: 400,
+          formula: '=МАКС(C2:C13)',
+          check: { kind: 'max', col: 2, from: 0, to: 11 },
+          hint: 'Количество — столбец C (C2:C13). Используйте МАКС.',
+          solution: [
+            'Формула: <code>=МАКС(C2:C13)</code>',
+            'Больше всего продали карандашей — 400 штук.',
+            '<strong>Ответ: 400</strong>'
+          ]
+        },
+        {
+          id: 'shop-cheap',
+          sheet: 'shop',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены цены товаров.</p><p>Сколько товаров стоят <strong>дешевле 100 рублей</strong>?</p>',
+          answer: 7,
+          formula: '=СЧЁТЕСЛИ(B2:B13;"<100")',
+          check: { kind: 'countif', col: 1, from: 0, to: 11, op: '<', val: 100 },
+          hint: 'СЧЁТЕСЛИ(B2:B13;"<100") — условие «меньше 100» в кавычках.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(B2:B13;"<100")</code>',
+            'Дешевле 100 рублей: 45, 32, 18, 12, 55, 78, 95 — 7 товаров.',
+            '<strong>Ответ: 7</strong>'
+          ]
+        },
+        {
+          id: 'weather-above-avg',
+          sheet: 'weather',
+          type: 'СРЗНАЧ + СЧЁТЕСЛИ',
+          text: '<p>В таблице приведена температура воздуха в первые 15 дней июня.</p><p>Сколько дней температура была <strong>выше средней</strong> за эти дни?</p>',
+          answer: 10,
+          formula: '=СЧЁТЕСЛИ(B2:B16;">"&СРЗНАЧ(B2:B16))',
+          check: { kind: 'countif', col: 1, from: 0, to: 14, op: '>', val: { avgOf: 1 } },
+          hint: 'Средняя температура = СРЗНАЧ(B2:B16) ≈ 13,87. Условие: ">"&СРЗНАЧ(B2:B16).',
+          solution: [
+            'Средняя температура: <code>=СРЗНАЧ(B2:B16)</code> ≈ 13,87.',
+            'Считаем дни выше средней: <code>=СЧЁТЕСЛИ(B2:B16;">"&СРЗНАЧ(B2:B16))</code>',
+            'Подходят 18, 21, 24, 19, 15, 14, 20, 23, 26, 22 — <strong>10 дней</strong>.',
+            '<strong>Ответ: 10</strong>'
+          ]
+        },
+        {
+          id: 'weather-max',
+          sheet: 'weather',
+          type: 'МАКС',
+          text: '<p>В таблице приведена температура воздуха в первые 15 дней июня.</p><p>Чему равна <strong>самая высокая температура</strong> за эти дни?</p>',
+          answer: 26,
+          formula: '=МАКС(B2:B16)',
+          check: { kind: 'max', col: 1, from: 0, to: 14 },
+          hint: 'Температура — столбец B (B2:B16). Используйте МАКС.',
+          solution: [
+            'Формула: <code>=МАКС(B2:B16)</code>',
+            'Самый тёплый день — 11 июня, 26 градусов.',
+            '<strong>Ответ: 26</strong>'
+          ]
+        },
+        {
+          id: 'weather-sum-positive',
+          sheet: 'weather',
+          type: 'СУММЕСЛИ',
+          text: '<p>В таблице приведена температура воздуха в первые 15 дней июня.</p><p>Чему равна <strong>сумма положительных температур</strong>?</p>',
+          answer: 223,
+          formula: '=СУММЕСЛИ(B2:B16;">0")',
+          check: { kind: 'sumif', col: 1, from: 0, to: 14, op: '>', val: 0, sumCol: 1 },
+          hint: 'Если диапазон условия и диапазон суммирования совпадают, третий аргумент СУММЕСЛИ можно не указывать.',
+          solution: [
+            'Формула: <code>=СУММЕСЛИ(B2:B16;">0")</code>',
+            'Складываем только положительные значения: 18 + 21 + 24 + … + 22 = 223.',
+            '<strong>Ответ: 223</strong>'
+          ]
+        },
+        {
+          id: 'weather-cold',
+          sheet: 'weather',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведена температура воздуха в первые 15 дней июня.</p><p>Сколько дней температура была <strong>ниже нуля</strong>?</p>',
+          answer: 3,
+          formula: '=СЧЁТЕСЛИ(B2:B16;"<0")',
+          check: { kind: 'countif', col: 1, from: 0, to: 14, op: '<', val: 0 },
+          hint: 'Условие «меньше нуля» — "<0". Диапазон B2:B16.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(B2:B16;"<0")</code>',
+            'Отрицательные температуры: −2, −5, −8 — 3 дня.',
+            '<strong>Ответ: 3</strong>'
+          ]
+        },
+        {
+          id: 'sport-9a-sum',
+          sheet: 'sport',
+          type: 'СУММЕСЛИ',
+          text: '<p>В таблице приведены результаты соревнований.</p><p>Чему равна <strong>сумма результатов спортсменов класса 9А</strong>?</p>',
+          answer: 278,
+          formula: '=СУММЕСЛИ(B2:B15;"9А";C2:C15)',
+          check: { kind: 'sumif', col: 1, from: 0, to: 13, op: '=', val: '9А', sumCol: 2 },
+          hint: 'Класс — B2:B15, результат — C2:C15. СУММЕСЛИ(B2:B15;"9А";C2:C15).',
+          solution: [
+            'Формула: <code>=СУММЕСЛИ(B2:B15;"9А";C2:C15)</code>',
+            'Результаты 9А: 52 + 47 + 66 + 71 + 42 = 278.',
+            '<strong>Ответ: 278</strong>'
+          ]
+        },
+        {
+          id: 'sport-above-50',
+          sheet: 'sport',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены результаты соревнований.</p><p>Сколько спортсменов показали результат <strong>больше 50</strong>?</p>',
+          answer: 9,
+          formula: '=СЧЁТЕСЛИ(C2:C15;">50")',
+          check: { kind: 'countif', col: 2, from: 0, to: 13, op: '>', val: 50 },
+          hint: 'СЧЁТЕСЛИ(C2:C15;">50") — строго больше 50.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(C2:C15;">50")</code>',
+            'Больше 50: 52, 61, 58, 66, 55, 71, 63, 57, 68 — <strong>9 человек</strong>.',
+            '<strong>Ответ: 9</strong>'
+          ]
+        },
+        {
+          id: 'sport-avg-round',
+          sheet: 'sport',
+          type: 'ОКРУГЛ + СРЗНАЧ',
+          text: '<p>В таблице приведены результаты соревнований.</p><p>Чему равен <strong>средний результат</strong>, округлённый до десятых?</p>',
+          answer: 55.1,
+          formula: '=ОКРУГЛ(СРЗНАЧ(C2:C15);1)',
+          check: { kind: 'roundavg', col: 2, from: 0, to: 13, digits: 1 },
+          hint: 'ОКРУГЛ(СРЗНАЧ(C2:C15);1) — один знак после запятой. Средний результат ≈ 55,14.',
+          solution: [
+            'Сумма результатов — 772, спортсменов — 14, среднее ≈ 55,1428.',
+            'Формула: <code>=ОКРУГЛ(СРЗНАЧ(C2:C15);1)</code>',
+            '<strong>Ответ: 55,1</strong>'
+          ]
+        },
+        {
+          id: 'salary-avg-round',
+          sheet: 'salary',
+          type: 'ОКРУГЛ + СРЗНАЧ',
+          text: '<p>В таблице приведены оклады сотрудников фирмы.</p><p>Чему равен <strong>средний оклад</strong>, округлённый до целого числа рублей?</p>',
+          answer: 56917,
+          formula: '=ОКРУГЛ(СРЗНАЧ(C2:C13);0)',
+          check: { kind: 'roundavg', col: 2, from: 0, to: 11, digits: 0 },
+          hint: 'Оклады — C2:C13. Средний оклад ≈ 56 916,67 → 56 917.',
+          solution: [
+            'Формула: <code>=ОКРУГЛ(СРЗНАЧ(C2:C13);0)</code>',
+            'Сумма окладов — 683 000, сотрудников — 12, среднее ≈ 56 916,67.',
+            '<strong>Ответ: 56917</strong>'
+          ]
+        },
+        {
+          id: 'salary-dev-sum',
+          sheet: 'salary',
+          type: 'СУММЕСЛИ',
+          text: '<p>В таблице приведены оклады сотрудников фирмы.</p><p>Чему равна <strong>сумма окладов отдела «Разработка»</strong>?</p>',
+          answer: 338000,
+          formula: '=СУММЕСЛИ(B2:B13;"Разработка";C2:C13)',
+          check: { kind: 'sumif', col: 1, from: 0, to: 11, op: '=', val: 'Разработка', sumCol: 2 },
+          hint: 'Отдел — B2:B13, оклад — C2:C13. Условие — текст "Разработка" в кавычках.',
+          solution: [
+            'Формула: <code>=СУММЕСЛИ(B2:B13;"Разработка";C2:C13)</code>',
+            'Оклады разработчиков: 65 000 + 72 000 + 58 000 + 69 000 + 74 000 = 338 000.',
+            '<strong>Ответ: 338000</strong>'
+          ]
+        },
+        {
+          id: 'salary-above-50k',
+          sheet: 'salary',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены оклады сотрудников фирмы.</p><p>Сколько сотрудников получают <strong>больше 50 000 рублей</strong>?</p>',
+          answer: 8,
+          formula: '=СЧЁТЕСЛИ(C2:C13;">50000")',
+          check: { kind: 'countif', col: 2, from: 0, to: 11, op: '>', val: 50000 },
+          hint: 'СЧЁТЕСЛИ(C2:C13;">50000") — в условии можно писать число без пробелов.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(C2:C13;">50000")</code>',
+            'Больше 50 000: 65 000, 72 000, 51 000, 58 000, 62 000, 69 000, 53 000, 74 000 — <strong>8 человек</strong>.',
+            '<strong>Ответ: 8</strong>'
+          ]
+        },
+        {
+          id: 'salary-max',
+          sheet: 'salary',
+          type: 'МАКС',
+          text: '<p>В таблице приведены оклады сотрудников фирмы.</p><p>Чему равен <strong>наибольший оклад</strong>?</p>',
+          answer: 74000,
+          formula: '=МАКС(C2:C13)',
+          check: { kind: 'max', col: 2, from: 0, to: 11 },
+          hint: 'Оклады — C2:C13. Используйте МАКС.',
+          solution: [
+            'Формула: <code>=МАКС(C2:C13)</code>',
+            'Наибольший оклад — 74 000 (Попов).',
+            '<strong>Ответ: 74000</strong>'
+          ]
+        },
+        {
+          id: 'salary-dev-count',
+          sheet: 'salary',
+          type: 'СЧЁТЕСЛИ',
+          text: '<p>В таблице приведены оклады сотрудников фирмы.</p><p>Сколько сотрудников работают в отделе <strong>«Разработка»</strong>?</p>',
+          answer: 5,
+          formula: '=СЧЁТЕСЛИ(B2:B13;"Разработка")',
+          check: { kind: 'countif', col: 1, from: 0, to: 11, op: '=', val: 'Разработка' },
+          hint: 'СЧЁТЕСЛИ(B2:B13;"Разработка") — текст условия в кавычках, регистр не важен.',
+          solution: [
+            'Формула: <code>=СЧЁТЕСЛИ(B2:B13;"Разработка")</code>',
+            'В отделе «Разработка»: Иванов, Сидоров, Смирнов, Новикова, Попов — 5 человек.',
+            '<strong>Ответ: 5</strong>'
+          ]
+        }
+      ];
+
+      /* ── Мини-движок формул (русские имена, «;» между аргументами) ── */
+      const COL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let sheetRows = [];
+      let sheetHeaders = [];
+
+      function FormulaError(code) {
+        this.code = code;
+      }
+
+      function parseRef(ref) {
+        const m = /^\$?([A-Za-z]{1,2})\$?(\d+)$/.exec(ref);
+        if (!m) throw new FormulaError('#ИМЯ?');
+        const col = COL_LETTERS.indexOf(m[1].toUpperCase());
+        const row = Number(m[2]);
+        if (col < 0 || row < 1) throw new FormulaError('#ССЫЛКА!');
+        return { row: row, col: col };
+      }
+
+      function cellValue(row, col) {
+        if (row === 1) return sheetHeaders[col] === undefined ? null : sheetHeaders[col];
+        const r = sheetRows[row - 2];
+        if (!r) return null;
+        const v = r[col];
+        return v === undefined ? null : v;
+      }
+
+      function tokenize(src) {
+        const tokens = [];
+        let i = 0;
+        while (i < src.length) {
+          const ch = src[i];
+          if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') { i++; continue; }
+          const two = src.substr(i, 2);
+          if (two === '<>' || two === '<=' || two === '>=') { tokens.push({ t: 'op', v: two }); i += 2; continue; }
+          if ('+-*/^&=<>();:'.indexOf(ch) >= 0) { tokens.push({ t: 'op', v: ch }); i++; continue; }
+          if (ch === '"') {
+            let j = i + 1;
+            let s = '';
+            while (j < src.length && src[j] !== '"') s += src[j++];
+            if (j >= src.length) throw new FormulaError('#ЗНАЧ!');
+            tokens.push({ t: 'str', v: s });
+            i = j + 1;
+            continue;
+          }
+          if ((ch >= '0' && ch <= '9') || ch === '.') {
+            let j = i;
+            let s = '';
+            while (j < src.length && /[0-9.,]/.test(src[j])) s += src[j++];
+            const num = Number(s.replace(',', '.'));
+            if (!isFinite(num)) throw new FormulaError('#ЗНАЧ!');
+            tokens.push({ t: 'num', v: num });
+            i = j;
+            continue;
+          }
+          if (/[A-Za-zА-Яа-яЁё_$]/.test(ch)) {
+            let j = i;
+            let s = '';
+            while (j < src.length && /[A-Za-zА-Яа-яЁё0-9_$]/.test(src[j])) s += src[j++];
+            if (src[j] === '(') {
+              tokens.push({ t: 'func', v: s.toUpperCase() });
+              i = j;
+              continue;
+            }
+            if (/^\$?[A-Za-z]{1,2}\$?\d+$/.test(s)) {
+              tokens.push({ t: 'ref', v: s });
+              i = j;
+              continue;
+            }
+            if (/^(ИСТИНА|ЛОЖЬ|TRUE|FALSE)$/i.test(s)) {
+              tokens.push({ t: 'bool', v: /^(ИСТИНА|TRUE)$/i.test(s) });
+              i = j;
+              continue;
+            }
+            throw new FormulaError('#ИМЯ?');
+          }
+          throw new FormulaError('#ЗНАЧ!');
+        }
+        return tokens;
+      }
+
+      function parseFormula(src) {
+        const tokens = tokenize(src);
+        let pos = 0;
+        const peek = function () { return tokens[pos]; };
+        const take = function () { return tokens[pos++]; };
+        const isOp = function (v) { return peek() && peek().t === 'op' && peek().v === v; };
+
+        function parseExpr() {
+          return parseCompare();
+        }
+        function parseCompare() {
+          let node = parseConcat();
+          while (peek() && peek().t === 'op' && ['=', '<>', '<', '>', '<=', '>='].indexOf(peek().v) >= 0) {
+            const op = take().v;
+            node = { k: 'bin', op: op, l: node, r: parseConcat() };
+          }
+          return node;
+        }
+        function parseConcat() {
+          let node = parseAdd();
+          while (isOp('&')) {
+            take();
+            node = { k: 'bin', op: '&', l: node, r: parseAdd() };
+          }
+          return node;
+        }
+        function parseAdd() {
+          let node = parseMul();
+          while (peek() && peek().t === 'op' && (peek().v === '+' || peek().v === '-')) {
+            const op = take().v;
+            node = { k: 'bin', op: op, l: node, r: parseMul() };
+          }
+          return node;
+        }
+        function parseMul() {
+          let node = parseUnary();
+          while (peek() && peek().t === 'op' && (peek().v === '*' || peek().v === '/')) {
+            const op = take().v;
+            node = { k: 'bin', op: op, l: node, r: parseUnary() };
+          }
+          return node;
+        }
+        function parseUnary() {
+          if (peek() && peek().t === 'op' && (peek().v === '-' || peek().v === '+')) {
+            const op = take().v;
+            return { k: 'un', op: op, e: parseUnary() };
+          }
+          return parsePower();
+        }
+        function parsePower() {
+          const base = parsePrimary();
+          if (isOp('^')) {
+            take();
+            return { k: 'bin', op: '^', l: base, r: parseUnary() };
+          }
+          return base;
+        }
+        function parsePrimary() {
+          const tk = peek();
+          if (!tk) throw new FormulaError('#ЗНАЧ!');
+          if (tk.t === 'num') { take(); return { k: 'num', v: tk.v }; }
+          if (tk.t === 'str') { take(); return { k: 'str', v: tk.v }; }
+          if (tk.t === 'bool') { take(); return { k: 'bool', v: tk.v }; }
+          if (tk.t === 'ref') {
+            take();
+            if (isOp(':')) {
+              take();
+              const b = take();
+              if (!b || b.t !== 'ref') throw new FormulaError('#ССЫЛКА!');
+              return { k: 'range', a: tk.v, b: b.v };
+            }
+            return { k: 'ref', v: tk.v };
+          }
+          if (tk.t === 'func') {
+            take();
+            if (!isOp('(')) throw new FormulaError('#ЗНАЧ!');
+            take();
+            const args = [];
+            if (!isOp(')')) {
+              for (;;) {
+                args.push(parseExpr());
+                if (isOp(';')) { take(); continue; }
+                break;
+              }
+            }
+            if (!isOp(')')) throw new FormulaError('#ЗНАЧ!');
+            take();
+            return { k: 'call', name: tk.v, args: args };
+          }
+          if (isOp('(')) {
+            take();
+            const e = parseExpr();
+            if (!isOp(')')) throw new FormulaError('#ЗНАЧ!');
+            take();
+            return e;
+          }
+          throw new FormulaError('#ЗНАЧ!');
+        }
+
+        const ast = parseExpr();
+        if (pos < tokens.length) throw new FormulaError('#ЗНАЧ!');
+        return ast;
+      }
+
+      function isRange(v) {
+        return !!v && typeof v === 'object' && v.range === true;
+      }
+
+      function toNumber(v) {
+        if (isRange(v)) throw new FormulaError('#ЗНАЧ!');
+        if (v === null || v === undefined || v === '') return 0;
+        if (typeof v === 'boolean') return v ? 1 : 0;
+        if (typeof v === 'number') return v;
+        const n = Number(String(v).replace(/\s/g, '').replace(',', '.'));
+        if (isNaN(n)) throw new FormulaError('#ЗНАЧ!');
+        return n;
+      }
+
+      function toText(v) {
+        if (isRange(v)) throw new FormulaError('#ЗНАЧ!');
+        if (v === null || v === undefined) return '';
+        if (typeof v === 'boolean') return v ? 'ИСТИНА' : 'ЛОЖЬ';
+        return String(v);
+      }
+
+      function cmpNum(a, b, op) {
+        if (op === '=') return a === b;
+        if (op === '<>') return a !== b;
+        if (op === '<') return a < b;
+        if (op === '>') return a > b;
+        if (op === '<=') return a <= b;
+        if (op === '>=') return a >= b;
+        return false;
+      }
+
+      function compareValues(a, b) {
+        if (typeof a === 'number' && typeof b === 'number') return a - b;
+        const as = toText(a).toLowerCase();
+        const bs = toText(b).toLowerCase();
+        if (as < bs) return -1;
+        if (as > bs) return 1;
+        return 0;
+      }
+
+      function flattenCells(v) {
+        if (Array.isArray(v)) {
+          const out = [];
+          v.forEach(function (x) {
+            flattenCells(x).forEach(function (y) { out.push(y); });
+          });
+          return out;
+        }
+        if (!isRange(v)) return [v];
+        const out = [];
+        v.cells.forEach(function (row) {
+          row.forEach(function (x) { out.push(x); });
+        });
+        return out;
+      }
+
+      function numbersOf(v) {
+        const out = [];
+        flattenCells(v).forEach(function (x) {
+          if (x === null || x === undefined || x === '') return;
+          if (typeof x === 'number') { out.push(x); return; }
+          if (typeof x === 'boolean') { out.push(x ? 1 : 0); return; }
+          const n = Number(String(x).replace(/\s/g, '').replace(',', '.'));
+          if (!isNaN(n)) out.push(n);
+        });
+        return out;
+      }
+
+      function matchesCriteria(value, crit) {
+        let op = '=';
+        let raw = crit;
+        if (typeof crit === 'string') {
+          const m = /^(<=|>=|<>|<|>|=)?\s*([\s\S]*)$/.exec(crit);
+          op = m[1] || '=';
+          raw = m[2];
+        }
+        const rawText = raw === null || raw === undefined ? '' : String(raw).trim();
+        const rawNum = rawText === '' ? NaN : Number(rawText.replace(/\s/g, '').replace(',', '.'));
+        if (!isNaN(rawNum)) {
+          if (value === null || value === undefined || value === '') return op === '<>';
+          const vn = typeof value === 'number' ? value : Number(String(value).replace(/\s/g, '').replace(',', '.'));
+          if (isNaN(vn)) return op === '<>';
+          return cmpNum(vn, rawNum, op);
+        }
+        const sv = String(value === null || value === undefined ? '' : value).toLowerCase();
+        const sc = rawText.toLowerCase();
+        if (op === '=') return sv === sc;
+        if (op === '<>') return sv !== sc;
+        if (op === '<') return sv < sc;
+        if (op === '>') return sv > sc;
+        if (op === '<=') return sv <= sc;
+        if (op === '>=') return sv >= sc;
+        return false;
+      }
+
+      function evalNode(node) {
+        if (node.k === 'num' || node.k === 'str' || node.k === 'bool') return node.v;
+        if (node.k === 'ref') {
+          const r = parseRef(node.v);
+          return cellValue(r.row, r.col);
+        }
+        if (node.k === 'range') {
+          const a = parseRef(node.a);
+          const b = parseRef(node.b);
+          const r1 = Math.min(a.row, b.row);
+          const r2 = Math.max(a.row, b.row);
+          const c1 = Math.min(a.col, b.col);
+          const c2 = Math.max(a.col, b.col);
+          const cells = [];
+          for (let r = r1; r <= r2; r++) {
+            const row = [];
+            for (let c = c1; c <= c2; c++) row.push(cellValue(r, c));
+            cells.push(row);
+          }
+          return { range: true, cells: cells };
+        }
+        if (node.k === 'un') {
+          const v = toNumber(evalNode(node.e));
+          return node.op === '-' ? -v : v;
+        }
+        if (node.k === 'bin') return evalBinary(node);
+        if (node.k === 'call') return evalCall(node);
+        throw new FormulaError('#ЗНАЧ!');
+      }
+
+      function evalBinary(node) {
+        const a = evalNode(node.l);
+        const b = evalNode(node.r);
+        if (node.op === '+') return toNumber(a) + toNumber(b);
+        if (node.op === '-') return toNumber(a) - toNumber(b);
+        if (node.op === '*') return toNumber(a) * toNumber(b);
+        if (node.op === '/') {
+          const d = toNumber(b);
+          if (d === 0) throw new FormulaError('#ДЕЛ/0!');
+          return toNumber(a) / d;
+        }
+        if (node.op === '^') return Math.pow(toNumber(a), toNumber(b));
+        if (node.op === '&') return toText(a) + toText(b);
+        const c = compareValues(a, b);
+        if (node.op === '=') return c === 0;
+        if (node.op === '<>') return c !== 0;
+        if (node.op === '<') return c < 0;
+        if (node.op === '>') return c > 0;
+        if (node.op === '<=') return c <= 0;
+        if (node.op === '>=') return c >= 0;
+        throw new FormulaError('#ЗНАЧ!');
+      }
+
+      function evalCall(node) {
+        const name = node.name;
+        if (name === 'ЕСЛИ' || name === 'IF') {
+          if (node.args.length < 2 || node.args.length > 3) throw new FormulaError('#ЗНАЧ!');
+          const cond = evalNode(node.args[0]);
+          const truthy = typeof cond === 'boolean' ? cond : toNumber(cond) !== 0;
+          if (truthy) return evalNode(node.args[1]);
+          return node.args.length === 3 ? evalNode(node.args[2]) : false;
+        }
+        const args = node.args.map(evalNode);
+        if (name === 'СУММ' || name === 'SUM') {
+          return numbersOf(args).reduce(function (s, x) { return s + x; }, 0);
+        }
+        if (name === 'СРЗНАЧ' || name === 'AVERAGE') {
+          const nums = numbersOf(args);
+          if (!nums.length) throw new FormulaError('#ДЕЛ/0!');
+          return nums.reduce(function (s, x) { return s + x; }, 0) / nums.length;
+        }
+        if (name === 'МИН' || name === 'MIN') {
+          const nums = numbersOf(args);
+          return nums.length ? Math.min.apply(null, nums) : 0;
+        }
+        if (name === 'МАКС' || name === 'MAX') {
+          const nums = numbersOf(args);
+          return nums.length ? Math.max.apply(null, nums) : 0;
+        }
+        if (name === 'СЧЁТ' || name === 'COUNT') {
+          return numbersOf(args).length;
+        }
+        if (name === 'СЧЁТЗ' || name === 'COUNTA') {
+          return flattenCells(args).filter(function (x) { return x !== null && x !== undefined && x !== ''; }).length;
+        }
+        if (name === 'СЧЁТЕСЛИ' || name === 'COUNTIF') {
+          if (args.length !== 2) throw new FormulaError('#ЗНАЧ!');
+          const cells = flattenCells(args[0]);
+          let n = 0;
+          cells.forEach(function (v) { if (matchesCriteria(v, args[1])) n++; });
+          return n;
+        }
+        if (name === 'СУММЕСЛИ' || name === 'SUMIF') {
+          if (args.length < 2 || args.length > 3) throw new FormulaError('#ЗНАЧ!');
+          const critCells = flattenCells(args[0]);
+          const sumCells = flattenCells(args.length > 2 ? args[2] : args[0]);
+          let total = 0;
+          critCells.forEach(function (v, i) {
+            if (!matchesCriteria(v, args[1])) return;
+            const sv = sumCells[i];
+            total += sv === null || sv === undefined || sv === '' ? 0 : toNumber(sv);
+          });
+          return total;
+        }
+        if (name === 'СУММПРОИЗВ' || name === 'SUMPRODUCT') {
+          if (!args.length) throw new FormulaError('#ЗНАЧ!');
+          const lists = args.map(flattenCells);
+          const len = Math.min.apply(null, lists.map(function (l) { return l.length; }));
+          let total = 0;
+          for (let i = 0; i < len; i++) {
+            let prod = 1;
+            for (let j = 0; j < lists.length; j++) {
+              const v = lists[j][i];
+              prod *= v === null || v === undefined || v === '' ? 0 : toNumber(v);
+            }
+            total += prod;
+          }
+          return total;
+        }
+        if (name === 'ОКРУГЛ' || name === 'ROUND') {
+          if (!args.length) throw new FormulaError('#ЗНАЧ!');
+          const digits = args.length > 1 ? toNumber(args[1]) : 0;
+          const factor = Math.pow(10, digits);
+          const x = toNumber(args[0]) * factor;
+          const rounded = x < 0 ? -Math.round(-x + 1e-9) : Math.round(x + 1e-9);
+          return rounded / factor;
+        }
+        if (name === 'КОРЕНЬ' || name === 'SQRT') {
+          const x = toNumber(args[0]);
+          if (x < 0) throw new FormulaError('#ЧИСЛО!');
+          return Math.sqrt(x);
+        }
+        throw new FormulaError('#ИМЯ?');
+      }
+
+      // Публичная точка входа движка (её использует и проверка ответа, и тесты).
+      function evalFormula(src) {
+        const text = String(src).replace(/^=/, '');
+        const value = evalNode(parseFormula(text));
+        if (isRange(value)) throw new FormulaError('#ЗНАЧ!');
+        return value;
+      }
+
+      // Хук для тестов (browser-smoke): вычислить эталонную формулу задачи
+      // на её собственном листе, не переключая текущую задачу.
+      function evalTaskFormula(taskId) {
+        const task = tasks.filter(function (t) { return t.id === taskId; })[0];
+        if (!task) throw new FormulaError('#ССЫЛКА!');
+        const sheet = sheets.filter(function (s) { return s.id === task.sheet; })[0];
+        const savedRows = sheetRows;
+        const savedHeaders = sheetHeaders;
+        sheetRows = sheet.rows;
+        sheetHeaders = sheet.headers;
+        try {
+          return evalFormula(task.formula);
+        } finally {
+          sheetRows = savedRows;
+          sheetHeaders = savedHeaders;
+        }
+      }
+
+      /* ── Отрисовка и проверка ответа ── */
+      let currentTask = null;
+      let lastTaskIndex = -1;
+      let taskSaved = false;
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function formatNumber(v) {
+        if (typeof v !== 'number' || !isFinite(v)) return String(v);
+        const r = Math.round(v * 1e6) / 1e6;
+        return String(r).replace('.', ',');
+      }
+
+      function renderSheet(sheet) {
+        let html = '<div class="sheet-wrap"><table class="sheet-table"><caption class="sheet-caption">' + escapeHtml(sheet.title) + '</caption><thead><tr><th class="sheet-corner" aria-label="Угол таблицы"></th>';
+        sheet.headers.forEach(function (h, i) {
+          html += '<th scope="col">' + COL_LETTERS[i] + '</th>';
+        });
+        html += '</tr><tr><th class="sheet-corner"></th>';
+        sheet.headers.forEach(function (h) {
+          html += '<th scope="col" class="sheet-head">' + escapeHtml(h) + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        sheet.rows.forEach(function (row, r) {
+          html += '<tr><th scope="row" class="sheet-row-head">' + (r + 2) + '</th>';
+          row.forEach(function (v) {
+            const cls = typeof v === 'number' ? ' class="num"' : '';
+            html += '<td' + cls + '>' + escapeHtml(formatNumber(v)) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+      }
+
+      function renderTask() {
+        const task = currentTask;
+        const sheet = sheets.filter(function (s) { return s.id === task.sheet; })[0];
+        sheetHeaders = sheet.headers;
+        sheetRows = sheet.rows;
+
+        const card = document.getElementById('taskCard');
+        card.innerHTML =
+          '<div class="task-header"><span class="task-type table">' + escapeHtml(task.type) + '</span></div>' +
+          '<div class="task-text">' + task.text + '</div>' +
+          renderSheet(sheet) +
+          '<div class="answer-section">' +
+            '<label class="answer-label" for="answerInput">Ответ — число или формула:</label>' +
+            '<input type="text" class="answer-input" id="answerInput" placeholder="Например: 42 или =СУММ(B2:B13)" autocomplete="off" spellcheck="false" autocapitalize="off" />' +
+            '<div class="formula-preview" id="formulaPreview" aria-live="polite"></div>' +
+            '<div class="buttons">' +
+              '<button type="button" class="btn btn-check" data-act="checkAnswer" aria-label="Проверить ответ">✓ Проверить</button>' +
+              '<button type="button" class="btn btn-next" data-act="nextTask" aria-label="Новая задача">🔄 Новая задача</button>' +
+              '<button type="button" class="btn btn-hint" data-act="showHint" aria-label="Показать подсказку">💡 Подсказка</button>' +
+              '<button type="button" class="btn btn-solution" data-act="showSolution" aria-label="Показать решение">📝 Решение</button>' +
+            '</div>' +
+            '<div class="result" id="result" role="status" aria-live="polite"></div>' +
+          '</div>';
+
+        const input = document.getElementById('answerInput');
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            checkAnswer();
+          }
+        });
+        input.focus();
+      }
+
+      function updatePreview() {
+        const el = document.getElementById('formulaPreview');
+        const input = document.getElementById('answerInput');
+        if (!el || !input) return;
+        const raw = input.value.trim();
+        el.className = 'formula-preview';
+        if (!raw || raw.charAt(0) !== '=') {
+          el.textContent = '';
+          return;
+        }
+        try {
+          el.textContent = 'Значение формулы: ' + formatNumber(evalFormula(raw));
+          el.className = 'formula-preview ok';
+        } catch (e) {
+          el.textContent = 'Ошибка в формуле: ' + (e && e.code ? e.code : 'проверьте запись');
+          el.className = 'formula-preview error';
+        }
+      }
+
+      function generateTask() {
+        taskSaved = false;
+        if (typeof trackTaskStart === 'function') { trackTaskStart('oge14'); }
+        let idx = Math.floor(Math.random() * tasks.length);
+        if (tasks.length > 1 && idx === lastTaskIndex) idx = (idx + 1) % tasks.length;
+        lastTaskIndex = idx;
+        currentTask = tasks[idx];
+        renderTask();
+      }
+
+      function checkAnswer() {
+        const input = document.getElementById('answerInput');
+        const result = document.getElementById('result');
+        const raw = input.value.trim();
+        if (!raw) {
+          input.focus();
+          return;
+        }
+
+        let value;
+        try {
+          value = raw.charAt(0) === '='
+            ? evalFormula(raw)
+            : Number(raw.replace(/\s+/g, '').replace(',', '.'));
+        } catch (e) {
+          result.className = 'result incorrect';
+          result.innerHTML = '⚠️ Формулу не удалось вычислить: <strong>' + escapeHtml(e && e.code ? e.code : 'проверьте запись') + '</strong>';
+          return;
+        }
+
+        if (typeof value !== 'number' || !isFinite(value)) {
+          result.className = 'result incorrect';
+          result.innerHTML = '⚠️ Введите число или формулу, например <code>=СУММ(C2:C21)</code>.';
+          return;
+        }
+
+        if (Math.abs(value - currentTask.answer) < 1e-6) {
+          input.classList.remove('incorrect');
+          input.classList.add('correct');
+          result.className = 'result correct';
+          if (!taskSaved) {
+            taskSaved = true;
+            if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge14', 1, 1); }
+            if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge14', 1); }
+          }
+          result.innerHTML = '✅ Правильно! Отличная работа!';
+        } else {
+          input.classList.remove('correct');
+          input.classList.add('incorrect');
+          result.className = 'result incorrect';
+          result.innerHTML = '❌ Неправильно. Проверьте диапазон и условие формулы.';
+        }
+      }
+
+      function nextTask() {
+        hideHintsAndSolution();
+        generateTask();
+      }
+
+      function hideHintsAndSolution() {
+        document.getElementById('hintBox').style.display = 'none';
+        document.getElementById('solutionBox').style.display = 'none';
+      }
+
+      function showHint() {
+        if (typeof trackHint === 'function') { trackHint('oge14'); }
+        const hintBox = document.getElementById('hintBox');
+        const hintText = document.getElementById('hintText');
+        hintText.innerHTML = currentTask.hint;
+        hintBox.style.display = 'block';
+      }
+
+      function showSolution() {
+        const solutionBox = document.getElementById('solutionBox');
+        const solutionSteps = document.getElementById('solutionSteps');
+        solutionSteps.innerHTML = currentTask.solution
+          .map(function (step) { return '<div class="solution-step">' + step + '</div>'; })
+          .join('');
+        solutionBox.style.display = 'block';
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // Инициализация
+      generateTask();
+      if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
+    </script>
+    <script src="js/progress-client.js"></script>
+    <script src="js/progress-sync.js"></script>
+    <script src="js/tracking-client.js"></script>
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('/sw.js').catch(function() {});
+      }
+    </script>
+  </body>
+</html>
