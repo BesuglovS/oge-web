@@ -198,7 +198,7 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   через root-хелпер `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
   **Fail-closed:** без хелпера на Linux — 503, а не запуск без изоляции. Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
-- **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`,
+- **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`/`mc.yandex.com`,
   **`script-src` без `'unsafe-inline'`**: inline-обработчиков нет (в разметке
   `data-act`/`data-act-change`/`data-act-key`/`data-nav` + `js/actions.js`), а
   каждый inline `<script>` разрешён по `'sha256-…'`; хеши считает `tools/csp-policy.mjs`
