@@ -248,6 +248,13 @@ if ! mv -T "$PARENT/.public-$$" "$ROOT"; then
   exit 1
 fi
 trap - EXIT
+# PHP-FPM выполняет файлы через симлинк public: без revalidate_path opcache
+# продолжает отдавать старый run_python.php. Ставим конфиг из нового релиза
+# и перезагружаем FPM (sudo-хелпер валидирует php-fpm -t).
+if [ -f "$NEW/php-fpm-opcache.ini" ]; then
+  sudo -n /usr/local/sbin/deploy-php.sh "$NEW/php-fpm-opcache.ini" \
+    || echo "WARN: не удалось установить php-fpm-opcache.ini (проверьте PHP-код: X-Sandbox-Build)"
+fi
 # Храним текущий релиз + (KEEP-1) предыдущих. Текущий не удаляем никогда:
 # mtime каталога из tar может быть старее старых релизов, и удаление по
 # mtime уже один раз снесло live-релиз. Сортируем timestamp-релизы по имени.

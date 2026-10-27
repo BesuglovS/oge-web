@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v26'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v27'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v25` → `v26`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v26` → `v27`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -160,14 +160,19 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
    для отката. Первичная миграция real-dir `public` → `releases/initial-*` + симлинк.
 4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
    (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
+5. Деплой PHP-конфига: `sudo -n /usr/local/sbin/deploy-php.sh <релиз>/php-fpm-opcache.ini`
+   (sudoers `deploy-php`; хелпер проверяет наличие `opcache.revalidate_path=1`, ставит файл
+   и делает `php-fpm8.1 -t` + `systemctl reload php8.1-fpm`). При ошибке деплой только
+   предупреждает — сайт уже переключён.
 
 **⚠️ opcache и симлинк.** `public` — симлинк, а opcache по умолчанию
 (`revalidate_path=0`) запоминает realpath и после переключения релиза продолжает
-выполнять **старый** PHP-файл (`run_python.php`, `git/index.php`). На сервере
-установлен `/etc/php/8.1/fpm/conf.d/99-oge-opcache.ini` (`opcache.revalidate_path=1`,
-`revalidate_freq=0`), копия — `php-fpm-opcache.ini` в репозитории. `deploy.ps1`
-после деплоя сверяет заголовок `X-Sandbox-Build` с локальным хешем `run_python.php`
-и предупреждает, если PHP-код не обновился.
+выполнять **старый** PHP-файл (`run_python.php`, `git/index.php`). Конфиг
+(`opcache.revalidate_path=1`, `revalidate_freq=0`) лежит в репозитории как
+`php-fpm-opcache.ini` и **ставится автоматически** шагом 5; на сервере это
+`/etc/php/8.1/fpm/conf.d/99-oge-opcache.ini`. `deploy.ps1` дополнительно сверяет
+заголовок `X-Sandbox-Build` с локальным хешем `run_python.php` и предупреждает,
+если PHP-код не обновился.
 
 **Откат:** `.\deploy.ps1 -Rollback` переключает `public` на предыдущий релиз,
 `.\deploy.ps1 -Rollback -Release <имя>` — на указанный. Переключение симлинка

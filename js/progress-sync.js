@@ -9,14 +9,16 @@
   'use strict';
 
   var COURSE = 'oge';
-  // TODO: при появлении интерактивных страниц по заданиям 13.1/13.2/14
-  // (сейчас доступна только теория oge131-t/oge132-t/oge14-t) — добавить их
-  // в TASKS здесь и в js/progress.js, чтобы итог совпадал с реальным
-  // числом типов заданий (16).
-  var TASKS = [
+  // Список заданий — единый источник в js/progress.js (OGEProgress.tasks).
+  // Локальная копия ниже нужна только как аварийный резерв, если progress.js
+  // не подключён (например, модуль используется отдельно).
+  var FALLBACK_TASKS = [
     'oge1', 'oge2', 'oge3', 'oge4', 'oge5', 'oge6', 'oge7', 'oge8', 'oge9',
     'oge10', 'oge11', 'oge12', 'oge15', 'oge16'
   ];
+  var TASKS = (global.OGEProgress && Array.isArray(global.OGEProgress.tasks) && global.OGEProgress.tasks.length)
+    ? global.OGEProgress.tasks
+    : FALLBACK_TASKS;
 
   function getLocalProgress() {
     try {

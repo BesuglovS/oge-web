@@ -126,6 +126,9 @@ var OGEProgress = (function() {
     getProgressPercent: getProgressPercent,
     getLevel: getLevel,
     clear: clear,
-    renderProgressBar: renderProgressBar
+    renderProgressBar: renderProgressBar,
+    // Единственный источник списка заданий: progress-sync.js берёт его отсюда,
+    // чтобы списки не расходились (раньше копия жила в двух файлах).
+    tasks: TASKS
   };
 })();
