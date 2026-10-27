@@ -219,7 +219,10 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   (`'unsafe-hashes'` — Chrome 69+, Firefox 109+, Safari 15.4+; разрешает только
   конкретные значения атрибутов). Динамический `style=` захешировать нельзя,
   поэтому стили из JS — только через CSSOM (`el.style.width = …`), а `check-site`
-  валит сборку, если находит конкатенацию/интерполяцию в стиле.
+  валит сборку, если находит конкатенацию/интерполяцию в стиле. Политика с хешами
+  ~6.5 КБ, а nginx не принимает параметр длиннее ~4 КБ, поэтому
+  `csp-policy.mjs --nginx` режет её на `set $csp0..$cspN` и склеивает в `$csp`,
+  а `deploy.ps1` заменяет блок между маркерами `# >>> csp` / `# <<< csp`.
   Картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
   `auth.nayanovaacademy.ru`, `frame-src` — только `mc.yandex.ru` (Метрика создаёт
   служебный iframe даже с выключенным вебвизором); `object-src/base-uri 'none'`,
