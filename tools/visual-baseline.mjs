@@ -147,12 +147,16 @@ for (const vp of viewports) {
     await cdp.send('Network.setBlockedURLs', {
       urls: ['*mc.yandex.ru*', '*auth.nayanovaacademy.ru*'],
     });
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: SEED_SCRIPT });    await cdp.send('Emulation.setDeviceMetricsOverride', {
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: SEED_SCRIPT });
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
       width: vp.width, height: vp.height, deviceScaleFactor: 1, mobile: !!vp.mobile,
     });
     await cdp.send('Page.navigate', { url: `${base}/${page}` });
     await sleep(1200);
     const res = await cdp.send('Runtime.evaluate', { expression: COLLECT, returnByValue: true });
+    if (!res.result || typeof res.result.value !== 'string') {
+      throw new Error(`не удалось снять ${page}@${vp.name}: страница не загрузилась (сервер на ${base}?)`);
+    }
     data[`${page}@${vp.name}`] = JSON.parse(res.result.value);
     if (shotsDir) {
       const shot = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });

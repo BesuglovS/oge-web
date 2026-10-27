@@ -98,6 +98,11 @@ CRC32, совпадение с файлом из репозитория).
 Вне CI (нужен интернет): `node tools/check-links.mjs` — внешние ссылки на
 sister-сайты. Перед коммитом правок страниц: `node tools/update-sitemap.mjs`
 (lastmod = дата последнего коммита файла). Визуальная регрессия CSS:
+`node tools/check-visual.mjs` сравнивает вычисленные стили 35 страниц на двух
+ширинах с эталоном `tools/visual-baseline.json.gz` (в git; метрики шрифта не
+сравниваются, поэтому эталон сходится на Windows и Linux), `--update` —
+перезаписать эталон, `--raw` — точное сравнение для диагностики. Вручную, если
+нужны скриншоты:
 `node tools/visual-baseline.mjs base.json --shots shots && ... && node tools/visual-shot-diff.mjs shots shots2`
 (рендеринг детерминирован, сравнение по sha256).
 
@@ -127,6 +132,8 @@ tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
 tools/visual-baseline.mjs          # снимок вычисленных стилей + скриншоты (--shots), нужен Chrome
 tools/visual-shot-diff.mjs         # попиксельное сравнение скриншотов (визуальная регрессия)
+tools/check-visual.mjs             # визуальная регрессия в CI: снимок против tools/visual-baseline.json.gz
+tools/visual-baseline.json.gz      # эталон вычисленных стилей (70 снимков, ~270 КБ gzip)
 tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, архив 11/12, CSP
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/csp-policy.mjs               # CSP с sha256-хешами inline-скриптов (используется деплоем и --csp)

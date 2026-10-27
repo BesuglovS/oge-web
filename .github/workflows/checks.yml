@@ -63,3 +63,27 @@ jobs:
           pkill -f 'chrome --headless' 2>/dev/null || true
           pkill -f 'chrome_crashpad' 2>/dev/null || true
           exit $status
+
+      # Визуальная регрессия: вычисленные стили всех 35 страниц на двух ширинах
+      # (desktop 1280, mobile 390) сравниваются с эталоном tools/visual-baseline.json.gz.
+      # Метрики шрифта не сравниваются, поэтому эталон, снятый на Windows, сходится
+      # с Linux-рендерингом; намеренные правки CSS — node tools/check-visual.mjs --update.
+      - name: Visual regression (computed styles)
+        timeout-minutes: 10
+        run: |
+          SANDBOX_ALLOW_FALLBACK=1 php -S 127.0.0.1:8080 -t . > /tmp/php-visual.log 2>&1 &
+          SERVER_PID=$!
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:8080/oge.html && break
+            sleep 1
+          done
+          node tools/check-visual.mjs
+          status=$?
+          if [ $status -ne 0 ]; then
+            echo "--- php server log ---"
+            tail -30 /tmp/php-visual.log || true
+          fi
+          kill -9 $SERVER_PID 2>/dev/null || true
+          pkill -f 'chrome --headless' 2>/dev/null || true
+          pkill -f 'chrome_crashpad' 2>/dev/null || true
+          exit $status
