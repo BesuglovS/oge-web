@@ -51,8 +51,13 @@ const tagOf = (sel) => {
   const mm = /\/([a-z0-9]+)\[\d+\]$/.exec(sel);
   return mm ? mm[1] : '';
 };
-// Числовой допуск — на случай дробных px из-за округления layout'а.
-const TOLERANT = new Set(['padding-top', 'padding-right', 'padding-bottom', 'padding-left']);
+// Числовой допуск: дробные px из-за округления layout'а (fr-колонки, паддинги
+// от процентов) отличаются на десятые доли — сравниваем с допуском, чтобы не
+// ловить 0.3px шума. Значения — списки px через пробел (grid-template-columns).
+const TOLERANT = new Set([
+  'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+  'grid-template-columns',
+]);
 const TOLERANCE = { rel: 0.05, abs: 1 }; // px: 5% или 1px
 
 const readSnapshot = (file) => {
@@ -76,15 +81,28 @@ const pxValue = (v) => {
 };
 
 // Значения считаем одинаковыми, если строки совпали; для px из TOLERANT —
-// если разница в пределах допуска (шрифты и округление layout'а).
+// если разница всех px-токенов в пределах допуска (шрифты и округление layout'а).
+function samePxList(prop, a, b) {
+  const pa = a.split(' ');
+  const pb = b.split(' ');
+  if (pa.length !== pb.length) return false;
+  for (let i = 0; i < pa.length; i++) {
+    const na = pxValue(pa[i]);
+    const nb = pxValue(pb[i]);
+    if (na === null || nb === null) {
+      if (pa[i] !== pb[i]) return false;
+      continue;
+    }
+    const diff = Math.abs(na - nb);
+    if (diff > Math.max(TOLERANCE.abs, Math.max(Math.abs(na), Math.abs(nb)) * TOLERANCE.rel)) return false;
+  }
+  return true;
+}
+
 function sameValue(prop, a, b) {
   if (a === b) return true;
   if (raw || !TOLERANT.has(prop)) return false;
-  const na = pxValue(a);
-  const nb = pxValue(b);
-  if (na === null || nb === null) return false;
-  const diff = Math.abs(na - nb);
-  return diff <= Math.max(TOLERANCE.abs, Math.max(Math.abs(na), Math.abs(nb)) * TOLERANCE.rel);
+  return samePxList(prop, a, b);
 }
 
 const short = (v) => (v.length > 60 ? v.slice(0, 57) + '…' : v);
