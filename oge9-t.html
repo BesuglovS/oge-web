@@ -22,7 +22,8 @@
     <script src="js/metrika.js"></script>
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
-  </head>
+    <script src="js/actions.js"></script>
+</head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
     <div class="container" role="main" id="main-content">
@@ -796,12 +797,12 @@
     <div class="quick-nav">
       <button type="button"
         class="quick-nav-btn practice"
-        onclick="location.href = 'oge9.html'"
+        data-nav="oge9.html"
         title="К заданию"
       >
         🎮
       </button>
-      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     

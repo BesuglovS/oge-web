@@ -23,7 +23,8 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
-  </head>
+    <script src="js/actions.js"></script>
+</head>
   <body class="body-teal oge2">
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
     <div class="container" role="main" id="main-content">
@@ -47,8 +48,8 @@
           role="button"
           tabindex="0"
           aria-expanded="false"
-          onclick="toggleFano()"
-          onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleFano(); }"
+          data-act="toggleFano"
+          data-act-key="enterSpace" data-act="toggleFano"
         >
           <div class="fano-toggle-header">
             <span class="fano-toggle-title">💡 Условие Фано (подсказка)</span>
@@ -89,13 +90,13 @@
         </div>
 
         <div class="buttons">
-          <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
+          <button type="button" class="btn btn-check" data-act="checkAnswer" aria-label="Проверить ответ">
             ✓ Проверить
           </button>
-          <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
+          <button type="button" class="btn btn-hint" data-act="showHint" aria-label="Показать подсказку">
             💡 Подсказка
           </button>
-          <button type="button" class="btn btn-reset" onclick="resetGame()">
+          <button type="button" class="btn btn-reset" data-act="resetGame">
             🔄 Новая задача
           </button>
         </div>
@@ -123,12 +124,12 @@
     <div class="quick-nav">
       <button type="button"
         class="quick-nav-btn theory"
-        onclick="location.href = 'oge2-t.html'"
+        data-nav="oge2-t.html"
         title="Теория"
       >
         📚
       </button>
-      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     </div>

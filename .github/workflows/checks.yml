@@ -41,7 +41,8 @@ jobs:
 
       # Браузерный smoke-тест: реальный Chrome, реальные страницы.
       # Сервер поднимаем в том же шаге — GitHub гасит фоновые процессы
-      # при завершении шага.
+      # при завершении шага. --csp проверяет страницы под строгой политикой
+      # (script-src с хешами inline-скриптов, без 'unsafe-inline').
       - name: Browser smoke test (headless Chrome)
         timeout-minutes: 12
         run: |
@@ -51,7 +52,7 @@ jobs:
             curl -sf -o /dev/null http://127.0.0.1:8080/oge.html && break
             sleep 1
           done
-          node tools/browser-smoke.mjs http://127.0.0.1:8080
+          node tools/browser-smoke.mjs http://127.0.0.1:8080 --csp
           status=$?
           if [ $status -ne 0 ]; then
             echo "--- php server log ---"

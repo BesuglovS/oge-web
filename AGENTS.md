@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v27'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v28'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v26` → `v27`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v27` → `v28`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -109,6 +109,7 @@ run_python.php         # Python-песочница (задание 16) — СМ.
 php-fpm-opcache.ini    # opcache.revalidate_path=1 для симлинк-деплоя (копия серверной)
 assets/styles.css      # общий стиль (организован по секциям и постранично)
 js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
+js/actions.js          # делегирование data-act / data-act-change / data-nav (CSP без inline)
 js/code-editor.js      # overlay-редактор кода для задания 16 (подсветка, номера строк, отступы)
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
 js/oge15-gen.js        # генератор случайных обстановок задания 15
@@ -124,6 +125,7 @@ tools/visual-baseline.mjs          # снимок вычисленных сти�
 tools/visual-shot-diff.mjs         # попиксельное сравнение скриншотов (визуальная регрессия)
 tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, CSP
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
+tools/csp-policy.mjs               # CSP с sha256-хешами inline-скриптов (используется деплоем и --csp)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
@@ -196,14 +198,17 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   через root-хелпер `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
   **Fail-closed:** без хелпера на Linux — 503, а не запуск без изоляции. Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
-- **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`
-  (`'unsafe-inline'` пока нужен из-за inline-обработчиков), стили — свои и inline,
+- **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`,
+  **`script-src` без `'unsafe-inline'`**: inline-обработчиков нет (в разметке
+  `data-act`/`data-act-change`/`data-act-key`/`data-nav` + `js/actions.js`), а
+  каждый inline `<script>` разрешён по `'sha256-…'`; хеши считает `tools/csp-policy.mjs`
+  и подставляет `deploy.ps1` при каждом деплое. Стили — свои и inline,
   картинки — свои, `data:` и Метрика, `connect-src` — свои, Метрика и
   `auth.nayanovaacademy.ru`, `frame-src` — только `mc.yandex.ru` (Метрика создаёт
   служебный iframe даже с выключенным вебвизором); `object-src/base-uri 'none'`,
   `form-action 'self'`, `frame-ancestors 'self'`, `upgrade-insecure-requests`.
-  Политика проверена headless Chrome (`tools/browser-smoke.mjs`): 35 страниц,
-  0 нарушений. При добавлении внешнего ресурса — расширять политику осознанно.
+  Проверка: `node tools/browser-smoke.mjs <url> --csp` (35 страниц, 0 нарушений,
+  клики/ответы/песочница работают).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — задеплоен намеренно,
   но закрыт **HTTP Basic** в nginx (`location ^~ /git/`, `auth_basic_user_file
   /etc/nginx/oge-git-htpasswd`). Логин/пароль — `/root/oge-git-ui-credentials.txt` (600);

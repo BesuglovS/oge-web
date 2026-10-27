@@ -23,7 +23,8 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
-  </head>
+    <script src="js/actions.js"></script>
+</head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
     <div class="container" role="main" id="main-content">
@@ -56,14 +57,14 @@
             <button
               type="button"
               class="btn btn-primary"
-              onclick="buildMatrix()"
+              data-act="buildMatrix"
             >
               📐 Построить матрицу
             </button>
             <button
               type="button"
               class="btn btn-warning"
-              onclick="clearMatrix()"
+              data-act="clearMatrix"
             >
               🗑️ Очистить матрицу
             </button>
@@ -100,7 +101,7 @@
         <div class="query-row">
           <div class="control-group">
             <label for="pathMode">Режим поиска</label>
-            <select id="pathMode" onchange="onModeChange()">
+            <select id="pathMode" data-act-change="onModeChange">
               <option value="simple">Просто путь</option>
               <option value="through">Путь через вершину</option>
               <option value="avoid">Путь минуя вершину</option>
@@ -118,7 +119,7 @@
             <label for="toVertex">В вершину</label>
             <select id="toVertex"></select>
           </div>
-          <button type="button" class="btn btn-success" onclick="findShortestPath()">
+          <button type="button" class="btn btn-success" data-act="findShortestPath">
             🚀 Найти кратчайший путь
           </button>
         </div>
@@ -150,12 +151,12 @@
       <button type="button"
         class="quick-nav-btn"
         style="background: linear-gradient(145deg, #3f7f5e 0%, #5f9a68 100%); color: white"
-        onclick="location.href = 'oge4.html'"
+        data-nav="oge4.html"
         title="К заданию"
       >
         🎮
       </button>
-      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     
@@ -224,7 +225,7 @@
           html +=
             `<input type="text" maxlength="2" value="${escapeHtml(labels[i])}" ` +
             `aria-label="Обозначение вершины ${i + 1}" title="Вершина ${i + 1}" ` +
-            `onchange="updateLabel(${i}, this.value)" />`;
+            `data-act-change="updateLabel" data-arg="${i}" />`;
         }
         container.innerHTML = html;
       }
@@ -286,8 +287,8 @@
                 `<td id="${cellId}" class="editable"><input type="text" inputmode="numeric" ` +
                 `placeholder="—" value="${val}" ` +
                 `aria-label="Расстояние ${escapeHtml(labels[i])}–${escapeHtml(labels[j])}" ` +
-                `onchange="onCellChange(${i}, ${j}, this.value)" ` +
-                `onfocus="this.select()" /></td>`;
+                `data-act-change="onCellChange" data-arg="${i}|${j}" ` +
+                `data-select-on-focus /></td>`;
             } else {
               const cellId = `cell_${i}_${j}`;
               const val = data[i][j] !== null && data[i][j] !== undefined ? data[i][j] : "—";

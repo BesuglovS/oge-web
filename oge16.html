@@ -24,7 +24,8 @@
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
     <script src="js/code-editor.js"></script>
-  </head>
+    <script src="js/actions.js"></script>
+</head>
   <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
     <div class="container" role="main" id="main-content">
@@ -53,12 +54,12 @@
     <div class="quick-nav">
       <button type="button"
         class="quick-nav-btn theory"
-        onclick="location.href = 'oge16-t.html'"
+        data-nav="oge16-t.html"
         title="Теория"
       >
         📚
       </button>
-      <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+      <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
         ↑
       </button>
     </div>
@@ -1705,7 +1706,7 @@
           '<span class="code-editor-note" id="editorNote"></span>' +
           '<span class="code-editor-cursor" id="editorPosition">1:1</span>' +
           '<span class="code-editor-hint"><span>Esc — выйти</span><span>Tab/Shift+Tab — отступ</span><span>Ctrl+/ — комментарий</span><span>Ctrl+D — дублировать</span><span>Ctrl+Enter — запустить</span></span>' +
-          '</div><div class="buttons"><button type="button" class="btn btn-run" id="runBtn" onclick="runCode()">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button type="button" class="btn btn-next" onclick="genTask()">🔄 Новая задача</button><button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">💡 Подсказка</button><button type="button" class="btn btn-solution" onclick="showSolution()" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" onkeydown="if(event.key==\'Enter\')selectTaskByNumber()"><button type="button" class="btn btn-select" onclick="selectTaskByNumber()">Перейти</button><button type="button" class="btn btn-prev" onclick="prevTask()">◀ Предыдущая</button><button type="button" class="btn btn-next-task" onclick="nextTask()" aria-label="Следующая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
+          '</div><div class="buttons"><button type="button" class="btn btn-run" id="runBtn" data-act="runCode">▶ Запустить и проверить (' + task.tests.length + ' тестов)</button><button type="button" class="btn btn-next" data-act="genTask">🔄 Новая задача</button><button type="button" class="btn btn-hint" data-act="showHint" aria-label="Показать подсказку">💡 Подсказка</button><button type="button" class="btn btn-solution" data-act="showSolution" aria-label="Показать решение">📝 Решение</button></div><div class="task-selector"><label for="taskNumInput">Выбрать задание №:</label><input type="number" id="taskNumInput" min="1" max="' + tasks.length + '" value="1" data-act-key="enter" data-act="selectTaskByNumber"><button type="button" class="btn btn-select" data-act="selectTaskByNumber">Перейти</button><button type="button" class="btn btn-prev" data-act="prevTask">◀ Предыдущая</button><button type="button" class="btn btn-next-task" data-act="nextTask" aria-label="Следующая задача">Следующая ▶</button></div></div><div class="output-section" id="outputSection" role="status" aria-live="polite"></div>';
         c.innerHTML = h;
         var ed = document.getElementById("codeEditor");
         if (window.OgeCodeEditor) {

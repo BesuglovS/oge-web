@@ -141,8 +141,13 @@ for (const vp of viewports) {
     const cdp = new Cdp(t.webSocketDebuggerUrl);
     await cdp.ready;
     await cdp.send('Page.enable');
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: SEED_SCRIPT });
-    await cdp.send('Emulation.setDeviceMetricsOverride', {
+    await cdp.send('Network.enable');
+    // Внешние скрипты (Метрика, портал) грузятся асинхронно и могут вызывать
+    // Math.random в произвольный момент — из-за этого разметка «плывёт».
+    await cdp.send('Network.setBlockedURLs', {
+      urls: ['*mc.yandex.ru*', '*auth.nayanovaacademy.ru*'],
+    });
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: SEED_SCRIPT });    await cdp.send('Emulation.setDeviceMetricsOverride', {
       width: vp.width, height: vp.height, deviceScaleFactor: 1, mobile: !!vp.mobile,
     });
     await cdp.send('Page.navigate', { url: `${base}/${page}` });

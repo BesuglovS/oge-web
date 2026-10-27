@@ -162,6 +162,19 @@ for (const f of htmlFiles) {
   const html = readFileSync(join(root, f), 'utf8');
   const markup = markupOnly(html);
 
+  // CSP без 'unsafe-inline': inline-обработчиков быть не должно — только
+  // data-act / data-act-change / data-act-key / data-nav + js/actions.js.
+  // Учитываем атрибуты в начале шаблонных строк (`onfocus=...`), но не
+  // присваивания свойств (el.onclick = ...) — они CSP не нарушают.
+  const inlineHandlers = [...html.matchAll(/(?:^|[^\w.-])on(?:click|change|focus|blur|input|keydown|keyup|keypress|submit|mouseover|mouseout|mousedown|mouseup|load|error|dblclick)\s*=/g)]
+    .map((m) => m[0].trim());
+  if (inlineHandlers.length) {
+    errors.push(`${f}: inline-обработчики (CSP): ${[...new Set(inlineHandlers)].slice(0, 4).join(', ')}`);
+  }
+  if (/data-(act|act-change|act-key|nav)=/.test(html) && !/js\/actions\.js/.test(html)) {
+    errors.push(`${f}: есть data-act, но не подключён js/actions.js`);
+  }
+
   const h1 = (markup.match(/<h1[\s>]/gi) || []).length;
   if (h1 !== 1) errors.push(`${f}: заголовков <h1> ${h1} (ожидался ровно один)`);
 

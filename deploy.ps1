@@ -332,7 +332,28 @@ if ($DryRun) {
   Write-Host "  [DryRun] Deploy nginx config: $nginxSite" -ForegroundColor Yellow
 } elseif (Test-Path $nginxLocal) {
   Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
-  $scpCmd = "scp $scpPortArg $identityArg `"$nginxLocal`" ${remote}:/tmp/nginx-$nginxSite"
+  # CSP с хешами inline-скриптов: политика считается по тем же файлам, что уехали
+  # в релиз. Если сгенерировать не удалось — уходит конфиг как есть (в нём
+  # запасной вариант с 'unsafe-inline').
+  $nginxUpload = $nginxLocal
+  $cspOut = ''
+  try {
+    $cspOut = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') 2>$null | Out-String).Trim()
+  } catch { $cspOut = '' }
+  if ($cspOut -and $cspOut -match "script-src" -and $cspOut -notmatch "[\r\n]") {
+    $cfg = Get-Content $nginxLocal -Raw
+    $patched = [regex]::Replace($cfg, '(?m)^(\s*)set \$csp "[^"]*";', {
+      param($m)
+      $m.Groups[1].Value + 'set $csp "' + $cspOut + '";'
+    })
+    if ($patched -ne $cfg) {
+      $nginxUpload = Join-Path $env:TEMP ("nginx-$nginxSite")
+      [System.IO.File]::WriteAllText($nginxUpload, $patched, (New-Object System.Text.UTF8Encoding $false))
+      $hashCount = ([regex]::Matches($cspOut, "sha256-")).Count
+      Write-Host "  CSP: хешей inline-скриптов $hashCount" -ForegroundColor Gray
+    }
+  }
+  $scpCmd = "scp $scpPortArg $identityArg `"$nginxUpload`" ${remote}:/tmp/nginx-$nginxSite"
   $sshNginxCmd = "ssh $sshPortArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
   cmd /c $scpCmd
   if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config scp failed" -ForegroundColor Red; exit 1 }

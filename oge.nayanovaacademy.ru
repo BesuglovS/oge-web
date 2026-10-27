@@ -58,11 +58,11 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
     add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
-    # CSP: inline-обработчики и стили пока разрешены ('unsafe-inline'), зато
-    # заблокированы сторонние скрипты, object/base/form-hijack и сторонние
-    # фреймы. Разрешены только свои файлы, Метрика (tag.js + её служебный
-    # iframe mc.yandex.ru) и API портала. Проверено headless Chrome:
-    # 35 страниц, 0 нарушений (tools/browser-smoke.mjs).
+    # CSP: inline-обработчиков в разметке нет (data-act + js/actions.js),
+    # поэтому script-src собирается из 'self', 'sha256-…' для каждого inline
+    # <script> и домена Метрики. Хеши подставляет deploy.ps1 при каждом деплое
+    # (tools/csp-policy.mjs) — строка ниже запасная, с 'unsafe-inline'.
+    # Проверка политики: node tools/browser-smoke.mjs <url> --csp.
     set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
     add_header Content-Security-Policy $csp always;
 

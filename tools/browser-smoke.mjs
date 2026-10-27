@@ -32,11 +32,58 @@ if (typeof WebSocket === 'undefined') {
   console.error('Нужен Node 22+ (глобальный WebSocket для CDP)');
   process.exit(1);
 }
+
+// --csp: прогоняем всё через локальный прокси, который добавляет строгую CSP
+// (script-src с хешами inline-скриптов, без 'unsafe-inline'). Так проверяется
+// и работоспособность страниц под реальной политикой, и отсутствие нарушений.
+let cspProxy = null;
+let target = base;
+if (process.argv.includes('--csp')) {
+  const { buildPolicy } = await import('./csp-policy.mjs');
+  const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
+  const { policy, hashes } = buildPolicy(rootDir);
+  const http = await import('node:http');
+  const proxyPort = 0;
+  cspProxy = http.createServer(async (req, res) => {
+    try {
+      const chunks = [];
+      for await (const c of req) chunks.push(c);
+      const body = Buffer.concat(chunks);
+      const headers = Object.assign({}, req.headers);
+      // undici не даёт выставлять hop-by-hop заголовки — выкидываем их.
+      for (const h of ['host', 'connection', 'keep-alive', 'proxy-connection', 'transfer-encoding', 'upgrade', 'te', 'trailer', 'content-length']) {
+        delete headers[h];
+      }
+      const upstream = await fetch(base + req.url, {
+        method: req.method,
+        headers,
+        body: body.length ? body : undefined,
+        redirect: 'manual',
+      });
+      const outHeaders = {};
+      upstream.headers.forEach((v, k) => {
+        if (['content-encoding', 'content-length', 'transfer-encoding'].includes(k)) return;
+        outHeaders[k] = v;
+      });
+      if ((upstream.headers.get('content-type') || '').includes('text/html')) {
+        outHeaders['content-security-policy'] = policy;
+      }
+      res.writeHead(upstream.status, outHeaders);
+      res.end(Buffer.from(await upstream.arrayBuffer()));
+    } catch (e) {
+      res.writeHead(502, { 'content-type': 'text/plain; charset=utf-8' });
+      res.end('proxy error: ' + e.message);
+    }
+  });
+  await new Promise((r) => cspProxy.listen(proxyPort, '127.0.0.1', r));
+  target = `http://127.0.0.1:${cspProxy.address().port}`;
+  console.log(`CSP-прокси: ${target} (хешей inline-скриптов: ${hashes.length})`);
+}
 const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
-const port = 9600 + Math.floor(Math.random() * 200);
+let port = 0;
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'oge-smoke-'));
 const chromeArgs = ['--headless=new', '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-default-browser-check',
-  '--hide-scrollbars', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'];
+  '--hide-scrollbars', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'];
 // В CI контейнеры часто запускают Chrome без user-namespace — иначе он падает
 // или зависает на старте (в логах «Failed to move to new namespace»).
 if (process.env.CI || (typeof process.getuid === 'function' && process.getuid() === 0)) {
@@ -60,10 +107,29 @@ const kill = () => {
 process.on('exit', () => { kill(); try { fs.rmSync(profile, { recursive: true, force: true }); } catch (e) { /* ignore */ } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-for (let i = 0; i < 120; i++) {
-  try { const r = await fetch(`http://127.0.0.1:${port}/json/version`, { signal: AbortSignal.timeout(1000) }); if (r.ok) break; } catch (e) { /* wait */ }
-  await sleep(150);
+async function freePort() {
+  const net = await import('node:net');
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.once('error', reject);
+    srv.listen(0, '127.0.0.1', () => {
+      const p = srv.address().port;
+      srv.close(() => resolve(p));
+    });
+  });
 }
+
+// Chrome пишет фактический порт DevTools в <profile>/DevToolsActivePort.
+const portFile = path.join(profile, 'DevToolsActivePort');
+for (let i = 0; i < 200; i++) {
+  try {
+    const raw = fs.readFileSync(portFile, 'utf8').split('\n');
+    const p = Number(raw[0]);
+    if (p > 0) { port = p; break; }
+  } catch (e) { /* ещё не создан */ }
+  await sleep(100);
+}
+if (!port) throw new Error('Chrome не сообщил порт DevTools');
 
 class Cdp {
   constructor(u) {
@@ -110,7 +176,7 @@ async function openPage(page) {
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: `window.__csp = []; document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(e.violatedDirective + ' ' + e.blockedURI));`,
   });
-  await cdp.send('Page.navigate', { url: `${base}/${page}` });
+  await cdp.send('Page.navigate', { url: `${target}/${page}` });
   await sleep(1500);
   return { cdp, targetId: t.id };
 }
@@ -157,8 +223,15 @@ for (const page of pages) {
     }
     if (answer === null) return 'skip';
     input.value = answer;
-    if (typeof checkAnswer !== 'function') return 'no-check';
-    checkAnswer();
+    const btn = document.querySelector('.btn-check');
+    if (btn) {
+      // Реальный клик: проверяет делегирование data-act (CSP без inline).
+      btn.click();
+    } else if (typeof checkAnswer === 'function') {
+      checkAnswer();
+    } else {
+      return 'no-check';
+    }
     const box = document.getElementById('result') || document.getElementById('feedback');
     const text = box ? (box.textContent || '') : '';
     return /равильн|оверно|✅/i.test(text) ? 'ok' : 'fail: ' + text.trim().slice(0, 60);
@@ -229,6 +302,44 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2d. Задание 4-path: правка клетки через change-делегирование (data-act-change).
+{
+  const { cdp, targetId } = await openPage('oge4-path.html');
+  const res = await cdp.evalJs(`(() => {
+    if (typeof getMatrixData !== 'function') return 'no-api';
+    const input = document.querySelector('td.editable input');
+    if (!input) return 'no-input';
+    input.value = '7';
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    const m = getMatrixData();
+    const cellId = input.parentElement.id; // cell_i_j
+    const mm = /^cell_(\\d+)_(\\d+)$/.exec(cellId);
+    const got = mm ? m[Number(mm[1])][Number(mm[2])] : null;
+    return got === 7 ? 'ok' : 'fail: в матрице ' + JSON.stringify(got);
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge4-path.html (change): ${String(res).slice(0, 120)}`);
+  if (res !== 'ok' && !/no-api|no-input/.test(String(res))) errors.push(`oge4-path.html: change — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
+// 2e. Задание 2: клавиатура/клик по диаграмме Фано (data-act / data-act-key).
+{
+  const { cdp, targetId } = await openPage('oge2.html');
+  const res = await cdp.evalJs(`(async () => {
+    const el = document.querySelector('[data-act="toggleFano"]');
+    if (!el) return 'skip';
+    const before = el.getAttribute('aria-pressed') || el.className;
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    const after = el.getAttribute('aria-pressed') || el.className;
+    return before !== after ? 'ok' : 'fail: состояние не изменилось';
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge2.html (клавиатура Фано): ${String(res).slice(0, 120)}`);
+  if (res !== 'ok' && !/skip/.test(String(res))) errors.push(`oge2.html: toggleFano — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
 // 3. Задание 16: прогон эталонного решения через песочницу (если PHP доступен).
 {
   const { cdp, targetId } = await openPage('oge16.html');
@@ -241,7 +352,9 @@ for (const page of pages) {
     const btn = document.getElementById('runBtn');
     if (btn) btn.disabled = false;
     if (typeof runCode !== 'function') return 'no-run';
-    runCode();
+    // Кликаем по кнопке: проверяем и делегирование data-act, и прогон.
+    if (btn) btn.click();
+    else runCode();
     for (let i = 0; i < 60; i++) {
       await new Promise((r) => setTimeout(r, 500));
       const os = document.getElementById('outputSection');
@@ -266,4 +379,5 @@ if (errors.length) {
 }
 console.log(`\nOK: ${pages.length} страниц без ошибок, ответы и песочница работают`);
 kill();
+if (cspProxy) cspProxy.close();
 process.exit(0);

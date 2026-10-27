@@ -23,7 +23,8 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
-  </head>
+    <script src="js/actions.js"></script>
+</head>
   <body class="body-dark">
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
     <div class="container" role="main" id="main-content">
@@ -69,20 +70,20 @@
         </div>
 
         <div class="buttons">
-          <button type="button" class="btn btn-check" onclick="checkAnswer()" aria-label="Проверить ответ">
+          <button type="button" class="btn btn-check" data-act="checkAnswer" aria-label="Проверить ответ">
             ✓ Проверить
           </button>
-          <button type="button" class="btn btn-clear" onclick="clearAssembly()">
+          <button type="button" class="btn btn-clear" data-act="clearAssembly">
             ✕ Очистить
           </button>
-          <button type="button" class="btn btn-hint" onclick="showHint()" aria-label="Показать подсказку">
+          <button type="button" class="btn btn-hint" data-act="showHint" aria-label="Показать подсказку">
             💡 Подсказка
           </button>
         </div>
       </div>
 
       <div class="score-board">
-        <button type="button" class="btn btn-reset" onclick="resetGame()">
+        <button type="button" class="btn btn-reset" data-act="resetGame">
           🔄 Новое задание
         </button>
     </div>
@@ -96,8 +97,8 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button type="button" class="quick-nav-btn theory" onclick="location.href = 'oge7-t.html'" title="Теория">📚</button>
-      <button type="button" class="quick-nav-btn top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Наверх" aria-label="Наверх">↑</button>
+      <button type="button" class="quick-nav-btn theory" data-nav="oge7-t.html" title="Теория">📚</button>
+      <button type="button" class="quick-nav-btn top" data-act="scrollTopSmooth" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
       let protocols = [];

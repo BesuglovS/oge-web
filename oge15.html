@@ -25,6 +25,7 @@
     <script src="js/progress.js"></script>
     <script src="js/oge15-ref.js"></script>
     <script src="js/oge15-gen.js"></script>
+  <script src="js/actions.js"></script>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
@@ -46,7 +47,7 @@
   <div class="task-header">
     <span class="task-type" id="taskType">Задача 15-01</span>
     <div class="task-selector">
-      <select id="taskSelect" onchange="onTaskSelect()">
+      <select id="taskSelect" data-act-change="onTaskSelect">
         <option value="1">Задание 15-01</option>
         <option value="2">Задание 15-02</option>
         <option value="3">Задание 15-03</option>
@@ -70,9 +71,9 @@
         <option value="0">🎲 Случайная обстановка</option>
         <option value="-1">📁 Свой файл…</option>
       </select>
-      <button type="button" class="btn-sm load-task" onclick="loadCurrentTask()">📂 Загрузить обстановку</button>
+      <button type="button" class="btn-sm load-task" data-act="loadCurrentTask">📂 Загрузить обстановку</button>
       <input type="file" id="customTaskInput" accept=".json" style="display:none">
-      <button type="button" class="btn-sm load-task" id="btnCustomLoad" onclick="loadCustomTask()" style="display:none">📁 Выбрать файл...</button>
+      <button type="button" class="btn-sm load-task" id="btnCustomLoad" data-act="loadCustomTask" style="display:none">📁 Выбрать файл...</button>
     </div>
   </div>
   <div class="task-text" id="taskText">Выберите задание из списка и нажмите «Загрузить обстановку».</div>
@@ -162,12 +163,12 @@
 <div class="quick-nav">
   <button type="button"
     class="quick-nav-btn theory"
-    onclick="location.href = 'oge15-t.html'"
+    data-nav="oge15-t.html"
     title="Теория"
   >
     📚
   </button>
-  <button type="button" class="quick-nav-btn top" onclick="scrollToTop()" title="Наверх" aria-label="Наверх">
+  <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
     ↑
   </button>
 </div>
