@@ -14,7 +14,7 @@
   // не подключён (например, модуль используется отдельно).
   var FALLBACK_TASKS = [
     'oge1', 'oge2', 'oge3', 'oge4', 'oge5', 'oge6', 'oge7', 'oge8', 'oge9',
-    'oge10', 'oge11', 'oge12', 'oge14', 'oge15', 'oge16'
+    'oge10', 'oge11', 'oge12', 'oge131', 'oge132', 'oge14', 'oge15', 'oge16'
   ];
   var TASKS = (global.OGEProgress && Array.isArray(global.OGEProgress.tasks) && global.OGEProgress.tasks.length)
     ? global.OGEProgress.tasks

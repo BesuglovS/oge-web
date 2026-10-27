@@ -335,8 +335,11 @@ for (const page of pages) {
     let pos = 0;
     let guard = 0;
     while (pos < url.length && guard++ < 200) {
-      const part = [...pool.querySelectorAll('.path-part')].find((el) => url.startsWith(el.dataset.text, pos));
-      if (!part) break;
+      // Самый длинный подходящий фрагмент: в пуле есть обманки-префиксы
+      // (folder и folder1, info.doc и info.docx).
+      const candidates = [...pool.querySelectorAll('.path-part')].filter((el) => url.startsWith(el.dataset.text, pos));
+      if (!candidates.length) break;
+      const part = candidates.reduce((best, el) => (el.dataset.text.length > best.dataset.text.length ? el : best), candidates[0]);
       part.click();
       pos += part.dataset.text.length;
     }
@@ -457,6 +460,40 @@ for (const page of pages) {
   })()`).catch((e) => 'error: ' + e.message);
   results.push(`oge14.html (движок формул): ${String(res).slice(0, 150)}`);
   if (!String(res).startsWith('ok') && !/no-api/.test(String(res))) errors.push(`oge14.html: формулы — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
+// 2h. Задания 13.1/13.2: чек-листы — шаги проходятся только с верным ответом,
+//     прогресс сохраняется после последнего шага.
+for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132']]) {
+  const { cdp, targetId } = await openPage(page);
+  const expr = '(() => {' +
+    'if (typeof steps === "undefined" || typeof checklistInit !== "function") return "no-api";' +
+    'const next = () => document.querySelector(".cl-next");' +
+    'const feedback = () => (document.getElementById("clFeedback") || {}).textContent || "";' +
+    'const wrong = (steps[0].correct + 1) % steps[0].options.length;' +
+    'document.querySelectorAll(".cl-option")[wrong].click();' +
+    'if (!/Не совсем/.test(feedback())) return "fail: неверный ответ не отмечен";' +
+    'if (!next() || !next().disabled) return "fail: неверный ответ разблокировал шаг";' +
+    'for (let i = 0; i < steps.length; i++) {' +
+    '  const opts = document.querySelectorAll(".cl-option");' +
+    '  if (!opts[steps[i].correct]) return "fail: нет верного варианта на шаге " + (i + 1);' +
+    '  opts[steps[i].correct].click();' +
+    '  if (!/Верно/.test(feedback())) return "fail: шаг " + (i + 1) + " не принят — " + feedback().slice(0, 60);' +
+    '  const btn = next();' +
+    '  if (!btn || btn.disabled) return "fail: следующий шаг заблокирован на " + (i + 1);' +
+    '  btn.click();' +
+    '}' +
+    'const body = document.getElementById("clBody");' +
+    'if (!body || !/Чек-лист пройден/.test(body.textContent)) return "fail: нет финального экрана";' +
+    'const progress = typeof OGEProgress !== "undefined" ? OGEProgress.get("' + taskId + '") : null;' +
+    'if (!progress || progress.score !== steps.length) return "fail: прогресс не сохранён (" + JSON.stringify(progress) + ")";' +
+    'return "ok: " + steps.length + " шагов, прогресс " + progress.score + "/" + progress.total;' +
+    '})()';
+  const res = await cdp.evalJs(expr).catch((e) => 'error: ' + e.message);
+  results.push(`${page} (чек-лист): ${String(res).slice(0, 150)}`);
+  if (!String(res).startsWith('ok') && !/no-api/.test(String(res))) errors.push(`${page}: чек-лист — ${res}`);
   cdp.close();
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }

@@ -2518,6 +2518,99 @@ textarea:focus-visible {
   padding: 10px;
 }
 
+/* --- oge131.html / oge132.html (тренажёры-чек-листы) --- */
+
+.cl-intro {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 15px;
+  padding: 18px 22px;
+  margin: 18px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  color: #3a2b1e;
+}
+
+.cl-intro h2 { font-size: 1.05rem; margin: 0 0 10px; color: var(--color-primary);}
+
+.cl-intro ul { margin: 0 0 10px 20px; padding: 0;}
+
+.cl-intro li { margin-bottom: 6px; line-height: 1.5;}
+
+.cl-intro-note { margin: 0; font-size: 0.9rem; color: #6b625a;}
+
+.cl-head { border-bottom: 2px solid #f0e6dd; padding-bottom: 12px; margin-bottom: 16px;}
+
+.cl-progress-text { font-size: 0.9rem; font-weight: 600; color: var(--color-primary); margin-bottom: 10px;}
+
+.cl-chips { display: flex; flex-wrap: wrap; gap: 6px;}
+
+.cl-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 13px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f0e6dd;
+  color: #8a7a6a;
+}
+
+.cl-chip.done { background: #4f8f5a; color: #fff;}
+
+.cl-chip.current { background: var(--color-primary); color: #fff; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);}
+
+.cl-title { font-size: 1.15rem; margin: 0 0 10px; color: #3a2b1e;}
+
+.cl-text { line-height: 1.6; color: #333;}
+
+.cl-text ul { margin: 8px 0 8px 20px; padding: 0;}
+
+.cl-text li { margin-bottom: 4px;}
+
+.cl-question { margin: 16px 0 10px; padding: 12px 14px; background: #f7f2ec; border-left: 4px solid var(--color-primary); border-radius: 8px; font-weight: 600; color: #3a2b1e;}
+
+.cl-options { display: flex; flex-direction: column; gap: 8px;}
+
+.cl-option {
+  text-align: left;
+  padding: 12px 16px;
+  border: 2px solid #e6dcd2;
+  border-radius: 10px;
+  background: #fff;
+  color: #333;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cl-option:hover:not(:disabled) { border-color: var(--color-primary); background: #f6f4ff;}
+
+.cl-option:disabled { cursor: default; opacity: 0.75;}
+
+.cl-option.chosen { border-color: #4f8f5a; background: #eef7ef; opacity: 1;}
+
+.cl-option.wrong { border-color: #bf5245; background: #fdf0ee;}
+
+.cl-feedback { min-height: 1.4em; margin-top: 12px; font-size: 0.95rem; line-height: 1.5;}
+
+.cl-feedback.ok { color: #2e7d32;}
+
+.cl-feedback.error { color: #c62828;}
+
+.cl-feedback.hint { color: #8a6d1f;}
+
+.cl-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center;}
+
+.cl-final-list { margin: 12px 0 12px 22px; padding: 0; line-height: 1.6; color: #333;}
+
+.cl-final-list li { margin-bottom: 4px;}
+
+.cl-final-note { font-size: 0.9rem; color: #6b625a; margin-bottom: 16px;}
+
 /* --- oge14.html --- */
 
 .task-type.table { background: linear-gradient(145deg, #3f7f5e 0%, #5f9a68 100%);}

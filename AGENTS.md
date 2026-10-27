@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v32'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v33'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v31` → `v32`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v32` → `v33`), иначе пользователи вечно видят старый кэш.
    Ассеты добавляются по одному (`fetch(..., {cache:'reload'})` + `cache.put`), чтобы один 404 не ломал установку SW.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей, блокирующие regex-паттерны (`__import__`, `eval(`, `os`, `subprocess`, `sys`,
@@ -20,11 +20,11 @@
    Ошибка/таймаут останавливают прогон, остальные тесты помечаются `skipped`.
    Реальный песочницей это НЕ является — defense-in-depth.
 3. **`oge{N}.html` — интерактив, `oge{N}-t.html` — теория** (`t` = теория, НЕ teacher).
-   Задания 13.1/13.2 имеют только теорию (`oge131-t.html`, `oge132-t.html`) — интерактивных нет.
-   Задание 14 — интерактивный тренажёр таблиц (`oge14.html`, мини-движок формул) + теория `oge14-t.html`.
+   У всех 16 заданий есть интерактивная страница: 13.1/13.2 — тренажёры-чек-листы
+   (`oge131.html`, `oge132.html`), 14 — тренажёр таблиц (`oge14.html`), остальные — задачи с проверкой ответа.
 4. **Прогресс**: задания пишут `localStorage['oge-progress']` через `OGEProgress` (`js/progress.js`).
-   `TASKS = ['oge1'..'oge12','oge14','oge15','oge16']` — единый источник в `js/progress.js`,
-   `js/progress-sync.js` берёт список оттуда (свой `FALLBACK_TASKS` — только на случай,
+   `TASKS = ['oge1'..'oge12','oge131','oge132','oge14','oge15','oge16']` — единый источник в
+   `js/progress.js`, `js/progress-sync.js` берёт список оттуда (свой `FALLBACK_TASKS` — только на случай,
    если `progress.js` не подключён; при добавлении задания править оба).
    `OGEProgress.save()` шлёт событие `oge-progress-saved`; `progress-sync.js` слушает его и сразу
    отправляет прогресс на портал. Скрипты `progress-client/progress-sync` подключены на всех
@@ -86,7 +86,9 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 `.kum`↔`e-*.json` и синхронность `js/oge15-ref.js`↔`.kum`, структура `tasks.json`;
 генератор задания 15; структура `data/oge7.json`; ответы задания 12 по архиву;
 задание 14 — ответы 23 задач независимо пересчитываются по таблицам и полю `check`,
-проверяются уникальность id, наличие формулы/подсказки/решения),
+проверяются уникальность id, наличие формулы/подсказки/решения; чек-листы 13.1/13.2 —
+не меньше 10 шагов, уникальные id, 2–4 непустых варианта, `correct` в диапазоне,
+верные ответы на разных позициях, нет inline-обработчиков),
 `node tools/check-sandbox.mjs` (реальный `php -S` + POST-тесты песочницы: успех, числовой
 допуск, строки, запрещённый импорт, timeout, GET 405),
 `node tools/check-theory.mjs` (примеры кода в теории: Python-блоки компилируются,
@@ -95,15 +97,16 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 в `files/Задание11-12.zip`: папка и файл берутся из подсказки, поддерживаются
 `.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
 они же запускаются в CI (`.github/workflows/checks.yml`), там же — браузерный
-smoke-тест (`php -S` + headless Chrome): 36 страниц на ошибки и CSP, ответы
-заданий 1–12, сборка URL (7), движок формул и ввод формулы (14), КуМир (15), песочница (16), скачивание архива
+smoke-тест (`php -S` + headless Chrome): 38 страниц на ошибки и CSP, ответы
+заданий 1–12, сборка URL (7), чек-листы 13.1/13.2 (все шаги + прогресс), движок
+формул и ввод формулы (14), КуМир (15), песочница (16), скачивание архива
 11/12 настоящим Chrome (ZIP: флаг UTF-8 у имён, распаковка записи с проверкой
 CRC32, совпадение с файлом из репозитория), и визуальная регрессия вычисленных
 стилей (см. ниже).
 Вне CI (нужен интернет): `node tools/check-links.mjs` — внешние ссылки на
 sister-сайты. Перед коммитом правок страниц: `node tools/update-sitemap.mjs`
 (lastmod = дата последнего коммита файла). Визуальная регрессия CSS:
-`node tools/check-visual.mjs` сравнивает вычисленные стили 36 страниц на двух
+`node tools/check-visual.mjs` сравнивает вычисленные стили 38 страниц на двух
 ширинах с эталоном `tools/visual-baseline.json.gz` (в git; метрики шрифта не
 сравниваются, поэтому эталон сходится на Windows и Linux), `--update` —
 перезаписать эталон, `--raw` — точное сравнение для диагностики. Вручную, если
@@ -117,7 +120,8 @@ sister-сайты. Перед коммитом правок страниц: `nod
 oge.html               # лендинг-навигация (карточки заданий) + progress/tracking скрипты
 oge{N}.html            # интерактивные задания 1–16 (inline CSS/JS, данные в JS-объектах)
 oge14.html             # тренажёр таблиц (14): мини-движок формул, задачи по 5 таблицам
-oge{N}-t.html          # теория для каждого задания; oge131-t / oge132-t — только теория
+oge131.html, oge132.html  # тренажёры-чек-листы (13.1 презентация, 13.2 документ)
+oge{N}-t.html          # теория для каждого задания
 oge4-path.html         # доп. тренажёр: кратчайший путь в графе
 data/oge7.json         # данные задания 7 (единственный источник; легаси oge7.txt удалён)
 run_python.php         # Python-песочница (задание 16) — СМ. крит. правило 2
@@ -126,6 +130,7 @@ assets/styles.css      # общий стиль (организован по се
 js/metrika.js          # Yandex.Metrika 107219928 + track* хелперы
 js/actions.js          # делегирование data-act / data-act-change / data-nav (CSP без inline)
 js/code-editor.js      # overlay-редактор кода для задания 16 (подсветка, номера строк, отступы)
+js/checklist.js        # движок тренажёров-чек-листов 13.1/13.2 (шаги, вопросы, прогресс)
 js/progress.js, progress-client.js, progress-sync.js, tracking-client.js
 js/oge15-gen.js        # генератор случайных обстановок задания 15
 js/oge15-ref.js        # АВТОГЕНЕРАЦИЯ: эталонные .kum, встроенные для «оракула» генератора
@@ -139,11 +144,11 @@ tools/css-known-conflicts.json     # реестр конфликтов page-се
 tools/visual-baseline.mjs          # снимок вычисленных стилей + скриншоты (--shots), нужен Chrome
 tools/visual-shot-diff.mjs         # попиксельное сравнение скриншотов (визуальная регрессия)
 tools/check-visual.mjs             # визуальная регрессия в CI: снимок против tools/visual-baseline.json.gz
-tools/visual-baseline.json.gz      # эталон вычисленных стилей (72 снимка, ~276 КБ gzip)
-tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, архив 11/12, CSP
+tools/visual-baseline.json.gz      # эталон вычисленных стилей (76 снимков, ~283 КБ gzip)
+tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, чек-листы, КуМир, песочница, архив, CSP
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/csp-policy.mjs               # CSP с sha256-хешами inline-скриптов (используется деплоем и --csp)
-tools/check-data.mjs               # проверки данных заданий 1–10, 12, 14, 15, 16 (нужен python 3)
+tools/check-data.mjs               # проверки данных заданий 1–10, 12, 13.1/13.2, 14, 15, 16 (нужен python 3)
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
 tools/check-links.mjs              # внешние ссылки (вне CI, нужен интернет)
@@ -232,7 +237,7 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
   `auth.nayanovaacademy.ru`, `frame-src` — только `mc.yandex.ru` (Метрика создаёт
   служебный iframe даже с выключенным вебвизором); `object-src/base-uri 'none'`,
   `form-action 'self'`, `frame-ancestors 'self'`, `upgrade-insecure-requests`.
-  Проверка: `node tools/browser-smoke.mjs <url> --csp` (36 страниц + подсказки
+  Проверка: `node tools/browser-smoke.mjs <url> --csp` (38 страниц + подсказки
   и решения, 0 нарушений, клики/ответы/песочница работают).
 - `git/index.php` раскрывает внутренности сервера (список репозиториев) — задеплоен намеренно,
   но закрыт **HTTP Basic** в nginx (`location ^~ /git/`, `auth_basic_user_file

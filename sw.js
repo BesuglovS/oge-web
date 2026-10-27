@@ -1,5 +1,5 @@
 ﻿/* Service Worker — oge-web PWA */
-var CACHE_NAME = 'oge-web-v32';
+var CACHE_NAME = 'oge-web-v33';
 var ASSETS = [
   '/',
   '/oge.html',
@@ -18,6 +18,7 @@ var ASSETS = [
   '/js/code-editor.js',
   '/js/oge15-ref.js',
   '/js/oge15-gen.js',
+  '/js/checklist.js',
   '/js/progress-client.js',
   '/js/progress-sync.js',
   '/js/tracking-client.js',
@@ -34,6 +35,8 @@ var ASSETS = [
   '/oge10.html', '/oge10-t.html',
   '/oge11.html', '/oge11-t.html',
   '/oge12.html', '/oge12-t.html',
+  '/oge131.html',
+  '/oge132.html',
   '/oge131-t.html',
   '/oge132-t.html',
   '/oge14.html',

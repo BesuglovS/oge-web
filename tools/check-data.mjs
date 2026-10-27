@@ -1266,9 +1266,49 @@ try {
   errors.push('oge14: ' + e.message);
 }
 
+/* ─────────── 4c. Задания 13.1/13.2: шаги чек-листов ─────────── */
+try {
+  for (const page of ['oge131.html', 'oge132.html']) {
+    const html = fs.readFileSync(path.join(root, page), 'utf8');
+    const steps = extractArray(html, 'const steps = [');
+    if (steps.length < 10) errors.push(`${page}: шагов ${steps.length}, ожидалось не менее 10`);
+    const ids = new Set();
+    for (const [i, s] of steps.entries()) {
+      const at = `${page} шаг ${i + 1}`;
+      if (!s.id || ids.has(s.id)) errors.push(`${at}: пустой или повторяющийся id`);
+      ids.add(s.id);
+      for (const field of ['title', 'text', 'question', 'hint', 'why']) {
+        if (typeof s[field] !== 'string' || !s[field].trim()) errors.push(`${at}: пустое поле ${field}`);
+      }
+      if (!Array.isArray(s.options) || s.options.length < 2 || s.options.length > 4) {
+        errors.push(`${at}: вариантов ${s.options ? s.options.length : 0}, ожидалось 2–4`);
+      } else {
+        if (new Set(s.options.map((o) => String(o).toLowerCase())).size !== s.options.length) {
+          errors.push(`${at}: одинаковые варианты ответа`);
+        }
+        for (const o of s.options) {
+          if (typeof o !== 'string' || !o.trim()) errors.push(`${at}: пустой вариант ответа`);
+        }
+      }
+      if (!Number.isInteger(s.correct) || s.correct < 0 || s.correct >= (s.options || []).length) {
+        errors.push(`${at}: correct вне диапазона вариантов`);
+      }
+      if (/(?:^|[^\w.-])on(?:click|change|focus|load)\s*=/i.test(String(s.text) + String(s.question))) {
+        errors.push(`${at}: inline-обработчик в тексте шага (CSP)`);
+      }
+    }
+    // Верные ответы должны быть в разных позициях, иначе тренажёр проходится «всё время первым».
+    const positions = new Set(steps.map((s) => s.correct));
+    if (positions.size < 3) errors.push(`${page}: верные ответы на ${positions.size} позициях — похоже на шаблон`);
+    console.log(`${page}: проверено ${steps.length} шагов чек-листа`);
+  }
+} catch (e) {
+  errors.push('checklist: ' + e.message);
+}
+
 if (errors.length) {
   console.error(`\nОшибок: ${errors.length}`);
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15 и 16 согласованы');
+console.log('\nOK: данные заданий 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13.1/13.2, 14, 15 и 16 согласованы');
