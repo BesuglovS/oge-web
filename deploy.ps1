@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Deploy PHP site to remote server via SSH.
 .DESCRIPTION
@@ -332,25 +332,31 @@ if ($DryRun) {
   Write-Host "  [DryRun] Deploy nginx config: $nginxSite" -ForegroundColor Yellow
 } elseif (Test-Path $nginxLocal) {
   Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
-  # CSP с хешами inline-скриптов: политика считается по тем же файлам, что уехали
-  # в релиз. Если сгенерировать не удалось — уходит конфиг как есть (в нём
-  # запасной вариант с 'unsafe-inline').
+  # CSP с хешами inline-скриптов и стилей: политика считается по тем же файлам,
+  # что уехали в релиз. Политика длиннее лимита nginx на параметр (4 КБ),
+  # поэтому генератор отдаёт блок из set $cspN и склейки в $csp.
+  # Если сгенерировать не удалось — уходит конфиг как есть (в нём запасной
+  # вариант с 'unsafe-inline').
   $nginxUpload = $nginxLocal
-  $cspOut = ''
+  $cspBlock = ''
   try {
-    $cspOut = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') 2>$null | Out-String).Trim()
-  } catch { $cspOut = '' }
-  if ($cspOut -and $cspOut -match "script-src" -and $cspOut -notmatch "[\r\n]") {
+    $cspBlock = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') '--nginx' 2>$null | Out-String).TrimEnd()
+  } catch { $cspBlock = '' }
+  if ($cspBlock -and $cspBlock -match 'set \$csp "' -and $cspBlock -match 'sha256-') {
     $cfg = Get-Content $nginxLocal -Raw
-    $patched = [regex]::Replace($cfg, '(?m)^(\s*)set \$csp "[^"]*";', {
+    $nl = if ($cfg -match "`r`n") { "`r`n" } else { "`n" }
+    $patched = [regex]::Replace($cfg, '(?ms)^([ \t]*)# >>> csp.*?^[ \t]*# <<< csp', {
       param($m)
-      $m.Groups[1].Value + 'set $csp "' + $cspOut + '";'
+      $indent = $m.Groups[1].Value
+      $indent + '# >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)' + $nl +
+        ($cspBlock -replace "`r?`n", $nl) + $nl +
+        $indent + '# <<< csp'
     })
     if ($patched -ne $cfg) {
       $nginxUpload = Join-Path $env:TEMP ("nginx-$nginxSite")
       [System.IO.File]::WriteAllText($nginxUpload, $patched, (New-Object System.Text.UTF8Encoding $false))
-      $hashCount = ([regex]::Matches($cspOut, "sha256-")).Count
-      Write-Host "  CSP: хешей inline-скриптов $hashCount" -ForegroundColor Gray
+      $hashCount = ([regex]::Matches($cspBlock, "sha256-")).Count
+      Write-Host "  CSP: хешей (скрипты + стили) $hashCount, блоков: $(([regex]::Matches($cspBlock, '(?m)^\s*set \$csp\d+ "')).Count)" -ForegroundColor Gray
     }
   }
   $scpCmd = "scp $scpPortArg $identityArg `"$nginxUpload`" ${remote}:/tmp/nginx-$nginxSite"

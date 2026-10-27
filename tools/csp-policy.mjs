@@ -112,6 +112,18 @@ export function findDynamicStyles(rootDir) {
   return collectStyleInfo(rootDir).dynamic;
 }
 
+// nginx не принимает параметр длиннее ~4 КБ («too long parameter»), а политика
+// с хешами стилей — 6–7 КБ. Поэтому режем её на куски и склеиваем переменными:
+//   set $csp0 "…"; set $csp1 "…"; set $csp "$csp0$csp1";
+export function buildNginxSet(policy, indent = '    ', chunkSize = 3000) {
+  const chunks = [];
+  for (let i = 0; i < policy.length; i += chunkSize) chunks.push(policy.slice(i, i + chunkSize));
+  const names = chunks.map((_, i) => '$csp' + i);
+  const lines = chunks.map((c, i) => `${indent}set $csp${i} "${c}";`);
+  lines.push(`${indent}set $csp "${names.join('')}";`);
+  return lines.join('\n');
+}
+
 export function buildPolicy(rootDir) {
   const scriptHashes = collectInlineHashes(rootDir);
   const { hashes: styleHashes, dynamic } = collectStyleInfo(rootDir);
@@ -146,7 +158,10 @@ const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolv
 if (isMain) {
   const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const { policy, scriptHashes, styleHashes } = buildPolicy(rootDir);
-  if (process.argv.includes('--json')) {
+  if (process.argv.includes('--nginx')) {
+    // Блок для nginx: несколько set-переменных (лимит 4 КБ на параметр).
+    console.log(buildNginxSet(policy));
+  } else if (process.argv.includes('--json')) {
     console.log(JSON.stringify({ policy, scripts: scriptHashes.length, styles: styleHashes.length }));
   } else {
     console.log(policy);
