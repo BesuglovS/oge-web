@@ -8,12 +8,15 @@
 //    «задача → ввод → проверка» жива.
 // 2. Задание 16: вставляет эталонное решение в редактор, вызывает runCode()
 //    и ждёт таблицу результатов «Все тесты пройдены» (нужен PHP на BASE).
-// 3. Собирает ошибки консоли и нарушения CSP по всем страницам.
+// 3. Задание 12: скачивает архив заданий 11/12 настоящим Chrome и проверяет
+//    файл на диске (сигнатура, флаг UTF-8 у имён, распаковка записи по CRC32).
+// 4. Собирает ошибки консоли и нарушения CSP по всем страницам.
 //
 // Нужен Chrome/Chromium (CHROME=путь) и запущенный сервер сайта на BASE.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { spawn, spawnSync } from 'node:child_process';
 
 const CHROME = [
@@ -181,6 +184,75 @@ async function openPage(page) {
   return { cdp, targetId: t.id };
 }
 
+/* ── ZIP без внешних зависимостей ────────────────────────────────────
+   Скачанный архив разбираем сами: нужны флаги записей (UTF-8, bit 11)
+   и содержимое — проверяем распаковку и CRC32. */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+// Записи из central directory. Имя берём как UTF-8, если стоит флаг (bit 11)
+// или байты чисто ASCII; иначе — best-effort UTF-8 (пакеры часто пишут UTF-8
+// без флага, и тогда Проводник показывает кракозябры).
+function zipEntries(buf) {
+  if (buf.length < 22 || buf.readUInt32LE(0) !== 0x04034b50) throw new Error('не ZIP: нет сигнатуры PK\\x03\\x04');
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= 0 && i >= buf.length - 22 - 0xffff; i--) {
+    if (buf.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('не ZIP: нет EOCD');
+  const total = buf.readUInt16LE(eocd + 10);
+  const cdSize = buf.readUInt32LE(eocd + 12);
+  const cdOff = buf.readUInt32LE(eocd + 16);
+  if (cdOff + cdSize > buf.length) throw new Error('central directory выходит за файл');
+  const entries = [];
+  let p = cdOff;
+  for (let k = 0; k < total; k++) {
+    if (p + 46 > buf.length || buf.readUInt32LE(p) !== 0x02014b50) throw new Error('битый central directory');
+    const flags = buf.readUInt16LE(p + 8);
+    const nameLen = buf.readUInt16LE(p + 28);
+    const extraLen = buf.readUInt16LE(p + 30);
+    const commentLen = buf.readUInt16LE(p + 32);
+    const rawName = buf.subarray(p + 46, p + 46 + nameLen);
+    const utf8Flag = (flags & 0x800) !== 0;
+    const asciiOnly = rawName.every((b) => b < 0x80);
+    entries.push({
+      name: rawName.toString('utf8'),
+      utf8Flag,
+      asciiOnly,
+      isDir: rawName.length > 0 && rawName[rawName.length - 1] === 0x2f, // «/»
+      method: buf.readUInt16LE(p + 10),
+      crc: buf.readUInt32LE(p + 16),
+      csize: buf.readUInt32LE(p + 20),
+      usize: buf.readUInt32LE(p + 24),
+      localOff: buf.readUInt32LE(p + 42),
+    });
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+  return entries;
+}
+
+// Данные записи: локальный заголовок → смещение данных → распаковка.
+function zipEntryData(buf, e) {
+  if (buf.readUInt32LE(e.localOff) !== 0x04034b50) throw new Error('битый local header');
+  const start = e.localOff + 30 + buf.readUInt16LE(e.localOff + 26) + buf.readUInt16LE(e.localOff + 28);
+  const raw = buf.subarray(start, start + e.csize);
+  if (e.method === 0) return raw;
+  if (e.method !== 8) throw new Error('неизвестный метод сжатия ' + e.method);
+  return zlib.inflateRawSync(raw);
+}
+
 const results = [];
 const errors = [];
 
@@ -340,6 +412,85 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2f. Задания 11/12: скачивание архива настоящим Chrome + проверка файла.
+//     Ловит и мёртвую ссылку, и поломку UTF-8-флагов (Проводник покажет
+//     кракозябры вместо «Классика/Проза»), и битые записи (CRC32).
+{
+  const dlDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oge-dl-'));
+  const { cdp, targetId } = await openPage('oge12.html');
+  let res = 'error: шаг не выполнился';
+  try {
+    await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dlDir, eventsEnabled: true });
+    const href = await cdp.evalJs(`(() => {
+      const a = document.querySelector('a.download-link[href$=".zip"]') || document.querySelector('a[href$=".zip"][download]');
+      if (!a) return 'no-link';
+      a.click();
+      return decodeURIComponent(new URL(a.href).pathname.split('/').pop());
+    })()`).catch((e) => 'error: ' + e.message);
+    if (href === 'no-link') {
+      res = 'no-link';
+    } else if (String(href).startsWith('error')) {
+      res = href;
+    } else {
+      // Chrome пишет файл как *.crdownload, пока качает; ждём готовый целиком.
+      let file = null;
+      for (let i = 0; i < 240 && !file; i++) {
+        await sleep(250);
+        const names = fs.readdirSync(dlDir);
+        const done = names.filter((n) => !n.endsWith('.crdownload'));
+        if (done.length !== 1 || names.length !== done.length) continue;
+        const p = path.join(dlDir, done[0]);
+        const size = fs.statSync(p).size;
+        await sleep(200);
+        if (size > 0 && fs.statSync(p).size === size) file = p;
+      }
+      if (!file) {
+        res = 'fail: загрузка не завершилась';
+      } else {
+        const buf = fs.readFileSync(file);
+        const entries = zipEntries(buf);
+        const files = entries.filter((e) => !e.isDir);
+        const noFlag = entries.filter((e) => !e.asciiOnly && !e.utf8Flag);
+        const broken = entries.filter((e) => /[\uFFFD]/.test(e.name));
+        const localPath = path.join(rootDir, 'files', href);
+        const localSize = fs.existsSync(localPath) ? fs.statSync(localPath).size : -1;
+        // Распаковка: .txt из «Классики» целиком + сверка размера и CRC32.
+        let sample = null;
+        let sampleErr = '';
+        const e0 = files.find((e) => /\.txt$/.test(e.name) && e.name.startsWith('Классика/'));
+        if (e0) {
+          try {
+            const data = zipEntryData(buf, e0);
+            if (data.length !== e0.usize) sampleErr = `размер ${data.length} ≠ ${e0.usize}`;
+            else if (crc32(data) !== e0.crc) sampleErr = 'CRC32 не совпал';
+            else sample = e0.name;
+          } catch (e) {
+            sampleErr = e.message;
+          }
+        }
+        const problems = [];
+        if (!files.length) problems.push('в архиве нет файлов');
+        if (!entries.some((e) => e.name.startsWith('Классика/'))) problems.push('нет каталога «Классика»');
+        if (noFlag.length) problems.push(`имён без флага UTF-8: ${noFlag.length} (например, ${noFlag[0].name})`);
+        if (broken.length) problems.push(`имён с битой кодировкой: ${broken.length}`);
+        if (!e0) problems.push('не нашёл .txt для распаковки');
+        if (!sample) problems.push('распаковка: ' + (sampleErr || 'не выполнена'));
+        if (localSize < 0) problems.push(`локального файла files/${href} нет`);
+        else if (localSize !== buf.length) problems.push(`скачано ${buf.length} байт, в репозитории ${localSize} (устаревший деплой?)`);
+        res = problems.length
+          ? 'fail: ' + problems.join('; ')
+          : `ok: ${files.length} файлов, ${(buf.length / 1048576).toFixed(1)} МБ, UTF-8-флаги, распакован «${sample}»`;
+      }
+    }
+  } finally {
+    cdp.close();
+    await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`).catch(() => {});
+    try { fs.rmSync(dlDir, { recursive: true, force: true }); } catch (e) { /* ignore */ }
+  }
+  results.push(`oge12.html (скачивание архива): ${String(res).slice(0, 190)}`);
+  if (!String(res).startsWith('ok')) errors.push(`oge12.html: архив 11/12 — ${res}`);
+}
+
 // 3. Задание 16: прогон эталонного решения через песочницу (если PHP доступен).
 {
   const { cdp, targetId } = await openPage('oge16.html');
@@ -377,7 +528,7 @@ if (errors.length) {
   for (const e of errors) console.error(' - ' + e);
   process.exit(1);
 }
-console.log(`\nOK: ${pages.length} страниц без ошибок, ответы и песочница работают`);
+console.log(`\nOK: ${pages.length} страниц без ошибок, ответы, архив и песочница работают`);
 kill();
 if (cspProxy) cspProxy.close();
 process.exit(0);

@@ -92,7 +92,9 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 `.txt/.htm/.html/.rtf/.docx`) и `php -l run_python.php git/index.php`;
 они же запускаются в CI (`.github/workflows/checks.yml`), там же — браузерный
 smoke-тест (`php -S` + headless Chrome): 35 страниц на ошибки и CSP, ответы
-заданий 1–12, сборка URL (7), КуМир (15), песочница (16).
+заданий 1–12, сборка URL (7), КуМир (15), песочница (16), скачивание архива
+11/12 настоящим Chrome (ZIP: флаг UTF-8 у имён, распаковка записи с проверкой
+CRC32, совпадение с файлом из репозитория).
 Вне CI (нужен интернет): `node tools/check-links.mjs` — внешние ссылки на
 sister-сайты. Перед коммитом правок страниц: `node tools/update-sitemap.mjs`
 (lastmod = дата последнего коммита файла). Визуальная регрессия CSS:
@@ -125,7 +127,7 @@ tools/css-utils.mjs                # общий парсер CSS
 tools/css-known-conflicts.json     # реестр конфликтов page-секций (сейчас пусто)
 tools/visual-baseline.mjs          # снимок вычисленных стилей + скриншоты (--shots), нужен Chrome
 tools/visual-shot-diff.mjs         # попиксельное сравнение скриншотов (визуальная регрессия)
-tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, CSP
+tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: ответы, КуМир, песочница, архив 11/12, CSP
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/csp-policy.mjs               # CSP с sha256-хешами inline-скриптов (используется деплоем и --csp)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 15, 16 (нужен python 3)
