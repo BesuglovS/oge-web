@@ -30,15 +30,17 @@ export function collectInlineHashes(rootDir) {
 
 export function buildPolicy(rootDir) {
   const hashes = collectInlineHashes(rootDir);
-  const scriptSrc = ["'self'", ...hashes.map((h) => `'sha256-${h}'`), 'https://mc.yandex.ru'].join(' ');
+  // Метрика может ходить и через .com (JSONP-колбэки, watch) — разрешаем оба домена.
+  const YM = 'https://mc.yandex.ru https://mc.yandex.com';
+  const scriptSrc = ["'self'", ...hashes.map((h) => `'sha256-${h}'`), YM].join(' ');
   const policy = [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://mc.yandex.ru",
+    `img-src 'self' data: ${YM}`,
     "font-src 'self'",
-    "connect-src 'self' https://mc.yandex.ru https://auth.nayanovaacademy.ru",
-    'frame-src https://mc.yandex.ru',
+    `connect-src 'self' ${YM} https://auth.nayanovaacademy.ru`,
+    `frame-src ${YM}`,
     "media-src 'none'",
     "object-src 'none'",
     "base-uri 'none'",

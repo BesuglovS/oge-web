@@ -63,7 +63,7 @@ server {
     # <script> и домена Метрики. Хеши подставляет deploy.ps1 при каждом деплое
     # (tools/csp-policy.mjs) — строка ниже запасная, с 'unsafe-inline'.
     # Проверка политики: node tools/browser-smoke.mjs <url> --csp.
-    set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
+    set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://mc.yandex.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru https://mc.yandex.com; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
     add_header Content-Security-Policy $csp always;
 
     # --- Основные параметры сайта ---
