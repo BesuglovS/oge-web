@@ -480,6 +480,63 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2g-2. Задание 14: режим «Формат ОГЭ» — 20 вариантов из data/oge14-exam.json,
+//       каждая формула даёт сохранённый ответ, ответы зачитываются, диаграмма строится.
+{
+  const { cdp, targetId } = await openPage('oge14.html');
+  const res = await cdp.evalJs(`(async () => {
+    if (typeof setExamMode !== 'function' || typeof window.__oge14exam === 'undefined') return 'no-api';
+    setExamMode(1);
+    for (let i = 0; i < 60 && window.__oge14exam.variants().length === 0; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    const variants = window.__oge14exam.variants();
+    if (variants.length !== 20) return 'fail: вариантов ' + variants.length;
+    const bad = [];
+    for (const v of variants) {
+      for (const q of v.questions) {
+        let value;
+        try { value = window.__oge14exam.evalFormula(v.id, q.formula); }
+        catch (e) { bad.push(v.id + ' в' + q.n + ': ' + ((e && e.code) || e.message)); continue; }
+        if (typeof value !== 'number' || Math.abs(value - q.answer) > 1e-6) bad.push(v.id + ' в' + q.n + ': ' + value + ' ≠ ' + q.answer);
+      }
+      v.chart.formulas.forEach((formula, i) => {
+        let value;
+        try { value = window.__oge14exam.evalFormula(v.id, formula); }
+        catch (e) { bad.push(v.id + ' диаграмма ' + (i + 1) + ': ' + ((e && e.code) || e.message)); return; }
+        if (typeof value !== 'number' || Math.abs(value - v.chart.values[i]) > 1e-6) bad.push(v.id + ' диаграмма ' + (i + 1) + ': ' + value + ' ≠ ' + v.chart.values[i]);
+      });
+    }
+    if (bad.length) return 'fail: ' + bad.slice(0, 4).join('; ');
+
+    const current = window.__oge14exam.current();
+    if (!current || !current.questions) return 'fail: нет текущего варианта';
+    if (document.querySelectorAll('.exam-table tbody tr').length !== current.rows.length) return 'fail: таблица не отрисована';
+    current.questions.forEach((q, i) => {
+      const input = document.getElementById('examAnswer' + i);
+      if (input) input.value = i === 0 ? q.formula : String(q.answer).replace('.', ',');
+    });
+    current.chart.values.forEach((value, i) => {
+      const input = document.getElementById('examChart' + i);
+      if (input) input.value = String(value);
+    });
+    const btn = document.querySelector('[data-act="checkExam"]');
+    if (!btn) return 'fail: нет кнопки проверки';
+    btn.click();
+    const text = ((document.getElementById('result') || {}).textContent || '').trim();
+    if (!/верны/i.test(text)) return 'fail: ответы не зачтены — ' + text.slice(0, 80);
+    const svg = document.querySelector('#examChartOut svg');
+    if (!svg) return 'fail: круговая диаграмма не построена';
+    setExamMode(0);
+    if (!document.getElementById('answerInput')) return 'fail: не вернулись к мини-задачам';
+    return 'ok: 20 вариантов, ' + (variants.length * 5) + ' формул, таблица, диаграмма и возврат к мини-задачам';
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge14.html (формат ОГЭ): ${String(res).slice(0, 160)}`);
+  if (!String(res).startsWith('ok') && !/no-api/.test(String(res))) errors.push(`oge14.html: формат ОГЭ — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
 // 2h. Задания 13.1/13.2: чек-листы — шаги проходятся только с верным ответом,
 //     промежуточный шаг переживает перезагрузку, прогресс пишется в конце.
 for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132']]) {

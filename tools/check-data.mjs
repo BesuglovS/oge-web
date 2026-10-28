@@ -1266,6 +1266,150 @@ try {
   errors.push('oge14: ' + e.message);
 }
 
+/* ─────────── 4b-2. Задание 14: 20 вариантов формата ОГЭ ─────────── */
+try {
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/oge14-exam.json'), 'utf8'));
+  const expectedRows = { museum: 330, physics: 266, applicants: 208, school: 272, shop: 315 };
+
+  for (const [id, ds] of Object.entries(data.datasets || {})) {
+    if (!Array.isArray(ds.headers) || !ds.headers.length) errors.push(`oge14 (ОГЭ) ${id}: нет заголовков`);
+    if (expectedRows[id] !== ds.rows.length) {
+      errors.push(`oge14 (ОГЭ) ${id}: строк ${ds.rows.length}, ожидалось ${expectedRows[id]}`);
+    }
+    for (const [i, row] of ds.rows.entries()) {
+      if (row.length !== ds.headers.length) {
+        errors.push(`oge14 (ОГЭ) ${id}: строка ${i + 1} длиной ${row.length}, ожидалось ${ds.headers.length}`);
+      }
+      for (const value of row) {
+        if (typeof value !== 'number' && typeof value !== 'string') {
+          errors.push(`oge14 (ОГЭ) ${id}: недопустимое значение ${JSON.stringify(value)}`);
+        }
+      }
+    }
+  }
+
+  const cmp = (a, op, b) => {
+    if (op === '=') return a === b;
+    if (op === '<>') return a !== b;
+    if (op === '<') return a < b;
+    if (op === '>') return a > b;
+    if (op === '<=') return a <= b;
+    if (op === '>=') return a >= b;
+    throw new Error('неизвестный оператор ' + op);
+  };
+  const match = (value, op, val) => {
+    if (typeof val === 'number') return typeof value === 'number' && cmp(value, op, val);
+    return typeof value === 'string' && cmp(value.toLowerCase(), op, String(val).toLowerCase());
+  };
+  const where = (rows, conds) => rows.filter((row) => conds.every((c) => match(row[c.col], c.op, c.val)));
+  const round = (x, digits) => {
+    const f = Math.pow(10, digits);
+    return Math.round((x + (x >= 0 ? 1e-9 : -1e-9)) * f) / f;
+  };
+  const mean = (xs) => xs.reduce((s, v) => s + v, 0) / xs.length;
+  const compute = (rows, spec) => {
+    const conds = spec.conds || [];
+    switch (spec.kind) {
+      case 'sum':
+        return where(rows, conds).reduce((s, row) => s + (typeof row[spec.col] === 'number' ? row[spec.col] : 0), 0);
+      case 'count':
+        return where(rows, conds).length;
+      case 'countany':
+        return rows.filter((row) => spec.cols.some((col) => match(row[col], spec.op, spec.val))).length;
+      case 'countor':
+        return rows.filter((row) => spec.groups.some((group) => group.every((c) => match(row[c.col], c.op, c.val)))).length;
+      case 'countsum': {
+        const a = spec.cols[0];
+        const b = spec.cols[1];
+        return rows.filter((row) => conds.every((c) => cmp(row[a] + row[b], c.op, c.val))).length;
+      }
+      case 'maxdiff':
+        return Math.max(...rows.map((row) => row[spec.a] - row[spec.b]));
+      case 'mindiff':
+        return Math.min(...rows.map((row) => row[spec.a] - row[spec.b]));
+      case 'maxsum':
+        return Math.max(...rows.map((row) => row[spec.a] + row[spec.b]));
+      case 'minsum':
+        return Math.min(...rows.map((row) => row[spec.a] + row[spec.b]));
+      case 'maxmin': {
+        const xs = rows.map((row) => row[spec.col]).filter((v) => typeof v === 'number');
+        return Math.max(...xs) - Math.min(...xs);
+      }
+      case 'avg':
+        return round(mean(where(rows, conds).map((row) => row[spec.col]).filter((v) => typeof v === 'number')), spec.digits);
+      case 'avgsum': {
+        const xs = where(rows, conds).map((row) => row[spec.cols[0]] + row[spec.cols[1]]);
+        return round(mean(xs), spec.digits);
+      }
+      case 'avgsum_not': {
+        const ex = spec.exclude;
+        const xs = rows.filter((row) => row[ex.col] !== ex.val)
+          .map((row) => row[spec.cols[0]] + row[spec.cols[1]]);
+        return round(mean(xs), spec.digits);
+      }
+      case 'avgdiff':
+        return round(mean(where(rows, conds).map((row) => row[spec.a] - row[spec.b])), spec.digits);
+      case 'percent':
+        return round(where(rows, conds).length / rows.length * 100, spec.digits);
+      case 'percent_gt':
+        return round(rows.filter((row) => row[spec.cols[0]] > row[spec.cols[1]] && row[spec.cols[1]] >= spec.min).length / rows.length * 100, spec.digits);
+      default:
+        throw new Error('неизвестный тип проверки ' + spec.kind);
+    }
+  };
+
+  const ids = new Set();
+  const families = new Map();
+  let checks = 0;
+  for (const v of data.variants || []) {
+    if (!/^v(?:[1-9]|1\d|20)$/.test(v.id)) errors.push(`oge14 (ОГЭ): неожиданный id ${v.id}`);
+    if (ids.has(v.id)) errors.push(`oge14 (ОГЭ): дублирующийся id ${v.id}`);
+    ids.add(v.id);
+    const ds = data.datasets[v.dataset];
+    if (!ds) { errors.push(`oge14 (ОГЭ) ${v.id}: нет набора ${v.dataset}`); continue; }
+    families.set(v.dataset, (families.get(v.dataset) || 0) + 1);
+    if (!Array.isArray(v.questions) && (!v.q1 || !v.q2)) errors.push(`oge14 (ОГЭ) ${v.id}: нет двух вопросов`);
+    for (const q of [v.q1, v.q2]) {
+      if (!q || typeof q.text !== 'string' || !q.text) { errors.push(`oge14 (ОГЭ) ${v.id}: пустой текст вопроса`); continue; }
+      if (typeof q.cell !== 'string' || !/^[A-Z]\d+$/.test(q.cell)) errors.push(`oge14 (ОГЭ) ${v.id}: неверная ячейка ${q.cell}`);
+      let got;
+      try { got = compute(ds.rows, q); } catch (e) { errors.push(`oge14 (ОГЭ) ${v.id}: ${e.message}`); continue; }
+      if (typeof q.answer !== 'number' || Math.abs(got - q.answer) > 1e-6) {
+        errors.push(`oge14 (ОГЭ) ${v.id}, «${q.text.slice(0, 40)}…»: пересчёт ${got}, в задаче ${q.answer}`);
+      }
+      checks++;
+    }
+    const chart = v.chart;
+    if (!chart || !Array.isArray(chart.labels) || chart.labels.length !== 3 ||
+        !Array.isArray(chart.values) || chart.values.length !== 3 ||
+        !Array.isArray(chart.sectors) || chart.sectors.length !== 3) {
+      errors.push(`oge14 (ОГЭ) ${v.id}: диаграмма должна содержать три сектора`);
+      continue;
+    }
+    if (typeof chart.text !== 'string' || !chart.text) errors.push(`oge14 (ОГЭ) ${v.id}: нет текста задания с диаграммой`);
+    if (chart.values.some((x) => typeof x !== 'number' || x <= 0)) {
+      errors.push(`oge14 (ОГЭ) ${v.id}: все сектора диаграммы должны быть положительными`);
+    }
+    chart.sectors.forEach((sec, i) => {
+      let got;
+      try { got = compute(ds.rows, sec); } catch (e) { errors.push(`oge14 (ОГЭ) ${v.id}: диаграмма — ${e.message}`); return; }
+      if (Math.abs(got - chart.values[i]) > 1e-6) {
+        errors.push(`oge14 (ОГЭ) ${v.id}, сектор ${i + 1}: пересчёт ${got}, в задаче ${chart.values[i]}`);
+      }
+      checks++;
+    });
+  }
+  if ((data.variants || []).length !== 20) {
+    errors.push(`oge14 (ОГЭ): вариантов ${(data.variants || []).length}, ожидалось 20`);
+  }
+  for (const [id, count] of Object.entries(expectedRows)) {
+    if (families.get(id) !== 4) errors.push(`oge14 (ОГЭ): в наборе ${id} ${families.get(id) || 0} вариантов, ожидалось 4`);
+  }
+  console.log(`oge14 (ОГЭ): проверено ${(data.variants || []).length} вариантов и ${checks} ответов по данным из сборника`);
+} catch (e) {
+  errors.push('oge14 (ОГЭ): ' + e.message);
+}
+
 /* ─────────── 4c. Задания 13.1/13.2: шаги чек-листов ─────────── */
 try {
   for (const page of ['oge131.html', 'oge132.html']) {

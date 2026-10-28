@@ -245,6 +245,7 @@ test -s "$NEW/run_python.php"
 test -s "$NEW/version.json"
 test -s "$NEW/js/progress.js"
 test -s "$NEW/js/oge15-ref.js"
+test -s "$NEW/data/oge14-exam.json"
 test -s "$NEW/files/oge15/tasks.json"
 test ! -e "$NEW/HANDOFF.md"
 ls "$NEW/files/"*.zip >/dev/null 2>&1

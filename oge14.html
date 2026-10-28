@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="description" content="Тренажёр задания 14 ОГЭ по информатике: электронные таблицы, формулы СУММ, СРЗНАЧ, МИН, МАКС, СЧЁТ, СЧЁТЕСЛИ, СУММЕСЛИ, СУММПРОИЗВ, ЕСЛИ, ОКРУГЛ и диапазоны ячеек." />
+    <meta name="description" content="Тренажёр задания 14 ОГЭ по информатике: электронные таблицы, 20 вариантов официального сборника с большими таблицами, СЧЁТЕСЛИМН, СУММЕСЛИМН, СРЗНАЧЕСЛИ и круговая диаграмма." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge14.html" />
     <meta property="og:title" content="Задание 14 ОГЭ - Электронные таблицы" />
-    <meta property="og:description" content="Тренажёр задания 14 ОГЭ по информатике: электронные таблицы, формулы и функции, подсчёт по условию, суммы и средние значения." />
+    <meta property="og:description" content="Тренажёр задания 14 ОГЭ по информатике: 20 вариантов официального формата с большими таблицами, подсчёт по условию, средние значения и круговая диаграмма." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge14.html" />
     <meta property="og:image" content="https://oge.nayanovaacademy.ru/assets/og-image.png" />
@@ -36,6 +36,11 @@
       <h1>📊 Задание 14 ОГЭ — Электронные таблицы</h1>
 
       <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
+
+      <div class="mode-switch" id="exam" role="tablist" aria-label="Режим тренажёра">
+        <button type="button" class="mode-btn active" role="tab" aria-selected="true" data-act="setExamMode" data-arg="0">🎯 Мини-задачи</button>
+        <button type="button" class="mode-btn" role="tab" aria-selected="false" data-act="setExamMode" data-arg="1">📋 Формат ОГЭ</button>
+      </div>
 
       <div class="task-card" id="taskCard" data-main="true">
         <!-- Задача будет сгенерирована здесь -->
@@ -548,6 +553,187 @@
         }
       ];
 
+/* ==== OGE14-EXAM-DATA:START ==== */
+      /* Формат ОГЭ: 20 вариантов по официальному сборнику (Крылов, Чуркина,
+         2026). Сами таблицы лежат в data/oge14-exam.json — это данные из
+         файлов Task14var*.ods сборника. Здесь только построение заданий. */
+
+      const EXAM_DATA_URL = 'data/oge14-exam.json';
+      let examDataPromise = null;
+      let examVariants = [];
+      let examLoadState = 'idle';
+
+      function loadExamData() {
+        if (!examDataPromise) {
+          examDataPromise = fetch(EXAM_DATA_URL, { cache: 'no-cache' })
+            .then(function (response) {
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              return response.json();
+            })
+            .then(function (data) {
+              examVariants = buildExamVariants(data);
+              return data;
+            });
+        }
+        return examDataPromise;
+      }
+
+      function examCol(col, last) {
+        return col + '2:' + col + last;
+      }
+
+      function examCrit(cond) {
+        const lead = cond.op === '=' && typeof cond.val === 'string' ? '' : cond.op;
+        return '"' + lead + cond.val + '"';
+      }
+
+      function examCondArgs(conds, last) {
+        return conds.map(function (c) {
+          return examCol(String.fromCharCode(65 + c.col), last) + ';' + examCrit(c);
+        }).join(';');
+      }
+
+      function examSumArgs(spec, last) {
+        return examCol(String.fromCharCode(65 + spec.col), last) + (spec.conds.length ? ';' + examCondArgs(spec.conds, last) : '');
+      }
+
+      function examFormulaFor(spec, last) {
+        const R = function (col) { return examCol(String.fromCharCode(65 + col), last); };
+        const conds = spec.conds || [];
+        if (spec.kind === 'sum') return '=СУММЕСЛИМН(' + examSumArgs(spec, last) + ')';
+        if (spec.kind === 'count') {
+          if (conds.length === 1) return '=СЧЁТЕСЛИ(' + examCondArgs(conds, last) + ')';
+          return '=СЧЁТЕСЛИМН(' + examCondArgs(conds, last) + ')';
+        }
+        if (spec.kind === 'maxdiff') return '=МАКС(' + R(spec.a) + '-' + R(spec.b) + ')';
+        if (spec.kind === 'mindiff') return '=МИН(' + R(spec.a) + '-' + R(spec.b) + ')';
+        if (spec.kind === 'maxsum') return '=МАКС(' + R(spec.a) + '+' + R(spec.b) + ')';
+        if (spec.kind === 'minsum') return '=МИН(' + R(spec.a) + '+' + R(spec.b) + ')';
+        if (spec.kind === 'maxmin') return '=МАКС(' + R(spec.col) + ')-МИН(' + R(spec.col) + ')';
+        if (spec.kind === 'avg') {
+          return '=ОКРУГЛ(СРЗНАЧЕСЛИ(' + examCondArgs(conds, last) + ';' + R(spec.col) + ');' + spec.digits + ')';
+        }
+        if (spec.kind === 'avgsum') {
+          return '=ОКРУГЛ((СУММЕСЛИ(' + examCondArgs(conds, last) + ';' + R(spec.cols[0]) + ')+СУММЕСЛИ(' +
+            examCondArgs(conds, last) + ';' + R(spec.cols[1]) + '))/СЧЁТЕСЛИ(' + examCondArgs(conds, last) + ');' + spec.digits + ')';
+        }
+        if (spec.kind === 'avgsum_not') {
+          const ex = spec.exclude;
+          const exCol = R(ex.col);
+          return '=ОКРУГЛ((СУММ(' + R(spec.cols[0]) + ')+СУММ(' + R(spec.cols[1]) + ')-СУММЕСЛИ(' + exCol + ';"' + ex.val +
+            '";' + R(spec.cols[0]) + ')-СУММЕСЛИ(' + exCol + ';"' + ex.val + '";' + R(spec.cols[1]) + '))/' +
+            '(СЧЁТЗ(' + R(0) + ')-СЧЁТЕСЛИ(' + exCol + ';"' + ex.val + '"));' + spec.digits + ')';
+        }
+        if (spec.kind === 'avgdiff') {
+          const base = 'СУММЕСЛИ(' + examCondArgs(conds, last) + ';';
+          return '=ОКРУГЛ((' + base + R(spec.a) + ')-' + base + R(spec.b) + '))/СЧЁТЕСЛИ(' + examCondArgs(conds, last) + ');' + spec.digits + ')';
+        }
+        if (spec.kind === 'percent') {
+          return '=ОКРУГЛ(СЧЁТЕСЛИМН(' + examCondArgs(conds, last) + ')/СЧЁТЗ(' + R(0) + ')*100;' + spec.digits + ')';
+        }
+        if (spec.kind === 'percent_gt') {
+          return '=ОКРУГЛ(СУММПРОИЗВ((' + R(spec.cols[0]) + '>' + R(spec.cols[1]) + ')*(' + R(spec.cols[1]) + '>=' + spec.min +
+            '))/СЧЁТЗ(' + R(0) + ')*100;' + spec.digits + ')';
+        }
+        if (spec.kind === 'countany') {
+          const parts = spec.cols.map(function (col) { return 'СЧЁТЕСЛИ(' + R(col) + ';"' + spec.op + spec.val + '")'; });
+          const overlap = 'СЧЁТЕСЛИМН(' + spec.cols.map(function (col) { return R(col) + ';"' + spec.op + spec.val + '"'; }).join(';') + ')';
+          return '=' + parts.join('+') + '-' + overlap;
+        }
+        if (spec.kind === 'countor') {
+          const parts = spec.groups.map(function (g) { return 'СЧЁТЕСЛИ(' + examCondArgs(g, last) + ')'; });
+          const overlap = 'СЧЁТЕСЛИМН(' + spec.groups.map(function (g) { return examCondArgs(g, last); }).join(';') + ')';
+          return '=' + parts.join('+') + '-' + overlap;
+        }
+        if (spec.kind === 'countsum') {
+          const total = '(' + R(spec.cols[0]) + '+' + R(spec.cols[1]) + ')';
+          return '=СУММПРОИЗВ(' + spec.conds.map(function (c) {
+            return '(' + total + c.op + c.val + ')';
+          }).join('*') + '*1)';
+        }
+        throw new Error('Неизвестный тип задания: ' + spec.kind);
+      }
+
+      function examHintFor(spec) {
+        const byKind = {
+          sum: 'СУММЕСЛИМН: диапазон суммирования, затем пары «диапазон условия; условие».',
+          count: 'СЧЁТЕСЛИ или СЧЁТЕСЛИМН: перечислите диапазоны и условия.',
+          countany: 'Сложите два СЧЁТЕСЛИ и вычтите СЧЁТЕСЛИМН — иначе ученики с двумя высокими баллами посчитаются дважды.',
+          countor: 'Сложите два СЧЁТЕСЛИ и вычтите пересечение через СЧЁТЕСЛИМН.',
+          maxdiff: 'Разность столбцов считается по строкам, затем МАКС (формула массива).',
+          mindiff: 'Разность столбцов считается по строкам, затем МИН (формула массива).',
+          maxsum: 'Сумма столбцов по строкам, затем МАКС (формула массива).',
+          minsum: 'Сумма столбцов по строкам, затем МИН (формула массива).',
+          maxmin: 'МАКС(диапазон) − МИН(диапазон).',
+          avg: 'СРЗНАЧЕСЛИ(диапазон условия; условие; диапазон среднего), затем ОКРУГЛ.',
+          avgsum: 'Сложите два СУММЕСЛИ и разделите на СЧЁТЕСЛИ, затем ОКРУГЛ.',
+          avgsum_not: 'Найдите суммы по двум столбцам, вычтите строки школы № 4 и разделите на количество оставшихся учеников.',
+          avgdiff: 'Средняя наценка = (сумма розничных − сумма оптовых) / количество товаров; затем ОКРУГЛ.',
+          percent: 'Количество подходящих строк разделите на общее число строк и умножьте на 100.',
+          percent_gt: 'СУММПРОИЗВ считает строки, где география больше информатики и информатика не меньше 40.',
+          countsum: 'Сложите два столбца по строкам и посчитайте попадания в диапазон через СУММПРОИЗВ.'
+        };
+        return byKind[spec.kind] || 'Используйте подходящую функцию Excel.';
+      }
+
+      function examEsc(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function examFmt(x) {
+        const r = Math.round(Number(x) * 1000000) / 1000000;
+        return String(r).replace('.', ',');
+      }
+
+      function buildExamVariants(data) {
+        return data.variants.map(function (def) {
+          const ds = data.datasets[def.dataset];
+          const last = ds.rows.length + 1;
+          const q1 = Object.assign({}, def.q1, {
+            n: 1,
+            formula: examFormulaFor(def.q1, last),
+            hint: examHintFor(def.q1)
+          });
+          const q2 = Object.assign({}, def.q2, {
+            n: 2,
+            formula: examFormulaFor(def.q2, last),
+            hint: examHintFor(def.q2)
+          });
+          const chart = {
+            text: def.chart.text,
+            labels: def.chart.labels,
+            values: def.chart.values,
+            formulas: def.chart.sectors.map(function (s) { return examFormulaFor(s, last); }),
+            hints: def.chart.sectors.map(examHintFor)
+          };
+          const solution = [];
+          [q1, q2].forEach(function (q) {
+            solution.push('<strong>Вопрос ' + q.n + '.</strong> ' + examEsc(q.text));
+            solution.push('Формула: <code>' + examEsc(q.formula) + '</code>');
+            solution.push('<strong>Ответ: ' + examFmt(q.answer) + '</strong>');
+          });
+          solution.push('<strong>Вопрос 3 (диаграмма).</strong> ' + examEsc(chart.text));
+          chart.labels.forEach(function (label, i) {
+            solution.push(examEsc(label) + ': <code>' + examEsc(chart.formulas[i]) + '</code> → <strong>' + examFmt(chart.values[i]) + '</strong>');
+          });
+          solution.push('Значения для секторов: <strong>' + chart.values.map(examFmt).join(', ') + '</strong>.');
+          return {
+            id: def.id,
+            family: def.family,
+            title: def.title,
+            headers: ds.headers,
+            rows: ds.rows,
+            intro: '<p>' + examEsc(ds.intro) + '</p>',
+            note: '<p>' + examEsc(ds.note) + '</p>',
+            questions: [q1, q2],
+            chart: chart,
+            hint: '1) ' + q1.hint + ' 2) ' + q2.hint + ' 3) Для диаграммы: ' + chart.hints[0],
+            solution: solution
+          };
+        });
+      }
+      /* ==== OGE14-EXAM-DATA:END ==== */
+
       /* ── Мини-движок формул (русские имена, «;» между аргументами) ── */
       const COL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       let sheetRows = [];
@@ -857,27 +1043,56 @@
         throw new FormulaError('#ЗНАЧ!');
       }
 
-      function evalBinary(node) {
-        const a = evalNode(node.l);
-        const b = evalNode(node.r);
-        if (node.op === '+') return toNumber(a) + toNumber(b);
-        if (node.op === '-') return toNumber(a) - toNumber(b);
-        if (node.op === '*') return toNumber(a) * toNumber(b);
-        if (node.op === '/') {
+      function scalarBinary(op, a, b) {
+        if (op === '+') return toNumber(a) + toNumber(b);
+        if (op === '-') return toNumber(a) - toNumber(b);
+        if (op === '*') return toNumber(a) * toNumber(b);
+        if (op === '/') {
           const d = toNumber(b);
           if (d === 0) throw new FormulaError('#ДЕЛ/0!');
           return toNumber(a) / d;
         }
-        if (node.op === '^') return Math.pow(toNumber(a), toNumber(b));
-        if (node.op === '&') return toText(a) + toText(b);
+        if (op === '^') return Math.pow(toNumber(a), toNumber(b));
+        if (op === '&') return toText(a) + toText(b);
         const c = compareValues(a, b);
-        if (node.op === '=') return c === 0;
-        if (node.op === '<>') return c !== 0;
-        if (node.op === '<') return c < 0;
-        if (node.op === '>') return c > 0;
-        if (node.op === '<=') return c <= 0;
-        if (node.op === '>=') return c >= 0;
+        if (op === '=') return c === 0;
+        if (op === '<>') return c !== 0;
+        if (op === '<') return c < 0;
+        if (op === '>') return c > 0;
+        if (op === '<=') return c <= 0;
+        if (op === '>=') return c >= 0;
         throw new FormulaError('#ЗНАЧ!');
+      }
+
+      // Поэлементная операция над диапазонами (как формула массива в Excel):
+      // МАКС(D2:D331-E2:E331), СУММ(C2:C331+D2:D331) и т. п.
+      function elementwiseBinary(op, a, b) {
+        const A = isRange(a) ? a.cells : [[a]];
+        const B = isRange(b) ? b.cells : [[b]];
+        const rowsCount = Math.max(A.length, B.length);
+        const out = [];
+        for (let r = 0; r < rowsCount; r++) {
+          const ar = A.length === 1 ? A[0] : A[r];
+          const br = B.length === 1 ? B[0] : B[r];
+          if (!ar || !br) throw new FormulaError('#ЗНАЧ!');
+          const colsCount = Math.max(ar.length, br.length);
+          if (ar.length !== 1 && br.length !== 1 && ar.length !== br.length) throw new FormulaError('#ЗНАЧ!');
+          const row = [];
+          for (let c = 0; c < colsCount; c++) {
+            const av = ar.length === 1 ? ar[0] : ar[c];
+            const bv = br.length === 1 ? br[0] : br[c];
+            row.push(scalarBinary(op, av, bv));
+          }
+          out.push(row);
+        }
+        return { range: true, cells: out };
+      }
+
+      function evalBinary(node) {
+        const a = evalNode(node.l);
+        const b = evalNode(node.r);
+        if (isRange(a) || isRange(b)) return elementwiseBinary(node.op, a, b);
+        return scalarBinary(node.op, a, b);
       }
 
       function evalCall(node) {
@@ -930,6 +1145,55 @@
             total += sv === null || sv === undefined || sv === '' ? 0 : toNumber(sv);
           });
           return total;
+        }
+        if (name === 'СЧЁТЕСЛИМН' || name === 'COUNTIFS') {
+          if (args.length < 2 || args.length % 2 !== 0) throw new FormulaError('#ЗНАЧ!');
+          const lists = [];
+          for (let i = 0; i < args.length; i += 2) lists.push(flattenCells(args[i]));
+          const len = Math.min.apply(null, lists.map(function (l) { return l.length; }));
+          let n = 0;
+          for (let i = 0; i < len; i++) {
+            let ok = true;
+            for (let j = 0; j < lists.length; j++) {
+              if (!matchesCriteria(lists[j][i], args[j * 2 + 1])) { ok = false; break; }
+            }
+            if (ok) n++;
+          }
+          return n;
+        }
+        if (name === 'СУММЕСЛИМН' || name === 'SUMIFS') {
+          if (args.length < 3 || args.length % 2 === 0) throw new FormulaError('#ЗНАЧ!');
+          const sumCells = flattenCells(args[0]);
+          const lists = [];
+          for (let i = 1; i < args.length; i += 2) lists.push(flattenCells(args[i]));
+          const len = Math.min.apply(null, lists.map(function (l) { return l.length; }).concat([sumCells.length]));
+          let total = 0;
+          for (let i = 0; i < len; i++) {
+            let ok = true;
+            for (let j = 0; j < lists.length; j++) {
+              if (!matchesCriteria(lists[j][i], args[j * 2 + 2])) { ok = false; break; }
+            }
+            if (!ok) continue;
+            const sv = sumCells[i];
+            total += sv === null || sv === undefined || sv === '' ? 0 : toNumber(sv);
+          }
+          return total;
+        }
+        if (name === 'СРЗНАЧЕСЛИ' || name === 'AVERAGEIF') {
+          if (args.length < 2 || args.length > 3) throw new FormulaError('#ЗНАЧ!');
+          const critCells = flattenCells(args[0]);
+          const avgCells = flattenCells(args.length > 2 ? args[2] : args[0]);
+          let total = 0;
+          let n = 0;
+          critCells.forEach(function (v, i) {
+            if (!matchesCriteria(v, args[1])) return;
+            const sv = avgCells[i];
+            if (sv === null || sv === undefined || sv === '') return;
+            total += toNumber(sv);
+            n++;
+          });
+          if (!n) throw new FormulaError('#ДЕЛ/0!');
+          return total / n;
         }
         if (name === 'СУММПРОИЗВ' || name === 'SUMPRODUCT') {
           if (!args.length) throw new FormulaError('#ЗНАЧ!');
@@ -992,6 +1256,8 @@
       let currentTask = null;
       let lastTaskIndex = -1;
       let taskSaved = false;
+      let examMode = false;
+      let lastExamIndex = -1;
 
       function escapeHtml(s) {
         return String(s)
@@ -1027,6 +1293,292 @@
         });
         html += '</tbody></table></div>';
         return html;
+      }
+
+      /* ── Режим «Формат ОГЭ»: большая таблица + три задания ── */
+      function renderExamSheet(variant) {
+        let html = '<div class="sheet-wrap exam-sheet" tabindex="0" aria-label="Электронная таблица, ' + variant.rows.length + ' строк"><table class="sheet-table exam-table"><caption class="sheet-caption">' + escapeHtml(variant.title) + ' · ' + variant.rows.length + ' строк</caption><thead><tr><th class="sheet-corner"></th>';
+        variant.headers.forEach(function (h, i) {
+          html += '<th scope="col"><span class="sheet-col">' + COL_LETTERS[i] + '</span>' + escapeHtml(h) + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        variant.rows.forEach(function (row, r) {
+          html += '<tr><th scope="row" class="sheet-row-head">' + (r + 2) + '</th>';
+          row.forEach(function (v) {
+            const cls = typeof v === 'number' ? ' class="num"' : '';
+            html += '<td' + cls + '>' + escapeHtml(formatNumber(v)) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+      }
+
+      function renderExamTask() {
+        const variant = currentTask;
+        sheetHeaders = variant.headers;
+        sheetRows = variant.rows;
+
+        let html =
+          '<div class="task-header"><span class="task-type table">Задание 14 · формат ОГЭ</span><span class="exam-family">' + escapeHtml(variant.family) + '</span></div>' +
+          '<div class="task-text">' + variant.intro + '</div>' +
+          renderExamSheet(variant) +
+          '<div class="task-text exam-note">' + variant.note + '</div>' +
+          '<div class="exam-questions">' +
+          '<h3 class="exam-heading">Выполните задание</h3>';
+
+        variant.questions.forEach(function (q, i) {
+          html += '<div class="exam-q" id="examQWrap' + i + '">' +
+            '<p class="exam-q-text"><strong>' + q.n + '.</strong> ' + q.text + '</p>' +
+            '<label class="exam-answer-label" for="examAnswer' + i + '">Ответ (ячейка ' + q.cell + '):</label> ' +
+            '<input type="text" class="answer-input exam-answer" id="examAnswer' + i + '" inputmode="decimal" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="Число" />' +
+            '</div>';
+        });
+
+        html += '<div class="exam-q chart-q" id="examChartQ">' +
+          '<p class="exam-q-text"><strong>3.</strong> ' + variant.chart.text + '</p>' +
+          '<p class="exam-chart-hint">Введите значения для секторов диаграммы:</p>' +
+          '<div class="chart-fields">';
+        variant.chart.labels.forEach(function (label, i) {
+          html += '<label class="chart-field" for="examChart' + i + '"><span>' + escapeHtml(label) + '</span>' +
+            '<input type="text" class="answer-input exam-chart-input" id="examChart' + i + '" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Число" /></label>';
+        });
+        html += '</div><div class="exam-chart-out" id="examChartOut" aria-live="polite"></div></div></div>' +
+          '<div class="answer-section">' +
+            '<div class="buttons">' +
+              '<button type="button" class="btn btn-check" data-act="checkExam" aria-label="Проверить ответы">✓ Проверить</button>' +
+              '<button type="button" class="btn btn-next" data-act="nextTask" aria-label="Новый вариант">🔄 Новый вариант</button>' +
+              '<button type="button" class="btn btn-hint" data-act="showHint" aria-label="Показать подсказку">💡 Подсказка</button>' +
+              '<button type="button" class="btn btn-solution" data-act="showSolution" aria-label="Показать решение">📝 Решение</button>' +
+            '</div>' +
+            '<div class="result" id="result" role="status" aria-live="polite"></div>' +
+          '</div>';
+
+        const card = document.getElementById('taskCard');
+        card.innerHTML = html;
+
+        const inputs = card.querySelectorAll('.exam-answer, .exam-chart-input');
+        inputs.forEach(function (input) {
+          input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              checkExam();
+            }
+          });
+        });
+      }
+
+      function readExamValue(input) {
+        const raw = input.value.trim();
+        if (!raw) return NaN;
+        if (raw.charAt(0) === '=') {
+          try {
+            return evalFormula(raw);
+          } catch (e) {
+            return NaN;
+          }
+        }
+        return Number(raw.replace(/\s+/g, '').replace(',', '.'));
+      }
+
+      function markExamInput(input, ok) {
+        input.classList.remove('correct', 'incorrect');
+        input.classList.add(ok ? 'correct' : 'incorrect');
+      }
+
+      function checkExam() {
+        const variant = currentTask;
+        const result = document.getElementById('result');
+        let all = true;
+        let empty = false;
+
+        variant.questions.forEach(function (q, i) {
+          const input = document.getElementById('examAnswer' + i);
+          if (!input.value.trim()) { empty = true; all = false; input.classList.remove('correct', 'incorrect'); return; }
+          const value = readExamValue(input);
+          const ok = isFinite(value) && Math.abs(value - q.answer) < 1e-6;
+          markExamInput(input, ok);
+          if (!ok) all = false;
+        });
+
+        variant.chart.values.forEach(function (want, i) {
+          const input = document.getElementById('examChart' + i);
+          if (!input.value.trim()) { empty = true; all = false; input.classList.remove('correct', 'incorrect'); return; }
+          const value = readExamValue(input);
+          const ok = isFinite(value) && Math.abs(value - want) < 1e-6;
+          markExamInput(input, ok);
+          if (!ok) all = false;
+        });
+
+        if (empty) {
+          result.className = 'result incorrect';
+          result.innerHTML = '⚠️ Заполните все ответы: два вопроса и три значения для диаграммы.';
+          return;
+        }
+
+        if (!all) {
+          result.className = 'result incorrect';
+          result.innerHTML = '❌ Есть ошибки. Проверьте отмеченные поля: условия формул и диапазоны.';
+          return;
+        }
+
+        result.className = 'result correct';
+        result.innerHTML = '✅ Все ответы верны! Диаграмма построена по вашим значениям.';
+        renderExamChart(variant, document.getElementById('examChartOut'));
+        if (!taskSaved) {
+          taskSaved = true;
+          if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge14', 1, 1); }
+          if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge14', 1); }
+        }
+      }
+
+      function renderExamChart(variant, out) {
+        if (!out) return;
+        const labels = variant.chart.labels;
+        const values = variant.chart.values;
+        const colors = ['#7f5468', '#5f9a68', '#c2a05c'];
+        const total = values.reduce(function (s, v) { return s + v; }, 0);
+        if (!total) return;
+
+        const NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 240 240');
+        svg.setAttribute('class', 'pie-svg');
+        svg.setAttribute('role', 'img');
+        svg.setAttribute('aria-label', 'Круговая диаграмма: ' + labels.map(function (l, i) {
+          return l + ' — ' + formatNumber(values[i]);
+        }).join('; '));
+
+        const cx = 120;
+        const cy = 120;
+        const radius = 98;
+        let angle = -Math.PI / 2;
+
+        values.forEach(function (value, i) {
+          if (value <= 0) return;
+          const next = angle + (value / total) * Math.PI * 2;
+          const x1 = cx + radius * Math.cos(angle);
+          const y1 = cy + radius * Math.sin(angle);
+          const x2 = cx + radius * Math.cos(next);
+          const y2 = cy + radius * Math.sin(next);
+          const large = next - angle > Math.PI ? 1 : 0;
+          const path = document.createElementNS(NS, 'path');
+          path.setAttribute('d', 'M ' + cx + ' ' + cy + ' L ' + x1.toFixed(2) + ' ' + y1.toFixed(2) +
+            ' A ' + radius + ' ' + radius + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2) + ' Z');
+          path.setAttribute('fill', colors[i % colors.length]);
+          path.setAttribute('stroke', '#fff');
+          path.setAttribute('stroke-width', '2');
+          svg.appendChild(path);
+
+          const mid = angle + (next - angle) / 2;
+          if (value / total >= 0.07) {
+            const tx = cx + radius * 0.62 * Math.cos(mid);
+            const ty = cy + radius * 0.62 * Math.sin(mid);
+            const text = document.createElementNS(NS, 'text');
+            text.setAttribute('x', tx.toFixed(1));
+            text.setAttribute('y', ty.toFixed(1));
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('class', 'pie-label');
+            text.textContent = Math.round((value / total) * 100) + '%';
+            svg.appendChild(text);
+          }
+          angle = next;
+        });
+
+        const legend = document.createElement('ul');
+        legend.className = 'pie-legend';
+        labels.forEach(function (label, i) {
+          const li = document.createElement('li');
+          const swatch = document.createElement('span');
+          swatch.className = 'pie-swatch';
+          swatch.style.backgroundColor = colors[i % colors.length];
+          const text = document.createElement('span');
+          text.textContent = label + ' — ' + formatNumber(values[i]) +
+            ' (' + Math.round((values[i] / total) * 100) + '%)';
+          li.appendChild(swatch);
+          li.appendChild(text);
+          legend.appendChild(li);
+        });
+
+        const title = document.createElement('p');
+        title.className = 'pie-title';
+        title.textContent = 'Круговая диаграмма по вашим значениям';
+        out.innerHTML = '';
+        out.appendChild(title);
+        const wrap = document.createElement('div');
+        wrap.className = 'pie-wrap';
+        wrap.appendChild(svg);
+        wrap.appendChild(legend);
+        out.appendChild(wrap);
+      }
+
+      function renderExamLoading(message, retry) {
+        const card = document.getElementById('taskCard');
+        card.innerHTML = '<div class="exam-loading">' +
+          '<p>' + escapeHtml(message) + '</p>' +
+          (retry ? '<button type="button" class="btn btn-check" data-act="reloadExam">Повторить загрузку</button>' : '') +
+          '</div>';
+      }
+
+      function ensureExamVariants(then) {
+        if (examVariants.length) { then(); return; }
+        if (examLoadState === 'loading') return;
+        examLoadState = 'loading';
+        renderExamLoading('Загружаем таблицы официальных вариантов…', false);
+        loadExamData().then(function () {
+          examLoadState = 'ready';
+          if (examMode) then();
+        }).catch(function () {
+          examLoadState = 'error';
+          renderExamLoading('Не удалось загрузить таблицы. Проверьте соединение и попробуйте ещё раз.', true);
+        });
+      }
+
+      function reloadExam() {
+        examLoadState = 'idle';
+        examDataPromise = null;
+        examVariants = [];
+        ensureExamVariants(generateExamTask);
+      }
+
+      function generateExamTask() {
+        if (!examVariants.length) { ensureExamVariants(generateExamTask); return; }
+        taskSaved = false;
+        if (typeof trackTaskStart === 'function') { trackTaskStart('oge14'); }
+        let idx = Math.floor(Math.random() * examVariants.length);
+        if (examVariants.length > 1 && idx === lastExamIndex) idx = (idx + 1) % examVariants.length;
+        lastExamIndex = idx;
+        currentTask = examVariants[idx];
+        renderExamTask();
+      }
+
+      function setExamMode(mode) {
+        const next = Number(mode) === 1;
+        if (next === examMode) return;
+        examMode = next;
+        document.querySelectorAll('.mode-btn').forEach(function (btn) {
+          const active = (btn.getAttribute('data-arg') === '1') === examMode;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        hideHintsAndSolution();
+        if (examMode) ensureExamVariants(generateExamTask); else generateTask();
+      }
+
+      function evalExamFormula(id, src) {
+        const variant = examVariants.filter(function (v) { return v.id === id; })[0];
+        if (!variant) throw new FormulaError('#ССЫЛКА!');
+        const savedRows = sheetRows;
+        const savedHeaders = sheetHeaders;
+        sheetRows = variant.rows;
+        sheetHeaders = variant.headers;
+        try {
+          return evalFormula(src);
+        } finally {
+          sheetRows = savedRows;
+          sheetHeaders = savedHeaders;
+        }
       }
 
       function renderTask() {
@@ -1139,7 +1691,7 @@
 
       function nextTask() {
         hideHintsAndSolution();
-        generateTask();
+        if (examMode) ensureExamVariants(generateExamTask); else generateTask();
       }
 
       function hideHintsAndSolution() {
@@ -1168,9 +1720,22 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
+      // Хук для browser-smoke: проверка всех эталонных формул режима ОГЭ.
+      window.__oge14exam = {
+        load: loadExamData,
+        variants: function () { return examVariants; },
+        evalFormula: evalExamFormula,
+        current: function () { return currentTask; }
+      };
+
       // Инициализация
       generateTask();
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
+      // Прямая ссылка на формат ОГЭ: oge14.html#exam (хеш не ломает офлайн-кэш SW).
+      if (/^(exam|oge)$/i.test(new URLSearchParams(window.location.search).get('mode') || '') ||
+          window.location.hash === '#exam') {
+        setExamMode(1);
+      }
     </script>
     <script src="js/progress-client.js"></script>
     <script src="js/progress-sync.js"></script>
