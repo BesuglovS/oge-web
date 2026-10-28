@@ -465,35 +465,69 @@ for (const page of pages) {
 }
 
 // 2h. Задания 13.1/13.2: чек-листы — шаги проходятся только с верным ответом,
-//     прогресс сохраняется после последнего шага.
+//     промежуточный шаг переживает перезагрузку, прогресс пишется в конце.
 for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132']]) {
   const { cdp, targetId } = await openPage(page);
   const expr = '(() => {' +
     'if (typeof steps === "undefined" || typeof checklistInit !== "function") return "no-api";' +
     'const next = () => document.querySelector(".cl-next");' +
     'const feedback = () => (document.getElementById("clFeedback") || {}).textContent || "";' +
+    'const solve = (from, to) => {' +
+    '  for (let i = from; i < to; i++) {' +
+    '    const opts = document.querySelectorAll(".cl-option");' +
+    '    if (!opts[steps[i].correct]) return "fail: нет верного варианта на шаге " + (i + 1);' +
+    '    opts[steps[i].correct].click();' +
+    '    if (!/Верно/.test(feedback())) return "fail: шаг " + (i + 1) + " не принят — " + feedback().slice(0, 60);' +
+    '    const btn = next();' +
+    '    if (!btn || btn.disabled) return "fail: следующий шаг заблокирован на " + (i + 1);' +
+    '    btn.click();' +
+    '  }' +
+    '  return "";' +
+    '};' +
     'const wrong = (steps[0].correct + 1) % steps[0].options.length;' +
     'document.querySelectorAll(".cl-option")[wrong].click();' +
     'if (!/Не совсем/.test(feedback())) return "fail: неверный ответ не отмечен";' +
     'if (!next() || !next().disabled) return "fail: неверный ответ разблокировал шаг";' +
-    'for (let i = 0; i < steps.length; i++) {' +
-    '  const opts = document.querySelectorAll(".cl-option");' +
-    '  if (!opts[steps[i].correct]) return "fail: нет верного варианта на шаге " + (i + 1);' +
-    '  opts[steps[i].correct].click();' +
-    '  if (!/Верно/.test(feedback())) return "fail: шаг " + (i + 1) + " не принят — " + feedback().slice(0, 60);' +
-    '  const btn = next();' +
-    '  if (!btn || btn.disabled) return "fail: следующий шаг заблокирован на " + (i + 1);' +
-    '  btn.click();' +
-    '}' +
-    'const body = document.getElementById("clBody");' +
-    'if (!body || !/Чек-лист пройден/.test(body.textContent)) return "fail: нет финального экрана";' +
-    'const progress = typeof OGEProgress !== "undefined" ? OGEProgress.get("' + taskId + '") : null;' +
-    'if (!progress || progress.score !== steps.length) return "fail: прогресс не сохранён (" + JSON.stringify(progress) + ")";' +
-    'return "ok: " + steps.length + " шагов, прогресс " + progress.score + "/" + progress.total;' +
+    'const early = solve(0, 3);' +
+    'if (early) return early;' +
+    'location.reload();' +
+    'return "reloading";' +
     '})()';
-  const res = await cdp.evalJs(expr).catch((e) => 'error: ' + e.message);
-  results.push(`${page} (чек-лист): ${String(res).slice(0, 150)}`);
-  if (!String(res).startsWith('ok') && !/no-api/.test(String(res))) errors.push(`${page}: чек-лист — ${res}`);
+  const first = await cdp.evalJs(expr).catch((e) => 'error: ' + e.message);
+  let res = String(first);
+  if (res === 'reloading') {
+    await sleep(1800);
+    const second = await cdp.evalJs('(() => {' +
+      'if (typeof checklistState !== "function") return "fail: нет checklistState";' +
+      'const st = checklistState();' +
+      'if (!st || st.index !== 3 || st.done.length !== 3) return "fail: состояние не восстановилось (" + JSON.stringify(st) + ")";' +
+      'const num = (document.getElementById("clStepNum") || {}).textContent || "";' +
+      'if (!/Шаг 4 из/.test(num)) return "fail: заголовок шага не восстановился — " + num;' +
+      'const resume = (document.getElementById("clResume") || {}).textContent || "";' +
+      'if (!/Продолжаем с шага 4/.test(resume)) return "fail: нет пометки о продолжении";' +
+      'const next = () => document.querySelector(".cl-next");' +
+      'const feedback = () => (document.getElementById("clFeedback") || {}).textContent || "";' +
+      'for (let i = st.index; i < steps.length; i++) {' +
+      '  const opts = document.querySelectorAll(".cl-option");' +
+      '  if (!opts[steps[i].correct]) return "fail: нет верного варианта на шаге " + (i + 1);' +
+      '  opts[steps[i].correct].click();' +
+      '  if (!/Верно/.test(feedback())) return "fail: шаг " + (i + 1) + " не принят";' +
+      '  const btn = next();' +
+      '  if (!btn || btn.disabled) return "fail: следующий шаг заблокирован на " + (i + 1);' +
+      '  btn.click();' +
+      '}' +
+      'const body = document.getElementById("clBody");' +
+      'if (!body || !/Чек-лист пройден/.test(body.textContent)) return "fail: нет финального экрана";' +
+      'const progress = typeof OGEProgress !== "undefined" ? OGEProgress.get("' + taskId + '") : null;' +
+      'if (!progress || progress.score !== steps.length) return "fail: прогресс не сохранён (" + JSON.stringify(progress) + ")";' +
+      'const leftover = localStorage.getItem("oge-checklist:' + taskId + '");' +
+      'if (leftover) return "fail: после финиша остался черновик чек-листа";' +
+      'return "ok: " + steps.length + " шагов, восстановление и прогресс " + progress.score + "/" + progress.total;' +
+      '})()').catch((e) => 'error: ' + e.message);
+    res = String(second);
+  }
+  results.push(`${page} (чек-лист): ${res.slice(0, 170)}`);
+  if (!res.startsWith('ok') && !/no-api/.test(res)) errors.push(`${page}: чек-лист — ${res}`);
   cdp.close();
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
