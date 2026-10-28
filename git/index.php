@@ -1,7 +1,7 @@
 <?php
 // ⚙️ Настройки
 $REPOS_DIR = '/home/git/repos';
-$SERVER_HOST = '79.143.31.184'; // Замените на домен, если есть
+$SERVER_HOST = 'oge.nayanovaacademy.ru';
 $CREATE_CMD = 'create-repo <имя-репозитория>';
 
 // Служебная страница: не индексировать поисковиками.
@@ -14,7 +14,7 @@ if (!is_dir($REPOS_DIR)) {
 }
 
 // Сканируем репозитории (только директории с .git)
-$repos = array_filter(glob($REPOS_DIR . '/*.git'), 'is_dir');
+$repos = array_filter((array)glob($REPOS_DIR . '/*.git'), 'is_dir');
 sort($repos);
 ?>
 <!DOCTYPE html>

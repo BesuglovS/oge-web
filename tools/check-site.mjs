@@ -85,6 +85,26 @@ for (let i = 1; i <= 20; i++) {
   }
 }
 
+// 3b. Все HTML-страницы и общие JS должны быть в precache, иначе офлайн
+// и обновления будут работать непредсказуемо.
+for (const f of htmlFiles) {
+  if (!swAssets.includes('/' + f)) errors.push(`sw.js: ${f} не входит в ASSETS`);
+}
+for (const f of readdirSync(join(root, 'js')).filter((x) => x.endsWith('.js'))) {
+  if (!swAssets.includes('/js/' + f)) errors.push(`sw.js: js/${f} не входит в ASSETS`);
+}
+
+// 3c. Локальные документы не должны попадать в деплой (HANDOFF.md уже
+// оказывался публично доступен). Проверяем, что tar-исключения это закрывают.
+{
+  const deploy = readFileSync(join(root, 'deploy.ps1'), 'utf8');
+  const excludesAllMd = /--exclude=\*\.md/.test(deploy);
+  const excludesHandoff = /--exclude=HANDOFF\.md/.test(deploy);
+  if (existsSync(join(root, 'HANDOFF.md')) && !excludesAllMd && !excludesHandoff) {
+    errors.push('deploy.ps1: HANDOFF.md не исключён из tar (локальный документ попадёт на прод)');
+  }
+}
+
 // 4. manifest + иконки
 if (!existsSync(join(root, 'favicon.ico'))) errors.push('нет favicon.ico (браузеры запрашивают /favicon.ico)');
 try {
@@ -186,6 +206,18 @@ for (const f of htmlFiles) {
     else seen.add(id);
   }
   if (dupes.size) errors.push(`${f}: повторяющиеся id: ${[...dupes].join(', ')}`);
+
+  // Дубли атрибутов в одном теге (HTML-парсер молча берёт первый).
+  for (const m of markup.matchAll(/<([a-zA-Z][\w-]*)\b([^>]*)>/g)) {
+    const names = [...m[2].matchAll(/([^\s=\/>]+)\s*=/g)].map((x) => x[1].toLowerCase());
+    const seenAttrs = new Set();
+    const dupAttrs = new Set();
+    for (const a of names) {
+      if (seenAttrs.has(a)) dupAttrs.add(a);
+      else seenAttrs.add(a);
+    }
+    if (dupAttrs.size) errors.push(`${f}: повторяющиеся атрибуты <${m[1]}>: ${[...dupAttrs].join(', ')}`);
+  }
 
   for (const m of markup.matchAll(/<img\b[^>]*>/gi)) {
     if (!/\balt\s*=/.test(m[0])) errors.push(`${f}: <img> без alt: ${m[0].slice(0, 70)}`);

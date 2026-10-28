@@ -254,23 +254,28 @@
 
   /**
    * Получить прогресс по курсу (сервер + локальное хранилище, слияние LWW).
-   * @returns {Promise<{progress:Object, stats:Object|null, unavailable:boolean}>}
+   * server — «сырые» данные сервера (без локальных записей), чтобы вызывающий
+   * мог отличить серверное состояние от объединённого.
+   * @returns {Promise<{progress:Object, stats:Object|null, unavailable:boolean, server:Object|null}>}
    */
   function getCourse(course) {
     var c = course || config.course;
     var local = getLocal(c);
     return checkAuth().then(function (authedNow) {
       if (!authedNow) {
-        return { progress: local, stats: null, unavailable: unavailable };
+        return { progress: local, stats: null, unavailable: unavailable, server: null };
       }
       return api('/api/progress.php?course=' + encodeURIComponent(c))
         .then(function (d) {
           var server = (d && d.progress) ? d.progress : {};
           var merged = mergeCourseData(server, local);
           setLocal(c, merged);
-          return { progress: merged, stats: d.stats || null, unavailable: false };
+          return { progress: merged, stats: d.stats || null, unavailable: false, server: server };
         })
-        .catch(function () { return { progress: local, stats: null, unavailable: unavailable }; });
+        .catch(function () {
+          // Не выдаём локальные данные за серверные: GET не удался.
+          return { progress: local, stats: null, unavailable: true, server: null };
+        });
     });
   }
 

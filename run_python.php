@@ -18,6 +18,10 @@
  * Лимиты: POST-only, 20 КБ кода, timeout 5 сек.
  */
 
+// Ошибки PHP не должны попадать в ответ: клиент всегда ждёт JSON.
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 // ─── 1. Только POST ───
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('HTTP/1.1 405 Method Not Allowed');
@@ -92,11 +96,21 @@ function oge_rate_limit(int $limit = 600, int $window = 60): void {
 }
 
 // ─── 3. Получаем данные ───
+// Поля должны быть строками: POST с code[]=... иначе приводит к TypeError
+// в trim()/strlen() и мусору в логах PHP-FPM.
+foreach (['code', 'test_input', 'expected_output', 'tests'] as $field) {
+    if (isset($_POST[$field]) && !is_string($_POST[$field])) {
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Некорректный формат поля ' . $field], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
 $code = isset($_POST['code']) ? $_POST['code'] : '';
 $testInput = isset($_POST['test_input']) ? $_POST['test_input'] : '';
 $expectedOutput = isset($_POST['expected_output']) ? $_POST['expected_output'] : '';
 // Пакетный режим: JSON [{"input": "...", "expected": "..."}, ...].
-$testsJson = isset($_POST['tests']) && is_string($_POST['tests']) ? trim($_POST['tests']) : '';
+$testsJson = isset($_POST['tests']) ? trim($_POST['tests']) : '';
 
 if (trim($code) === '') {
     header('Content-Type: application/json');
@@ -123,7 +137,11 @@ if (strlen($expectedOutput) > 102400) {
 }
 
 // ─── 4. Pre-фильтры (слой 2) ───
-$allowedModules = ['math', 'random', 'datetime', 'decimal', 'fractions', 'string', 're', 'collections', 'itertools', 'functools', 'operator', 'json', 'csv'];
+// Минимальный набор: для ОГЭ не нужны operator/functools/string/collections/
+// re/json/csv. Эти модули дают доступ к attrgetter, Formatter и внутренним
+// подмодулям, поэтому убраны из белого списка. random подменяется прокси-
+// объектом внутри wrapper'а (см. ниже), чтобы не отдавать наружу random._os.
+$allowedModules = ['math', 'random', 'datetime'];
 
 $forbiddenPatterns = [
     '/\b__import__\b/',
@@ -140,7 +158,22 @@ $forbiddenPatterns = [
     '/__closure__/',
     '/__dict__/',
     '/__getattribute__/',
+    '/__getattr__/',
     '/__setattr__/',
+    '/__delattr__/',
+    '/__self__/',
+    '/__get__/',
+    '/__set__/',
+    '/__delete__/',
+    '/__subclasshook__/',
+    '/__init_subclass__/',
+    '/__class_getitem__/',
+    '/__prepare__/',
+    '/__objclass__/',
+    '/__module__/',
+    '/__qualname__/',
+    '/__annotations__/',
+    '/__wrapped__/',
     '/__reduce__/',
     '/__reduce_ex__/',
     '/\bf_globals\b/',
@@ -167,13 +200,15 @@ $forbiddenPatterns = [
 
 // Для regex-фильтра убираем строковые литералы и комментарии: иначе
 // `print("Файл os")` или `# здесь был sys` ложно блокируются. Реальная
-// защита — wrapper с усечёнными builtins, это лишь первый слой.
+// защита — AST-валидация и audit hook внутри wrapper'а, это лишь первый слой.
+// ВАЖНО: строки вырезаются ДО комментариев, иначе `#` внутри строки
+// (`x = '#'; ...`) скрывает остаток строки от сканера.
 $codeForScan = preg_replace([
     '/"""[\s\S]*?"""/',
     "/'''[\s\S]*?'''/",
-    '/#[^\n]*/',
     '/"(?:\\\\.|[^"\\\\])*"/s',
     "/'(?:\\\\.|[^'\\\\])*'/s",
+    '/#[^\n]*/',
 ], ' ', $code);
 // Если PCRE по какой-то причине не справился — фильтруем исходный код
 // (лучше ложное срабатывание, чем пропуск запрещённой конструкции).
@@ -254,6 +289,8 @@ import sys as _oge_sys
 import io as _oge_io
 import builtins as _oge_builtins
 import base64 as _oge_base64
+import ast as _oge_ast
+import types as _oge_types
 
 _oge_original_stdout = _oge_sys.stdout
 _oge_sys.stdout = _oge_io.StringIO()
@@ -269,12 +306,31 @@ _oge_blocked = frozenset({
 _oge_allowed = frozenset(%ALLOWED_MODULES%)
 _oge_real_import = _oge_builtins.__import__
 
+# random отдаём через прокси: настоящий модуль держит в себе os/_os, а значит
+# `random._os.system(...)` был бы обходом. Прокси содержит только безопасные
+# функции и не отдаёт наружу модули.
+_oge_random = _oge_real_import('random')
+_oge_random_names = (
+    'random', 'seed', 'randint', 'randrange', 'choice', 'choices', 'shuffle',
+    'sample', 'uniform', 'triangular', 'betavariate', 'expovariate',
+    'gammavariate', 'gauss', 'lognormvariate', 'normalvariate',
+    'vonmisesvariate', 'paretovariate', 'weibullvariate', 'getrandbits',
+    'randbytes', 'getstate', 'setstate',
+)
+_oge_random_proxy = _oge_types.SimpleNamespace()
+for _oge_n in _oge_random_names:
+    if hasattr(_oge_random, _oge_n):
+        setattr(_oge_random_proxy, _oge_n, getattr(_oge_random, _oge_n))
+_oge_random_proxy.__all__ = [n for n in _oge_random_names if hasattr(_oge_random, n)]
+
 def _oge_safe_import(name, globals=None, locals=None, fromlist=(), level=0):
     if level > 0:
         raise ImportError('Относительные импорты запрещены')
     root = name.split('.')[0]
     if root not in _oge_allowed:
         raise ImportError('Модуль "%s" недоступен' % root)
+    if root == 'random':
+        return _oge_random_proxy
     return _oge_real_import(name, globals, locals, fromlist, level)
 
 _oge_safe_builtins = {
@@ -287,8 +343,84 @@ _oge_safe_builtins['__debug__'] = True
 _oge_safe_builtins['__import__'] = _oge_safe_import
 _oge_globals = {'__name__': '__main__', '__builtins__': _oge_safe_builtins}
 
+# Разрешённые модули импортируем ДО установки audit hook: тогда пользовательские
+# import-ы берут их из sys.modules и не открывают файлы (open в hook запрещён).
+for _oge_m in sorted(_oge_allowed):
+    try:
+        _oge_real_import(_oge_m)
+    except Exception:
+        pass
+
+_oge_forbidden_names = frozenset({
+    'open', 'exec', 'eval', 'compile', 'breakpoint',
+    'getattr', 'setattr', 'delattr', 'globals', 'locals', 'vars', 'dir',
+    'help', 'memoryview', 'exit', 'quit',
+    '__import__', '__builtins__', '__loader__', '__spec__',
+})
+
+def _oge_validate(_tree):
+    for _node in _oge_ast.walk(_tree):
+        if isinstance(_node, _oge_ast.Attribute):
+            if _node.attr.startswith('__'):
+                raise SyntaxError('Доступ к служебному атрибуту запрещён: ' + _node.attr)
+        elif isinstance(_node, _oge_ast.Name):
+            if _node.id in _oge_forbidden_names or (_node.id.startswith('__') and _node.id != '__name__'):
+                raise SyntaxError('Запрещённое имя: ' + _node.id)
+        elif isinstance(_node, _oge_ast.Import):
+            for _alias in _node.names:
+                _root = _alias.name.split('.')[0]
+                if _root not in _oge_allowed:
+                    raise ImportError('Модуль "%s" недоступен' % _root)
+        elif isinstance(_node, _oge_ast.ImportFrom):
+            if _node.level and _node.level > 0:
+                raise ImportError('Относительные импорты запрещены')
+            _root = (_node.module or '').split('.')[0]
+            if _root not in _oge_allowed:
+                raise ImportError('Модуль "%s" недоступен' % _root)
+            for _alias in _node.names:
+                if _alias.name.startswith('_'):
+                    raise ImportError('Служебные имена из модулей импортировать нельзя: ' + _alias.name)
+        elif isinstance(_node, _oge_ast.Call):
+            _f = _node.func
+            if isinstance(_f, _oge_ast.Name) and _f.id in _oge_forbidden_names:
+                raise SyntaxError('Запрещённая функция: ' + _f.id)
+            if isinstance(_f, _oge_ast.Attribute) and _f.attr in ('format', 'format_map'):
+                # .format() умеет обращаться к атрибутам по имени поля
+                # (`"{0.__class__}".format(())`), поэтому в песочнице он
+                # запрещён целиком. Для вывода хватает f-строк и print.
+                raise SyntaxError('Форматирование через .format() в песочнице запрещено; используйте f-строки')
+        elif isinstance(_node, _oge_ast.Constant):
+            if isinstance(_node.value, str) and '__' in _node.value and _node.value not in ('__main__', '__name__'):
+                raise SyntaxError('Строка со служебным именем запрещена: ' + _node.value)
+    return _tree
+
+# Audit hook — второй независимый слой. Он не даёт открыть файл, запустить
+# процесс, создать сокет или загрузить ctypes даже если AST-проверку обойдут.
+_oge_blocked_events = frozenset({
+    'open', 'os.system', 'os.exec', 'os.execv', 'os.execve', 'os.spawn',
+    'os.posix_spawn', 'os.fork', 'os.forkpty', 'os.remove', 'os.rename',
+    'os.rmdir', 'os.mkdir', 'os.chmod', 'os.chown', 'os.link', 'os.symlink',
+    'os.truncate', 'os.listdir', 'os.scandir', 'os.chdir',
+    'subprocess.Popen', 'socket.__new__', 'socket.connect', 'socket.bind',
+    'ctypes.dlopen', 'ctypes.dlsym', 'sys._getframe', 'sys.settrace',
+    'sys.setprofile',
+})
+
+def _oge_audit(_event, _args):
+    if _event in _oge_blocked_events:
+        raise RuntimeError('Запрещённая операция: ' + _event)
+    if _event == 'import':
+        _root = str(_args[0]).split('.')[0]
+        if _root not in _oge_allowed:
+            raise ImportError('Модуль "%s" недоступен' % _root)
+
 try:
-    exec(compile(_oge_base64.b64decode('%CODE%').decode('utf-8'), '<task>', 'exec'), _oge_globals)
+    _oge_text = _oge_base64.b64decode('%CODE%').decode('utf-8')
+    _oge_tree = _oge_ast.parse(_oge_text, '<task>', 'exec')
+    _oge_validate(_oge_tree)
+    _oge_code = compile(_oge_tree, '<task>', 'exec')
+    _oge_sys.addaudithook(_oge_audit)
+    exec(_oge_code, _oge_globals)
 except SystemExit:
     raise
 except BaseException as _oge_exc:
@@ -456,7 +588,7 @@ if ($testsJson !== '') {
         'passed' => $passed,
         'total' => count($cases),
         'stopped' => $stopped,
-    ], JSON_UNESCAPED_UNICODE);
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
@@ -471,7 +603,7 @@ if ($rawStdout === false) {
     echo json_encode([
         'error' => 'Песочница временно недоступна. Попробуйте позже.',
         'unavailable' => true
-    ]);
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
@@ -484,7 +616,7 @@ if ($timedOut) {
     echo json_encode([
         'error' => '⏱️ Превышено время выполнения (5 сек). Проверьте, нет ли бесконечного цикла в вашей программе.',
         'timeout' => true
-    ]);
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
@@ -517,7 +649,7 @@ if ($errorOutput !== '') {
 }
 
 header('Content-Type: application/json');
-echo json_encode($result);
+echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
 
 /* ═══════════════════ Helper functions ═══════════════════ */
 
@@ -649,21 +781,22 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
         return [$stdout, $stderr, $exitCode, $timedOut];
     }
 
-    // Linux/macOS: пайпы + stream_select (там он штатно работает с pipe).
+    // Linux/macOS: stdout/stderr — пайпы + stream_select, stdin — временный
+    // файл. Если писать stdin в pipe, программа, которая не читает stdio,
+    // может заблокировать fwrite до заполнения pipe (лимит test_input 100 КБ),
+    // и таймаут выполнения вообще не начнётся.
+    $inFile = tempnam(sys_get_temp_dir(), 'oge16_in_');
+    file_put_contents($inFile, $stdinData);
     $descriptorspec = [
-        0 => ['pipe', 'r'],
+        0 => ['file', $inFile, 'r'],
         1 => ['pipe', 'w'],
         2 => ['pipe', 'w'],
     ];
     $process = proc_open($cmd, $descriptorspec, $pipes, null, null, ['bypass_shell' => true]);
     if (!is_resource($process)) {
+        @unlink($inFile);
         return [false, 'Failed to start Python', -1, false];
     }
-
-    if ($stdinData !== '') {
-        @fwrite($pipes[0], $stdinData);
-    }
-    fclose($pipes[0]);
 
     $stdoutHead = '';
     $stdoutTail = '';
@@ -685,6 +818,7 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
             fclose($pipes[1]);
             fclose($pipes[2]);
             proc_close($process);
+            @unlink($inFile);
             $stdout = oge_finish_output($stdoutHead, $stdoutTail, $stdoutDropped);
             return [$stdout, $stderr, 124, true];
         }
@@ -713,6 +847,7 @@ function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb
     fclose($pipes[1]);
     fclose($pipes[2]);
     proc_close($process);
+    @unlink($inFile);
     $stdout = oge_finish_output($stdoutHead, $stdoutTail, $stdoutDropped);
     return [$stdout, $stderr, $exitCode, false];
 }

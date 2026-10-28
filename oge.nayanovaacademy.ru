@@ -11,8 +11,9 @@ server {
     listen 80;
     server_name oge.nayanovaacademy.ru;
 
-    # Перенаправляем все запросы на HTTPS
-    return 301 https://$host$request_uri;
+    # Перенаправляем все запросы на HTTPS. Домен фиксирован: $host позволял
+    # отправить Host: evil.example и получить 301 на чужой домен.
+    return 301 https://oge.nayanovaacademy.ru$request_uri;
 }
 
 # ==========================================
@@ -65,7 +66,8 @@ server {
     # Блок ниже целиком перегенерирует deploy.ps1 (tools/csp-policy.mjs --nginx):
     # политика с хешами длиннее 4 КБ, а nginx не принимает такой параметр,
     # поэтому она режется на set $cspN и склеивается в $csp.
-    # Запасной вариант (если генератор недоступен) — слабее, с 'unsafe-inline'.
+    # Запасной вариант (если конфиг ставят вручную без генератора) — слабее,
+    # с 'unsafe-inline'. deploy.ps1 при ошибке генерации CSP не обновляет nginx.
     # Проверка политики: node tools/browser-smoke.mjs <url> --csp.
     # >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)
     set $csp "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://mc.yandex.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com; font-src 'self'; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com https://auth.nayanovaacademy.ru; frame-src https://mc.yandex.ru https://mc.yandex.com; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests";
@@ -85,9 +87,23 @@ server {
         try_files $uri $uri/ $uri.php =404;
     }
 
+    # ACME HTTP-01 должен быть доступен до правила блокировки скрытых файлов.
+    location ^~ /.well-known/acme-challenge/ {
+        allow all;
+        access_log off;
+    }
+
     # 1a. Блокировка скрытых файлов — ДО остальных regex-локейшенов,
     # иначе `/.env.json` или `/.hidden.html` перехватит правило расширения.
     location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Внутренние документы и конфиги не должны отдаваться как статика.
+    # HANDOFF.md уже исключён из деплоя, это defense-in-depth.
+    location ~* \.(md|ini)$ {
         deny all;
         access_log off;
         log_not_found off;
@@ -101,6 +117,7 @@ server {
     location ^~ /git/ {
         auth_basic "Git UI";
         auth_basic_user_file /etc/nginx/oge-git-htpasswd;
+        limit_req zone=sandbox_oge burst=10 nodelay;
         fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $document_root/git/index.php;
         fastcgi_param SCRIPT_NAME /git/index.php;
@@ -150,7 +167,7 @@ server {
     # ВАЖНО: этот location идёт ПЕРВЫМ, иначе manifest.json перехватится
     # правилом для `.json` ниже. Security-заголовки продублированы: add_header
     # не наследуется из server{}, если в location объявлен собственный add_header.
-    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika|code-editor|oge15-gen|oge15-ref)\.js|assets/styles\.css|manifest\.json|version\.json|sw\.js)$ {
+    location ~ ^/(js/(tracking-client|progress-client|progress-sync|progress|metrika|actions|checklist|code-editor|oge15-gen|oge15-ref)\.js|assets/styles\.css|manifest\.json|version\.json|sw\.js)$ {
         add_header Cache-Control "no-cache, must-revalidate" always;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
@@ -182,9 +199,11 @@ server {
         add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
     }
 
-    # Скачиваемые архивы — длительный кэш (имена версионированы по заданию).
+    # Скачиваемые архивы. Имя архива не версионировано, поэтому immutable
+    # на 30 дней оставлял бы у пользователей старую перепаковку. Ссылки
+    # содержат ?v=..., а HTTP-кэш — короткий.
     location ~* \.zip$ {
-        add_header Cache-Control "public, max-age=2592000, immutable" always;
+        add_header Cache-Control "public, max-age=86400" always;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;

@@ -71,9 +71,17 @@ function New-DeployMarker {
 # ─── 1. Load .env ───
 $envFile = Join-Path $PSScriptRoot '.env'
 if (Test-Path $envFile) {
-  Get-Content $envFile | ForEach-Object {
-    if ($_ -match '^\s*([^#=]+?)\s*=\s*(.+?)\s*$') {
-      [Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+  # Читаем явно как UTF-8: Get-Content в PowerShell 5.1 использует ANSI и
+  # портит кириллицу/значения с не-ASCII.
+  foreach ($line in [System.IO.File]::ReadAllLines($envFile, [System.Text.Encoding]::UTF8)) {
+    if ($line -match '^\s*([^#=]+?)\s*=\s*(.*?)\s*$') {
+      $key = $matches[1]
+      $val = $matches[2]
+      if ($val.Length -ge 2 -and
+          (($val[0] -eq '"' -and $val[-1] -eq '"') -or ($val[0] -eq "'" -and $val[-1] -eq "'"))) {
+        $val = $val.Substring(1, $val.Length - 2)
+      }
+      [Environment]::SetEnvironmentVariable($key, $val)
     }
   }
 }
@@ -112,7 +120,7 @@ if ($identityFile -and (Test-Path $identityFile)) {
 
 # ─── 1.5. Rollback (optional) ───
 if ($Rollback) {
-  if ($Release -and $Release -notmatch '^[A-Za-z0-9._-]+$') {
+  if ($Release -and ($Release -notmatch '^[A-Za-z0-9._-]+$' -or $Release -match '(^|/)\.\.(/|$)')) {
     Write-Host "ERROR: invalid -Release name" -ForegroundColor Red
     exit 1
   }
@@ -190,6 +198,8 @@ $excludeArgs = @(
   '--exclude=ARCHITECTURE.md',
   '--exclude=refactoring.md',
   '--exclude=analysis-*.md',
+  '--exclude=HANDOFF.md',
+  '--exclude=*.md',
   '--exclude=README.md',
   '--exclude=./p',
   '--exclude=tools',
@@ -228,9 +238,15 @@ find "$NEW" -type f -exec chmod 644 {} +
 touch "$NEW"
 test -s "$NEW/oge.html"
 test -s "$NEW/sw.js"
+test -s "$NEW/404.html"
+test -s "$NEW/offline.html"
+test -s "$NEW/manifest.json"
+test -s "$NEW/run_python.php"
 test -s "$NEW/version.json"
 test -s "$NEW/js/progress.js"
 test -s "$NEW/js/oge15-ref.js"
+test -s "$NEW/files/oge15/tasks.json"
+test ! -e "$NEW/HANDOFF.md"
 ls "$NEW/files/"*.zip >/dev/null 2>&1
 if [ ! -L "$ROOT" ]; then
   INITIAL="$RELEASES/initial-$$"
@@ -335,30 +351,38 @@ if ($DryRun) {
   # CSP с хешами inline-скриптов и стилей: политика считается по тем же файлам,
   # что уехали в релиз. Политика длиннее лимита nginx на параметр (4 КБ),
   # поэтому генератор отдаёт блок из set $cspN и склейки в $csp.
-  # Если сгенерировать не удалось — уходит конфиг как есть (в нём запасной
-  # вариант с 'unsafe-inline').
-  $nginxUpload = $nginxLocal
+  # Если сгенерировать не удалось — НЕ отправляем запасной конфиг с
+  # 'unsafe-inline': лучше оставить прежнюю строгую политику.
   $cspBlock = ''
   try {
     $cspBlock = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') '--nginx' 2>$null | Out-String).TrimEnd()
   } catch { $cspBlock = '' }
-  if ($cspBlock -and $cspBlock -match 'set \$csp "' -and $cspBlock -match 'sha256-') {
-    $cfg = Get-Content $nginxLocal -Raw
-    $nl = if ($cfg -match "`r`n") { "`r`n" } else { "`n" }
-    $patched = [regex]::Replace($cfg, '(?ms)^([ \t]*)# >>> csp.*?^[ \t]*# <<< csp', {
-      param($m)
-      $indent = $m.Groups[1].Value
-      $indent + '# >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)' + $nl +
-        ($cspBlock -replace "`r?`n", $nl) + $nl +
-        $indent + '# <<< csp'
-    })
-    if ($patched -ne $cfg) {
-      $nginxUpload = Join-Path $env:TEMP ("nginx-$nginxSite")
-      [System.IO.File]::WriteAllText($nginxUpload, $patched, (New-Object System.Text.UTF8Encoding $false))
-      $hashCount = ([regex]::Matches($cspBlock, "sha256-")).Count
-      Write-Host "  CSP: хешей (скрипты + стили) $hashCount, блоков: $(([regex]::Matches($cspBlock, '(?m)^\s*set \$csp\d+ "')).Count)" -ForegroundColor Gray
-    }
+  if (-not $cspBlock -or $cspBlock -notmatch 'set \$csp "' -or $cspBlock -notmatch 'sha256-') {
+    Write-Host "ERROR: не удалось сгенерировать CSP с хешами (node tools/csp-policy.mjs --nginx)." -ForegroundColor Red
+    Write-Host "       Nginx-конфиг не обновлён, чтобы не уехать с 'unsafe-inline'." -ForegroundColor Red
+    exit 1
   }
+  if ($cspBlock -match "script-src[^;]*'unsafe-inline'|style-src[^;]*'unsafe-inline'") {
+    Write-Host "ERROR: сгенерированная CSP содержит 'unsafe-inline'." -ForegroundColor Red
+    exit 1
+  }
+  $cfg = [System.IO.File]::ReadAllText($nginxLocal, [System.Text.Encoding]::UTF8)
+  $nl = if ($cfg -match "`r`n") { "`r`n" } else { "`n" }
+  $patched = [regex]::Replace($cfg, '(?ms)^([ \t]*)# >>> csp.*?^[ \t]*# <<< csp', {
+    param($m)
+    $indent = $m.Groups[1].Value
+    $indent + '# >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)' + $nl +
+      ($cspBlock -replace "`r?`n", $nl) + $nl +
+      $indent + '# <<< csp'
+  })
+  if ($patched -eq $cfg) {
+    Write-Host "ERROR: в nginx-конфиге не найдены маркеры '# >>> csp' / '# <<< csp'." -ForegroundColor Red
+    exit 1
+  }
+  $nginxUpload = Join-Path $env:TEMP ("nginx-$nginxSite")
+  [System.IO.File]::WriteAllText($nginxUpload, $patched, (New-Object System.Text.UTF8Encoding $false))
+  $hashCount = ([regex]::Matches($cspBlock, "sha256-")).Count
+  Write-Host "  CSP: хешей (скрипты + стили) $hashCount, блоков: $(([regex]::Matches($cspBlock, '(?m)^\s*set \$csp\d+ "')).Count)" -ForegroundColor Gray
   $scpCmd = "scp $scpPortArg $identityArg `"$nginxUpload`" ${remote}:/tmp/nginx-$nginxSite"
   $sshNginxCmd = "ssh $sshPortArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
   cmd /c $scpCmd

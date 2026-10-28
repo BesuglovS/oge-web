@@ -27,7 +27,7 @@ jobs:
       - name: CSS audit
         run: node tools/check-css.mjs
 
-      - name: Data checks (tasks 1-10, 12, 15, 16)
+      - name: Data checks (tasks 1-16, including 13.1/13.2/14)
         run: node tools/check-data.mjs
 
       - name: Theory code examples
@@ -64,7 +64,7 @@ jobs:
           pkill -f 'chrome_crashpad' 2>/dev/null || true
           exit $status
 
-      # Визуальная регрессия: вычисленные стили всех 35 страниц на двух ширинах
+      # Визуальная регрессия: вычисленные стили всех 38 страниц на двух ширинах
       # (desktop 1280, mobile 390) сравниваются с эталоном tools/visual-baseline.json.gz.
       # Метрики шрифта не сравниваются, поэтому эталон, снятый на Windows, сходится
       # с Linux-рендерингом; намеренные правки CSS — node tools/check-visual.mjs --update.

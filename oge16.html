@@ -1463,6 +1463,7 @@
       var task = null;
       var isRunning = false;
       var runTaskId = null;
+      var savedTasks = {};
 
       function genTask() {
         if (isRunning) return;
@@ -1739,15 +1740,9 @@
         runBtn.innerHTML = '<span class="spinner"></span> Выполнение...';
         os.className = "output-section show loading";
         os.innerHTML =
-          '<div class="output-title">⏳ Запуск тестов (0/' + task.tests.length + ')...</div><div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div><div class="output-content">Запускаем вашу программу на ' + task.tests.length + ' тестах...</div>';
+          '<div class="output-title">⏳ Проверяем программу на ' + task.tests.length + ' тестах...</div><div class="output-content">Выполняем все тесты одним запуском — это может занять несколько секунд.</div>';
 
         var tests = task.tests;
-        var progressBar = document.getElementById("progressBar");
-        if (progressBar) progressBar.style.width = "100%";
-        var loadingContent = document.querySelector(".output-section.loading .output-content");
-        if (loadingContent) {
-          loadingContent.textContent = "Выполняем все тесты одним запуском…";
-        }
 
         function finish() {
           isRunning = false;
@@ -1896,7 +1891,8 @@
             "Обратите внимание на тесты, которые не прошли.</div>";
         }
 
-        if (allPassed && task && task.id === runTaskId) {
+        if (allPassed && task && task.id === runTaskId && !savedTasks[task.id]) {
+          savedTasks[task.id] = true;
           if (typeof OGEProgress !== 'undefined') { OGEProgress.save('oge16', 1, 1); }
           if (typeof trackTaskComplete === 'function') { trackTaskComplete('oge16', 1); }
         }

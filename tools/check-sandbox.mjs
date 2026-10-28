@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Интеграционный smoke-тест run_python.php: поднимает `php -S` и проверяет
 // реальные POST-запросы (успех, числовой допуск, строки/комментарии,
-// запрещённый импорт, timeout, GET 405).
+// запрещённый импорт, обходы песочницы, timeout, GET 405).
 // Запуск: node tools/check-sandbox.mjs   (нужен php и python 3)
 import { spawn, spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -86,6 +86,49 @@ try {
 
   const forbidden = await post('import os', '', 'x');
   expect('import os заблокирован', forbidden.data && /запрещ/.test(forbidden.data.error || ''), JSON.stringify(forbidden.data));
+
+  /* ── Обходы wrapper'а: все должны быть отклонены ── */
+  const selfBypass = await post("f = print.__self__.open\nprint('x')", '', 'x');
+  expect(
+    'print.__self__ заблокирован',
+    selfBypass.data && /запрещ|SyntaxError/.test(selfBypass.data.error || ''),
+    JSON.stringify(selfBypass.data),
+  );
+
+  const attrgetter = await post("from operator import attrgetter\nprint(attrgetter('__class__')(()))", '', 'x');
+  expect(
+    'operator.attrgetter заблокирован',
+    attrgetter.data && /запрещ|недоступ/.test(attrgetter.data.error || ''),
+    JSON.stringify(attrgetter.data),
+  );
+
+  const commentBypass = await post("x = '#'; y = ().__class__.__bases__[0].__subclasses__(); print(len(y))", '', 'x');
+  expect(
+    'обход через # внутри строки заблокирован',
+    commentBypass.data && /запрещ/.test(commentBypass.data.error || ''),
+    JSON.stringify(commentBypass.data),
+  );
+
+  const randomOs = await post('import random\nprint(random._os)', '', 'x');
+  expect(
+    'random не отдаёт _os',
+    randomOs.data && /AttributeError/.test(randomOs.data.error || ''),
+    JSON.stringify(randomOs.data),
+  );
+
+  const allowedMath = await post('import math\nprint(math.sqrt(16))', '', '4.0');
+  expect('math разрешён', allowedMath.data && allowedMath.data.matched === true, JSON.stringify(allowedMath.data));
+
+  const invalidUtf8 = await post("print('\\udcff')", '', '');
+  expect('некорректный UTF-8 не ломает JSON', invalidUtf8.data !== null, invalidUtf8.text || '');
+
+  const arrayPost = await fetch(base + '/run_python.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'code[]=print(1)',
+    signal: AbortSignal.timeout(5000),
+  });
+  expect('code[] → 400, а не fatal error', arrayPost.status === 400, 'status ' + arrayPost.status);
 
   const timeout = await post('while True:\n    pass', '', '1');
   expect('timeout 5 с', timeout.data && timeout.data.timeout === true, JSON.stringify(timeout.data));

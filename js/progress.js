@@ -11,7 +11,8 @@ var OGEProgress = (function() {
 
   function getAll() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      var data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {};
     } catch(e) {
       return {};
     }
@@ -37,6 +38,9 @@ var OGEProgress = (function() {
         document.dispatchEvent(new CustomEvent('oge-progress-saved', { detail: { taskId: taskId } }));
       }
     } catch(e) { /* старые окружения */ }
+    // Обновляем полосу прогресса сразу на текущей странице, не дожидаясь
+    // перезагрузки. Раньше это делали только 11/12 и чек-листы.
+    if (typeof document !== 'undefined') renderProgressBar('progressContainer');
     return data[taskId];
   }
 
@@ -103,13 +107,16 @@ var OGEProgress = (function() {
     if (!el) return;
     var pct = getProgressPercent();
     var level = getLevel();
-    var total = getTotalScore();
+    // Именно количество пройденных заданий, а не сумма баллов: чек-листы
+    // 13.1/13.2 сохраняют score = число шагов (11/12), и сумма баллов
+    // давала бы «11 заданий пройдено» после одного задания.
+    var done = getCompletedCount();
     el.innerHTML =
       '<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Пройдено заданий: ' + pct + '%">' +
       '</div>' +
       '<div class="progress-score">' +
-        level.emoji + ' ' + level.name + ' — ' + total + ' ' +
-        plural(total, 'задание', 'задания', 'заданий') + ' пройдено (' + pct + '%)' +
+        level.emoji + ' ' + level.name + ' — ' + done + ' ' +
+        plural(done, 'задание', 'задания', 'заданий') + ' пройдено (' + pct + '%)' +
       '</div>';
     // Заливка — через CSSOM: инлайновый style-атрибут запрещён CSP (нет 'unsafe-inline').
     var bar = el.querySelector('.progress-bar');

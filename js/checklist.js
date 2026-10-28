@@ -104,6 +104,27 @@
         : '';
     }
     byId('clBody').innerHTML = state.finished ? finalHtml() : stepHtml(steps[state.index]);
+    if (!state.finished && state.solved) applySolvedState();
+  }
+
+  // Восстановленное состояние: шаг уже решён до перезагрузки. Показываем
+  // выбранный ответ и сразу разблокируем «Следующий шаг».
+  function applySolvedState() {
+    var step = state.steps[state.index];
+    var options = document.querySelectorAll('.cl-option');
+    Array.prototype.forEach.call(options, function (btn, i) {
+      btn.disabled = true;
+      if (i === step.correct) btn.classList.add('chosen');
+    });
+    var feedback = byId('clFeedback');
+    if (feedback) {
+      feedback.className = 'cl-feedback ok';
+      feedback.innerHTML = '✅ Верно! ' + (step.why || '');
+    }
+    var next = document.querySelector('.cl-next');
+    if (next) next.disabled = false;
+    var doneNum = byId('clDoneNum');
+    if (doneNum) doneNum.textContent = 'выполнено ' + state.done.length;
   }
 
   function pick(i) {
@@ -213,6 +234,9 @@
         state.index = idx;
         state.done = done;
         state.resumed = true;
+        // Если шаг уже был решён до перезагрузки, не заставляем отвечать
+        // на него заново: чип ✓ уже стоит, «Следующий шаг» должен работать.
+        state.solved = done.indexOf(idx) >= 0;
       }
     }
     var card = byId('taskCard');

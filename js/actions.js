@@ -62,6 +62,13 @@
       window.location.href = nav;
       return;
     }
+    // Клик по input/textarea/select не должен запускать data-act: иначе,
+    // например, клик по полю «Выбрать задание №» в задании 16 перерисовывает
+    // карточку и поле теряет фокус. Для клавиатуры остаётся data-act-key.
+    var tag = (el.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+      return;
+    }
     run(el, e);
   });
 

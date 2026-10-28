@@ -367,6 +367,22 @@ for (const page of pages) {
       if (typeof field !== 'undefined' && field.targetPainted && field.targetPainted.size > 0) break;
     }
     if (typeof field === 'undefined' || !field.targetPainted || field.targetPainted.size === 0) return 'fail: эталон не загрузился';
+    // Пошаговый режим должен стартовать без ReferenceError (parser в try).
+    try {
+      document.getElementById('codeEditor').value = 'использовать Робот\\nалг\\nнач\\nзакрасить\\nкон';
+      stepProgram();
+      if (!interpreter || !interpreter.paused) return 'fail: пошаговый режим не запустился';
+      stopProgram(true);
+    } catch (e) {
+      return 'fail: пошаговый режим — ' + e.message;
+    }
+    // Опечатка в команде должна быть видна в журнале, а не стираться clearLog().
+    document.getElementById('codeEditor').value = 'использовать Робот\\nалг\\nнач\\nвверхх\\nкон';
+    runProgram();
+    stopAutoRun();
+    const typoLog = (document.getElementById('logArea') || {}).textContent || '';
+    stopProgram(true);
+    if (!/Пропущены неизвестные слова/.test(typoLog)) return 'fail: предупреждение об опечатке потерялось';
     const id = String(currentTaskId).padStart(2, '0');
     const kum = await fetch('files/oge15/oge-15-2026-' + id + '.kum').then((r) => (r.ok ? r.text() : Promise.reject(r.status)));
     document.getElementById('codeEditor').value = kum;
@@ -520,6 +536,9 @@ for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132
       'if (!body || !/Чек-лист пройден/.test(body.textContent)) return "fail: нет финального экрана";' +
       'const progress = typeof OGEProgress !== "undefined" ? OGEProgress.get("' + taskId + '") : null;' +
       'if (!progress || progress.score !== steps.length) return "fail: прогресс не сохранён (" + JSON.stringify(progress) + ")";' +
+      'const ptext = (document.getElementById("progressContainer") || {}).textContent || "";' +
+      'const done = OGEProgress.getCompletedCount();' +
+      'if (!new RegExp("(^|\\\\D)" + done + " (задание|задания|заданий)(\\\\D|$)").test(ptext)) return "fail: прогресс-бар показывает не число заданий — " + ptext;' +
       'const leftover = localStorage.getItem("oge-checklist:' + taskId + '");' +
       'if (leftover) return "fail: после финиша остался черновик чек-листа";' +
       'return "ok: " + steps.length + " шагов, восстановление и прогресс " + progress.score + "/" + progress.total;' +
@@ -542,7 +561,7 @@ for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132
   try {
     await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: dlDir, eventsEnabled: true });
     const href = await cdp.evalJs(`(() => {
-      const a = document.querySelector('a.download-link[href$=".zip"]') || document.querySelector('a[href$=".zip"][download]');
+      const a = document.querySelector('a.download-link[download]') || document.querySelector('a[href*=".zip"][download]') || document.querySelector('a[href$=".zip"]');
       if (!a) return 'no-link';
       a.click();
       return decodeURIComponent(new URL(a.href).pathname.split('/').pop());
@@ -616,6 +635,13 @@ for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132
   const { cdp, targetId } = await openPage('oge16.html');
   const res = await cdp.evalJs(`(async () => {
     if (typeof task === 'undefined' || !task) return 'no-tasks';
+    // Клик по полю номера задания не должен перерисовывать карточку.
+    const numBefore = document.getElementById('taskNumInput');
+    if (numBefore) {
+      numBefore.click();
+      await new Promise((r) => setTimeout(r, 80));
+      if (document.getElementById('taskNumInput') !== numBefore) return 'fail: клик по номеру перерисовал карточку';
+    }
     const t = task;
     const ed = document.getElementById('codeEditor');
     if (!ed) return 'no-editor';

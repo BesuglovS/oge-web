@@ -11,16 +11,18 @@
 ```
 oge-web/
 ├── oge.html                   # Главная (выбор заданий + сводка прогресса)
-├── oge{N}.html                # Интерактивные задания (1–12, 15, 16)
+├── oge{N}.html                # Интерактивные задания (1–12, 13.1, 13.2, 14–16)
 ├── oge{N}-t.html              # Теория к каждому заданию
-├── oge131-t.html, oge132-t.html, oge14-t.html  # Задания 13.1/13.2/14 — только теория
+├── oge131.html, oge132.html   # Тренажёры-чек-листы 13.1/13.2
+├── oge14.html                 # Тренажёр электронных таблиц
+├── oge131-t.html, oge132-t.html, oge14-t.html  # Теория 13.1/13.2/14
 ├── oge4-path.html             # Альтернативный тренажёр задания 4
 ├── run_python.php             # Серверная песочница (Python, задание 16)
 ├── assets/                    # styles.css, favicon.svg, иконки
 ├── data/oge7.json             # Данные задания 7 (JSON)
 ├── files/                     # Задание11-12.zip, files/oge15/ (данные задания 15)
-├── js/                        # metrika.js, progress.js, progress-client.js,
-│                              # progress-sync.js, tracking-client.js
+├── js/                        # metrika.js, actions.js, checklist.js, progress.js,
+│                              # progress-client.js, progress-sync.js, tracking-client.js
 ├── git/index.php              # Web-UI self-hosted git-репозиториев
 ├── manifest.json, sw.js       # PWA (манифест + service worker)
 ├── offline.html, 404.html     # Офлайн-страница и страница 404
@@ -38,7 +40,8 @@ oge-web/
 ```
 oge.html (навигация + прогресс)
 ├── oge1.html … oge12.html      (интерактив)
-├── oge131-t / oge132-t / oge14-t (только теория)
+├── oge131.html / oge132.html   (чек-листы 13.1/13.2)
+├── oge14.html                  (тренажёр таблиц)
 ├── oge15.html                  (интерпретатор КуМир, задание 15)
 └── oge16.html                  (Python-песочница, задание 16)
 ```
@@ -51,6 +54,8 @@ oge.html (навигация + прогресс)
 | Drag-and-drop | oge7 |
 | Интерактивная модель | oge4, oge4-path |
 | Выбор ответа | oge5 |
+| Чек-лист | oge131, oge132 |
+| Табличный тренажёр | oge14 |
 | Интерпретатор (КуМир) | oge15 |
 | Серверный запуск Python | oge16 |
 
@@ -65,18 +70,19 @@ oge.html (навигация + прогресс)
 | `nayanova-progress` | Зеркало прогресса для портала | `js/progress-client.js` |
 | `nayanova-progress:outbox` | Очередь неотправленных записей | `js/progress-client.js` |
 
-`TASKS` в `js/progress.js` и `js/progress-sync.js` содержит 14 интерактивных
-заданий (13.1/13.2/14 исключены — у них нет интерактивных страниц). Скрипты
-`progress-client.js`/`progress-sync.js` подключены на всех интерактивных
-страницах, `tracking-client.js` — на всех страницах (включая теорию, чтобы
-портал видел активность). `OGEProgress.save()` диспатчит событие
+`TASKS` в `js/progress.js` содержит 17 интерактивных модулей
+(`oge1`…`oge12`, `oge131`, `oge132`, `oge14`, `oge15`, `oge16`);
+`progress-sync.js` берёт список оттуда, а `FALLBACK_TASKS` — только аварийная
+копия. Скрипты `progress-client.js`/`progress-sync.js` подключены на всех
+интерактивных страницах, `tracking-client.js` — на всех страницах (включая
+теорию, чтобы портал видел активность). `OGEProgress.save()` диспатчит событие
 `oge-progress-saved`, и `progress-sync.js` сразу отправляет прогресс на портал,
 не дожидаясь возврата на лендинг.
 
 ## PWA
 
 - `manifest.json` подключается на всех страницах (`<link rel="manifest">`).
-- `sw.js` (`CACHE_NAME='oge-web-v29'`) кэширует статику и данные задания 15;
+- `sw.js` (`CACHE_NAME='oge-web-v35'`) кэширует статику и данные задания 15;
   HTML — network-first с фолбэком на кэш и `offline.html`; остальные ассеты —
   cache-first. Большие архивы (`files/*.zip`) не кэшируются.
 - При изменении списка ассетов поднять `CACHE_NAME`.

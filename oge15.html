@@ -203,6 +203,7 @@ let tasks = [];
 })();
 
 let currentTaskId = 1;
+let loadRequestId = 0;
 
 function onTaskSelect() {
   const select = document.getElementById('taskSelect');
@@ -235,6 +236,7 @@ function onTaskSelect() {
 }
 
 function loadCustomTask() {
+  loadRequestId++;
   document.getElementById('customTaskInput').click();
 }
 
@@ -260,6 +262,7 @@ function loadCurrentTask() {
   log('📂 Загружаю обстановку ' + (task ? task.title : taskId) + '...', 'info');
 
   const eUrl = `files/oge15/oge-15-2026-e-${taskId}.json`;
+  const requestId = ++loadRequestId;
 
   fetch(url)
     .then(res => {
@@ -267,6 +270,8 @@ function loadCurrentTask() {
       return res.json();
     })
     .then(data => {
+      // Пока грузились данные, пользователь мог выбрать другую задачу.
+      if (requestId !== loadRequestId) return;
       // Stop any running program
       if (typeof stopProgram === 'function') stopProgram();
       lastRun = null;
@@ -283,6 +288,7 @@ function loadCurrentTask() {
           return eRes.json();
         })
         .then(eData => {
+          if (requestId !== loadRequestId) return;
           field.targetPainted.clear();
           if (eData.painted) {
             for (const key of eData.painted) {
@@ -293,21 +299,24 @@ function loadCurrentTask() {
         })
         .catch(eErr => {
           // If e-file doesn't exist, targetPainted stays empty
+          if (requestId !== loadRequestId) return;
           console.warn('Эталон не загружен:', eErr.message);
           log('⚠ Эталонная обстановка не найдена — проверка недоступна', 'info');
         })
         .then(() => {
+          if (requestId !== loadRequestId) return;
           drawField();
           updateRobotInputs();
           document.getElementById('fieldRows').value = field.rows;
           document.getElementById('fieldCols').value = field.cols;
-          log('✓ Обстановка загружена: ' + data.rows + '×' + data.cols + ', робот в (' + (data.robot.row) + ', ' + (data.robot.col) + ')', 'ok');
+          log('✓ Обстановка загружена: ' + data.rows + '×' + data.cols + ', робот в (' + (field.robot.row + 1) + ', ' + (field.robot.col + 1) + ')', 'ok');
           if (field.targetPainted.size > 0) {
             log('🎯 Эталонные клетки для проверки: ' + field.targetPainted.size + ' шт.', 'info');
           }
         });
     })
     .catch(err => {
+      if (requestId !== loadRequestId) return;
       log('❌ Ошибка загрузки: ' + err.message, 'err');
     });
 }
@@ -328,6 +337,7 @@ function getGenerator() {
 function loadRandomTask() {
   const gen = getGenerator();
   if (!gen) { log('❌ Генератор недоступен', 'err'); return; }
+  loadRequestId++;
 
   if (typeof clearLog === 'function') clearLog();
   log('🎲 Генерирую случайную обстановку...', 'info');
@@ -392,6 +402,7 @@ document.getElementById('customTaskInput').addEventListener('change', (e) => {
   reader.onload = (ev) => {
     try {
       const data = JSON.parse(ev.target.result);
+      loadRequestId++;
       if (typeof stopProgram === 'function') stopProgram();
       lastRun = null;
       field.rewarded = false;
@@ -2546,14 +2557,14 @@ function runProgram() {
   field.painted = new Set(field.defaultPainted);
   field.paintedByProgram = false;
   drawField();
+  clearLog();
+  log('Запуск программы...', 'info');
   if (parser.unknown && parser.unknown.length) {
-    log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'info');
+    log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'err');
   }
 
     interpreter = new Interpreter(ast, field);
     interpreter.start();
-    clearLog();
-    log('Запуск программы...', 'info');
     // Highlight the first line to be executed
     if (interpreter.nextLine) {
       setCurrentLine(interpreter.nextLine);
@@ -2650,10 +2661,10 @@ function stepProgram() {
   if (!interpreter || interpreter.finished) {
     // Start new execution
     const code = textarea.value;
-    let tokens, ast;
+    let tokens, ast, parser;
     try {
       tokens = lex(code);
-      const parser = new Parser(tokens);
+      parser = new Parser(tokens);
       ast = parser.parseProgram();
     } catch (err) {
       log('Ошибка синтаксиса: ' + err.message, 'err');
@@ -2663,16 +2674,16 @@ function stepProgram() {
     field.robot = { ...field.defaultRobot };
     field.painted = new Set(field.defaultPainted);
     field.paintedByProgram = false;
-    if (parser.unknown && parser.unknown.length) {
-      log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'info');
-    }
     drawField();
+    clearLog();
+    log('Пошаговое выполнение...', 'info');
+    if (parser.unknown && parser.unknown.length) {
+      log('⚠ Пропущены неизвестные слова: ' + [...new Set(parser.unknown)].join(', '), 'err');
+    }
     interpreter = new Interpreter(ast, field);
     interpreter.start();
     // In step mode, pause immediately so isRunning() returns false
     interpreter.paused = true;
-    clearLog();
-    log('Пошаговое выполнение...', 'info');
     // Highlight the first line to be executed
     if (interpreter.nextLine) {
       setCurrentLine(interpreter.nextLine);
@@ -2813,7 +2824,7 @@ function checkProgram() {
     if (!field.paintedByProgram) {
       log('ℹ️ Клетки совпали с эталоном, но выставлены вручную (кликами), а не программой. Напишите и запустите программу — только тогда решение засчитывается.', 'info');
     } else if (hadError) {
-      log('❌ Программа завершилась с ошибкой: ' + prev.error + '. Решение не засчитывается.', 'err');
+      log('❌ Программа завершилась с ошибкой: ' + (snapshot.error || 'неизвестная ошибка') + '. Решение не засчитывается.', 'err');
     } else if (wasUnfinished) {
       log('⚠ Программа ещё не завершена (остановлена или приостановлена). Дайте ей завершиться и проверьте снова.', 'err');
     } else {
