@@ -223,7 +223,9 @@ Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `
 - `run_python.php` — 4-слойная защита (модель python-web): rate-limit (nginx `20r/s` + файловый
   600/мин по IP в /tmp с периодической чисткой), pre-фильтры (regex + белый список импортов),
   wrapper с усечёнными builtins (sentinel-канал вывода, stdin через pipe/файл), изоляция процесса
-  через root-хелпер `/usr/local/sbin/sandbox-python.run` (net/pid namespace, пользователь sandbox, RLIMIT).
+  через root-хелпер `/usr/local/sbin/sandbox-python.run` (bwrap: mount/pid/net/ipc/uts namespace,
+  read-only `/usr`, скрытые `/var/www` и `/etc`, приватный `/tmp`; setpriv → пользователь
+  sandbox; prlimit; fallback без bwrap — слабее, только unshare net/pid).
   **Fail-closed:** без хелпера на Linux — 503, а не запуск без изоляции. Не ослаблять ни один слой.
 - Каталог `p/` удалён (бывший `overpass-proxy.php` с `verify_peer=false` больше не существует).
 - **CSP** (nginx, HTML): `default-src 'self'`, скрипты — свои и `mc.yandex.ru`/`mc.yandex.com`,
