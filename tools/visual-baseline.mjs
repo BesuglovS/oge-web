@@ -59,6 +59,20 @@ process.on('exit', cleanup);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Без этого при забытом локальном сервере Chrome снимает свою error-page,
+// и пользователь получает тысячи бессмысленных DOM-diff вместо одной ошибки.
+try {
+  const probe = await fetch(base + '/oge.html', { signal: AbortSignal.timeout(3000) });
+  const type = probe.headers.get('content-type') || '';
+  if (!probe.ok || !type.includes('text/html')) {
+    throw new Error('HTTP ' + probe.status + ', Content-Type ' + type);
+  }
+} catch (e) {
+  console.error(`Сервер ${base} недоступен или отдаёт не oge.html: ${e.message}`);
+  console.error('Запустите: php -S 127.0.0.1:8080 -t .');
+  process.exit(1);
+}
+
 async function waitChrome() {
   for (let i = 0; i < 120; i++) {
     try {

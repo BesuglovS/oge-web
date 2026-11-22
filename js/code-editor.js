@@ -557,7 +557,15 @@
 
       // Escape — выйти из редактора (Tab перехвачен, иначе не выбраться)
       if (e.key === 'Escape') {
-        textarea.blur();
+        e.preventDefault();
+        var next = document.getElementById('runBtn');
+        if (!next) {
+          var all = document.querySelectorAll('button:not([disabled])');
+          for (var i = 0; i < all.length; i++) {
+            if (all[i] !== textarea && all[i].offsetParent !== null) { next = all[i]; break; }
+          }
+        }
+        if (next) next.focus(); else textarea.blur();
         return;
       }
 

@@ -14,8 +14,9 @@
  *   4. Реальная изоляция процесса: sudo-хелпер /usr/local/sbin/sandbox-python.run
  *      (unshare net+pid, setpriv -> пользователь sandbox, prlimit RLIMIT_AS/CPU).
  *      Если хелпер недоступен — прямой запуск с RLIMIT в пре-коде (dev-fallback).
+ *   5. Глобальный semaphore на flock: не больше 8 процессов, очередь до 2 сек.
  *
- * Лимиты: POST-only, 20 КБ кода, timeout 5 сек.
+ * Лимиты: POST-only, 20 КБ кода, timeout 5 сек, stdout/stderr до 1 МиБ каждый.
  */
 
 // Ошибки PHP не должны попадать в ответ: клиент всегда ждёт JSON.
@@ -286,16 +287,66 @@ function oge_build_wrapper(string $encoded, string $sentinel, array $allowedModu
 
     $template = <<<'PYTHON'
 import sys as _oge_sys
-import io as _oge_io
 import builtins as _oge_builtins
 import base64 as _oge_base64
 import ast as _oge_ast
 import types as _oge_types
 
+# StringIO позволял программе исчерпать память одним бесконечным print.
+# Writer хранит не больше фиксированного числа UTF-8 БАЙТ на каждый канал;
+# после переполнения любой следующий непустой write снова завершается ошибкой.
+class _OgeOutputLimit(BaseException):
+    pass
+
+class _OgeLimitedWriter:
+    encoding = 'utf-8'
+    errors = 'surrogateescape'
+
+    def __init__(self, limit, channel):
+        self._limit = limit
+        self._channel = channel
+        self._data = bytearray()
+        self._overflow = False
+
+    def write(self, text):
+        if not isinstance(text, str):
+            text = str(text)
+        if not text:
+            return 0
+        if self._overflow:
+            raise _OgeOutputLimit(self._channel)
+        data = text.encode('utf-8', 'surrogateescape')
+        room = self._limit - len(self._data)
+        if len(data) > room:
+            if room > 0:
+                self._data.extend(data[:room])
+            self._overflow = True
+            raise _OgeOutputLimit(self._channel)
+        self._data.extend(data)
+        return len(text)
+
+    def writelines(self, lines):
+        for line in lines:
+            self.write(line)
+
+    def getvalue(self):
+        return self._data.decode('utf-8', 'surrogateescape')
+
+    def flush(self):
+        pass
+
+    def writable(self):
+        return True
+
+    def isatty(self):
+        return False
+
 _oge_original_stdout = _oge_sys.stdout
-_oge_sys.stdout = _oge_io.StringIO()
+_oge_stdout_writer = _OgeLimitedWriter(%OUTPUT_LIMIT%, 'stdout')
+_oge_sys.stdout = _oge_stdout_writer
 _oge_original_stderr = _oge_sys.stderr
-_oge_sys.stderr = _oge_io.StringIO()
+_oge_stderr_writer = _OgeLimitedWriter(%OUTPUT_LIMIT%, 'stderr')
+_oge_sys.stderr = _oge_stderr_writer
 
 _oge_blocked = frozenset({
     'open', 'exec', 'eval', 'compile', 'breakpoint',
@@ -414,6 +465,7 @@ def _oge_audit(_event, _args):
         if _root not in _oge_allowed:
             raise ImportError('Модуль "%s" недоступен' % _root)
 
+_oge_output_error = None
 try:
     _oge_text = _oge_base64.b64decode('%CODE%').decode('utf-8')
     _oge_tree = _oge_ast.parse(_oge_text, '<task>', 'exec')
@@ -423,11 +475,23 @@ try:
     exec(_oge_code, _oge_globals)
 except SystemExit:
     raise
+except _OgeOutputLimit as _oge_exc:
+    _oge_output_error = str(_oge_exc)
 except BaseException as _oge_exc:
-    _oge_sys.stderr.write(type(_oge_exc).__name__ + ': ' + str(_oge_exc) + '\n')
+    try:
+        _oge_stderr_writer.write(type(_oge_exc).__name__ + ': ' + str(_oge_exc) + '\n')
+    except _OgeOutputLimit as _oge_limit_exc:
+        _oge_output_error = str(_oge_limit_exc)
 finally:
-    _oge_out_stdout = _oge_sys.stdout.getvalue()
-    _oge_out_stderr = _oge_sys.stderr.getvalue()
+    # Берём сохранённые writer'ы, а не потенциально изменённый sys.stdout.
+    _oge_out_stdout = _oge_stdout_writer.getvalue()
+    _oge_out_stderr = _oge_stderr_writer.getvalue()
+    if _oge_output_error is not None:
+        # Не дописываем сверх лимита: контролируемая ошибка заменяет stderr.
+        _oge_out_stderr = (
+            'OutputLimitError: Слишком большой вывод (' + _oge_output_error
+            + ', максимум %OUTPUT_LIMIT% байт на канал).\n'
+        )
     _oge_sys.stdout = _oge_original_stdout
     _oge_sys.stderr = _oge_original_stderr
     import sys as _oge_sys2
@@ -436,7 +500,7 @@ finally:
 PYTHON;
 
     return str_replace(
-        ['%CODE%', '%STDOUT_BEGIN%', '%STDOUT_END%', '%STDERR_BEGIN%', '%STDERR_END%', '%ALLOWED_MODULES%'],
+        ['%CODE%', '%STDOUT_BEGIN%', '%STDOUT_END%', '%STDERR_BEGIN%', '%STDERR_END%', '%ALLOWED_MODULES%', '%OUTPUT_LIMIT%'],
         [
             $encoded,
             $stdoutBegin,
@@ -444,6 +508,7 @@ PYTHON;
             $stderrBegin,
             $stderrEnd,
             json_encode(array_values($allowedModules), JSON_UNESCAPED_UNICODE),
+            '1048576',
         ],
         $template
     );
@@ -515,13 +580,20 @@ if ($testsJson !== '') {
             ];
             continue;
         }
-        list($rawOut, $rawErr, $code, $timedOut) = oge_run($tmpFile, $case['input'], OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+        $run = oge_run($tmpFile, $case['input'], OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+        list($rawOut, $rawErr, $code, $timedOut) = $run;
+        $runFailure = $run[4] ?? null;
         if ($rawOut === false) {
             @unlink($tmpFile);
             http_response_code(503);
             header('Content-Type: application/json');
+            if ($runFailure === 'busy') {
+                header('Retry-After: 1');
+            }
             echo json_encode([
-                'error' => 'Песочница временно недоступна. Попробуйте позже.',
+                'error' => $runFailure === 'busy'
+                    ? 'Песочница перегружена. Повторите попытку через несколько секунд.'
+                    : 'Песочница временно недоступна. Попробуйте позже.',
                 'unavailable' => true,
             ], JSON_UNESCAPED_UNICODE);
             exit;
@@ -556,11 +628,11 @@ if ($testsJson !== '') {
             $stopped = true;
             continue;
         }
-        if ($code !== 0 && $out === '') {
+        if ($code !== 0) {
             $results[] = [
                 'input' => $case['input'],
                 'expected' => $case['expected'],
-                'output' => '',
+                'output' => $out,
                 'matched' => false,
                 'error' => "Ошибка выполнения (код: $code)",
             ];
@@ -592,16 +664,21 @@ if ($testsJson !== '') {
     exit;
 }
 
-list($rawStdout, $rawStderr, $exitCode, $timedOut) = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+$run = oge_run($tmpFile, $testInput, OGE_TIMEOUT_SEC, OGE_MEMORY_LIMIT_MB);
+list($rawStdout, $rawStderr, $exitCode, $timedOut) = $run;
+$runFailure = $run[4] ?? null;
 @unlink($tmpFile);
 
 // Песочница не смогла стартовать (нет root-хелпера / запрещён fallback):
 // это не ошибка ученика, а недоступность сервиса.
 if ($rawStdout === false) {
-    http_response_code(503);
+    http_response_code($runFailure === 'busy' ? 429 : 503);
     header('Content-Type: application/json');
+    if ($runFailure === 'busy') header('Retry-After: 1');
     echo json_encode([
-        'error' => 'Песочница временно недоступна. Попробуйте позже.',
+        'error' => $runFailure === 'busy'
+            ? 'Песочница перегружена. Повторите попытку через несколько секунд.'
+            : 'Песочница временно недоступна. Попробуйте позже.',
         'unavailable' => true
     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
@@ -637,9 +714,9 @@ if ($errorOutput !== '') {
     $result['output'] = $output;
     $result['expected'] = $expectedOutput;
     $result['matched'] = false;
-} elseif ($exitCode !== 0 && $output === '') {
+} elseif ($exitCode !== 0) {
     $result['error'] = "Ошибка выполнения (код: $exitCode)";
-    $result['output'] = '';
+    $result['output'] = $output;
     $result['expected'] = $expectedOutput;
     $result['matched'] = false;
 } else {
@@ -677,7 +754,37 @@ function oge_compare(string $output, string $expected): bool {
  * Запускает скрипт: через изолирующий sudo-хелпер (если установлен),
  * либо напрямую python3 -I -S с RLIMIT-префиксом в скрипте (dev-fallback).
  */
+function oge_acquire_sandbox_slot() {
+    $dir = sys_get_temp_dir();
+    // Слоты — отдельные flock-файлы: дескриптор живёт ровно столько, сколько
+    // выполняется процесс, и освобождается ядром даже при аварийном выходе PHP.
+    for ($attempt = 0; $attempt < 10; $attempt++) {
+        for ($i = 0; $i < 8; $i++) {
+            $handle = @fopen($dir . '/oge-python-slot-' . $i . '.lock', 'c');
+            if ($handle !== false && @flock($handle, LOCK_EX | LOCK_NB)) {
+                return $handle;
+            }
+            if ($handle !== false) fclose($handle);
+        }
+        if ($attempt < 9) usleep(200000); // общая очередь не дольше ~2 секунд
+    }
+    return false;
+}
+
 function oge_run(string $tmpFile, string $stdinData, int $timeout, int $memoryMb): array {
+    $slot = oge_acquire_sandbox_slot();
+    if ($slot === false) {
+        return [false, 'Sandbox busy', -1, false, 'busy'];
+    }
+    try {
+        return oge_run_unlocked($tmpFile, $stdinData, $timeout, $memoryMb);
+    } finally {
+        @flock($slot, LOCK_UN);
+        @fclose($slot);
+    }
+}
+
+function oge_run_unlocked(string $tmpFile, string $stdinData, int $timeout, int $memoryMb): array {
     $memBytes = $memoryMb * 1024 * 1024;
     $helper = getenv('SANDBOX_RUN_HELPER');
     if ($helper === false || $helper === '') {

@@ -59,13 +59,20 @@ var OGEProgress = (function() {
     return sum;
   }
 
+  function isCompleted(taskId) {
+    var t = get(taskId);
+    // Черновики чек-листов здесь намеренно не учитываются: «пройдено»
+    // означает только сохранённый результат самого задания.
+    return !!(t && (t.score > 0 || t.bestScore > 0));
+  }
+
   function getCompletedCount() {
     var data = getAll();
     var count = 0;
     for (var i = 0; i < TASKS.length; i++) {
       var t = data[TASKS[i]];
       // Критерий должен совпадать с js/progress-sync.js, иначе итог на
-      // лендинге и на портале разойдётся.
+      // лендинге и на портале разойдутся.
       if (t && (t.score > 0 || t.bestScore > 0)) count++;
     }
     return count;
@@ -132,6 +139,7 @@ var OGEProgress = (function() {
     save: save,
     get: get,
     getAll: getAll,
+    isCompleted: isCompleted,
     getTotalScore: getTotalScore,
     getCompletedCount: getCompletedCount,
     getProgressPercent: getProgressPercent,

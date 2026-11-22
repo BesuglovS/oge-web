@@ -38,6 +38,29 @@
 
       <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
 
+      <div id="continuePractice" class="continue-practice" hidden>
+        <a id="continuePracticeLink" class="continue-practice-link" href="oge1.html"><span aria-hidden="true">▶</span> Продолжить</a>
+        <span id="continuePracticeLabel" class="continue-practice-label"></span>
+      </div>
+
+      <section class="task-browser" aria-label="Поиск и фильтрация заданий">
+        <div class="task-search">
+          <label for="taskSearch">Найти задание</label>
+          <input id="taskSearch" type="search" placeholder="Название или описание" autocomplete="off" />
+        </div>
+        <div class="task-filters" role="group" aria-label="Фильтр по прогрессу">
+          <button type="button" class="task-filter" data-filter="all" aria-pressed="true">Все</button>
+          <button type="button" class="task-filter" data-filter="uncompleted" aria-pressed="false">Непройденные</button>
+          <button type="button" class="task-filter" data-filter="completed" aria-pressed="false">Пройденные</button>
+        </div>
+        <p id="taskResults" class="task-results" role="status" aria-live="polite" aria-atomic="true">Показано: 17 из 17</p>
+      </section>
+
+      <div id="tasksEmpty" class="tasks-empty" hidden>
+        <strong>Задания не найдены</strong>
+        <p>Измените поисковый запрос или выберите другой фильтр.</p>
+      </div>
+
       <div class="tasks-grid">
         <div class="task-card">
           <a href="oge1.html" class="task-card-link">
@@ -209,6 +232,10 @@
               и сохранение в формате .pptx или .odp.
             </p>
           </a>
+          <div class="checklist-card-progress" data-checklist-progress="oge131" data-total="11" hidden>
+            <progress max="11" value="0"></progress>
+            <span></span>
+          </div>
           <a href="oge131-t.html" class="theory-link">📚 Теория</a>
         </div>
 
@@ -223,6 +250,10 @@
               невидимые символы, сохранение в формате .docx или .odt.
             </p>
           </a>
+          <div class="checklist-card-progress" data-checklist-progress="oge132" data-total="12" hidden>
+            <progress max="12" value="0"></progress>
+            <span></span>
+          </div>
           <a href="oge132-t.html" class="theory-link">📚 Теория</a>
         </div>
 
@@ -294,6 +325,103 @@
         navigator.serviceWorker.register('/sw.js').catch(function() {});
       }
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
+
+      (function () {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.tasks-grid .task-card'));
+        var search = document.getElementById('taskSearch');
+        var filters = Array.prototype.slice.call(document.querySelectorAll('.task-filter'));
+        var results = document.getElementById('taskResults');
+        var empty = document.getElementById('tasksEmpty');
+        var activeFilter = 'all';
+
+        function taskId(card) {
+          var link = card.querySelector('.task-card-link');
+          var href = link ? link.getAttribute('href') : '';
+          var m = /^(oge(?:1[0-6]|[1-9]|131|132))\.html/.exec(href);
+          return m ? m[1] : null;
+        }
+        function completed(card) {
+          var id = taskId(card);
+          return !!(id && typeof OGEProgress !== 'undefined' && OGEProgress.isCompleted(id));
+        }
+        function update() {
+          var query = (search ? search.value : '').trim().toLocaleLowerCase('ru');
+          var shown = 0;
+          cards.forEach(function (card) {
+            var matchesText = !query || (card.textContent || '').toLocaleLowerCase('ru').indexOf(query) !== -1;
+            var done = completed(card);
+            var matchesFilter = activeFilter === 'all' || (activeFilter === 'completed' ? done : !done);
+            var visible = matchesText && matchesFilter;
+            card.hidden = !visible;
+            if (visible) shown++;
+            var link = card.querySelector('.task-card-link');
+            var badge = card.querySelector('.task-card-badge');
+            if (done && link && !badge) {
+              badge = document.createElement('span');
+              badge.className = 'task-card-badge';
+              badge.textContent = '✓ Пройдено';
+              link.appendChild(badge);
+            } else if (!done && badge) {
+              badge.parentNode.removeChild(badge);
+            }
+          });
+          if (results) results.textContent = 'Показано: ' + shown + ' из ' + cards.length;
+          if (empty) empty.hidden = shown !== 0;
+        }
+
+        filters.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            activeFilter = btn.getAttribute('data-filter') || 'all';
+            filters.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+            update();
+          });
+        });
+        if (search) search.addEventListener('input', update);
+
+        // Частичный прогресс чек-листов хранится отдельно от засчитанного задания.
+        document.querySelectorAll('[data-checklist-progress]').forEach(function (box) {
+          try {
+            var id = box.getAttribute('data-checklist-progress');
+            var draft = JSON.parse(localStorage.getItem('oge-checklist:' + id) || 'null');
+            var total = Number(box.getAttribute('data-total')) || 0;
+            var done = draft && Array.isArray(draft.done) ? draft.done.length : 0;
+            if (!done || !total) return;
+            var bar = box.querySelector('progress');
+            var text = box.querySelector('span');
+            if (bar) { bar.max = total; bar.value = done; }
+            if (text) text.textContent = 'Чек-лист: ' + done + ' из ' + total + ' шагов';
+            box.hidden = false;
+          } catch (e) { /* повреждённый черновик игнорируем */ }
+        });
+
+        // «Продолжить» ведёт только на известную практическую страницу.
+        var practiceLinks = Array.prototype.slice.call(document.querySelectorAll('.task-card-link')).filter(function (a) {
+          return /^oge(?:1[0-6]|[1-9]|131|132)\.html(?:#exam)?$/.test(a.getAttribute('href') || '');
+        });
+        practiceLinks.forEach(function (a) {
+          a.addEventListener('click', function () {
+            try { localStorage.setItem('oge-last-practice', a.getAttribute('href')); } catch (e) {}
+          });
+        });
+        try {
+          var last = localStorage.getItem('oge-last-practice');
+          var match = practiceLinks.filter(function (a) { return a.getAttribute('href') === last; })[0];
+          var cont = document.getElementById('continuePractice');
+          var contLink = document.getElementById('continuePracticeLink');
+          var contLabel = document.getElementById('continuePracticeLabel');
+          if (match && cont && contLink) {
+            contLink.href = last;
+            var id = taskId(match.closest('.task-card'));
+            contLink.textContent = '▶ Продолжить';
+            if (contLabel) contLabel.textContent = id ? 'Задание ' + id.replace(/^oge/, '') : '';
+            cont.hidden = false;
+          }
+        } catch (e) {}
+
+        document.addEventListener('oge-progress-saved', update);
+        window.addEventListener('storage', update);
+        update();
+      })();
     </script>
     <script src="js/progress-client.js"></script>
     <script src="js/progress-sync.js"></script>

@@ -191,7 +191,7 @@ server {
 
     # Данные заданий (JSON/TXT/KuMir) — короткий кэш.
     location ~* \.(json|txt|kum)$ {
-        add_header Cache-Control "public, max-age=604800" always;
+        add_header Cache-Control "no-cache, must-revalidate" always;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
@@ -213,7 +213,7 @@ server {
     }
 
     location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
-        add_header Cache-Control "public, max-age=2592000, immutable" always;
+        add_header Cache-Control "public, max-age=86400" always;
         add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;

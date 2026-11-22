@@ -26,6 +26,20 @@
     <script src="js/oge15-ref.js"></script>
     <script src="js/oge15-gen.js"></script>
   <script src="js/actions.js"></script>
+  <style>
+    .editor-help { margin: -6px 0 10px; color: #4b5563; font-size: .9rem; line-height: 1.5; }
+    .field-description { width: 100%; margin-top: 10px; border: 1px solid #c8d2dc; border-radius: 8px; background: #f7fafc; color: #263238; }
+    .field-description > summary { min-height: 44px; box-sizing: border-box; padding: 10px 12px; cursor: pointer; font-weight: 600; }
+    .field-description-text { padding: 0 12px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9rem; line-height: 1.55; }
+    @media (max-width: 640px) {
+      .control-bar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .control-bar button { min-height: 44px; white-space: normal; font-size: .95rem; }
+      .control-bar #btnCheck { grid-column: 1 / -1; }
+      .field-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .field-controls .btn-sm { min-height: 44px; white-space: normal; }
+      .field-container canvas { max-width: 100%; height: auto; }
+    }
+  </style>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
@@ -92,13 +106,14 @@
         <div class="line-numbers" id="lineNumbers"></div>
         <div class="editor-content">
           <div class="editor-highlight" id="editorHighlight"></div>
-          <textarea id="codeEditor" spellcheck="false">использовать Робот
+          <textarea id="codeEditor" spellcheck="false" aria-describedby="editorHelp">использовать Робот
 алг
 нач
 
 кон</textarea>
         </div>
       </div>
+      <p class="editor-help" id="editorHelp">Tab — отступ, Shift+Tab — убрать отступ, Esc — выйти из редактора к кнопке «Запустить».</p>
     </div>
 
     <div class="panel">
@@ -135,6 +150,10 @@
       <div class="field-container">
         <canvas id="fieldCanvas" tabindex="0" role="application" aria-label="Поле Робота. С клавиатуры: стрелки — переместить робота, пробел — закрасить клетку."></canvas>
         <div class="field-info" id="fieldInfo">Клик по границе — стена / убрать стену. Клик по клетке — закрасить. Перетащите робота (🔵) мышкой. С клавиатуры: Tab к полю, стрелки — робот, пробел — закрасить.</div>
+        <details class="field-description">
+          <summary>Текстовое описание обстановки</summary>
+          <div class="field-description-text" id="fieldDescriptionText">Загрузите обстановку, чтобы получить описание стен, робота и целевых клеток.</div>
+        </details>
       </div>
       <div class="field-controls">
         <label>Строк: <input type="number" id="fieldRows" value="10" min="2" max="30"></label>
@@ -655,6 +674,32 @@ function canvasToEdge(mx, my) {
   return null;
 }
 
+function updateFieldDescription() {
+  const box = document.getElementById('fieldDescriptionText');
+  if (!box) return;
+  const walls = [];
+  field.walls.forEach((key) => {
+    const parts = key.split(':');
+    const rc = (parts[1] || '').split(',');
+    const r = Number(rc[0]) + 1;
+    const c = Number(rc[1]) + 1;
+    if (!r || !c) return;
+    walls.push(parts[0] === 'h'
+      ? 'горизонтальная стена над клеткой (' + r + ', ' + c + ')'
+      : 'вертикальная стена слева от клетки (' + r + ', ' + c + ')');
+  });
+  const target = Array.from(field.targetPainted).map((key) => {
+    const rc = key.split(',');
+    return '(' + (Number(rc[0]) + 1) + ', ' + (Number(rc[1]) + 1) + ')';
+  });
+  box.textContent =
+    'Поле ' + field.rows + ' × ' + field.cols + '; внешняя граница — стены. ' +
+    'Робот находится в клетке (' + (field.robot.row + 1) + ', ' + (field.robot.col + 1) + '). ' +
+    (walls.length ? 'Внутренние стены: ' + walls.join('; ') + '. ' : 'Внутренних стен нет. ') +
+    (target.length ? 'Эталонные клетки для закрашивания: ' + target.join(', ') + '.' :
+      'Эталонные клетки не загружены.');
+}
+
 function drawField() {
   const { w, h } = computeCanvasSize();
   const dpr = currentDpr();
@@ -704,6 +749,8 @@ function drawField() {
     ctx.arc(cx + 4, cy + 4, 2.5, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  updateFieldDescription();
 
   // Draw painted cells (user) - on top of target cells
   for (const key of field.painted) {
@@ -2319,6 +2366,14 @@ function removeIndentAtCaret() {
 
 // Tab support + autocomplete
 textarea.addEventListener('keydown', (e) => {
+  // Escape всегда даёт покинуть редактор, даже когда Tab занят отступами.
+  if (e.key === 'Escape' && !autocompleteVisible) {
+    e.preventDefault();
+    const runButton = document.getElementById('btnRun');
+    if (runButton) runButton.focus();
+    return;
+  }
+
   // Autocomplete navigation
   if (autocompleteVisible) {
     const items = acList.querySelectorAll('.ac-item');

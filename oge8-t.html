@@ -368,28 +368,28 @@
 
           <div class="region-list">
             <div class="region-item" data-region="onlyA">
-              <div class="region-name">A</div>
-              <div class="region-expr">A</div>
+              <div class="region-name">только A</div>
+              <div class="region-expr">A &amp; !B &amp; !C</div>
             </div>
             <div class="region-item" data-region="onlyB">
-              <div class="region-name">B</div>
-              <div class="region-expr">B</div>
+              <div class="region-name">только B</div>
+              <div class="region-expr">!A &amp; B &amp; !C</div>
             </div>
             <div class="region-item" data-region="onlyC">
-              <div class="region-name">C</div>
-              <div class="region-expr">C</div>
+              <div class="region-name">только C</div>
+              <div class="region-expr">!A &amp; !B &amp; C</div>
             </div>
             <div class="region-item" data-region="AB">
-              <div class="region-name">A и B</div>
-              <div class="region-expr">A & B</div>
+              <div class="region-name">A и B без C</div>
+              <div class="region-expr">A &amp; B &amp; !C</div>
             </div>
             <div class="region-item" data-region="AC">
-              <div class="region-name">A и C</div>
-              <div class="region-expr">A & C</div>
+              <div class="region-name">A и C без B</div>
+              <div class="region-expr">A &amp; C &amp; !B</div>
             </div>
             <div class="region-item" data-region="BC">
-              <div class="region-name">B и C</div>
-              <div class="region-expr">B & C</div>
+              <div class="region-name">B и C без A</div>
+              <div class="region-expr">!A &amp; B &amp; C</div>
             </div>
             <div class="region-item" data-region="ABC">
               <div class="region-name">A и B и C</div>
@@ -907,34 +907,34 @@
       // Данные о регионах
       const regionData = {
         onlyA: {
-          expression: "A",
-          description: "Элементы, принадлежащие множеству A",
-          name: "A",
+          expression: "A & !B & !C",
+          description: "Только A: вне B и C",
+          name: "только A",
         },
         onlyB: {
-          expression: "B",
-          description: "Элементы, принадлежащие множеству B",
-          name: "B",
+          expression: "!A & B & !C",
+          description: "Только B: вне A и C",
+          name: "только B",
         },
         onlyC: {
-          expression: "C",
-          description: "Элементы, принадлежащие множеству C",
-          name: "C",
+          expression: "!A & !B & C",
+          description: "Только C: вне A и B",
+          name: "только C",
         },
         AB: {
-          expression: "A & B",
-          description: "Пересечение множеств A и B",
-          name: "A и B",
+          expression: "A & B & !C",
+          description: "A и B, но не C",
+          name: "A и B без C",
         },
         AC: {
-          expression: "A & C",
-          description: "Пересечение множеств A и C",
-          name: "A и C",
+          expression: "A & C & !B",
+          description: "A и C, но не B",
+          name: "A и C без B",
         },
         BC: {
-          expression: "B & C",
-          description: "Пересечение множеств B и C",
-          name: "B и C",
+          expression: "!A & B & C",
+          description: "B и C, но не A",
+          name: "B и C без A",
         },
         ABC: {
           expression: "A & B & C",

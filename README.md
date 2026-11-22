@@ -74,6 +74,7 @@ node tools/check-data.mjs         # нужен python 3
 node tools/check-theory.mjs       # примеры кода в теории (python 3)
 node tools/check-oge11-archive.mjs # ответы задания 11 по архиву (python 3)
 node tools/check-sandbox.mjs      # нужен php + python 3
+node tools/check-client-resilience.mjs # SW, outbox и tracking без браузера
 node tools/check-links.mjs        # внешние ссылки (нужен интернет, вне CI)
 php -l run_python.php
 ```
@@ -111,7 +112,8 @@ oge-web/
 ├── files/                # Задание11-12.zip, files/oge15/ (данные задания 15)
 ├── git/index.php         # Web-UI self-hosted git-репозиториев
 ├── tools/                # check-site.mjs, check-css.mjs, check-data.mjs,
-│                         # check-sandbox.mjs, gen-oge15-ref.mjs, css-utils.mjs
+│                         # check-sandbox.mjs, check-client-resilience.mjs,
+│                         # gen-oge15-ref.mjs, css-utils.mjs
 ├── manifest.json, sw.js  # PWA
 ├── offline.html, 404.html
 ├── deploy.ps1            # Деплой (tar + ssh)

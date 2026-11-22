@@ -133,6 +133,20 @@ try {
   const timeout = await post('while True:\n    pass', '', '1');
   expect('timeout 5 с', timeout.data && timeout.data.timeout === true, JSON.stringify(timeout.data));
 
+  const exitAfterPrint = await post("print('6')\nraise SystemExit(1)", '3\n1\n2\n3', '6');
+  expect(
+    'ненулевой exit code не засчитывается',
+    exitAfterPrint.data && exitAfterPrint.data.matched === false,
+    JSON.stringify(exitAfterPrint.data),
+  );
+
+  const hugeOutput = await post("print('x' * 1200000)", '', 'x');
+  expect(
+    'переполнение вывода контролируется',
+    hugeOutput.data && hugeOutput.data.matched === false && /большой вывод/i.test((hugeOutput.data.error || '') + (hugeOutput.data.output || '')),
+    JSON.stringify(hugeOutput.data),
+  );
+
   const get = await fetch(base + '/run_python.php', { signal: AbortSignal.timeout(5000) });
   expect('GET → 405', get.status === 405, 'status ' + get.status);
 
@@ -188,6 +202,16 @@ try {
     'пакет: ошибка программы останавливает прогон',
     b5.data && /boom/.test(b5.data.results[0].error || '') && b5.data.results[1].skipped === true,
     JSON.stringify(b5.data),
+  );
+
+  const bExit = await batch("print('1')\nraise SystemExit(1)", [
+    { input: '', expected: '1' },
+    { input: '', expected: '1' },
+  ]);
+  expect(
+    'пакет: ненулевой exit code останавливает прогон',
+    bExit.data && bExit.data.results[0].matched === false && bExit.data.results[1].skipped === true,
+    JSON.stringify(bExit.data),
   );
 
   const b6 = await batch('import os', [{ input: '', expected: '1' }]);

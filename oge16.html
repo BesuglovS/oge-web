@@ -1496,6 +1496,8 @@
         hideHints();
         var os = document.getElementById("outputSection");
         if (os) os.className = "output-section";
+        var shown = document.getElementById("taskNumInput");
+        if (shown) shown.value = cur + 1;
         document.getElementById("taskCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
@@ -1546,7 +1548,7 @@
                hlCond +
               '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать только ' + outputDesc +
               (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
-              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой; хвостовые нули можно не записывать (11.0 эквивалентно 11.00).' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1578,7 +1580,7 @@
               "</span> системе счисления " +
               hlCondEnd +
               '. В ответе запишите только ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму')))) + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'искомое' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'искомое' : 'искомую')))) + ' ' + (t.typeLabel.indexOf('Кол') !== -1 ? 'количество элементов' : (t.typeLabel.indexOf('Среднее') !== -1 ? 'среднее арифметическое' : (t.typeLabel.indexOf('Минимум') !== -1 ? 'минимальное число' : (t.typeLabel.indexOf('Максимум') !== -1 ? 'максимальное число' : 'сумму элементов')))) + (t.typeLabel.indexOf('Кол') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Среднее') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Минимум') !== -1 ? ', записанное' : (t.typeLabel.indexOf('Максимум') !== -1 ? ', записанное' : ', записанную')))) + ' в десятичной системе счисления.' +
-              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой; хвостовые нули можно не записывать (11.0 эквивалентно 11.00).' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1611,7 +1613,7 @@
             ' ' + actionWord + ' последовательности натуральных чисел, ' +
                t.conditionText.replace(/ \(ввод до 0\)( найти минимум| найти максимум| найти среднее)?/g, '').replace(/^ /, '') +
               '.</p><p>На вход программе подаётся последовательность натуральных чисел — каждое на отдельной строке. Признак конца последовательности — число 0.</p><p>Программа должна напечатать ' + outputDesc + (outputDesc.indexOf('сумму') !== -1 ? ', записанную' : ', записанное') + ' в десятичной системе счисления.' +
-              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой; хвостовые нули можно не записывать (11.0 эквивалентно 11.00).' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1653,7 +1655,7 @@
               " " + actionWordPenult + " последовательности натуральных чисел, " +
               t.conditionText +
               '. В ответе запишите только ' + outputDescPenult + '.</p><p>На вход программе сначала подаётся количество элементов последовательности N (1 ≤ N ≤ 1000), затем каждый элемент последовательности в отдельной строке.</p><p>Программа должна напечатать только одно число — ' + itsPenult + ', записанное в десятичной системе счисления.' +
-              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой.' : '') +
+              (t.typeLabel.indexOf('Среднее') !== -1 ? ' Округлите результат до двух знаков после запятой; хвостовые нули можно не записывать (11.0 эквивалентно 11.00).' : '') +
               (t.typeLabel.indexOf('Среднее') !== -1 || t.typeLabel.indexOf('Минимум') !== -1 || t.typeLabel.indexOf('Максимум') !== -1 ? ' Если среди введённых чисел нет подходящих, программа должна вывести "Нет".' : '') +
               '</p><p><strong>Пример работы программы:</strong></p><table class="input-table"><tr><th>Входные данные</th><th>Выходные данные</th></tr><tr><td>' +
               t.testData.input.replace(/\n/g, "<br>") +
@@ -1697,11 +1699,13 @@
           '</div><div class="code-section"><label class="code-label" for="codeEditor">💻 Напишите программу на Python:</label>' +
           '<div class="code-editor-box" id="codeEditorBox">' +
           '<div class="code-editor-layer" id="codeHighlight" aria-hidden="true"></div>' +
-          '<textarea class="code-editor" id="codeEditor" aria-label="Код программы на Python" placeholder="' +
+          '<textarea class="code-editor" id="codeEditor" aria-describedby="editorHelp" aria-label="Код программы на Python" placeholder="' +
           ph +
           '" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off">' +
-          defCode +
+          (defCode || '') +
           '</textarea>' +
+          '<p class="editor-help" id="editorHelp">Tab — отступ, Shift+Tab — убрать отступ, Esc — перейти к кнопке запуска.</p>' +
+          defCode +
           '</div>' +
           '<div class="code-editor-statusbar">' +
           '<span class="code-editor-note" id="editorNote"></span>' +
@@ -1713,7 +1717,7 @@
         if (window.OgeCodeEditor) {
           OgeCodeEditor.init({ draftKey: "oge16-draft-" + t.id });
         }
-        if (ed) ed.focus();
+        // Фокус не перехватываем: пользователь сам решает, когда войти в код.
       }
 
       function runCode() {

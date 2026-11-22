@@ -94,7 +94,9 @@
   }
 
   function currentUrl() {
-    return global.location.href;
+    // Аналитике не нужны параметры поиска и якоря: не передаём возможные
+    // идентификаторы, ответы и другие чувствительные данные из URL.
+    return global.location.pathname || '/';
   }
 
   function currentTitle() {
@@ -102,7 +104,8 @@
   }
 
   function currentReferrer() {
-    return (config.trackReferrer && firstBeat) ? (global.document.referrer || '') : '';
+    if (!config.trackReferrer || !firstBeat || !global.document.referrer) return '';
+    try { return new URL(global.document.referrer).origin + '/'; } catch (e) { return ''; }
   }
 
   // Секунд, прошедших с прошлого тика.
@@ -136,7 +139,7 @@
 
   // Обычный периодический тик: фиксирует время на текущей странице.
   function tick() {
-    if (!enabled) return;
+    if (!enabled || global.document.visibilityState === 'hidden') return;
     send(currentUrl(), currentTitle(), '', elapsedSeconds());
     firstBeat = false;
   }
@@ -199,17 +202,21 @@
     send(currentUrl(), currentTitle(), currentReferrer(), 0); // открытие страницы
     firstBeat = false;
 
-    timer = setInterval(tick, config.interval * 1000);
+    if (global.document.visibilityState !== 'hidden') {
+      timer = setInterval(tick, config.interval * 1000);
+    }
 
     if (typeof global.document !== 'undefined') {
       addListener(global.document, 'visibilitychange', function () {
         if (global.document.visibilityState === 'hidden') {
+          if (timer) { clearInterval(timer); timer = null; }
           beacon();
         } else {
-          // Вернулись на страницу — разрешаем следующий финальный тик
-          // и не учитываем время, проведённое в фоне.
+          // Фоновое время не учитывается: таймер создаётся заново, а точка
+          // отсчёта начинается с момента возвращения на вкладку.
           beaconSent = false;
           lastBeatAt = Date.now();
+          if (enabled && !timer) timer = setInterval(tick, config.interval * 1000);
         }
       });
     }

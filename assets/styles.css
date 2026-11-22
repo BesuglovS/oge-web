@@ -386,8 +386,11 @@ h3 {
 }
 
 .btn:focus-visible {
-  outline: 3px solid white;
-  outline-offset: 2px;
+  /* Белая внутренняя кайма отделяет тёмное кольцо от фона кнопки,
+     а само кольцо остаётся заметным и на белой карточке. */
+  outline: 3px solid #2f2430;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px #fff;
 }
 
 .btn:active {
@@ -676,6 +679,14 @@ h3 {
 .quick-nav-btn.practice {
   background: linear-gradient(145deg, #3f7f5e, #5f9a68);
   color: white;
+}
+
+/* На узком экране плавающие кнопки закрывают текст и элементы управления.
+   Теория и переходы остаются доступны в обычной навигации страницы. */
+@media (max-width: 640px) {
+  .quick-nav {
+    display: none;
+  }
 }
 
 /* === Prev/Next Navigation === */
@@ -1008,6 +1019,158 @@ textarea:focus-visible {
 .generator .task-number { background: linear-gradient( 145deg, #c2a04e 0%, #bd8a3f 100% ) !important; box-shadow: 0 8px 20px rgba(194,160,78, 0.4) !important;}
 
 .exam-mode, .generator { display: none;}
+
+/* Поиск, фильтры и локальный прогресс на лендинге. */
+.continue-practice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 24px;
+}
+
+.continue-practice[hidden] { display: none; }
+
+.continue-practice-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: #59374f;
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.continue-practice-link:hover { background: #f7f2ec; }
+
+.continue-practice-label { color: #fff; font-size: 0.95rem; }
+
+.task-browser {
+  margin-bottom: 25px;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+.task-search { display: flex; flex-direction: column; gap: 7px; }
+
+.task-search label { color: #3a2b1e; font-size: 0.95rem; font-weight: 600; }
+
+.task-search input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid #ded2c9;
+  border-radius: 10px;
+  background: #fff;
+  color: #333;
+  font: inherit;
+}
+
+.task-search input:focus { border-color: var(--color-primary); }
+
+.task-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.task-filter {
+  padding: 8px 14px;
+  border: 1px solid #cdbfb5;
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: #5d463d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.task-filter:hover { background: #f7f2ec; }
+
+.task-filter[aria-pressed="true"] {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.task-results { margin-top: 10px; color: #6b625a; font-size: 0.85rem; }
+
+.tasks-empty {
+  margin-bottom: 25px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.96);
+  color: #4a4038;
+  text-align: center;
+}
+
+.tasks-empty[hidden] { display: none; }
+
+.tasks-empty p { margin-top: 7px; color: #6b625a; }
+
+.tasks-grid .task-card[hidden] { display: none; }
+
+.editor-help {
+  margin: -6px 0 10px;
+  color: #4b5563;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.field-description {
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #c8d2dc;
+  border-radius: 8px;
+  background: #f7fafc;
+  color: #263238;
+}
+
+.field-description > summary {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.field-description-text {
+  padding: 0 12px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.task-card-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 16px;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: #e8f5e9;
+  color: #316b3b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.checklist-card-progress {
+  margin: 0 30px 15px;
+  color: #5c5148;
+  font-size: 0.83rem;
+  line-height: 1.45;
+}
+
+.checklist-card-progress[hidden] { display: none; }
+
+.checklist-card-progress progress {
+  display: block;
+  width: 100%;
+  height: 7px;
+  margin-bottom: 6px;
+  accent-color: var(--color-primary);
+}
 
 /* --- oge10-t.html --- */
 

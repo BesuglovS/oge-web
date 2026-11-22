@@ -105,6 +105,14 @@
     }
     byId('clBody').innerHTML = state.finished ? finalHtml() : stepHtml(steps[state.index]);
     if (!state.finished && state.solved) applySolvedState();
+    if (state.focusTitle) {
+      state.focusTitle = false;
+      var title = document.querySelector('#clBody .cl-title');
+      if (title) {
+        title.setAttribute('tabindex', '-1');
+        title.focus({ preventScroll: true });
+      }
+    }
   }
 
   // Восстановленное состояние: шаг уже решён до перезагрузки. Показываем
@@ -175,6 +183,7 @@
     if (state.index < state.steps.length - 1) {
       state.index++;
       state.resumed = false;
+      state.focusTitle = true;
       saveState();
       render();
       var card = byId('taskCard');
@@ -186,6 +195,7 @@
 
   function finish() {
     state.finished = true;
+    state.focusTitle = true;
     saveState();
     render();
     if (state.saved) return;
@@ -205,6 +215,7 @@
     state.finished = false;
     state.saved = false;
     state.resumed = false;
+    state.focusTitle = true;
     clearSaved();
     render();
   }

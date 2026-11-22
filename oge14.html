@@ -37,9 +37,9 @@
 
       <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
 
-      <div class="mode-switch" id="exam" role="tablist" aria-label="Режим тренажёра">
-        <button type="button" class="mode-btn active" role="tab" aria-selected="true" data-act="setExamMode" data-arg="0">🎯 Мини-задачи</button>
-        <button type="button" class="mode-btn" role="tab" aria-selected="false" data-act="setExamMode" data-arg="1">📋 Формат ОГЭ</button>
+      <div class="mode-switch" id="exam" role="group" aria-label="Режим тренажёра">
+        <button type="button" class="mode-btn active" aria-pressed="true" data-act="setExamMode" data-arg="0">🎯 Мини-задачи</button>
+        <button type="button" class="mode-btn" aria-pressed="false" data-act="setExamMode" data-arg="1">📋 Формат ОГЭ</button>
       </div>
 
       <div class="task-card" id="taskCard" data-main="true">
@@ -685,17 +685,26 @@
         return String(r).replace('.', ',');
       }
 
+      function examAverageAnswerNote(spec) {
+        const kinds = ['avg', 'avgsum', 'avgsum_not', 'avgdiff'];
+        return spec.digits === 2 && kinds.indexOf(spec.kind) !== -1
+          ? ' Хвостовые нули можно не записывать: например, 11.0 считается эквивалентным 11.00.'
+          : '';
+      }
+
       function buildExamVariants(data) {
         return data.variants.map(function (def) {
           const ds = data.datasets[def.dataset];
           const last = ds.rows.length + 1;
           const q1 = Object.assign({}, def.q1, {
             n: 1,
+            text: def.q1.text + examAverageAnswerNote(def.q1),
             formula: examFormulaFor(def.q1, last),
             hint: examHintFor(def.q1)
           });
           const q2 = Object.assign({}, def.q2, {
             n: 2,
+            text: def.q2.text + examAverageAnswerNote(def.q2),
             formula: examFormulaFor(def.q2, last),
             hint: examHintFor(def.q2)
           });
@@ -1258,6 +1267,81 @@
       let taskSaved = false;
       let examMode = false;
       let lastExamIndex = -1;
+      let miniSession = null;
+      let examSession = null;
+
+      // У каждого режима своё состояние: переключатель не должен ни менять
+      // выбранную задачу, ни терять введённые ответы и результат проверки.
+      function captureModeState() {
+        const card = document.getElementById('taskCard');
+        if (!currentTask || !card || (examMode ? !currentTask.questions : !currentTask.sheet)) return;
+        const inputs = card.querySelectorAll('.answer-input');
+        if (!inputs.length) return;
+        const result = document.getElementById('result');
+        const hintBox = document.getElementById('hintBox');
+        const solutionBox = document.getElementById('solutionBox');
+        const session = {
+          taskId: currentTask.id,
+          taskSaved: taskSaved,
+          inputs: Array.prototype.map.call(inputs, function (input) {
+            return { id: input.id, value: input.value, className: input.className };
+          }),
+          resultClass: result ? result.className : '',
+          resultHtml: result ? result.innerHTML : '',
+          chartVisible: examMode && !!card.querySelector('#examChartOut .pie-svg'),
+          hintDisplay: hintBox.style.display,
+          hintHtml: document.getElementById('hintText').innerHTML,
+          solutionDisplay: solutionBox.style.display,
+          solutionHtml: document.getElementById('solutionSteps').innerHTML
+        };
+        if (examMode) examSession = session; else miniSession = session;
+      }
+
+      function restoreModeState(session) {
+        const card = document.getElementById('taskCard');
+        session.inputs.forEach(function (saved) {
+          const input = document.getElementById(saved.id);
+          if (!input || !card.contains(input)) return;
+          input.value = saved.value;
+          input.className = saved.className;
+        });
+        const result = document.getElementById('result');
+        if (result) {
+          result.className = session.resultClass;
+          result.innerHTML = session.resultHtml;
+        }
+        if (examMode && session.chartVisible) {
+          renderExamChart(currentTask, document.getElementById('examChartOut'));
+        } else if (!examMode) {
+          updatePreview();
+        }
+        document.getElementById('hintBox').style.display = session.hintDisplay;
+        document.getElementById('hintText').innerHTML = session.hintHtml;
+        document.getElementById('solutionBox').style.display = session.solutionDisplay;
+        document.getElementById('solutionSteps').innerHTML = session.solutionHtml;
+      }
+
+      function restoreMiniTask() {
+        const session = miniSession;
+        const selected = session && tasks.filter(function (t) { return t.id === session.taskId; })[0];
+        if (!selected) { generateTask(); return; }
+        currentTask = selected;
+        lastTaskIndex = tasks.indexOf(selected);
+        taskSaved = session.taskSaved;
+        renderTask(false);
+        restoreModeState(session);
+      }
+
+      function restoreExamTask() {
+        const session = examSession;
+        const selected = session && examVariants.filter(function (v) { return v.id === session.taskId; })[0];
+        if (!selected) { generateExamTask(); return; }
+        currentTask = selected;
+        lastExamIndex = examVariants.indexOf(selected);
+        taskSaved = session.taskSaved;
+        renderExamTask();
+        restoreModeState(session);
+      }
 
       function escapeHtml(s) {
         return String(s)
@@ -1556,14 +1640,23 @@
       function setExamMode(mode) {
         const next = Number(mode) === 1;
         if (next === examMode) return;
+        captureModeState();
         examMode = next;
         document.querySelectorAll('.mode-btn').forEach(function (btn) {
           const active = (btn.getAttribute('data-arg') === '1') === examMode;
           btn.classList.toggle('active', active);
-          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         hideHintsAndSolution();
-        if (examMode) ensureExamVariants(generateExamTask); else generateTask();
+        if (examMode) {
+          ensureExamVariants(function () {
+            if (examSession) restoreExamTask(); else generateExamTask();
+          });
+        } else if (miniSession) {
+          restoreMiniTask();
+        } else {
+          generateTask();
+        }
       }
 
       function evalExamFormula(id, src) {
@@ -1581,7 +1674,7 @@
         }
       }
 
-      function renderTask() {
+      function renderTask(focusInput) {
         const task = currentTask;
         const sheet = sheets.filter(function (s) { return s.id === task.sheet; })[0];
         sheetHeaders = sheet.headers;

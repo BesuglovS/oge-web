@@ -39,6 +39,9 @@ jobs:
       - name: Sandbox integration test
         run: node tools/check-sandbox.mjs
 
+      - name: Client resilience regressions (outbox, tracking, service worker)
+        run: node tools/check-client-resilience.mjs
+
       # Браузерный smoke-тест: реальный Chrome, реальные страницы.
       # Сервер поднимаем в том же шаге — GitHub гасит фоновые процессы
       # при завершении шага. --csp проверяет страницы под строгой политикой

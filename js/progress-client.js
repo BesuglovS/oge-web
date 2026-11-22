@@ -67,11 +67,23 @@
     return config.storageKey + ':outbox';
   }
 
+  function makeOutboxId() {
+    return 'ob-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
   function getOutbox() {
     try {
       var raw = global.localStorage.getItem(outboxKey());
       var list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
+      if (!Array.isArray(list)) return [];
+      // Миграция старых записей: идентификатор позволяет не удалить запись,
+      // добавленную другой вкладкой во время ожидания ответа сервера.
+      var changed = false;
+      list.forEach(function (item) {
+        if (item && !item.outbox_id) { item.outbox_id = makeOutboxId(); changed = true; }
+      });
+      if (changed) saveOutbox(list);
+      return list;
     } catch (e) {
       return [];
     }
@@ -92,7 +104,7 @@
     if (!updates || !updates.length) return;
     var list = getOutbox();
     for (var i = 0; i < updates.length; i++) {
-      list.push({ course: course, payload: updates[i], queued_at: nowIso() });
+      list.push({ outbox_id: makeOutboxId(), course: course, payload: updates[i], queued_at: nowIso() });
     }
     if (list.length > config.outboxLimit) {
       list = list.slice(-config.outboxLimit);
@@ -117,7 +129,10 @@
         queue.forEach(function (item) {
           var c = item.course;
           if (!byCourse[c]) byCourse[c] = {};
-          byCourse[c][item.payload.module] = item.payload;
+          byCourse[c][item.payload.module] = { payload: item.payload, ids: [] };
+          var slot = byCourse[c][item.payload.module];
+          slot.payload = item.payload;
+          slot.ids.push(item.outbox_id);
         });
         var courses = Object.keys(byCourse);
         var sentCount = 0;
@@ -127,17 +142,21 @@
           for (var i = 0; i < modules.length; i += config.batchLimit) {
             (function (chunk) {
               chain = chain.then(function () {
-                var updates = chunk.map(function (m) { return byCourse[c][m]; });
+                var slots = chunk.map(function (m) { return byCourse[c][m]; });
+                var updates = slots.map(function (slot) { return slot.payload; });
+                var confirmed = {};
+                slots.forEach(function (slot) {
+                  slot.ids.forEach(function (id) { confirmed[id] = true; });
+                });
                 return api('/api/progress.php', {
                   method: 'PUT',
                   body: JSON.stringify({ course: c, updates: updates })
                 }).then(function () {
                   sentCount += updates.length;
-                  // Убираем из очереди только успешно отправленные модули.
-                  var done = {};
-                  updates.forEach(function (u) { done[u.module] = true; });
+                  // Удаляем только подтверждённые записи. Более новые записи
+                  // того же модуля, появившиеся во время запроса, сохраняются.
                   saveOutbox(getOutbox().filter(function (item) {
-                    return !(item.course === c && done[item.payload.module]);
+                    return !(item.course === c && confirmed[item.outbox_id]);
                   }));
                 }).catch(function () { /* оставляем до следующей попытки */ });
               });

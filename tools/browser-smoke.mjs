@@ -537,6 +537,51 @@ for (const page of pages) {
   await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
 }
 
+// 2g-3. Задание 14: переключение режимов не должно терять введённые ответы
+//       и неожиданно менять выбранный вариант ОГЭ.
+{
+  const { cdp, targetId } = await openPage('oge14.html');
+  const res = await cdp.evalJs(`(async () => {
+    if (typeof setExamMode !== 'function' || typeof window.__oge14exam === 'undefined') return 'no-api';
+    const mini = document.getElementById('answerInput');
+    if (!mini) return 'fail: нет поля мини-задачи';
+    mini.value = '987654';
+    setExamMode(1);
+    for (let i = 0; i < 60 && window.__oge14exam.variants().length === 0; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    const before = window.__oge14exam.current();
+    const answer = document.getElementById('examAnswer0');
+    if (!before || !answer) return 'fail: режим ОГЭ не отрисовался';
+    answer.value = '123456';
+    setExamMode(0);
+    const miniAfter = document.getElementById('answerInput');
+    if (!miniAfter || miniAfter.value !== '987654') return 'fail: потерян ответ мини-задачи';
+    setExamMode(1);
+    const after = window.__oge14exam.current();
+    const restored = document.getElementById('examAnswer0');
+    if (!after || !before || after.id !== before.id) return 'fail: изменился выбранный вариант';
+    if (!restored || restored.value !== '123456') return 'fail: потерян ответ режима ОГЭ';
+    const tabs = document.querySelectorAll('[role="tab"]');
+    if (tabs.length) {
+      const panels = document.querySelectorAll('[role="tabpanel"]');
+      if (!panels.length || [...tabs].some((t) => !t.hasAttribute('aria-controls'))) {
+        return 'fail: неполная ARIA-модель вкладок';
+      }
+    } else {
+      const pressed = document.querySelectorAll('[aria-pressed]');
+      if (pressed.length < 2 || [...pressed].filter((b) => b.getAttribute('aria-pressed') === 'true').length !== 1) {
+        return 'fail: нет однозначного aria-pressed у переключателя режимов';
+      }
+    }
+    return 'ok';
+  })()`).catch((e) => 'error: ' + e.message);
+  results.push(`oge14.html (сохранение режима): ${res}`);
+  if (res !== 'ok' && !/no-api/.test(String(res))) errors.push(`oge14.html: сохранение режима — ${res}`);
+  cdp.close();
+  await fetch(`http://127.0.0.1:${port}/json/close/${targetId}`);
+}
+
 // 2h. Задания 13.1/13.2: чек-листы — шаги проходятся только с верным ответом,
 //     промежуточный шаг переживает перезагрузку, прогресс пишется в конце.
 for (const [page, taskId] of [['oge131.html', 'oge131'], ['oge132.html', 'oge132']]) {
