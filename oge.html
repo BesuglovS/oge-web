@@ -335,9 +335,72 @@
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
 
       window.resetProgress = function () {
-        if (!window.confirm('Сбросить весь прогресс на этом устройстве? Это действие нельзя отменить.')) return;
-        if (typeof OGEProgress !== 'undefined') { OGEProgress.clear(); }
-        window.location.reload();
+        function clearLocal() {
+          try {
+            localStorage.removeItem('oge-progress');
+            var mirror = JSON.parse(localStorage.getItem('nayanova-progress') || '{}');
+            if (mirror && typeof mirror === 'object') {
+              delete mirror.oge;
+              localStorage.setItem('nayanova-progress', JSON.stringify(mirror));
+            }
+            localStorage.removeItem('nayanova-progress:outbox');
+            localStorage.removeItem('oge-last-practice');
+            var checklistKeys = [];
+            for (var i = 0; i < localStorage.length; i++) {
+              var key = localStorage.key(i);
+              if (key && key.indexOf('oge-checklist:') === 0) checklistKeys.push(key);
+            }
+            checklistKeys.forEach(function (k) { localStorage.removeItem(k); });
+          } catch (e) { /* приватный режим */ }
+        }
+
+        function ask(authed) {
+          var msg = authed
+            ? 'Сбросить прогресс на ВСЕХ устройствах? Прогресс в аккаунте будет удалён безвозвратно.'
+            : 'Сбросить локальный прогресс на этом устройстве?';
+          if (!window.confirm(msg)) return;
+
+          if (!authed) {
+            clearLocal();
+            window.location.reload();
+            return;
+          }
+
+          if (typeof NayanovaProgress.resetCourse !== 'function') {
+            window.alert('Клиент прогресса устарел. Обновите страницу и повторите сброс.');
+            return;
+          }
+
+          NayanovaProgress.resetCourse('oge')
+            .then(function () {
+              clearLocal();
+              window.location.reload();
+            })
+            .catch(function (err) {
+              var text = String((err && err.message) || '');
+              if (text.indexOf('HTTP 401') !== -1 || text.indexOf('HTTP 403') !== -1) {
+                window.alert('Сессия истекла. Войдите заново и повторите сброс.');
+              } else {
+                window.alert('Сервер недоступен. Прогресс не изменён, повторите сброс позже.');
+              }
+            });
+        }
+
+        var np = window.NayanovaProgress;
+        if (!np || typeof np.checkAuth !== 'function') {
+          ask(false);
+          return;
+        }
+        np.checkAuth().then(function (authed) {
+          var st = typeof np.getAuthState === 'function' ? np.getAuthState() : {};
+          if (!authed && st && st.unavailable) {
+            window.alert('Сервис прогресса недоступен. Повторите сброс позже.');
+            return;
+          }
+          ask(!!authed);
+        }).catch(function () {
+          window.alert('Не удалось проверить авторизацию. Повторите сброс позже.');
+        });
       };
 
       (function () {

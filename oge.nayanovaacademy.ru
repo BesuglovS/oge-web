@@ -85,9 +85,11 @@ server {
     access_log /var/log/nginx/oge.nayanovaacademy.ru.access.log;
     error_log  /var/log/nginx/oge.nayanovaacademy.ru.error.log;
 
-    # 1. Основная маршрутизация
+    # 1. Основная маршрутизация.
+    # Без $uri.php: расширение .php не должно приниматься неявно —
+    # /run_python.php и /git/ обслуживаются точными location, остальное = 404.
     location / {
-        try_files $uri $uri/ $uri.php =404;
+        try_files $uri $uri/ =404;
     }
 
     # ACME HTTP-01 должен быть доступен до правила блокировки скрытых файлов.

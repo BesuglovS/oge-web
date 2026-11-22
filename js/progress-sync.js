@@ -44,8 +44,96 @@
 
   function entryTime(entry) {
     if (!entry || typeof entry !== 'object') return 0;
-    var t = Date.parse(entry.updated_at || entry.lastAttempt || '');
+    var s = entry.updated_at || entry.lastAttempt || '';
+    if (typeof s !== 'string') return 0;
+    // Legacy SQLite: 'YYYY-MM-DD HH:MM:SS' — это UTC без суффикса.
+    // Без нормализации Date.parse трактует строку как локальное время.
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(s)) {
+      s = s.replace(' ', 'T') + 'Z';
+    }
+    var t = Date.parse(s);
     return isNaN(t) ? 0 : t;
+  }
+
+  // Запись считается устаревшей после сброса, если она старше маркера,
+  // не имеет времени или «убежала» в будущее из-за неверных часов.
+  var CLOCK_SKEW_MS = 5 * 60 * 1000;
+  function isStaleAfterReset(ts, resetAt) {
+    if (!ts) return true;
+    if (ts <= resetAt) return true;
+    if (ts > Date.now() + CLOCK_SKEW_MS) return true;
+    return false;
+  }
+
+  // Удаляем локальные следы прогресса старше серверного маркера __reset__:
+  // oge-progress, зеркало nayanova-progress и старый outbox. Иначе другое
+  // устройство «воскресит» прогресс после сброса.
+  function purgeBeforeReset(resetAt) {
+    var changed = false;
+
+    var data = getLocalProgress();
+    for (var id in data) {
+      if (!Object.prototype.hasOwnProperty.call(data, id)) continue;
+      if (isStaleAfterReset(entryTime(data[id]), resetAt)) {
+        delete data[id];
+        changed = true;
+      }
+    }
+    if (changed) {
+      try { global.localStorage.setItem('oge-progress', JSON.stringify(data)); } catch (e) { /* storage */ }
+    }
+
+    var mirrorChanged = false;
+    try {
+      var all = JSON.parse(global.localStorage.getItem('nayanova-progress') || '{}');
+      var mirror = all && all[COURSE];
+      if (mirror && typeof mirror === 'object') {
+        for (var m in mirror) {
+          if (!Object.prototype.hasOwnProperty.call(mirror, m)) continue;
+          if (m === '__reset__') continue;
+          if (isStaleAfterReset(entryTime(mirror[m]), resetAt)) {
+            delete mirror[m];
+            mirrorChanged = true;
+          }
+        }
+      }
+      if (mirrorChanged) {
+        all[COURSE] = mirror;
+        global.localStorage.setItem('nayanova-progress', JSON.stringify(all));
+      }
+    } catch (e) { /* storage */ }
+
+    var outboxChanged = false;
+    try {
+      var rawOutbox = JSON.parse(global.localStorage.getItem('nayanova-progress:outbox') || '[]');
+      if (Array.isArray(rawOutbox)) {
+        var kept = rawOutbox.filter(function (item) {
+          if (!item || item.course !== COURSE) return true;
+          var payload = item.payload && typeof item.payload === 'object' ? item.payload : {};
+          return !isStaleAfterReset(entryTime({ updated_at: payload.updated_at }), resetAt);
+        });
+        outboxChanged = kept.length !== rawOutbox.length;
+        if (outboxChanged) {
+          global.localStorage.setItem('nayanova-progress:outbox', JSON.stringify(kept));
+        }
+      }
+    } catch (e) { /* storage */ }
+
+    // Черновики чек-листов не имеют времени, поэтому после серверного сброса
+    // удаляем их все: иначе на другом устройстве останется «Чек-лист: N из M».
+    try {
+      var checklistKeys = [];
+      for (var ci = 0; ci < global.localStorage.length; ci++) {
+        var ck = global.localStorage.key(ci);
+        if (ck && ck.indexOf('oge-checklist:') === 0) checklistKeys.push(ck);
+      }
+      checklistKeys.forEach(function (k) { global.localStorage.removeItem(k); });
+    } catch (e) { /* storage */ }
+
+    if ((changed || mirrorChanged) && global.OGEProgress &&
+        typeof global.OGEProgress.renderProgressBar === 'function') {
+      global.OGEProgress.renderProgressBar('progressContainer');
+    }
   }
 
   // server — «сырые» данные сервера (NayanovaProgress.getCourse().server).
@@ -91,10 +179,14 @@
         if (serverScore === localScore && serverTime >= localTime) continue;
       }
 
+      var localDone = !!(t.score > 0 || t.bestScore > 0);
       updates.push({
         module: taskId,
         completed: localDone ? 1 : 0,
         score: (t.bestScore || t.score || 0),
+        // Время последней попытки нужно серверу для защиты от старого outbox
+        // после сброса. Сервер всё равно пишет своё updated_at.
+        updated_at: t.lastAttempt || '',
         data: {
           score: t.score || 0,
           bestScore: t.bestScore || 0,
@@ -108,6 +200,7 @@
     updates.push({
       module: '__summary__',
       completed: completed ? 1 : 0,
+      updated_at: new Date().toISOString(),
       data: { completed: completed, total: EXAM_TASK_COUNT }
     });
     return updates;
@@ -161,6 +254,11 @@
     NayanovaProgress.getCourse(COURSE).then(function (res) {
       // Сервер недоступен — не отправляем локальные данные «как свежие».
       if (!res || res.unavailable) return;
+
+      // Серверный сброс: маркер __reset__ новее локальных записей.
+      var resetAt = entryTime(res.server && res.server.__reset__);
+      if (resetAt) purgeBeforeReset(resetAt);
+
       mergeServerIntoLocal(res.server);
       var updates = buildUpdates(res.server);
       if (!updates.length) return;

@@ -24,6 +24,28 @@ jobs:
       - name: Static site checks
         run: node tools/check-site.mjs
 
+      - name: Service Worker cache bump
+        run: |
+          BASE=""
+          if [ -n "$GITHUB_BASE_REF" ]; then
+            git fetch --no-tags --depth=1 origin "refs/heads/$GITHUB_BASE_REF" && BASE="FETCH_HEAD"
+          elif [ -n "$GITHUB_BEFORE" ] && ! echo "$GITHUB_BEFORE" | grep -qE '^0+$'; then
+            git fetch --no-tags --depth=1 origin "$GITHUB_BEFORE" && BASE="$GITHUB_BEFORE"
+          fi
+          if [ -n "$BASE" ]; then
+            node tools/check-sw-version.mjs "$BASE"
+          else
+            echo "sw-version: база для diff недоступна, проверка пропущена"
+          fi
+
+      - name: JS lint (no-undef)
+        run: |
+          npm ci
+          npm run lint:js
+
+      - name: Progress sync regressions
+        run: TZ=Europe/Samara node tools/check-progress-sync.mjs
+
       - name: CSS audit
         run: node tools/check-css.mjs
 

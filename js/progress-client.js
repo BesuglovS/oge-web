@@ -130,8 +130,10 @@
         queue.forEach(function (item) {
           var c = item.course;
           if (!byCourse[c]) byCourse[c] = {};
-          byCourse[c][item.payload.module] = { payload: item.payload, ids: [] };
           var slot = byCourse[c][item.payload.module];
+          if (!slot) {
+            slot = byCourse[c][item.payload.module] = { payload: item.payload, ids: [] };
+          }
           slot.payload = item.payload;
           slot.ids.push(item.outbox_id);
         });
@@ -246,12 +248,23 @@
 
   /* --------------------------- слияние LWW --------------------------- */
 
+  // Legacy SQLite пишет 'YYYY-MM-DD HH:MM:SS' (UTC без Z). Браузерный
+  // Date.parse может принять это за локальное время — нормализуем.
+  function parseTime(value) {
+    if (!value || typeof value !== 'string') return NaN;
+    var s = value;
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(s)) {
+      s = s.replace(' ', 'T') + 'Z';
+    }
+    return Date.parse(s);
+  }
+
   // Возвращает более свежую из двух записей прогресса по updated_at.
   function newerEntry(a, b) {
     if (!a) return b;
     if (!b) return a;
-    var ta = Date.parse(a.updated_at || '');
-    var tb = Date.parse(b.updated_at || '');
+    var ta = parseTime(a.updated_at || '');
+    var tb = parseTime(b.updated_at || '');
     if (isNaN(ta) && isNaN(tb)) return Object.assign({}, a, b);
     if (isNaN(ta)) return b;
     if (isNaN(tb)) return a;
@@ -259,13 +272,34 @@
   }
 
   function mergeCourseData(server, local) {
+    server = server && typeof server === 'object' ? server : {};
+    local = local && typeof local === 'object' ? local : {};
     var merged = {};
     var keys = {};
     var k;
     for (k in server) { if (Object.prototype.hasOwnProperty.call(server, k)) keys[k] = true; }
     for (k in local) { if (Object.prototype.hasOwnProperty.call(local, k)) keys[k] = true; }
+
+    // Серверный сброс — это tombstone: локальные модули старше маркера
+    // не должны переживать merge (иначе зеркало nayanova-progress
+    // «воскрешает» прогресс на других устройствах).
+    var resetAt = server.__reset__ ? parseTime(server.__reset__.updated_at || '') : NaN;
+
     Object.keys(keys).forEach(function (key) {
-      merged[key] = newerEntry(server[key], local[key]);
+      var serverRow = server[key];
+      var localRow = local[key];
+      var localTs = localRow ? parseTime(localRow.updated_at || '') : NaN;
+      // Нет времени — тоже считаем старой записью: после сброса такие
+      // записи не должны переживать merge.
+      var localStale = localRow && (isNaN(localTs) || localTs <= resetAt);
+      if (!isNaN(resetAt) && key !== '__reset__' && key !== '__summary__' &&
+          localStale && !serverRow) {
+        return;
+      }
+      if (!isNaN(resetAt) && key === '__summary__' && localStale && !serverRow) {
+        return;
+      }
+      merged[key] = newerEntry(serverRow, localRow);
     });
     return merged;
   }
@@ -354,6 +388,19 @@
   }
 
   /**
+   * Серверный сброс прогресса курса (все устройства).
+   * Локальные ключи очищает вызывающий код: библиотека не знает,
+   * какие ещё данные курса живут в приложении.
+   */
+  function resetCourse(course) {
+    var c = course || config.course;
+    return api('/api/progress.php?action=reset', {
+      method: 'POST',
+      body: JSON.stringify({ course: c })
+    });
+  }
+
+  /**
    * Сводка по всем курсам (для портала). Требует авторизации.
    * Для различения «не авторизован» и «сервис недоступен» используйте getAuthState().
    * @returns {Promise<Object|null>} {courses:{course:{total,completed,percentage,updated_at}}}
@@ -394,6 +441,7 @@
     getCourse: getCourse,
     setModule: setModule,
     setBatch: setBatch,
+    resetCourse: resetCourse,
     getSummary: getSummary
   };
 

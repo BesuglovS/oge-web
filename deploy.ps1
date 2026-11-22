@@ -10,9 +10,12 @@
   Switch the public symlink to the previous release (or to -Release) and exit.
 .PARAMETER Release
   Release directory name for -Rollback (e.g. 20261025-095658-1648451).
+.PARAMETER AllowDirty
+  Allow a real deploy from a dirty git worktree. -DryRun is not blocked.
 .EXAMPLE
   .\deploy.ps1
   .\deploy.ps1 -DryRun
+  .\deploy.ps1 -AllowDirty
   .\deploy.ps1 -Rollback
   .\deploy.ps1 -Rollback -Release 20261025-095536-1648371
 #>
@@ -20,7 +23,8 @@
 param(
   [switch]$DryRun,
   [switch]$Rollback,
-  [string]$Release
+  [string]$Release,
+  [switch]$AllowDirty
 )
 
 $ErrorActionPreference = 'Stop'
@@ -197,6 +201,18 @@ curl -sS -o /dev/null -w "https %{http_code}\n" "https://__NGINX_SITE__/oge.html
 # ─── 2. Pack & deploy via tar + ssh ───
 $srcPath = $PSScriptRoot
 
+# Гейт грязного дерева: в прод не должен уходить незакоммиченный код.
+# -DryRun не блокируем — он только показывает план; -AllowDirty — осознанное
+# исключение (version.json всё равно запишет dirty:true).
+if (-not $DryRun) {
+  $dirtyNow = @(& git -C $PSScriptRoot status --porcelain 2>$null)
+  if ($dirtyNow.Count -gt 0 -and -not $AllowDirty) {
+    Write-Host "ERROR: грязное дерево ($($dirtyNow.Count) файлов). Закоммитьте изменения или используйте -AllowDirty." -ForegroundColor Red
+    $dirtyNow | Select-Object -First 10 | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkYellow }
+    exit 1
+  }
+}
+
 # --- Deploy marker + self-contained nginx/CSP config ---
 $markerDir = Join-Path $env:TEMP "marker-$(Get-Random)"
 New-DeployMarker -ProjectDir $PSScriptRoot -OutFile (Join-Path $markerDir 'version.json')
@@ -263,6 +279,10 @@ $excludeArgs = @(
   '--exclude=./p',
   '--exclude=tools',
   '--exclude=.github',
+  '--exclude=package.json',
+  '--exclude=package-lock.json',
+  '--exclude=eslint.config.mjs',
+  '--exclude=node_modules',
   '--exclude=oge.nayanovaacademy.ru'
 ) -join ' '
 

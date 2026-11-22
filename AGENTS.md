@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v38'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v39'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `data/oge14-exam.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v37` → `v38`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v38` → `v39`), иначе пользователи вечно видят старый кэш.
    Precache атомарный: сбой любого обязательного ассета отменяет install и сохраняет прежний полный кэш.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей (`math`, `random`, `datetime`; `random` отдаётся через прокси), блокирующие
@@ -68,6 +68,7 @@
 ```bash
 python -m http.server 8000   # локальный dev-сервер (нужен PHP: run_python.php, git/)
 php -S 127.0.0.1:8080        # локально с PHP (задание 16)
+npm ci && npm run lint:js    # ESLint no-undef (нужен Node/npm; node_modules не деплоится)
 .\deploy.ps1 -DryRun         # сухой прогон
 .\deploy.ps1                 # деплой
 ```
@@ -102,6 +103,10 @@ sw-ассеты вместе с 40 файлами задания 15, иконк�
 допуск, строки, запрещённый импорт, timeout, ненулевой exit code, переполнение вывода,
 GET 405), `node tools/check-client-resilience.mjs` (атомарный precache SW, очистка только
 своих кэшей, outbox во время параллельного flush, учёт только видимого времени трекинга),
+`node tools/check-progress-sync.mjs` (мост прогресса: D1/D2/D4, reset-маркер,
+зеркало и outbox; в CI запускается с `TZ=Europe/Samara`), `node tools/check-sw-version.mjs`
+(изменился предкэшируемый файл — `CACHE_NAME` обязан измениться; замена build-step), `npm run lint:js`
+(ESLint `no-undef` по `js/*.js`; ловит необъявленные переменные вроде `localDone`),
 `node tools/check-theory.mjs` (примеры кода в теории: Python-блоки компилируются,
 программы КуМира разбираются настоящим парсером тренажёра),
 `node tools/check-oge11-archive.mjs` (ответы задания 11 сверяются с текстом произведений
@@ -162,11 +167,15 @@ tools/browser-smoke.mjs            # smoke-тест в реальном Chrome: 
 tools/update-sitemap.mjs           # lastmod в sitemap.xml по датам коммитов (запускать перед коммитом правок страниц)
 tools/csp-policy.mjs               # CSP с sha256-хешами inline-скриптов (используется деплоем и --csp)
 tools/check-data.mjs               # проверки данных заданий 1–10, 12, 13.1/13.2, 14, 15, 16 (нужен python 3)
+tools/check-progress-sync.mjs       # мост прогресса: D1/D2/D4, reset-маркер, зеркало, outbox (TZ=Europe/Samara)
+tools/check-sw-version.mjs          # CACHE_NAME должен меняться вместе с предкэшируемыми файлами
 tools/check-sandbox.mjs            # интеграционный тест run_python.php (php + python 3)
 tools/check-theory.mjs             # примеры кода в теории: Python + КуМир (нужен python 3)
 tools/check-links.mjs              # внешние ссылки (вне CI, нужен интернет)
 tools/check-oge11-archive.mjs      # ответы задания 11 по текстам в архиве (нужен python 3)
 tools/gen-oge15-ref.mjs            # пересборка js/oge15-ref.js из .kum
+package.json, package-lock.json     # только dev-зависимости ESLint (не деплоятся)
+eslint.config.mjs                  # flat config, правило no-undef для js/*.js
 manifest.json, sw.js, offline.html, 404.html, LICENSE
 deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 ```
@@ -222,8 +231,9 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 атомарное.
 
 Требования сервера: nginx + PHP 8.1-FPM, root `/var/www/oge.nayanovaacademy.ru/public/`.
-Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `max-age=2592000, immutable`,
-`no-cache` для `/sw.js`, `version.json`, `manifest.json`, `styles.css` и JS-клиентов (включая
+Nginx: `try_files $uri $uri/ =404` (без неявного `$uri.php`; PHP — только точные
+location `run_python.php` и `/git/`), `server_tokens off`, gzip, статика
+`max-age=86400`, `no-cache` для `/sw.js`, `version.json`, `manifest.json`, `styles.css` и JS-клиентов (включая
 `code-editor.js`, `oge15-gen.js`, `oge15-ref.js`), dotfiles deny **до** правил расширений,
 `limit_req zone=sandbox_oge rate=20r/s burst=60` на `run_python.php`,
 **CSP** (см. «Безопасность») на HTML-страницах.

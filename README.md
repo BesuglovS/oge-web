@@ -75,6 +75,9 @@ node tools/check-theory.mjs       # примеры кода в теории (pyt
 node tools/check-oge11-archive.mjs # ответы задания 11 по архиву (python 3)
 node tools/check-sandbox.mjs      # нужен php + python 3
 node tools/check-client-resilience.mjs # SW, outbox и tracking без браузера
+node tools/check-progress-sync.mjs # мост прогресса: D1/D2/D4 и reset
+node tools/check-sw-version.mjs   # предкэш изменён → CACHE_NAME должен быть поднят
+npm ci && npm run lint:js         # ESLint no-undef по js/*.js
 node tools/check-links.mjs        # внешние ссылки (нужен интернет, вне CI)
 php -l run_python.php
 ```

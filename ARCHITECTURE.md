@@ -79,10 +79,15 @@ oge.html (навигация + прогресс)
 `oge-progress-saved`, и `progress-sync.js` сразу отправляет прогресс на портал,
 не дожидаясь возврата на лендинг.
 
+Сброс прогресса — на всех устройствах: `POST /api/progress.php?action=reset`
+удаляет модули курса и оставляет серверный маркер `__reset__`. Клиент удаляет
+локальные записи/зеркало/outbox старше маркера. Все `updated_at` — ISO-8601 UTC;
+legacy-формат `YYYY-MM-DD HH:MM:SS` нормализуется на клиенте и миграцией v4.
+
 ## PWA
 
 - `manifest.json` подключается на всех страницах (`<link rel="manifest">`).
-- `sw.js` (`CACHE_NAME='oge-web-v35'`) кэширует статику и данные задания 15;
+- `sw.js` (`CACHE_NAME='oge-web-v39'`) кэширует статику и данные задания 15;
   HTML — network-first с фолбэком на кэш и `offline.html`; остальные ассеты —
   cache-first. Большие архивы (`files/*.zip`) не кэшируются.
 - При изменении списка ассетов поднять `CACHE_NAME`.
@@ -122,19 +127,22 @@ run_python.php   (отдаёт X-Sandbox-Build — хеш файла для пр
          прогон, остальные тесты помечаются skipped)
 ```
 
-Разрешённые модули: `math`, `random`, `datetime`, `decimal`, `fractions`,
-`string`, `re`, `collections`, `itertools`, `functools`, `operator`, `json`,
-`csv`.
+Разрешённые модули: `math`, `random` (через прокси-объект), `datetime`.
+`decimal`, `fractions`, `string`, `re`, `collections`, `itertools`, `functools`,
+`operator`, `json`, `csv` намеренно убраны: они дают доступ к attrgetter,
+Formatter и внутренним подмодулям.
 
 ## Деплой
 
 `deploy.ps1` читает `.env` (SSH-параметры), пакует проект `tar`-ом с
-исключениями (`.git`, `.env`, `deploy.ps1`, документация, nginx-конфиг, `p`)
-и разворачивает по SSH **атомарно**: новый релиз распаковывается в
+исключениями (`.git`, `.env`, `deploy.ps1`, документация, nginx-конфиг, `p`,
+`package*.json`, `eslint.config.mjs`, `node_modules`) и разворачивает по SSH
+**атомарно**: новый релиз распаковывается в
 `releases/<ts>-<pid>`, серверные файлы `git/` переносятся без перезаписи,
 выполняется smoke-check, затем `public` — симлинк на новый релиз (замена
 через `mv -T`). При ошибке live-версия не меняется; старые релизы хранятся
-(KEEP=5) для отката. nginx-конфиг деплоится отдельным шагом через
+(KEEP=5) для отката. Грязное дерево блокирует реальный деплой (обход —
+`-AllowDirty`; `-DryRun` не блокируется). nginx-конфиг деплоится отдельным шагом через
 `sudo /usr/local/sbin/deploy-nginx.sh`. Откат — `.\deploy.ps1 -Rollback`
 (предыдущий релиз) или `-Rollback -Release <имя>`; симлинк переключается
 атомарно.

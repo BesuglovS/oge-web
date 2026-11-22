@@ -1,0 +1,13 @@
+{
+  "name": "oge-web-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Статические проверки oge-web (без сборки)",
+  "scripts": {
+    "lint:js": "eslint js"
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "globals": "^17.0.0"
+  }
+}

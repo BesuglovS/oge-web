@@ -9,6 +9,9 @@ Desktop.ini
 .vscode/
 .idea/
 
+# Node-зависимости проверок (ESLint), не деплоятся
+node_modules/
+
 # Локальные артефакты анализа
 analysis-*.md
 
