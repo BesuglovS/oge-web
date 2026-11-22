@@ -195,8 +195,12 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
    `data/oge14-exam.json`, `files/*.zip`), затем `public` — **симлинк** на новый релиз (атомарная замена через
    `mv -T`). При любой ошибке live не трогается; старые релизы хранятся (KEEP=5)
    для отката. Первичная миграция real-dir `public` → `releases/initial-*` + симлинк.
-4. Деплой nginx-конфига через `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`
-   (sudoers deploy-nginx; хелпер валидирует nginx -t и откатывает конфиг при ошибке).
+4. Nginx/CSP деплоится в том же удалённом шаге, что и symlink: готовый конфиг
+   кладётся в релиз как `.deploy/nginx-site`, затем вызывается
+   `sudo -n /usr/local/sbin/deploy-nginx.sh oge.nayanovaacademy.ru`. При ошибке
+   удалённый скрипт возвращает и `public`, и nginx/CSP предыдущего релиза.
+   Каждый новый релиз хранит собственную конфигурацию; `-Rollback` переключает
+   symlink и восстанавливает CSP выбранного релиза одной операцией.
 5. Деплой PHP-конфига: `sudo -n /usr/local/sbin/deploy-php.sh <релиз>/php-fpm-opcache.ini`
    (sudoers `deploy-php`; хелпер проверяет наличие `opcache.revalidate_path=1`, ставит файл
    и делает `php-fpm8.1 -t` + `systemctl reload php8.1-fpm`). При ошибке деплой только
@@ -212,8 +216,10 @@ deploy.ps1, oge.nayanovaacademy.ru (nginx, tracked)
 если PHP-код не обновился.
 
 **Откат:** `.\deploy.ps1 -Rollback` переключает `public` на предыдущий релиз,
-`.\deploy.ps1 -Rollback -Release <имя>` — на указанный. Переключение симлинка
-атомарное, reload nginx не требуется.
+`.\deploy.ps1 -Rollback -Release <имя>` — на указанный. Вместе с symlink
+устанавливается сохранённый в релизе nginx/CSP-конфиг; при ошибке nginx
+предыдущее состояние восстанавливается автоматически. Переключение симлинка
+атомарное.
 
 Требования сервера: nginx + PHP 8.1-FPM, root `/var/www/oge.nayanovaacademy.ru/public/`.
 Nginx: `try_files $uri $uri/ $uri.php =404`, `server_tokens off`, gzip, static `max-age=2592000, immutable`,
