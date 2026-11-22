@@ -47,7 +47,7 @@
 
         <div class="path-workspace">
           <div class="path-parts-pool">
-            <h3>📦 Доступные элементы URL</h3>
+            <h3 role="heading" aria-level="2">📦 Доступные элементы URL</h3>
             <div class="parts-container" id="partsPool"></div>
           </div>
 
@@ -97,7 +97,7 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button type="button" class="quick-nav-btn theory" data-nav="oge7-t.html" title="Теория">📚</button>
+      <button type="button" class="quick-nav-btn theory" data-nav="oge7-t.html" title="Теория" aria-label="Теория">📚</button>
       <button type="button" class="quick-nav-btn top" data-act="scrollTopSmooth" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
@@ -731,7 +731,8 @@
         const parts = zone.querySelectorAll(".path-part");
 
         if (parts.length === 0) {
-          alert("Соберите URL-адрес из предложенных элементов!");
+          const empty = document.getElementById("resultDisplay");
+          if (empty) empty.textContent = "⚠️ Соберите URL-адрес из предложенных элементов!";
           return;
         }
 
@@ -741,8 +742,14 @@
         });
 
         answered = true;
-        const isCorrect =
-          userUrl.toLowerCase() === currentTask.correctUrl.toLowerCase();
+        // Протокол и домен регистронезависимы, путь и имя файла — нет.
+        function urlForCompare(url) {
+          const match = url.match(/^([a-z][a-z0-9+.-]*:\/\/)([^/]+)([\s\S]*)$/i);
+          return match
+            ? match[1].toLowerCase() + match[2].toLowerCase() + match[3]
+            : url;
+        }
+        const isCorrect = urlForCompare(userUrl) === urlForCompare(currentTask.correctUrl);
 
         const feedback = document.getElementById("feedback");
         const resultDisplay = document.getElementById("resultDisplay");

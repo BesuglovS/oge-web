@@ -121,7 +121,8 @@
     var queue = getOutbox();
     if (!queue.length) return Promise.resolve(0);
     flushing = true;
-    return checkAuth()
+    // Если auth-web был недоступен, не доверяем закэшированному «не авторизован».
+    return checkAuth(unavailable === true)
       .then(function (authedNow) {
         if (!authedNow || unavailable) return 0;
         // Группируем по курсу, склеивая повторы по модулю (последний выигрывает).
@@ -369,7 +370,11 @@
   function wireNetworkListeners() {
     if (typeof global.addEventListener !== 'function') return;
     try {
-      global.addEventListener('online', function () { flushOutbox(); });
+      global.addEventListener('online', function () {
+        // Возврат сети: сбрасываем отрицательный кэш авторизации и пробуем снова.
+        resetAuth();
+        flushOutbox();
+      });
       if (typeof global.document !== 'undefined') {
         global.document.addEventListener('visibilitychange', function () {
           if (global.document.visibilityState === 'visible') flushOutbox();

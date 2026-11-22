@@ -166,7 +166,7 @@
             />
 
             <!-- Highlight regions with precise clipping -->
-            <!-- Region: Only A (A & !B & !C) -->
+            <!-- Region: Only A (A &amp; !B &amp; !C) -->
             <g
               id="highlight-onlyA"
               class="highlight-group"
@@ -183,7 +183,7 @@
               />
             </g>
 
-            <!-- Region: Only B (!A & B & !C) -->
+            <!-- Region: Only B (!A &amp; B &amp; !C) -->
             <g
               id="highlight-onlyB"
               class="highlight-group"
@@ -200,7 +200,7 @@
               />
             </g>
 
-            <!-- Region: Only C (!A & !B & C) -->
+            <!-- Region: Only C (!A &amp; !B &amp; C) -->
             <g
               id="highlight-onlyC"
               class="highlight-group"
@@ -217,7 +217,7 @@
               />
             </g>
 
-            <!-- Region: A & B & !C -->
+            <!-- Region: A &amp; B &amp; !C -->
             <g id="highlight-AB" class="highlight-group" style="display: none">
               <g style="clip-path: url(#clipA)">
                 <circle
@@ -231,7 +231,7 @@
               </g>
             </g>
 
-            <!-- Region: A & C & !B -->
+            <!-- Region: A &amp; C &amp; !B -->
             <g id="highlight-AC" class="highlight-group" style="display: none">
               <g style="clip-path: url(#clipA)">
                 <circle
@@ -245,7 +245,7 @@
               </g>
             </g>
 
-            <!-- Region: B & C & !A -->
+            <!-- Region: B &amp; C &amp; !A -->
             <g id="highlight-BC" class="highlight-group" style="display: none">
               <g style="clip-path: url(#clipB)">
                 <circle
@@ -259,7 +259,7 @@
               </g>
             </g>
 
-            <!-- Region: A & B & C (все три) -->
+            <!-- Region: A &amp; B &amp; C (все три) -->
             <g id="highlight-ABC" class="highlight-group" style="display: none">
               <g style="clip-path: url(#clipA)">
                 <circle
@@ -342,7 +342,7 @@
           </svg>
 
           <div class="euler-info">
-            <h4>📝 Выбранная область</h4>
+            <h4 role="heading" aria-level="3">📝 Выбранная область</h4>
             <div class="expression" id="regionExpression">
               Кликните на область диаграммы
             </div>
@@ -393,7 +393,7 @@
             </div>
             <div class="region-item" data-region="ABC">
               <div class="region-name">A и B и C</div>
-              <div class="region-expr">A & B & C</div>
+              <div class="region-expr">A &amp; B &amp; C</div>
             </div>
           </div>
         </div>
@@ -462,7 +462,7 @@
           </div>
 
           <div class="operation-card">
-            <div class="operation-symbol and">∩ &</div>
+            <div class="operation-symbol and">∩ &amp;</div>
             <div class="operation-name">И (пересечение)</div>
             <svg viewBox="0 0 150 100" class="operation-diagram">
               <rect
@@ -528,7 +528,7 @@
               Элементы, принадлежащие <strong>обоим</strong> множествам
               одновременно.
               <br />
-              <em>Пример: «Царь» & «Иван» — страницы с обоими словами</em>
+              <em>Пример: «Царь» &amp; «Иван» — страницы с обоими словами</em>
             </div>
           </div>
 
@@ -594,10 +594,10 @@
         </div>
 
         <div class="tip-box">
-          <h4>💡 Важно запомнить</h4>
+          <h4 role="heading" aria-level="3">💡 Важно запомнить</h4>
           <ul>
             <li>
-              <strong>A & B</strong> — пересечение (страницы с A <em>и</em>
+              <strong>A &amp; B</strong> — пересечение (страницы с A <em>и</em>
               с B)
             </li>
             <li>
@@ -606,7 +606,7 @@
             </li>
             <li><strong>!A</strong> — дополнение (страницы <em>без</em> A)</li>
             <li>
-              Операция <strong>&</strong> имеет более высокий приоритет, чем
+              Операция <strong>&amp;</strong> имеет более высокий приоритет, чем
               <strong>|</strong>
             </li>
           </ul>
@@ -628,17 +628,17 @@
         </div>
 
         <div class="example-box">
-          <h4>📝 Пример с двумя множествами</h4>
+          <h4 role="heading" aria-level="3">📝 Пример с двумя множествами</h4>
           <p>
             Запрос <span class="query">Царь | Иван</span> найдёт страницы, где
             есть слово «Царь» <strong>или</strong> слово «Иван» (или оба).
           </p>
           <p>
-            Запрос <span class="query">Царь & Иван</span> найдёт страницы, где
+            Запрос <span class="query">Царь &amp; Иван</span> найдёт страницы, где
             есть <strong>оба</strong> слова одновременно.
           </p>
           <p>
-            Запрос <span class="query">Царь & !Иван</span> найдёт страницы со
+            Запрос <span class="query">Царь &amp; !Иван</span> найдёт страницы со
             словом «Царь», <strong>но без</strong> слова «Иван».
           </p>
         </div>
@@ -650,11 +650,11 @@
             есть хотя бы одно из слов.
           </p>
           <p>
-            Запрос <span class="query">A & B & C</span> найдёт страницы, где
+            Запрос <span class="query">A &amp; B &amp; C</span> найдёт страницы, где
             есть <strong>все три</strong> слова.
           </p>
           <p>
-            Запрос <span class="query">A & (B | C)</span> найдёт страницы, где
+            Запрос <span class="query">A &amp; (B | C)</span> найдёт страницы, где
             есть A и хотя бы одно из B или C.
           </p>
         </div>
@@ -673,7 +673,7 @@
           <h3>📐 Основные формулы</h3>
           <div class="formula">
             <span class="formula-highlight">A | B</span> = A + B -
-            <span class="formula-highlight">A & B</span>
+            <span class="formula-highlight">A &amp; B</span>
           </div>
           <p style="margin-top: 15px; opacity: 0.8; font-size: 0.95rem">
             Объединение = сумма минус пересечение (чтобы не считать дважды)
@@ -684,18 +684,18 @@
           <h3>📐 Формула для трёх множеств</h3>
           <div class="formula">
             <span class="formula-highlight">A | B | C</span> = A + B + C<br />
-            - <span class="formula-highlight">A&B</span> -
-            <span class="formula-highlight">A&C</span> -
-            <span class="formula-highlight">B&C</span><br />
-            + <span class="formula-highlight">A&B&C</span>
+            - <span class="formula-highlight">A&amp;B</span> -
+            <span class="formula-highlight">A&amp;C</span> -
+            <span class="formula-highlight">B&amp;C</span><br />
+            + <span class="formula-highlight">A&amp;B&amp;C</span>
           </div>
         </div>
 
         <div class="formula-box">
-          <h3>📐 Формула для A & (B | C)</h3>
+          <h3>📐 Формула для A &amp; (B | C)</h3>
           <div class="formula">
-            <span class="formula-highlight">A & (B | C)</span> = A&B + A&C -
-            <span class="formula-highlight">A&B&C</span>
+            <span class="formula-highlight">A &amp; (B | C)</span> = A&amp;B + A&amp;C -
+            <span class="formula-highlight">A&amp;B&amp;C</span>
           </div>
           <p style="margin-top: 15px; opacity: 0.8; font-size: 0.95rem">
             Раскрываем скобки по правилу дистрибутивности
@@ -753,7 +753,7 @@
           <ul>
             <li>Забыть вычесть пересечение при подсчёте объединения</li>
             <li>
-              Перепутать знаки <strong>&</strong> (И) и <strong>|</strong>
+              Перепутать знаки <strong>&amp;</strong> (И) и <strong>|</strong>
               (ИЛИ)
             </li>
             <li>Не учесть тройное пересечение в задачах с тремя множествами</li>
@@ -782,9 +782,9 @@
         </div>
 
         <div class="example-box">
-          <h4>📝 Пример 1: Два множества</h4>
+          <h4 role="heading" aria-level="3">📝 Пример 1: Два множества</h4>
           <p>
-            Запросы: «Крокодил» — 432 тыс., «Гена» — 543 тыс., «Крокодил & Гена»
+            Запросы: «Крокодил» — 432 тыс., «Гена» — 543 тыс., «Крокодил &amp; Гена»
             — 205 тыс.
           </p>
           <p><strong>Найти:</strong> «Крокодил | Гена» = ?</p>
@@ -792,7 +792,7 @@
             <strong>Решение:</strong>
           </p>
           <p>
-            По формуле: <span class="highlight">A | B = A + B - A & B</span>
+            По формуле: <span class="highlight">A | B = A + B - A &amp; B</span>
           </p>
           <p>
             «Крокодил | Гена» = 432 + 543 - 205<br />
@@ -809,21 +809,21 @@
             Дано: «Царь» — 340 тыс., «Иван» — 260 тыс., «Полтава» — 120 тыс.
           </p>
           <p>
-            «Царь | Иван | Полтава» — 660 тыс., «Царь & Иван» — 40 тыс., «Царь &
+            «Царь | Иван | Полтава» — 660 тыс., «Царь &amp; Иван» — 40 тыс., «Царь &amp;
             Полтава» — 0 тыс.
           </p>
-          <p><strong>Найти:</strong> «Иван & Полтава» = ?</p>
+          <p><strong>Найти:</strong> «Иван &amp; Полтава» = ?</p>
           <p style="margin-top: 10px">
             <strong>Решение:</strong>
           </p>
           <p>
             По формуле для трёх множеств:<br />
             <span class="highlight"
-              >A|B|C = A + B + C - A&B - A&C - B&C + A&B&C</span
+              >A|B|C = A + B + C - A&amp;B - A&amp;C - B&amp;C + A&amp;B&amp;C</span
             >
           </p>
           <p>
-            Поскольку «Царь & Полтава» = 0, то и A&B&C = 0<br />
+            Поскольку «Царь &amp; Полтава» = 0, то и A&amp;B&amp;C = 0<br />
             660 = 340 + 260 + 120 - 40 - 0 - X + 0<br />
             660 = 720 - 40 - X<br />
             X = 680 - 660 = <span class="highlight">20 тыс.</span>
@@ -834,15 +834,15 @@
         </div>
 
         <div class="example-box">
-          <h4>📝 Пример 3: Формула A & (B | C)</h4>
-          <p>Дано: A & (B | C) = 915, A & B & C = 405, A & C = 615</p>
-          <p><strong>Найти:</strong> A & B = ?</p>
+          <h4>📝 Пример 3: Формула A &amp; (B | C)</h4>
+          <p>Дано: A &amp; (B | C) = 915, A &amp; B &amp; C = 405, A &amp; C = 615</p>
+          <p><strong>Найти:</strong> A &amp; B = ?</p>
           <p style="margin-top: 10px">
             <strong>Решение:</strong>
           </p>
           <p>
             Формула:
-            <span class="highlight">A & (B | C) = A&B + A&C - A&B&C</span>
+            <span class="highlight">A &amp; (B | C) = A&amp;B + A&amp;C - A&amp;B&amp;C</span>
           </p>
           <p>
             915 = X + 615 - 405<br />
@@ -881,7 +881,7 @@
         class="quick-nav-btn practice"
         data-nav="oge8.html"
         title="К заданию"
-      >
+       aria-label="К заданию">
         🎮
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">

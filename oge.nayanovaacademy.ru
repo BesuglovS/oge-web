@@ -26,6 +26,9 @@ server {
     # Не раскрываем версию nginx в ответах и на страницах ошибок.
     server_tokens off;
 
+    # Явная кодировка для HTML и текстовых файлов (не полагаемся только на meta).
+    charset utf-8;
+
     # Сжатие текстовых ассетов (HTML/CSS/JS/JSON/SVG).
     gzip on;
     gzip_vary on;

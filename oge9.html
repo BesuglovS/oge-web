@@ -42,7 +42,7 @@
       </div>
 
       <div class="hint-box" id="hintBox">
-        <h4>💡 Подсказка</h4>
+        <h4 role="heading" aria-level="2">💡 Подсказка</h4>
         <p id="hintText"></p>
       </div>
 
@@ -64,7 +64,7 @@
         class="quick-nav-btn theory"
         data-nav="oge9-t.html"
         title="Теория"
-      >
+       aria-label="Теория">
         📚
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
@@ -1020,16 +1020,19 @@
           }
         }
 
+        const result = document.getElementById("result");
         if (totalFilled === 0) {
-          alert("Заполните хотя бы одно поле для проверки.");
+          result.className = "result";
+          result.innerHTML = "⚠️ Заполните хотя бы одно поле для проверки.";
         } else if (allCorrect && totalFilled === graph.vertexCount) {
-          alert(`✅ Отлично! Все ${correctCount} значений верны!`);
+          result.className = "result correct";
+          result.innerHTML = `✅ Отлично! Все ${correctCount} значений верны!`;
         } else if (correctCount > 0) {
-          alert(
-            `Правильных значений: ${correctCount} из ${totalFilled} заполненных.`,
-          );
+          result.className = "result";
+          result.innerHTML = `Правильных значений: ${correctCount} из ${totalFilled} заполненных.`;
         } else {
-          alert(`Все заполненные значения неверны. Попробуйте ещё раз.`);
+          result.className = "result incorrect";
+          result.innerHTML = "Все заполненные значения неверны. Попробуйте ещё раз.";
         }
       }
 

@@ -6,9 +6,9 @@
 
 ## ⚠️ Критические правила
 
-1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v37'`) предкэширует жёсткий
+1. **Service Worker — главная ловушка деплоя.** `sw.js` (`CACHE_NAME='oge-web-v38'`) предкэширует жёсткий
    список `ASSETS` (все `ogeN.html`, `ogeN-t.html`, `oge4-path.html`, `assets/styles.css`, `assets/favicon.svg`, `assets/icon-*.png`, `favicon.ico`, `data/oge7.json`, `data/oge14-exam.json`, `js/*.js`, `manifest.json`, `offline.html`, `404.html`, `/files/oge15/*.json`, `/`).
-   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v36` → `v37`), иначе пользователи вечно видят старый кэш.
+   При добавлении/изменении ассета: добавить в `ASSETS` **и поднять `CACHE_NAME`** (`v37` → `v38`), иначе пользователи вечно видят старый кэш.
    Precache атомарный: сбой любого обязательного ассета отменяет install и сохраняет прежний полный кэш.
 2. **`run_python.php` — безопасность критична.** Песочница задания 16: POST-only, лимит 20 КБ кода,
    белый список модулей (`math`, `random`, `datetime`; `random` отдаётся через прокси), блокирующие

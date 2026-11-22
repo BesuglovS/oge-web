@@ -1444,8 +1444,24 @@ try {
     // Верные ответы должны быть в разных позициях, иначе тренажёр проходится «всё время первым».
     const positions = new Set(steps.map((s) => s.correct));
     if (positions.size < 3) errors.push(`${page}: верные ответы на ${positions.size} позициях — похоже на шаблон`);
+    // Контентные инварианты ФИПИ-2026: формат ответа и ключевые требования.
+    const corpus = steps.map((s) => [s.title, s.text, s.question, ...(s.options || []), s.hint, s.why].join(' ')).join(' ');
+    const required = page === 'oge131.html'
+      ? ['16:9', '40', '24', '20', 'идентификационный', '.odp', 'два изображения', 'три изображения']
+      : ['.odt', '14 пт', '1 см', '14–24', 'таблиц'];
+    for (const needle of required) {
+      if (!corpus.toLowerCase().includes(needle.toLowerCase())) {
+        errors.push(`${page}: в чек-листе нет обязательного требования «${needle}»`);
+      }
+    }
+    if (page === 'oge132.html' && /1,25/.test(corpus)) {
+      errors.push('oge132.html: в чек-листе остался устаревший отступ 1,25 см');
+    }
     console.log(`${page}: проверено ${steps.length} шагов чек-листа`);
   }
+  // В 2026 году исходный файл 13.2 — *.odt, а не *.txt.
+  const theory132 = fs.readFileSync(path.join(root, 'oge132-t.html'), 'utf8');
+  if (/\(\*\.txt\)/.test(theory132)) errors.push('oge132-t.html: устаревший исходный формат *.txt');
 } catch (e) {
   errors.push('checklist: ' + e.message);
 }

@@ -6,13 +6,13 @@
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>Теория - Задание 6 ОГЭ - Анализ программы с формальным исполнителем</title>
+    <title>Теория: Задание 6 ОГЭ — анализ программы</title>
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
     <meta name="description" content="Теоретический материал по заданию 6 ОГЭ: анализ программ, циклы, условия, подсчёт количества запусков." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/oge6-t.html" />
-    <meta property="og:title" content="Теория - Задание 6 ОГЭ - Анализ программы с формальным исполнителем" />
+    <meta property="og:title" content="Теория: Задание 6 ОГЭ — анализ программы" />
     <meta property="og:description" content="Теоретический материал по заданию 6 ОГЭ: анализ программ, циклы, условия, подсчёт количества запусков." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://oge.nayanovaacademy.ru/oge6-t.html" />
@@ -137,7 +137,7 @@
             <td>Меньше</td>
             <td><code><</code></td>
             <td><code><</code></td>
-            <td>3 < 5 → true</td>
+            <td>3 &lt; 5 → true</td>
           </tr>
           <tr>
             <td>Больше или равно</td>
@@ -187,7 +187,7 @@
 
         <div class="task-types">
           <div class="task-type-card">
-            <h4>🎯 Тип 1: Подсчёт запусков с «YES»</h4>
+            <h4 role="heading" aria-level="3">🎯 Тип 1: Подсчёт запусков с «YES»</h4>
             <p>
               Дана программа и набор пар входных данных. Нужно определить,
               сколько раз программа выведет «YES».
@@ -255,7 +255,7 @@
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
-          <h4>Пример 1: Подсчёт запусков с операцией mod</h4>
+          <h4 role="heading" aria-level="3">Пример 1: Подсчёт запусков с операцией mod</h4>
           <p><strong>Условие:</strong></p>
           <div class="code-block">
             <pre>s = int(input())
@@ -405,7 +405,7 @@ t = int(input())
           <div class="code-block">
             <pre>s = int(input())
 t = int(input())
-<span class="keyword">if</span> (abs(s) < <span class="number">3</span>) <span class="keyword">or</span> (abs(t) < <span class="number">3</span>):
+<span class="keyword">if</span> (abs(s) &lt; <span class="number">3</span>) <span class="keyword">or</span> (abs(t) &lt; <span class="number">3</span>):
     print(<span class="string">'YES'</span>)
 <span class="keyword">else</span>:
     print(<span class="string">'NO'</span>)</pre>
@@ -437,7 +437,7 @@ t = int(input())
           </div>
           <p class="pair-hint">
             💡 Подсказка: условие
-            <code>(abs(s) < 3) or (abs(t) < 3)</code> истинно, если хотя бы одно
+            <code>(abs(s) &lt; 3) or (abs(t) &lt; 3)</code> истинно, если хотя бы одно
             из чисел по модулю меньше 3.
           </p>
 
@@ -446,7 +446,7 @@ t = int(input())
               <summary><strong>Показать решение</strong></summary>
               <br />
               <strong>Решение:</strong><br /><br />
-              Условие: <code>(abs(s) < 3) or (abs(t) < 3)</code><br />
+              Условие: <code>(abs(s) &lt; 3) or (abs(t) &lt; 3)</code><br />
               Это условие истинно, если
               <span class="highlight">хотя бы одно</span> из чисел по модулю
               меньше 3.<br /><br />
@@ -455,8 +455,8 @@ t = int(input())
                   <th>№</th>
                   <th>s</th>
                   <th>t</th>
-                  <th>abs(s) < 3?</th>
-                  <th>abs(t) < 3?</th>
+                  <th>abs(s) &lt; 3?</th>
+                  <th>abs(t) &lt; 3?</th>
                   <th>OR?</th>
                   <th>Вывод</th>
                 </tr>
@@ -624,7 +624,7 @@ t = int(input())
             <pre>s = int(input())
 t = int(input())
 A = int(input())
-<span class="keyword">if</span> (s >= A) <span class="keyword">and</span> (t < <span class="number">1</span>):
+<span class="keyword">if</span> (s >= A) <span class="keyword">and</span> (t &lt; <span class="number">1</span>):
     print(<span class="string">'YES'</span>)
 <span class="keyword">else</span>:
     print(<span class="string">'NO'</span>)</pre>
@@ -644,18 +644,18 @@ A = int(input())
               <summary><strong>Показать решение</strong></summary>
               <br />
               <strong>Решение:</strong><br /><br />
-              Условие: <code>(s >= A) and (t < 1)</code><br />
+              Условие: <code>(s >= A) and (t &lt; 1)</code><br />
             Для вывода «YES» должны выполняться
             <span class="highlight">оба</span> условия одновременно.<br /><br />
 
-            <strong>Шаг 1:</strong> Определим, для каких пар t < 1 (это
+            <strong>Шаг 1:</strong> Определим, для каких пар t &lt; 1 (это
             обязательное условие):<br />
             <table class="trace-table">
               <tr>
                 <th>№</th>
                 <th>s</th>
                 <th>t</th>
-                <th>t < 1?</th>
+                <th>t &lt; 1?</th>
                 <th>s >= A?</th>
               </tr>
               <tr>
@@ -732,7 +732,7 @@ A = int(input())
             <br />
 
             <strong>Шаг 2:</strong> Анализ<br />
-            Условие t < 1 выполняется для 8 пар (все кроме №5 и №8).<br />
+            Условие t &lt; 1 выполняется для 8 пар (все кроме №5 и №8).<br />
             Нам нужно ровно 5 «YES», значит нужно выбрать 5 пар из этих 8.<br /><br />
 
             Для каждой пары условие s >= A даёт ограничение на A:<br />
@@ -758,13 +758,13 @@ A = int(input())
             - Пара 1: s = –8, –8 >= 2? ✗ → NO<br />
             - Пара 2: s = 1, 1 >= 2? ✗ → NO<br />
             - Пара 3: s = 1, 1 >= 2? ✗ → NO<br />
-            - Пара 4: s = 4, 4 >= 2? ✓ и t = –37 < 1 ✓ → YES<br />
+            - Пара 4: s = 4, 4 >= 2? ✓ и t = –37 &lt; 1 ✓ → YES<br />
             - Пара 5: t = 46 ≥ 1 → NO<br />
-            - Пара 6: s = 30 >= 2 ✓ и t = –14 < 1 ✓ → YES<br />
-            - Пара 7: s = 30 >= 2 ✓ и t = –4 < 1 ✓ → YES<br />
+            - Пара 6: s = 30 >= 2 ✓ и t = –14 &lt; 1 ✓ → YES<br />
+            - Пара 7: s = 30 >= 2 ✓ и t = –4 &lt; 1 ✓ → YES<br />
             - Пара 8: t = 15 ≥ 1 → NO<br />
-            - Пара 9: s = 80 >= 2 ✓ и t = –30 < 1 ✓ → YES<br />
-            - Пара 10: s = 80 >= 2 ✓ и t = –3 < 1 ✓ → YES<br /><br />
+            - Пара 9: s = 80 >= 2 ✓ и t = –30 &lt; 1 ✓ → YES<br />
+            - Пара 10: s = 80 >= 2 ✓ и t = –3 &lt; 1 ✓ → YES<br /><br />
 
             Итого: 5 «YES» (пары 4, 6, 7, 9, 10) ✓<br /><br />
             <strong>Ответ: 2</strong>
@@ -779,7 +779,7 @@ A = int(input())
             <pre>s = int(input())
 t = int(input())
 A = int(input())
-<span class="keyword">if</span> (s < A) <span class="keyword">or</span> (t < A):
+<span class="keyword">if</span> (s &lt; A) <span class="keyword">or</span> (t &lt; A):
     print(<span class="string">'YES'</span>)
 <span class="keyword">else</span>:
     print(<span class="string">'NO'</span>)</pre>
@@ -874,12 +874,12 @@ A = int(input())
         <h2>💡 Полезные советы</h2>
 
         <div class="tip-box">
-          <h4>🔢 Операция mod (остаток от деления)</h4>
+          <h4 role="heading" aria-level="3">🔢 Операция mod (остаток от деления)</h4>
           <p>Остаток от деления a mod n — это число от 0 до n–1:</p>
           <ul>
             <li>17 mod 7 = 3 (17 = 2×7 + 3)</li>
             <li>21 mod 7 = 0 (21 делится на 7 без остатка)</li>
-            <li>5 mod 7 = 5 (5 < 7, поэтому остаток равен самому числу)</li>
+            <li>5 mod 7 = 5 (5 &lt; 7, поэтому остаток равен самому числу)</li>
           </ul>
           <p>
             Если число делится на n без остатка, то остаток равен
@@ -941,7 +941,7 @@ A = int(input())
         class="quick-nav-btn practice"
         data-nav="oge6.html"
         title="К заданию"
-      >
+       aria-label="К заданию">
         🎮
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">

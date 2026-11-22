@@ -18,6 +18,7 @@
 
   var config = Object.assign({}, DEFAULTS);
   var authed = null;        // tri-state: null = неизвестно, true/false
+  var authedAt = 0;         // время последней проверки авторизации
   var enabled = false;
   var initialized = false;
   var timer = null;
@@ -65,6 +66,15 @@
     checkAuth().then(function (ok) {
       if (ok) start();
     });
+    // Если проверка не удалась из-за сети, при возврате сети пробуем снова.
+    if (global.addEventListener) {
+      addListener(global, 'online', function () {
+        authed = null;
+        authedAt = 0;
+        if (enabled) return;
+        checkAuth().then(function (ok) { if (ok) start(); });
+      });
+    }
   }
 
   // Автоинициализация при загрузке скрипта — не требует инлайн-скриптов
@@ -80,7 +90,9 @@
   }
 
   function checkAuth() {
-    if (authed !== null) return Promise.resolve(authed);
+    if (authed === true) return Promise.resolve(true);
+    // Отрицательный результат кэшируем ненадолго, чтобы не дёргать auth-web.
+    if (authed === false && Date.now() - authedAt < 60000) return Promise.resolve(false);
     return global.fetch(config.apiBase + '/api/check.php', { credentials: 'include' })
       .then(function (r) {
         if (!r.ok) throw new Error('check.php HTTP ' + r.status);
@@ -88,9 +100,10 @@
       })
       .then(function (d) {
         authed = !!(d && d.authenticated);
+        authedAt = Date.now();
         return authed;
       })
-      .catch(function () { authed = false; return false; });
+      .catch(function () { authed = false; authedAt = Date.now(); return false; });
   }
 
   function currentUrl() {

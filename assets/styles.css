@@ -80,6 +80,14 @@ h3 {
   font-size: 1.1rem;
 }
 
+.subtitle.exam-facts {
+  margin-top: -28px;
+  margin-bottom: 24px;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* === Navigation Links === */
 .nav-links {
   display: flex;
@@ -1031,6 +1039,29 @@ textarea:focus-visible {
 }
 
 .continue-practice[hidden] { display: none; }
+
+.progress-actions {
+  text-align: center;
+  margin: -6px 0 18px;
+}
+
+.progress-reset {
+  font: inherit;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.progress-reset:hover,
+.progress-reset:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+}
 
 .continue-practice-link {
   display: inline-flex;

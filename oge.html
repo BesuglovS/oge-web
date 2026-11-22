@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="assets/styles.css" />
 <meta name="theme-color" content="#7f5468" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="description" content="Интерактивные задания для подготовки к ОГЭ по информатике: 17 тренажёров (16 заданий) с автоматической проверкой, теория, подсказки и разбор решений." />
+    <meta name="description" content="Подготовка к ОГЭ по информатике: 16 заданий и 17 тренажёров с автопроверкой, теория, подсказки и разборы. 13.1 и 13.2 — на выбор." />
     <link rel="canonical" href="https://oge.nayanovaacademy.ru/" />
     <meta property="og:title" content="ОГЭ - Задания по информатике" />
-    <meta property="og:description" content="Интерактивные задания для подготовки к ОГЭ по информатике: 17 тренажёров (16 заданий) с автоматической проверкой, теория, подсказки и разбор решений." />
+    <meta property="og:description" content="Подготовка к ОГЭ по информатике: 16 заданий и 17 тренажёров с автопроверкой, теория, подсказки и разборы. 13.1 и 13.2 — на выбор." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://oge.nayanovaacademy.ru/" />
     <meta property="og:image" content="https://oge.nayanovaacademy.ru/assets/og-image.png" />
@@ -24,6 +24,7 @@
     <noscript><div><img src="https://mc.yandex.ru/watch/107219928" style="position:absolute;left:-9999px" alt="" /></div></noscript>
     <!-- /Yandex.Metrika -->
     <script src="js/progress.js"></script>
+    <script src="js/actions.js"></script>
 </head>
   <body class="body-center">
     <a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
@@ -35,8 +36,15 @@
         Интерактивные задания для подготовки к основному государственному
         экзамену
       </p>
+      <p class="subtitle exam-facts">
+        16 заданий · 21 первичный балл · 2 ч 30 мин<br />
+        Задания 13.1 и 13.2 — альтернативы: на экзамене выполняется одно из двух.
+      </p>
 
       <div id="progressContainer" class="progress-bar-container" aria-live="polite"></div>
+      <div class="progress-actions">
+        <button type="button" class="progress-reset" data-act="resetProgress">Сбросить прогресс</button>
+      </div>
 
       <div id="continuePractice" class="continue-practice" hidden>
         <a id="continuePracticeLink" class="continue-practice-link" href="oge1.html"><span aria-hidden="true">▶</span> Продолжить</a>
@@ -326,6 +334,12 @@
       }
       if (typeof OGEProgress !== 'undefined') { OGEProgress.renderProgressBar('progressContainer'); }
 
+      window.resetProgress = function () {
+        if (!window.confirm('Сбросить весь прогресс на этом устройстве? Это действие нельзя отменить.')) return;
+        if (typeof OGEProgress !== 'undefined') { OGEProgress.clear(); }
+        window.location.reload();
+      };
+
       (function () {
         var cards = Array.prototype.slice.call(document.querySelectorAll('.tasks-grid .task-card'));
         var search = document.getElementById('taskSearch');
@@ -412,8 +426,10 @@
           if (match && cont && contLink) {
             contLink.href = last;
             var id = taskId(match.closest('.task-card'));
-            contLink.textContent = '▶ Продолжить';
-            if (contLabel) contLabel.textContent = id ? 'Задание ' + id.replace(/^oge/, '') : '';
+            var displayId = id === 'oge131' ? '13.1' : (id === 'oge132' ? '13.2' : (id || '').replace(/^oge/, ''));
+            contLink.innerHTML = '<span aria-hidden="true">▶</span> Продолжить';
+            if (displayId) contLink.setAttribute('aria-label', 'Продолжить: задание ' + displayId);
+            if (contLabel) contLabel.textContent = displayId ? 'Задание ' + displayId : '';
             cont.hidden = false;
           }
         } catch (e) {}

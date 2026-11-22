@@ -48,6 +48,15 @@
           <li>Подсчитывать сумму или количество по условию</li>
         </ul>
         <p>Задача может относиться к нескольким типам, представленным ниже.</p>
+        <div class="tip-box">
+          <h4 role="heading" aria-level="3">📌 Формат и критерии</h4>
+          <p>
+            На экзамене программу можно писать на любом языке
+            программирования; на этом сайте проверяется Python. Максимальный
+            балл — <strong>2</strong>: 2 балла — все тесты пройдены, 1 балл —
+            ошибка ровно в одном тесте, 0 — в остальных случаях.
+          </p>
+        </div>
       </div>
 
       <div class="theory-section">
@@ -84,7 +93,7 @@
             Где a<sub>i</sub> — цифры числа в p-ричной системе (0 ≤ a<sub
               >i</sub
             >
-            < p), а цифра a<sub>0</sub> — <strong>последняя</strong> (самая
+            &lt; p), а цифра a<sub>0</sub> — <strong>последняя</strong> (самая
             правая).
           </div>
         </div>
@@ -180,7 +189,7 @@
           <span class="builtin">print</span>(total_sum)
         </div>
 
-        <h4>🔁 Общий алгоритм:</h4>
+        <h4 role="heading" aria-level="3">🔁 Общий алгоритм:</h4>
         <ol>
           <li>Считать N — количество элементов</li>
           <li>Инициализировать переменную для суммы (или количества)</li>
@@ -234,7 +243,7 @@
           <span class="builtin">print</span>(total_sum)
         </div>
 
-        <h4>🔁 Общий алгоритм:</h4>
+        <h4 role="heading" aria-level="3">🔁 Общий алгоритм:</h4>
         <ol>
           <li>Инициализировать переменную для суммы (или количества)</li>
           <li>Считать первое число</li>
@@ -260,7 +269,7 @@
       <div class="theory-section">
         <h2>⚙️ Типовые фрагменты кода</h2>
 
-        <h4>1️⃣ Последняя цифра числа в p-ричной системе равна d</h4>
+        <h4 role="heading" aria-level="3">1️⃣ Последняя цифра числа в p-ричной системе равна d</h4>
         <div class="code-block">
           <span class="keyword">if</span> x % p == d:<br />
           &nbsp;&nbsp;&nbsp;&nbsp;total_sum += x
@@ -320,7 +329,7 @@
           <span class="number">0</span>:<br />
           &nbsp;&nbsp;&nbsp;&nbsp;digit = temp % <span class="number">10</span
           ><br />
-          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> digit <
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> digit &lt;
           min_digit:
           <span class="comment"># для максимума: if digit > max_digit</span
           ><br />
@@ -334,7 +343,7 @@
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
-          <h4>Пример 1: Окончание в 5-ричной системе на цифру 3</h4>
+          <h4 role="heading" aria-level="3">Пример 1: Окончание в 5-ричной системе на цифру 3</h4>
           <p>
             <strong>Условие:</strong> Напишите программу подсчёта суммы
             элементов последовательности натуральных чисел, запись которых в
@@ -481,7 +490,7 @@
           <code>round(total_sum / count, 2)</code>.
         </p>
         <div class="tip-box">
-          <h4>💡 Связь со стандартными формулами</h4>
+          <h4 role="heading" aria-level="3">💡 Связь со стандартными формулами</h4>
           <p>
             Среднее арифметическое отобранных чисел считается так же, как и
             всегда: <strong>сумма ÷ количество</strong>. Поэтому в коде
@@ -551,7 +560,7 @@
         class="quick-nav-btn practice"
         data-nav="oge16.html"
         title="К заданию"
-      >
+       aria-label="К заданию">
         🎮
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">

@@ -8,6 +8,9 @@ var OGEProgress = (function() {
     'oge1','oge2','oge3','oge4','oge5','oge6','oge7','oge8','oge9','oge10',
     'oge11','oge12','oge131','oge132','oge14','oge15','oge16'
   ];
+  // На экзамене 16 номеров: 13.1 и 13.2 — альтернативы, поэтому для
+  // процента и уровня они считаются одним слотом.
+  var EXAM_TASK_COUNT = 16;
 
   function getAll() {
     try {
@@ -49,16 +52,6 @@ var OGEProgress = (function() {
     return data[taskId] || null;
   }
 
-  function getTotalScore() {
-    var data = getAll();
-    var sum = 0;
-    for (var i = 0; i < TASKS.length; i++) {
-      var t = data[TASKS[i]];
-      if (t && t.bestScore) sum += t.bestScore;
-    }
-    return sum;
-  }
-
   function isCompleted(taskId) {
     var t = get(taskId);
     // Черновики чек-листов здесь намеренно не учитываются: «пройдено»
@@ -70,7 +63,17 @@ var OGEProgress = (function() {
     var data = getAll();
     var count = 0;
     for (var i = 0; i < TASKS.length; i++) {
-      var t = data[TASKS[i]];
+      var id = TASKS[i];
+      // 13.1 и 13.2 — альтернативы: любой из них закрывает один номер.
+      if (id === 'oge132') continue;
+      if (id === 'oge131') {
+        var a = data.oge131;
+        var b = data.oge132;
+        if ((a && (a.score > 0 || a.bestScore > 0)) ||
+            (b && (b.score > 0 || b.bestScore > 0))) count++;
+        continue;
+      }
+      var t = data[id];
       // Критерий должен совпадать с js/progress-sync.js, иначе итог на
       // лендинге и на портале разойдутся.
       if (t && (t.score > 0 || t.bestScore > 0)) count++;
@@ -88,18 +91,16 @@ var OGEProgress = (function() {
   }
 
   function getProgressPercent() {
-    return Math.round((getCompletedCount() / TASKS.length) * 100);
+    return Math.round((getCompletedCount() / EXAM_TASK_COUNT) * 100);
   }
 
   function getLevel() {
-    // Уровень считаем по числу пройденных заданий: каждое задание даёт
-    // максимум 1 балл, поэтому «сырые» пороги (15/40/70/100) были
-    // недостижимы — итоговый максимум равен TASKS.length.
+    // Уровень считаем по числу закрытых экзаменационных номеров.
     var done = getCompletedCount();
-    if (done >= TASKS.length) return { name: 'Мастер', emoji: '🏆' };
-    if (done >= Math.ceil(TASKS.length * 0.7)) return { name: 'Эксперт', emoji: '⭐' };
-    if (done >= Math.ceil(TASKS.length * 0.4)) return { name: 'Практик', emoji: '📘' };
-    if (done >= Math.ceil(TASKS.length * 0.2)) return { name: 'Ученик', emoji: '📚' };
+    if (done >= EXAM_TASK_COUNT) return { name: 'Мастер', emoji: '🏆' };
+    if (done >= Math.ceil(EXAM_TASK_COUNT * 0.7)) return { name: 'Эксперт', emoji: '⭐' };
+    if (done >= Math.ceil(EXAM_TASK_COUNT * 0.4)) return { name: 'Практик', emoji: '📘' };
+    if (done >= Math.ceil(EXAM_TASK_COUNT * 0.2)) return { name: 'Ученик', emoji: '📚' };
     return { name: 'Новичок', emoji: '🌱' };
   }
 
@@ -114,9 +115,9 @@ var OGEProgress = (function() {
     if (!el) return;
     var pct = getProgressPercent();
     var level = getLevel();
-    // Именно количество пройденных заданий, а не сумма баллов: чек-листы
-    // 13.1/13.2 сохраняют score = число шагов (11/12), и сумма баллов
-    // давала бы «11 заданий пройдено» после одного задания.
+    // Именно количество закрытых номеров, а не сумма баллов: чек-листы
+    // 13.1/13.2 сохраняют score = число шагов, а 13.1 и 13.2 считаются
+    // одной альтернативой.
     var done = getCompletedCount();
     el.innerHTML =
       '<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="Пройдено заданий: ' + pct + '%">' +
@@ -140,7 +141,6 @@ var OGEProgress = (function() {
     get: get,
     getAll: getAll,
     isCompleted: isCompleted,
-    getTotalScore: getTotalScore,
     getCompletedCount: getCompletedCount,
     getProgressPercent: getProgressPercent,
     getLevel: getLevel,

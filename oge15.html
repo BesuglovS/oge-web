@@ -184,7 +184,7 @@
     class="quick-nav-btn theory"
     data-nav="oge15-t.html"
     title="Теория"
-  >
+   aria-label="Теория">
     📚
   </button>
   <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
@@ -1258,14 +1258,17 @@ document.getElementById('btnSaveKum').addEventListener('click', () => {
   const code = document.getElementById('codeEditor').value;
   const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
+  const fileName = currentTaskId > 0
+    ? 'oge15-' + String(currentTaskId).padStart(2, '0') + '.kum'
+    : 'program.kum';
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'program.kum';
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  log('✓ Программа сохранена в файл program.kum', 'ok');
+  log('✓ Программа сохранена в файл ' + fileName, 'ok');
 });
 
 document.getElementById('btnLoadKum').addEventListener('click', () => {

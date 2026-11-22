@@ -19,6 +19,8 @@
   var TASKS = (global.OGEProgress && Array.isArray(global.OGEProgress.tasks) && global.OGEProgress.tasks.length)
     ? global.OGEProgress.tasks
     : FALLBACK_TASKS;
+  // 13.1 и 13.2 — альтернативы, поэтому в сводке это один номер.
+  var EXAM_TASK_COUNT = 16;
 
   function getLocalProgress() {
     try {
@@ -53,15 +55,30 @@
     var data = getLocalProgress();
     server = server && typeof server === 'object' ? server : {};
     var updates = [];
+
+    function isDone(taskId) {
+      var t = data[taskId];
+      var s = server[taskId];
+      var localDone = !!(t && typeof t === 'object' && (t.score > 0 || t.bestScore > 0));
+      var serverDone = !!(s && typeof s === 'object' && (s.completed || scoreOf(s) > 0));
+      return localDone || serverDone;
+    }
+
     var completed = 0;
+    for (var j = 0; j < TASKS.length; j++) {
+      var countId = TASKS[j];
+      if (countId === 'oge132') continue;
+      if (countId === 'oge131') {
+        if (isDone('oge131') || isDone('oge132')) completed++;
+      } else if (isDone(countId)) {
+        completed++;
+      }
+    }
 
     for (var i = 0; i < TASKS.length; i++) {
       var taskId = TASKS[i];
       var t = data[taskId];
       var s = server[taskId] && typeof server[taskId] === 'object' ? server[taskId] : null;
-      var localDone = !!(t && typeof t === 'object' && (t.score > 0 || t.bestScore > 0));
-      var serverDone = !!(s && (s.completed || scoreOf(s) > 0));
-      if (localDone || serverDone) completed++;
 
       if (!t || typeof t !== 'object') continue;
 
@@ -91,7 +108,7 @@
     updates.push({
       module: '__summary__',
       completed: completed ? 1 : 0,
-      data: { completed: completed, total: TASKS.length }
+      data: { completed: completed, total: EXAM_TASK_COUNT }
     });
     return updates;
   }
@@ -123,7 +140,7 @@
       if (serverDone && rawScore === 0) rawScore = 1;
       data[taskId] = {
         score: rawScore,
-        total: Number(s.total) || TASKS.length,
+        total: Number(s.total) || Number(local && local.total) || 1,
         bestScore: serverDone ? Math.max(1, serverScore) : serverScore,
         attempts: Number(s.attempts) || Number(d.attempts) || 0,
         lastAttempt: s.updated_at || s.lastAttempt || new Date(serverTime || Date.now()).toISOString()

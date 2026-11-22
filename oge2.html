@@ -81,7 +81,7 @@
         </div>
 
         <div class="hint-box" id="hintBox">
-          <h4>💡 Подсказка — ход декодирования:</h4>
+          <h4 role="heading" aria-level="2">💡 Подсказка — ход декодирования:</h4>
           <div id="hintSteps"></div>
         </div>
 
@@ -126,7 +126,7 @@
         class="quick-nav-btn theory"
         data-nav="oge2-t.html"
         title="Теория"
-      >
+       aria-label="Теория">
         📚
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">
@@ -727,7 +727,14 @@
           .trim();
 
         if (!userAnswer) {
-          alert("Введите расшифрованное сообщение!");
+          const emptyFeedback = document.getElementById("feedback");
+          const emptyText = document.getElementById("feedbackText");
+          if (emptyFeedback) {
+            emptyFeedback.className = "feedback incorrect";
+            emptyFeedback.style.display = "block";
+          }
+          if (emptyText) emptyText.textContent = "⚠️ Введите расшифрованное сообщение!";
+          document.getElementById("answerInput").focus();
           return;
         }
 

@@ -758,7 +758,7 @@
               id="explanationBox"
               style="display: none"
             >
-              <h4>📝 Решение:</h4>
+              <h4 role="heading" aria-level="2">📝 Решение:</h4>
               <div id="explanationText"></div>
             </div>
           </div>
@@ -780,7 +780,7 @@
     </div>
     <!-- Быстрая навигация -->
     <div class="quick-nav">
-      <button type="button" class="quick-nav-btn theory" data-nav="oge8-t.html" title="Теория">📚</button>
+      <button type="button" class="quick-nav-btn theory" data-nav="oge8-t.html" title="Теория" aria-label="Теория">📚</button>
       <button type="button" class="quick-nav-btn top" data-act="scrollTopSmooth" title="Наверх" aria-label="Наверх">↑</button>
     </div>
 <script>
@@ -1173,7 +1173,14 @@
 
         const rawAnswer = document.getElementById("answerInput").value.trim();
         if (!/^\d+$/.test(rawAnswer)) {
-          alert("Введите числовой ответ!");
+          const emptyFeedback = document.getElementById("feedback");
+          if (emptyFeedback) {
+            emptyFeedback.className = "feedback incorrect";
+            emptyFeedback.style.display = "block";
+          }
+          const emptyText = document.getElementById("feedbackText");
+          if (emptyText) emptyText.textContent = "⚠️ Введите числовой ответ!";
+          document.getElementById("answerInput").focus();
           return;
         }
         const userAnswer = parseInt(rawAnswer, 10);

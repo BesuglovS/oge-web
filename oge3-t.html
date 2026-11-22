@@ -59,7 +59,7 @@
         <h2>🔧 Логические операции</h2>
 
         <div class="logic-box and">
-          <h4>∧ — Логическое умножение (И, AND, конъюнкция)</h4>
+          <h4 role="heading" aria-level="3">∧ — Логическое умножение (И, AND, конъюнкция)</h4>
           <p>
             Высказывание <strong>A И B</strong> истинно только тогда, когда
             <strong>оба</strong> высказывания A и B истинны.
@@ -92,7 +92,7 @@
             </tr>
           </table>
           <p>
-            <strong>Пример:</strong> <code>(x > 5) И (x < 10)</code> истинно,
+            <strong>Пример:</strong> <code>(x > 5) И (x &lt; 10)</code> истинно,
             когда x одновременно больше 5 И меньше 10.
           </p>
         </div>
@@ -131,7 +131,7 @@
             </tr>
           </table>
           <p>
-            <strong>Пример:</strong> <code>(x < 5) ИЛИ (x > 10)</code> истинно,
+            <strong>Пример:</strong> <code>(x &lt; 5) ИЛИ (x > 10)</code> истинно,
             когда x меньше 5 ИЛИ больше 10.
           </p>
         </div>
@@ -172,13 +172,13 @@
           <li><strong>ИЛИ (∨)</strong> — дизъюнкция (низший приоритет)</li>
         </ol>
         <div class="warning-box">
-          <h4>⚠️ Важно!</h4>
+          <h4 role="heading" aria-level="3">⚠️ Важно!</h4>
           <p>
             Скобки меняют порядок выполнения операций. Всегда сначала
             выполняются операции в скобках!
           </p>
           <p>
-            Пример: <code>НЕ (x > 5 И x < 10)</code> — сначала выполняется И,
+            Пример: <code>НЕ (x > 5 И x &lt; 10)</code> — сначала выполняется И,
             потом НЕ.
           </p>
         </div>
@@ -206,11 +206,11 @@
         </div>
 
         <div class="tip-box">
-          <h4>💡 Полезные преобразования</h4>
+          <h4 role="heading" aria-level="3">💡 Полезные преобразования</h4>
           <ul>
             <li><code>НЕ (x > a)</code> эквивалентно <code>x ≤ a</code></li>
-            <li><code>НЕ (x < a)</code> эквивалентно <code>x ≥ a</code></li>
-            <li><code>НЕ (x ≥ a)</code> эквивалентно <code>x < a</code></li>
+            <li><code>НЕ (x &lt; a)</code> эквивалентно <code>x ≥ a</code></li>
+            <li><code>НЕ (x ≥ a)</code> эквивалентно <code>x &lt; a</code></li>
             <li><code>НЕ (x ≤ a)</code> эквивалентно <code>x > a</code></li>
             <li>
               <code>НЕ (x кратно n)</code> эквивалентно
@@ -228,7 +228,7 @@
 
         <div class="task-types">
           <div class="task-type-card">
-            <h4>🔍 Наибольшее число для истинного</h4>
+            <h4 role="heading" aria-level="3">🔍 Наибольшее число для истинного</h4>
             <p>Найти наибольшее число x, для которого высказывание истинно.</p>
           </div>
 
@@ -282,7 +282,7 @@
         <h2>✏️ Примеры решения задач</h2>
 
         <div class="example-box">
-          <h4>Пример 1: Наибольшее число для ложного высказывания</h4>
+          <h4 role="heading" aria-level="3">Пример 1: Наибольшее число для ложного высказывания</h4>
           <p>
             <strong>Условие:</strong> Напишите наибольшее натуральное число x,
             для которого ложно высказывание:
@@ -428,11 +428,11 @@
               <strong>Шаг 1:</strong> Преобразуем первую часть по закону де
               Моргана:<br />
               <code>НЕ ((x ≤ 123) ИЛИ (x ≥ 567))</code><br />
-              = <code>(x > 123) И (x < 567)</code>
+              = <code>(x > 123) И (x &lt; 567)</code>
             </div>
             <div class="step-box">
               <strong>Шаг 2:</strong> Полное условие:<br />
-              <code>(x > 123) И (x < 567) И (x нечётное)</code>
+              <code>(x > 123) И (x &lt; 567) И (x нечётное)</code>
             </div>
             <div class="step-box">
               <strong>Шаг 3:</strong> Ищем наибольшее нечётное число в диапазоне
@@ -456,7 +456,7 @@
           </li>
           <li>
             <strong>Неправильное применение отрицания</strong> — НЕ (x > a) это
-            x ≤ a, а не x < a
+            x ≤ a, а не x &lt; a
           </li>
           <li>
             <strong>Забывают про границы</strong> — внимательно проверяйте,
@@ -495,7 +495,7 @@
       <div class="theory-section">
         <h2>💡 Полезные советы</h2>
         <div class="tip-box">
-          <h4>Как быстро находить ответ</h4>
+          <h4 role="heading" aria-level="3">Как быстро находить ответ</h4>
           <ul>
             <li>
               При поиске <strong>наибольшего</strong> числа начинайте проверку с
@@ -528,12 +528,12 @@
               <td>x ≤ a</td>
             </tr>
             <tr>
-              <td>x < a</td>
+              <td>x &lt; a</td>
               <td>x ≥ a</td>
             </tr>
             <tr>
               <td>x ≥ a</td>
-              <td>x < a</td>
+              <td>x &lt; a</td>
             </tr>
             <tr>
               <td>x ≤ a</td>
@@ -568,7 +568,7 @@
         class="quick-nav-btn practice"
         data-nav="oge3.html"
         title="К заданию"
-      >
+       aria-label="К заданию">
         🎮
       </button>
       <button type="button" class="quick-nav-btn top" data-act="scrollToTop" title="Наверх" aria-label="Наверх">

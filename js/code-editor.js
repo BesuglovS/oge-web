@@ -559,7 +559,8 @@
       if (e.key === 'Escape') {
         e.preventDefault();
         var next = document.getElementById('runBtn');
-        if (!next) {
+        if (!next || next.disabled) {
+          next = null;
           var all = document.querySelectorAll('button:not([disabled])');
           for (var i = 0; i < all.length; i++) {
             if (all[i] !== textarea && all[i].offsetParent !== null) { next = all[i]; break; }

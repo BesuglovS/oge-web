@@ -1,5 +1,5 @@
 ﻿/* Service Worker — oge-web PWA */
-var CACHE_NAME = 'oge-web-v37';
+var CACHE_NAME = 'oge-web-v38';
 var ASSETS = [
   '/',
   '/oge.html',
@@ -60,12 +60,11 @@ var OFFLINE_URL = '/offline.html';
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      // addAll падает целиком при одном отсутствующем ассете — добавляем
-      // по одному, чтобы единичный сбой не ломал установку SW.
-      // fetch(..., {cache:'reload'}) обходит HTTP-кэш (immutable-ассеты),
-      // иначе в precache могла попасть устаревшая версия файла.
-      // Все перечисленные ассеты обязательны: неполный офлайн-релиз не должен
-      // активироваться и вытеснять ранее собранный полный кэш.
+      // Ассеты добавляем по одному, чтобы видеть, какой именно файл упал.
+      // Установка при этом атомарная: Promise.all отклоняется при любом сбое,
+      // поэтому неполный офлайн-релиз не активируется и не вытесняет прежний
+      // полный кэш. fetch(..., {cache:'reload'}) обходит HTTP-кэш, иначе в
+      // precache могла попасть устаревшая версия immutable-ассета.
       return Promise.all(ASSETS.map(function(url) {
         return fetch(url, { cache: 'reload' }).then(function(response) {
           if (!response || !response.ok) {
@@ -82,14 +81,16 @@ self.addEventListener('install', function(event) {
 
 self.addEventListener('activate', function(event) {
   event.waitUntil(
-    caches.keys().then(function(names) {
-      return Promise.all(
-        names.filter(function(name) { return name.indexOf('oge-web-') === 0 && name !== CACHE_NAME; })
-             .map(function(name) { return caches.delete(name); })
-      );
-    })
+    Promise.all([
+      caches.keys().then(function(names) {
+        return Promise.all(
+          names.filter(function(name) { return name.indexOf('oge-web-') === 0 && name !== CACHE_NAME; })
+               .map(function(name) { return caches.delete(name); })
+        );
+      }),
+      self.clients.claim()
+    ])
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', function(event) {
