@@ -109,6 +109,7 @@ $remote  = "${sshUser}@${sshHost}"
 # Внимание: ssh принимает порт как `-p`, а scp — как `-P` (разные ключи).
 $sshPortArg = if ($sshPort -ne '22') { "-p $sshPort" } else { '' }
 $scpPortArg = if ($sshPort -ne '22') { "-P $sshPort" } else { '' }
+$nginxSite = 'oge.nayanovaacademy.ru'
 
 # ─── Fix SSH key permissions (Windows OpenSSH requires restrictive ACLs) ───
 if ($identityFile -and (Test-Path $identityFile)) {
@@ -139,12 +140,33 @@ if [ -z "$TARGET" ]; then
 fi
 [ -n "$TARGET" ] || { echo "no previous release found" >&2; exit 1; }
 [ -d "$RELEASES/$TARGET" ] || { echo "release not found: $TARGET" >&2; exit 1; }
+[ -s "$RELEASES/$TARGET/.deploy/nginx-site" ] || {
+  echo "release has no saved nginx/CSP config; refusing an inconsistent rollback" >&2
+  exit 1
+}
+CURRENT=$(basename "$(readlink -f "$ROOT")")
+CURRENT_CFG="/tmp/nginx-rollback-current-$$"
+cp "/etc/nginx/sites-available/__NGINX_SITE__" "$CURRENT_CFG" || {
+  echo "cannot back up current nginx config; rollback aborted before changes" >&2
+  exit 1
+}
 ln -s "releases/$TARGET" "$PARENT/.public-$$"
 mv -T "$PARENT/.public-$$" "$ROOT"
-echo "rolled back to: $TARGET"
-curl -sS -o /dev/null -w "https %{http_code}\n" "https://oge.nayanovaacademy.ru/oge.html"
+cp "$RELEASES/$TARGET/.deploy/nginx-site" "/tmp/nginx-__NGINX_SITE__"
+if ! sudo -n /usr/local/sbin/deploy-nginx.sh "__NGINX_SITE__"; then
+  echo "nginx target config failed; restoring previous release and CSP" >&2
+  ln -s "releases/$CURRENT" "$PARENT/.public-$$"
+  mv -T "$PARENT/.public-$$" "$ROOT"
+  cp "$CURRENT_CFG" "/tmp/nginx-__NGINX_SITE__"
+  sudo -n /usr/local/sbin/deploy-nginx.sh "__NGINX_SITE__" || true
+  rm -f "$CURRENT_CFG"
+  exit 1
+fi
+rm -f "$CURRENT_CFG"
+echo "rolled back to: $TARGET (files + nginx/CSP)"
+curl -sS -o /dev/null -w "https %{http_code}\n" "https://__NGINX_SITE__/oge.html"
 '@
-  $rbScript = $rollbackTemplate.Replace('__REMOTE_PATH__', $remotePath).Replace('__TARGET__', $Release)
+  $rbScript = $rollbackTemplate.Replace('__REMOTE_PATH__', $remotePath).Replace('__TARGET__', $Release).Replace('__NGINX_SITE__', $nginxSite)
   if ($DryRun) {
     $targetText = if ($Release) { $Release } else { 'previous release' }
     Write-Host "[DryRun] rollback to: $targetText" -ForegroundColor Yellow
@@ -175,9 +197,46 @@ curl -sS -o /dev/null -w "https %{http_code}\n" "https://oge.nayanovaacademy.ru/
 # ─── 2. Pack & deploy via tar + ssh ───
 $srcPath = $PSScriptRoot
 
-# --- Deploy marker ---
+# --- Deploy marker + self-contained nginx/CSP config ---
 $markerDir = Join-Path $env:TEMP "marker-$(Get-Random)"
 New-DeployMarker -ProjectDir $PSScriptRoot -OutFile (Join-Path $markerDir 'version.json')
+
+$nginxLocal = Join-Path $PSScriptRoot $nginxSite
+if (-not (Test-Path $nginxLocal)) {
+  Write-Host "ERROR: не найден nginx-конфиг $nginxLocal" -ForegroundColor Red
+  exit 1
+}
+$cspBlock = ''
+try {
+  $cspBlock = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') '--nginx' 2>$null | Out-String).TrimEnd()
+} catch { $cspBlock = '' }
+if (-not $cspBlock -or $cspBlock -notmatch 'set \$csp "' -or $cspBlock -notmatch 'sha256-') {
+  Write-Host "ERROR: не удалось сгенерировать CSP с хешами." -ForegroundColor Red
+  exit 1
+}
+if ($cspBlock -match "script-src[^;]*'unsafe-inline'|style-src[^;]*'unsafe-inline'") {
+  Write-Host "ERROR: сгенерированная CSP содержит 'unsafe-inline'." -ForegroundColor Red
+  exit 1
+}
+$cfg = [System.IO.File]::ReadAllText($nginxLocal, [System.Text.Encoding]::UTF8)
+$nl = if ($cfg -match "`r`n") { "`r`n" } else { "`n" }
+$patchedNginx = [regex]::Replace($cfg, '(?ms)^([ \t]*)# >>> csp.*?^[ \t]*# <<< csp', {
+  param($m)
+  $indent = $m.Groups[1].Value
+  $indent + '# >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)' + $nl +
+    ($cspBlock -replace "`r?`n", $nl) + $nl +
+    $indent + '# <<< csp'
+})
+if ($patchedNginx -eq $cfg) {
+  Write-Host "ERROR: в nginx-конфиге не найдены маркеры CSP." -ForegroundColor Red
+  exit 1
+}
+$nginxPayloadDir = Join-Path $markerDir '.deploy'
+New-Item -ItemType Directory -Force -Path $nginxPayloadDir | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $nginxPayloadDir 'nginx-site'), $patchedNginx,
+  (New-Object System.Text.UTF8Encoding $false))
+$cspHashCount = ([regex]::Matches($cspBlock, 'sha256-')).Count
+$cspBlockCount = ([regex]::Matches($cspBlock, '(?m)^\s*set \$csp\d+ "')).Count
 
 $excludeArgs = @(
   '--exclude=.git',
@@ -220,6 +279,8 @@ RELEASES="$PARENT/releases"
 KEEP=5
 NAME="$(date +%Y%m%d-%H%M%S)-$$"
 NEW="$RELEASES/$NAME"
+NGINX_SITE="__NGINX_SITE__"
+PREV=""
 trap 'rm -rf "$NEW"' EXIT
 mkdir -p "$RELEASES"
 rm -rf "$NEW"
@@ -247,8 +308,27 @@ test -s "$NEW/js/progress.js"
 test -s "$NEW/js/oge15-ref.js"
 test -s "$NEW/data/oge14-exam.json"
 test -s "$NEW/files/oge15/tasks.json"
+test -s "$NEW/.deploy/nginx-site"
 test ! -e "$NEW/HANDOFF.md"
 ls "$NEW/files/"*.zip >/dev/null 2>&1
+# Перед переключением сохраняем действующий nginx-конфиг в текущий релиз.
+# Тогда даже откат на релиз, созданный до этой схемы, восстановит старую CSP.
+PREV=$(basename "$(readlink -f "$ROOT")")
+if [ -d "$RELEASES/$PREV" ] && [ -r "/etc/nginx/sites-available/$NGINX_SITE" ]; then
+  mkdir -p "$RELEASES/$PREV/.deploy"
+  cp "/etc/nginx/sites-available/$NGINX_SITE" "$RELEASES/$PREV/.deploy/nginx-site" || true
+fi
+rollback_live() {
+  if [ -n "$PREV" ] && [ -d "$RELEASES/$PREV" ]; then
+    ln -s "releases/$PREV" "$PARENT/.public-rollback-$$"
+    mv -T "$PARENT/.public-rollback-$$" "$ROOT"
+    if [ -f "$RELEASES/$PREV/.deploy/nginx-site" ]; then
+      cp "$RELEASES/$PREV/.deploy/nginx-site" "/tmp/nginx-$NGINX_SITE"
+      sudo -n /usr/local/sbin/deploy-nginx.sh "$NGINX_SITE" || true
+    fi
+    echo "rollback: restored $PREV (files + nginx/CSP)" >&2
+  fi
+}
 if [ ! -L "$ROOT" ]; then
   INITIAL="$RELEASES/initial-$$"
   rm -rf "$INITIAL"
@@ -269,8 +349,17 @@ trap - EXIT
 # продолжает отдавать старый run_python.php. Ставим конфиг из нового релиза
 # и перезагружаем FPM (sudo-хелпер валидирует php-fpm -t).
 if [ -f "$NEW/php-fpm-opcache.ini" ]; then
-  sudo -n /usr/local/sbin/deploy-php.sh "$NEW/php-fpm-opcache.ini" \
-    || echo "WARN: не удалось установить php-fpm-opcache.ini (проверьте PHP-код: X-Sandbox-Build)"
+  if ! sudo -n /usr/local/sbin/deploy-php.sh "$NEW/php-fpm-opcache.ini"; then
+    rollback_live
+    exit 1
+  fi
+fi
+# nginx и CSP — часть того же релиза. При ошибке возвращаем и symlink,
+# и конфигурацию предыдущего релиза; рабочий сайт не остаётся с чужой CSP.
+cp "$NEW/.deploy/nginx-site" "/tmp/nginx-$NGINX_SITE"
+if ! sudo -n /usr/local/sbin/deploy-nginx.sh "$NGINX_SITE"; then
+  rollback_live
+  exit 1
 fi
 # Храним текущий релиз + (KEEP-1) предыдущих. Текущий не удаляем никогда:
 # mtime каталога из tar может быть старее старых релизов, и удаление по
@@ -287,8 +376,8 @@ for d in $(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name '20*' -printf 
 done
 test -d "$ROOT"
 '@
-$remoteScript = $remoteScriptTemplate.Replace('__REMOTE_PATH__', $remotePath)
-$tarCmd = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
+$remoteScript = $remoteScriptTemplate.Replace('__REMOTE_PATH__', $remotePath).Replace('__NGINX_SITE__', $nginxSite)
+$tarCmd = "tar czf - $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json .deploy/nginx-site"
 
 Write-Host "`n==> Deploying to ${remote}:${remotePath} ..." -ForegroundColor Cyan
 
@@ -300,7 +389,7 @@ try {
     # Pack first (separately), so a tar failure is detected before transfer.
     Write-Host "  Archiving..." -ForegroundColor Gray
     $tarFile = Join-Path $env:TEMP ("oge-deploy-" + [guid]::NewGuid().ToString('N') + ".tar.gz")
-    cmd /c "tar czf `"$tarFile`" $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json"
+    cmd /c "tar czf `"$tarFile`" $excludeArgs -C `"$srcPath`" . -C `"$markerDir`" version.json .deploy/nginx-site"
     if ($LASTEXITCODE -ne 0) {
       Write-Host "  tar failed (exit code: $LASTEXITCODE)" -ForegroundColor Red
       Remove-Item $tarFile -ErrorAction SilentlyContinue
@@ -340,58 +429,8 @@ try {
   Remove-Item -Recurse -Force $markerDir -ErrorAction SilentlyContinue
 }
 
-# ─── 3. Deploy nginx config ───
-$nginxSite = 'oge.nayanovaacademy.ru'
-$nginxLocal = Join-Path $PSScriptRoot $nginxSite
-$nginxRemote = '/etc/nginx/sites-available/' + $nginxSite
-
-if ($DryRun) {
-  Write-Host "  [DryRun] Deploy nginx config: $nginxSite" -ForegroundColor Yellow
-} elseif (Test-Path $nginxLocal) {
-  Write-Host "`n==> Deploying nginx config ($nginxSite) ..." -ForegroundColor Cyan
-  # CSP с хешами inline-скриптов и стилей: политика считается по тем же файлам,
-  # что уехали в релиз. Политика длиннее лимита nginx на параметр (4 КБ),
-  # поэтому генератор отдаёт блок из set $cspN и склейки в $csp.
-  # Если сгенерировать не удалось — НЕ отправляем запасной конфиг с
-  # 'unsafe-inline': лучше оставить прежнюю строгую политику.
-  $cspBlock = ''
-  try {
-    $cspBlock = (& node (Join-Path $PSScriptRoot 'tools/csp-policy.mjs') '--nginx' 2>$null | Out-String).TrimEnd()
-  } catch { $cspBlock = '' }
-  if (-not $cspBlock -or $cspBlock -notmatch 'set \$csp "' -or $cspBlock -notmatch 'sha256-') {
-    Write-Host "ERROR: не удалось сгенерировать CSP с хешами (node tools/csp-policy.mjs --nginx)." -ForegroundColor Red
-    Write-Host "       Nginx-конфиг не обновлён, чтобы не уехать с 'unsafe-inline'." -ForegroundColor Red
-    exit 1
-  }
-  if ($cspBlock -match "script-src[^;]*'unsafe-inline'|style-src[^;]*'unsafe-inline'") {
-    Write-Host "ERROR: сгенерированная CSP содержит 'unsafe-inline'." -ForegroundColor Red
-    exit 1
-  }
-  $cfg = [System.IO.File]::ReadAllText($nginxLocal, [System.Text.Encoding]::UTF8)
-  $nl = if ($cfg -match "`r`n") { "`r`n" } else { "`n" }
-  $patched = [regex]::Replace($cfg, '(?ms)^([ \t]*)# >>> csp.*?^[ \t]*# <<< csp', {
-    param($m)
-    $indent = $m.Groups[1].Value
-    $indent + '# >>> csp (генерируется deploy.ps1: tools/csp-policy.mjs --nginx)' + $nl +
-      ($cspBlock -replace "`r?`n", $nl) + $nl +
-      $indent + '# <<< csp'
-  })
-  if ($patched -eq $cfg) {
-    Write-Host "ERROR: в nginx-конфиге не найдены маркеры '# >>> csp' / '# <<< csp'." -ForegroundColor Red
-    exit 1
-  }
-  $nginxUpload = Join-Path $env:TEMP ("nginx-$nginxSite")
-  [System.IO.File]::WriteAllText($nginxUpload, $patched, (New-Object System.Text.UTF8Encoding $false))
-  $hashCount = ([regex]::Matches($cspBlock, "sha256-")).Count
-  Write-Host "  CSP: хешей (скрипты + стили) $hashCount, блоков: $(([regex]::Matches($cspBlock, '(?m)^\s*set \$csp\d+ "')).Count)" -ForegroundColor Gray
-  $scpCmd = "scp $scpPortArg $identityArg `"$nginxUpload`" ${remote}:/tmp/nginx-$nginxSite"
-  $sshNginxCmd = "ssh $sshPortArg $identityArg $remote `"sudo -n /usr/local/sbin/deploy-nginx.sh $nginxSite`""
-  cmd /c $scpCmd
-  if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config scp failed" -ForegroundColor Red; exit 1 }
-  cmd /c $sshNginxCmd
-  if ($LASTEXITCODE -ne 0) { Write-Host "  Nginx config install/reload failed" -ForegroundColor Red; exit 1 }
-  Write-Host "  Done." -ForegroundColor Green
-}
+# ─── 3. Nginx/CSP deploy выполняется удалённо вместе с релизом ───
+Write-Host "  Nginx/CSP входит в релиз (хешей: $cspHashCount, блоков: $cspBlockCount)." -ForegroundColor Gray
 
 # ─── 4. Проверка, что PHP-FPM выполняет именно задеплоенный run_python.php ───
 # opcache кэширует realpath симлинка: при revalidate_path=0 после переключения
@@ -406,8 +445,10 @@ if (-not $DryRun -and (Test-Path $phpLocal)) {
       -UseBasicParsing -TimeoutSec 20
     $remoteHash = $probe.Headers['X-Sandbox-Build']
     if ($remoteHash -ne $localHash) {
-      Write-Host "WARNING: PHP-FPM выполняет другой run_python.php (build=$remoteHash, ожидался $localHash)." -ForegroundColor Yellow
-      Write-Host "         Установите php-fpm-opcache.ini (opcache.revalidate_path=1) и перезагрузите php8.1-fpm." -ForegroundColor Yellow
+      Write-Host "ERROR: PHP-FPM выполняет другой run_python.php (build=$remoteHash, ожидался $localHash)." -ForegroundColor Red
+      Write-Host "       Автоматически возвращаю public и nginx/CSP предыдущего релиза..." -ForegroundColor Yellow
+      & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Rollback
+      exit 1
     } else {
       Write-Host "  PHP build matches ($localHash)." -ForegroundColor Gray
     }
